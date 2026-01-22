@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover, maximum-scale=1, user-scalable=no" />
+  <title>DIGIY MARKET PRO</title>
+  <meta name="theme-color" content="#0b1020" />
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- Guard -->
+  <script src="./guard.js?v=marketpro-1"></script>
+
+  <style>
+    :root{
+      --bg:#0b1020;--bg2:#050816;--card:#0f172a;--line:rgba(148,163,184,.18);
+      --ink:#f8fafc;--muted:rgba(226,232,240,.68);--accent:#facc15;--ok:#22c55e;--bad:#f97373;
+    }
+    *{box-sizing:border-box} html,body{height:100%}
+    body{
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu;
+      color:var(--ink);
+      background:
+        radial-gradient(1200px 800px at 20% 0%, rgba(250,204,21,.10), transparent 55%),
+        radial-gradient(900px 700px at 90% 20%, rgba(34,197,94,.10), transparent 55%),
+        linear-gradient(180deg,var(--bg2),var(--bg));
+    }
+    header{
+      position:sticky;top:0;z-index:20;
+      backdrop-filter: blur(10px);
+      background: rgba(11,16,32,.78);
+      border-bottom: 1px solid var(--line);
+    }
+    .wrap{max-width:1100px;margin:0 auto;padding:14px}
+    .top{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    .brand{display:flex;gap:10px;align-items:center}
+    .logo{
+      width:40px;height:40px;border-radius:14px;
+      display:grid;place-items:center;font-size:18px;
+      background:linear-gradient(135deg, rgba(250,204,21,.22), rgba(250,204,21,.06));
+      border:1px solid rgba(250,204,21,.28);
+    }
+    h1{margin:0;font-size:16px;letter-spacing:.3px}
+    .sub{margin:2px 0 0 0;color:var(--muted);font-size:12px}
+    .pill{
+      display:inline-block;padding:2px 8px;border-radius:999px;
+      border:1px solid var(--line);font-size:11px;color:var(--muted);
+    }
+    .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .btn{
+      padding:10px 12px;border-radius:12px;
+      border:1px solid var(--line);
+      background:rgba(2,6,23,.35);
+      color:var(--ink);
+      font-weight:900;
+      cursor:pointer;
+    }
+    .btn:hover{transform: translateY(-1px)}
+    .btn.gold{border-color:rgba(250,204,21,.30); background:rgba(250,204,21,.10)}
+    .btn.bad{border-color:rgba(249,115,115,.35); background:rgba(249,115,115,.10)}
+    main{max-width:1100px;margin:0 auto;padding:14px}
+    .grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:12px}
+    .card{
+      grid-column: span 12;
+      background:rgba(15,23,42,.68);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:14px;
+      box-shadow: 0 20px 80px rgba(0,0,0,.35);
+    }
+    @media(min-width:900px){
+      .c4{grid-column: span 4}
+      .c6{grid-column: span 6}
+    }
+    .label{color:var(--muted);font-size:12px;margin-bottom:6px}
+    .big{font-size:26px;font-weight:1000}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .muted{color:var(--muted);font-size:12px}
+    #guard_status{
+      position:fixed;top:14px;right:14px;z-index:9999;
+      background:rgba(0,0,0,.82);border:1px solid rgba(255,255,255,.08);
+      color:#fff;padding:10px 12px;border-radius:12px;font-weight:1000;font-size:12px;
+    }
+    code{background:rgba(2,6,23,.35);border:1px solid var(--line);padding:1px 6px;border-radius:8px}
+  </style>
+</head>
+
+<body>
+  <div id="guard_status">🔐 Vérification…</div>
+
+  <header>
+    <div class="wrap">
+      <div class="top">
+        <div class="brand">
+          <div class="logo">🛒</div>
+          <div>
+            <h1>DIGIY MARKET PRO <span class="pill" id="pillSlug">slug: —</span></h1>
+            <div class="sub" id="subTitle">Cockpit commerçant • Stock • Commandes • Clients</div>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn gold" id="btnProducts">📦 Produits</button>
+          <button class="btn gold" id="btnOrders">🧾 Commandes</button>
+          <button class="btn gold" id="btnClients">👥 Clients</button>
+          <button class="btn" id="btnSettings">⚙️ Réglages</button>
+          <button class="btn bad" id="btnLogout">🚪 Quitter</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="grid">
+      <div class="card c4">
+        <div class="label">Chiffre du jour (placeholder)</div>
+        <div class="big" id="kpiSales">—</div>
+        <div class="muted">On branchera les vraies stats après.</div>
+      </div>
+
+      <div class="card c4">
+        <div class="label">Commandes en attente (placeholder)</div>
+        <div class="big" id="kpiOrders">—</div>
+        <div class="muted">KDS / préparation à venir.</div>
+      </div>
+
+      <div class="card c4">
+        <div class="label">Stock critique (placeholder)</div>
+        <div class="big" id="kpiStock">—</div>
+        <div class="muted">Alertes stock à venir.</div>
+      </div>
+
+      <div class="card c6">
+        <div class="label">Session</div>
+        <div class="row">
+          <div class="pill" id="pillOwner">owner: —</div>
+          <div class="pill" id="pillExpiry">expire: —</div>
+        </div>
+        <div class="muted" style="margin-top:10px">
+          Slug source of truth: <code>URL</code> → <code>Session</code> → <code>LocalStorage</code>.
+        </div>
+      </div>
+
+      <div class="card c6">
+        <div class="label">Zone de travail</div>
+        <div class="big" id="viewTitle">📦 Produits</div>
+        <div class="muted" id="viewHint">Ici tu poses ton moteur MARKET (CRUD produits, panier, commandes…).</div>
+        <div style="height:10px"></div>
+        <div id="viewBox" class="muted">Prêt. On branche les tables après.</div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const $ = (s)=>document.querySelector(s);
+
+    function setStatus(txt){
+      const el = $("#guard_status");
+      if(el) el.textContent = txt;
+    }
+
+    function hideStatus(){
+      const el = $("#guard_status");
+      if(el) el.style.display = "none";
+    }
+
+    function fmtDate(ts){
+      try{ return new Date(ts).toLocaleString("fr-FR"); }catch(_){ return "—"; }
+    }
+
+    function setView(name){
+      $("#viewTitle").textContent = name;
+      if(name.includes("Produits")) $("#viewHint").textContent = "Catalogue + stock + prix + catégories.";
+      if(name.includes("Commandes")) $("#viewHint").textContent = "Liste commandes + préparation + livraison.";
+      if(name.includes("Clients")) $("#viewHint").textContent = "Clients + historique + contact WhatsApp.";
+      if(name.includes("Réglages")) $("#viewHint").textContent = "Infos boutique + options + sécurité.";
+      $("#viewBox").textContent = "Zone prête : branche ton moteur ici.";
+    }
+
+    // NAV
+    $("#btnProducts").onclick = ()=>setView("📦 Produits");
+    $("#btnOrders").onclick   = ()=>setView("🧾 Commandes");
+    $("#btnClients").onclick  = ()=>setView("👥 Clients");
+    $("#btnSettings").onclick = ()=>setView("⚙️ Réglages");
+
+    $("#btnLogout").onclick = ()=>{
+      try{ window.DIGIY_GUARD.logout("./pin.html"); }catch(_){ location.replace("./pin.html"); }
+    };
+
+    // BOOT GUARD
+    (async ()=>{
+      try{
+        if(!window.DIGIY_GUARD?.boot){
+          setStatus("❌ Guard absent");
+          console.error("Guard absent / guard.js non chargé");
+          return;
+        }
+
+        setStatus("🔐 Vérification…");
+        const res = await window.DIGIY_GUARD.boot({ login: "./pin.html" });
+        if(!res.ok) return;
+
+        const s = res.session || {};
+        const slug = res.slug || s.slug || "";
+
+        $("#pillSlug").textContent = "slug: " + (slug || "—");
+        $("#pillOwner").textContent = "owner: " + (s.owner_id || "—");
+        $("#pillExpiry").textContent = "expire: " + (s.expires_at ? fmtDate(s.expires_at) : "—");
+        $("#subTitle").textContent = (s.title ? (s.title + " • ") : "") + "Cockpit commerçant • Stock • Commandes • Clients";
+
+        setStatus("✅ Accès OK");
+        setTimeout(hideStatus, 700);
+
+        // placeholders KPI
+        $("#kpiSales").textContent = "0 FCFA";
+        $("#kpiOrders").textContent = "0";
+        $("#kpiStock").textContent = "0";
+
+        setView("📦 Produits");
+        console.log("🛒 MARKET PRO READY", { slug, owner_id: s.owner_id });
+
+      }catch(e){
+        console.error(e);
+        setStatus("❌ Erreur accès");
+      }
+    })();
+  </script>
+</body>
+</html>
