@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>DIGIY MARKET — Ticket</title>
+  <meta name="theme-color" content="#0b1020" />
+
+  <style>
+    :root{
+      --ink:#0f172a;
+      --muted:#475569;
+      --line:#e2e8f0;
+      --bg:#f8fafc;
+      --card:#ffffff;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background:var(--bg);
+      color:var(--ink);
+      padding:16px;
+    }
+    .wrap{
+      max-width:420px;
+      margin:0 auto;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:14px;
+    }
+    .row{display:flex;justify-content:space-between;gap:10px}
+    .h1{font-weight:900;font-size:18px}
+    .small{font-size:12px;color:var(--muted)}
+    .sep{border-top:1px dashed var(--line);margin:10px 0}
+    table{width:100%;border-collapse:collapse}
+    th,td{font-size:12px;padding:6px 0;border-bottom:1px dotted var(--line);vertical-align:top}
+    th{color:var(--muted);font-weight:800;text-align:left}
+    td.r, th.r{text-align:right}
+    .tot td{border-bottom:none;font-weight:900}
+    .actions{
+      display:flex; gap:10px; margin-top:12px;
+    }
+    button{
+      flex:1;
+      padding:10px 12px;
+      border-radius:10px;
+      border:1px solid var(--line);
+      background:#fff;
+      font-weight:800;
+      cursor:pointer;
+    }
+    button.primary{
+      background:#0ea5e9;
+      color:#fff;
+      border-color:#0ea5e9;
+    }
+    button.danger{
+      background:#ef4444;
+      color:#fff;
+      border-color:#ef4444;
+    }
+    .error{margin-top:10px;color:#ef4444;font-size:12px;min-height:1.2em}
+    @media print{
+      body{background:#fff;padding:0}
+      .wrap{border:none;border-radius:0;max-width:none}
+      .actions,.error{display:none !important}
+    }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="row">
+      <div>
+        <div class="h1" id="storeName">DIGIY MARKET</div>
+        <div class="small" id="storeSlug">—</div>
+      </div>
+      <div style="text-align:right">
+        <div class="small">TICKET</div>
+        <div class="small" id="saleIdShort">—</div>
+      </div>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="row small">
+      <div id="saleDate">—</div>
+      <div id="saleStatus">—</div>
+    </div>
+
+    <div class="sep"></div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Article</th>
+          <th class="r">Qté</th>
+          <th class="r">PU</th>
+          <th class="r">Total</th>
+        </tr>
+      </thead>
+      <tbody id="lines"></tbody>
+    </table>
+
+    <div class="sep"></div>
+
+    <table>
+      <tbody>
+        <tr><td class="small">Sous-total</td><td class="r" id="subTotal">0</td></tr>
+        <tr><td class="small">TVA</td><td class="r" id="taxTotal">0</td></tr>
+        <tr class="tot"><td>TOTAL</td><td class="r" id="grandTotal">0</td></tr>
+      </tbody>
+    </table>
+
+    <div class="sep"></div>
+
+    <div class="small" style="font-weight:900;margin-bottom:6px">Paiements</div>
+    <div id="payments" class="small">—</div>
+
+    <div class="actions">
+      <button class="primary" id="btnPrint">🧾 Imprimer</button>
+      <button class="danger" id="btnVoid">⛔ Annuler</button>
+    </div>
+
+    <div class="error" id="errorBox"></div>
+  </div>
+
+  <!-- Supabase JS (obligatoire) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+  (function(){
+    // ✅ mets tes variables (ou charge guard.js si tu préfères)
+    const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const $ = (id)=>document.getElementById(id);
+    const err = (m)=>{$("errorBox").textContent = m || ""};
+
+    function qp(k){
+      try{return new URLSearchParams(location.search).get(k) || ""}catch(_){return ""}
+    }
+
+    const saleId = qp("sale_id");
+    const slug   = qp("slug");
+    const ownerId = localStorage.getItem("DIGIY_PRO_ID") || ""; // venant du guard
+
+    if(!saleId){ err("sale_id manquant dans l’URL"); return; }
+
+    $("saleIdShort").textContent = saleId.slice(0,8) + "…";
+
+    function money(x){
+      const n = Number(x||0);
+      return n.toFixed(0) + " FCFA";
+    }
+
+    async function loadTicket(){
+      err("");
+
+      // 1) ticket header + lines
+      const { data: sale, error: e1 } = await sb
+        .from("market_sales")
+        .select("id,created_at,status,subtotal,tax_total,total,store_id")
+        .eq("id", saleId)
+        .maybeSingle();
+
+      if(e1 || !sale){ err("Ticket introuvable"); return; }
+
+      const { data: store } = await sb
+        .from("market_stores")
+        .select("store_name,slug")
+        .eq("id", sale.store_id)
+        .maybeSingle();
+
+      $("storeName").textContent = store?.store_name || "DIGIY MARKET";
+      $("storeSlug").textContent = "slug: " + (store?.slug || slug || "—");
+      $("saleDate").textContent = new Date(sale.created_at).toLocaleString();
+      $("saleStatus").textContent = "status: " + sale.status;
+
+      $("subTotal").textContent = money(sale.subtotal);
+      $("taxTotal").textContent = money(sale.tax_total);
+      $("grandTotal").textContent = money(sale.total);
+
+      const { data: lines, error: e2 } = await sb
+        .from("market_sale_lines")
+        .select("qty,unit_price,line_total,product_id")
+        .eq("sale_id", saleId);
+
+      if(e2){ err(e2.message); return; }
+
+      // fetch product names
+      const ids = (lines||[]).map(l=>l.product_id);
+      const { data: prods } = await sb
+        .from("market_products")
+        .select("id,name")
+        .in("id", ids);
+
+      const map = new Map((prods||[]).map(p=>[p.id, p.name]));
+
+      const tbody = $("lines");
+      tbody.innerHTML = "";
+      (lines||[]).forEach(l=>{
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${(map.get(l.product_id) || "Article")}</td>
+          <td class="r">${l.qty}</td>
+          <td class="r">${money(l.unit_price)}</td>
+          <td class="r">${money(l.line_total)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // 2) payments
+      const { data: pays } = await sb
+        .from("market_sale_payments")
+        .select("method,amount,reference")
+        .eq("sale_id", saleId)
+        .order("created_at", { ascending: true });
+
+      if(!pays || pays.length === 0){
+        $("payments").textContent = "—";
+      } else {
+        $("payments").innerHTML = pays.map(p=>{
+          const ref = p.reference ? ` (${p.reference})` : "";
+          return `• ${p.method}: ${money(p.amount)}${ref}`;
+        }).join("<br/>");
+      }
+    }
+
+    async function voidTicket(){
+      if(!slug){ err("slug manquant (ajoute ?slug=...)"); return; }
+      if(!ownerId){ err("owner_id introuvable (session)"); return; }
+
+      const ok = confirm("Annuler ce ticket ? (stock revient)");
+      if(!ok) return;
+
+      const { data, error } = await sb.rpc("market_void_sale_by_slug", {
+        p_slug: slug,
+        p_owner_id: ownerId,
+        p_sale_id: saleId,
+        p_note: "void via ticket.html"
+      });
+
+      if(error){ err(error.message); return; }
+      if(!data?.ok){ err(data?.reason || "VOID refusé"); return; }
+
+      await loadTicket();
+      alert("Ticket annulé ✅");
+    }
+
+    $("btnPrint").addEventListener("click", ()=>window.print());
+    $("btnVoid").addEventListener("click", voidTicket);
+
+    loadTicket();
+  })();
+  </script>
+</body>
+</html>
