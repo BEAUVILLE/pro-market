@@ -1,178 +1,199 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>DIGIY MARKET PRO — GO PIN</title>
-  <meta name="theme-color" content="#0b1020" />
+  <meta charset="UTF-8" />
+  <title>DIGIY MARKET PRO — Accès PIN</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=marketpro-1"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#020617" />
 
   <style>
     :root{
-      --bg:#0b1020;--card:#0f172a;--line:rgba(148,163,184,.18);
-      --ink:#f8fafc;--muted:#a5b4fc;--accent:#facc15;--ok:#22c55e;--bad:#f97373;
+      --bg:#020617;
+      --card:#030712;
+      --ink:#f9fafb;
+      --muted:#9ca3af;
+      --accent:#22c55e;
+      --danger:#ef4444;
+      --line:rgba(148,163,184,.18);
     }
-    *{box-sizing:border-box} html,body{height:100%}
+
+    *{box-sizing:border-box;margin:0;padding:0}
+
     body{
-      margin:0; background:radial-gradient(1200px 800px at 20% 0%, rgba(250,204,21,.12), transparent 55%),
-      radial-gradient(900px 700px at 90% 20%, rgba(34,197,94,.10), transparent 55%),
-      linear-gradient(180deg,#050816,#0b1020);
+      min-height:100vh;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto;
+      background:radial-gradient(circle at top,#16a34a22,transparent 55%),var(--bg);
       color:var(--ink);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu;
-      display:grid; place-items:center; padding:18px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
     }
-    .box{
-      width:min(520px,100%);
-      background:rgba(15,23,42,.72);
+
+    .card{
+      width:100%;
+      max-width:420px;
+      background:var(--card);
       border:1px solid var(--line);
       border-radius:18px;
-      padding:18px;
-      box-shadow:0 24px 80px rgba(0,0,0,.45);
-      backdrop-filter: blur(10px);
+      padding:22px;
+      box-shadow:0 25px 60px rgba(0,0,0,.45);
     }
-    .top{display:flex;gap:12px;align-items:center;margin-bottom:12px}
-    .logo{
-      width:44px;height:44px;border-radius:14px;
-      display:grid;place-items:center;
-      background:linear-gradient(135deg, rgba(250,204,21,.25), rgba(250,204,21,.05));
-      border:1px solid rgba(250,204,21,.25);
-      font-size:20px;
+
+    h1{
+      font-size:1.25rem;
+      margin-bottom:6px;
+      text-align:center;
     }
-    h1{margin:0;font-size:16px;letter-spacing:.4px}
-    .sub{margin:2px 0 0 0;color:rgba(226,232,240,.75);font-size:12px}
-    label{display:block;margin:10px 0 6px 0;font-weight:900;font-size:12px;color:rgba(226,232,240,.85)}
+
+    .subtitle{
+      text-align:center;
+      font-size:.9rem;
+      color:var(--muted);
+      margin-bottom:18px;
+    }
+
+    label{
+      display:block;
+      font-size:.85rem;
+      margin-bottom:6px;
+      color:var(--muted);
+    }
+
     input{
-      width:100%; padding:12px 12px; border-radius:12px;
+      width:100%;
+      padding:14px;
+      margin-bottom:14px;
+      border-radius:12px;
       border:1px solid var(--line);
-      background:rgba(2,6,23,.55);
-      color:var(--ink); font-size:15px; outline:none;
+      background:#020617;
+      color:var(--ink);
+      font-size:1rem;
+      outline:none;
     }
-    input:focus{border-color:rgba(250,204,21,.45)}
-    .pin{letter-spacing:10px;text-align:center;font-weight:1000;font-size:22px}
-    .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+
+    input:focus{
+      border-color:var(--accent);
+    }
+
     button{
-      flex:1 1 160px;
-      padding:12px 12px;border-radius:12px;border:1px solid var(--line);
-      background:rgba(2,6,23,.35); color:var(--ink);
-      font-weight:1000; cursor:pointer;
+      width:100%;
+      padding:14px;
+      border-radius:14px;
+      border:none;
+      background:linear-gradient(135deg,#22c55e,#16a34a);
+      color:#052e16;
+      font-weight:700;
+      font-size:1rem;
+      cursor:pointer;
     }
-    button.primary{
-      background:linear-gradient(135deg, rgba(250,204,21,.22), rgba(250,204,21,.10));
-      border-color:rgba(250,204,21,.35);
+
+    button:disabled{
+      opacity:.6;
+      cursor:not-allowed;
     }
-    button:disabled{opacity:.6;cursor:not-allowed}
-    .msg{
-      display:none; margin-top:12px;
-      padding:10px 12px;border-radius:12px;border:1px solid var(--line);
-      font-size:12px;
+
+    .error{
+      margin-top:12px;
+      font-size:.9rem;
+      color:var(--danger);
+      text-align:center;
+      min-height:1.2em;
     }
-    .msg.show{display:block}
-    .msg.ok{border-color:rgba(34,197,94,.35); color:#bbf7d0}
-    .msg.bad{border-color:rgba(249,115,115,.35); color:#fecaca}
-    .hint{margin-top:10px;color:rgba(226,232,240,.62);font-size:12px}
-    .mini{opacity:.8}
-    code{background:rgba(2,6,23,.35);border:1px solid var(--line);padding:1px 6px;border-radius:8px}
+
+    .slug{
+      margin-bottom:14px;
+      font-size:.85rem;
+      color:var(--muted);
+      text-align:center;
+    }
   </style>
 </head>
 
 <body>
-  <div class="box">
-    <div class="top">
-      <div class="logo">🛒</div>
-      <div>
-        <h1>DIGIY MARKET PRO</h1>
-        <div class="sub">GO PIN — Accès commerçant</div>
-      </div>
-    </div>
 
-    <form id="f">
-      <label>Slug boutique</label>
-      <input id="slug" autocomplete="off" placeholder="ex: chez-astou-boutique" />
+  <div class="card">
+    <h1>🔐 Accès PRO</h1>
+    <div class="subtitle">DIGIY MARKET PRO</div>
 
-      <label>PIN</label>
-      <input id="pin" class="pin" autocomplete="off" inputmode="numeric" maxlength="12" placeholder="••••" />
+    <div class="slug" id="slugLabel">—</div>
 
-      <div class="row">
-        <button class="primary" id="btn" type="submit">🔓 Ouvrir mon cockpit</button>
-        <button type="button" id="btnClear">🧹 Reset</button>
-      </div>
+    <form id="pinForm">
+      <label for="phone">Téléphone (Wave)</label>
+      <input
+        id="phone"
+        type="tel"
+        placeholder="+22177…"
+        autocomplete="tel"
+        required
+      />
+
+      <label for="pin">Code PIN</label>
+      <input
+        id="pin"
+        type="password"
+        placeholder="••••"
+        inputmode="numeric"
+        required
+      />
+
+      <button id="btnLogin" type="submit">🔓 Ouvrir mon cockpit</button>
+      <div class="error" id="errorBox"></div>
     </form>
-
-    <div class="msg" id="msg"></div>
-
-    <div class="hint">
-      Astuce: si tu arrives depuis un lien <code>?slug=...</code>, le slug sera pré-rempli.
-      <div class="mini">Session longue (90 jours) pour usage terrain.</div>
-    </div>
   </div>
 
+  <!-- ✅ SUPABASE (OBLIGATOIRE) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <!-- ✅ DIGIY GUARD -->
+  <script src="./guard.js?v=market-pro-final"></script>
+
   <script>
-    const $ = (s)=>document.querySelector(s);
-    const msg = $("#msg");
-    const btn = $("#btn");
+  (function(){
+    const form   = document.getElementById("pinForm");
+    const phoneI = document.getElementById("phone");
+    const pinI   = document.getElementById("pin");
+    const errBox = document.getElementById("errorBox");
+    const slugEl = document.getElementById("slugLabel");
+    const btn    = document.getElementById("btnLogin");
 
-    function show(type, text){
-      msg.className = "msg show " + (type || "");
-      msg.textContent = text || "";
-    }
+    const slug = window.DIGIY_GUARD.getSlug();
 
-    function getUrlSlug(){
-      try{
-        return (new URLSearchParams(location.search).get("slug") || "").trim();
-      }catch(_){ return ""; }
-    }
-
-    // prefill slug
-    const initialSlug = getUrlSlug() || localStorage.getItem("DIGIY_SLUG") || "";
-    $("#slug").value = initialSlug;
-
-    $("#btnClear").onclick = ()=>{
-      localStorage.removeItem("DIGIY_MARKET_PRO_SESSION_V1");
-      show("ok","Reset OK. Tu peux te reconnecter.");
-    };
-
-    $("#f").addEventListener("submit", async (e)=>{
-      e.preventDefault();
-      if(!window.DIGIY_GUARD?.loginWithPin){
-        show("bad","Guard absent. Vérifie guard.js");
-        return;
-      }
-
-      const slug = $("#slug").value.trim();
-      const pin  = $("#pin").value.trim();
-
-      if(!slug || !pin){
-        show("bad","Slug et PIN requis.");
-        return;
-      }
-
+    if(!slug){
+      errBox.textContent = "Slug manquant dans l’URL.";
       btn.disabled = true;
-      btn.textContent = "Connexion…";
-      show("", "Vérification…");
+      return;
+    }
 
-      try{
-        const r = await window.DIGIY_GUARD.loginWithPin(slug, pin);
-        if(!r.ok){
-          show("bad", r.error || "Accès refusé.");
-          btn.disabled = false;
-          btn.textContent = "🔓 Ouvrir mon cockpit";
-          return;
-        }
+    slugEl.textContent = "Lieu : " + slug;
 
-        show("ok","Accès OK. Ouverture…");
-        const s = r.session?.slug || slug;
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      errBox.textContent = "";
+      btn.disabled = true;
 
-        // GH pages safe
-        location.replace("./index.html?slug=" + encodeURIComponent(s));
-      }catch(err){
-        console.error(err);
-        show("bad","Erreur: " + (err?.message || "inconnue"));
+      const phone = phoneI.value.trim();
+      const pin   = pinI.value.trim();
+
+      if(!phone || !pin){
+        errBox.textContent = "Téléphone et PIN requis.";
         btn.disabled = false;
-        btn.textContent = "🔓 Ouvrir mon cockpit";
+        return;
       }
+
+      const res = await window.DIGIY_GUARD.loginWithPin(slug, phone, pin);
+
+      if(!res.ok){
+        errBox.textContent = res.error || "Accès refusé.";
+        btn.disabled = false;
+        return;
+      }
+
+      // ✅ SUCCÈS → cockpit
+      window.DIGIY_GUARD.go("./index.html");
     });
+  })();
   </script>
+
 </body>
 </html>
