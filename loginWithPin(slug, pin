@@ -11,20 +11,22 @@ async function loginWithPin(slug, phone, pin){
 
   if(!slug || !phone || !pin) return { ok:false, error:"Slug, téléphone et PIN requis" };
 
-  const payload = {
-    p_phone: phone,
-    p_pin: pin,
-    p_slug: slug,
-    p_module: "market_pro"
-  };
+ const payload = {
+  p_phone: phone,        // ✅ obligatoire
+  p_pin: pin,            // ✅ obligatoire
+  p_slug: slug,          // ✅ obligatoire
+  p_module: "market_pro" // ✅ optionnel mais propre
+};
+
 
   const { data, error } = await sb.rpc("verify_access_pin", payload);
   if(error) return { ok:false, error: error.message };
 
   const res = (typeof data === "string") ? safeJsonParse(data) : data;
   if(!res?.ok || !res?.owner_id){
-    return { ok:false, error: res?.reason || res?.error || "PIN invalide" };
-  }
+  return { ok:false, error: res?.reason || res?.error || "Accès refusé" };
+}
+console.log("VERIFY_ACCESS_PIN_RES", res);
 
   // session + mirrors
   const session = setSession({
