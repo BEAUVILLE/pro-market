@@ -275,7 +275,7 @@
 
           <div class="hr"></div>
           <div class="small">
-            Astuce: après paiement, ton accès PRO passe par <span class="mono">?slug=market-22177...</span> (DIGIY PAY).
+            Astuce: après paiement, ton accès PRO passe par <span class="mono">?sub=market-22177...</span> (DIGIY PAY).
           </div>
         </div>
 
@@ -307,9 +307,8 @@
     const AMOUNT = 12900;
     const CODE   = "6";
 
-    // ✅ Essai 7 jours
     const TRIAL_DAYS = 7;
-    const FORCE_CITY = "Saly"; // 1 ville à la fois
+    const FORCE_CITY = "Saly";
 
     if(!window.supabase) throw new Error("Supabase lib non chargée");
 
@@ -346,14 +345,13 @@
         .replace(/^-|-$/g,"");
     }
 
-    function tagsToPgArrayFromCsv(csv){
+    function tagsToArr(csv){
       const raw = String(csv||"").trim();
       if(!raw) return [];
       return raw.split(",").map(x=>x.trim()).filter(Boolean).slice(0, 20);
     }
 
     function nowPlusDays(days){
-      // retourne ISO string
       const d = new Date(Date.now() + (Number(days||0) * 86400000));
       return d.toISOString();
     }
@@ -364,27 +362,25 @@
       return "https://images.unsplash.com/photo-1528690873152-4cbd29d2c9c8?auto=format&fit=crop&w=1200&q=80";
     }
 
-    function proLink(slug){
+    function proLink(profileSlug){
       const u = new URL(location.origin + location.pathname);
-      if(slug) u.searchParams.set("slug", slug);
+      if(profileSlug) u.searchParams.set("slug", profileSlug);
       return u.toString();
     }
 
-    function digiyPaySlug(phoneDigits){
-      // slug de subscription pour le retour après paiement
-      // market-22177...
-      return "market-" + String(phoneDigits||"").replace(/\D/g,"");
-    }
-
-    function buildAbosUrl({ phoneDigits, slug }){
+    function buildAbosUrl({ phoneDigits, profileSlug }){
       const u = new URL(ABOS_URL);
       u.searchParams.set("module", MODULE);
       u.searchParams.set("plan", PLAN);
       u.searchParams.set("amount", String(AMOUNT));
       u.searchParams.set("code", CODE);
+
+      // retour sur cette page PRO (fiche)
       u.searchParams.set("return", "https://pro-market.digiylyfe.com/");
+
       if(phoneDigits) u.searchParams.set("phone", String(phoneDigits).replace(/\D/g,""));
-      if(slug) u.searchParams.set("slug", String(slug));
+      if(profileSlug) u.searchParams.set("pslug", String(profileSlug)); // ✅ on garde le slug vitrine en mémoire côté ABOS si tu veux
+
       return u.toString();
     }
 
@@ -413,18 +409,9 @@
     /* ==================== State ==================== */
     const state = {
       row: null,
-      phone: "",
-      slug: "",
-      hasAccess: false
+      hasAccess: false,
+      subSlug: "" // slug abonnement: market-22177...
     };
-
-    function syncFromUrl(){
-      const urlSlug = normSlug(qp.get("slug") || "");
-      if(urlSlug) $("slug").value = urlSlug;
-      // phone via url (optionnel)
-      const urlPhone = normPhone(qp.get("phone") || "");
-      if(urlPhone) $("phone").value = urlPhone;
-    }
 
     function ensureCity(){
       $("city").value = FORCE_CITY;
@@ -436,11 +423,12 @@
     }
 
     /* ==================== DB helpers ==================== */
-    async function loadExistingBySlug(slug){
+    async function loadExistingBySlug(profileSlug){
+      // ✅ select minimaliste (évite erreurs colonnes)
       const { data, error } = await sb
         .from("digiy_market_public_profiles")
-        .select("id, slug, display_name, city, category, address, whatsapp, photo_url, profile_url, bio, tags, badge, hub_badge, price_label, is_active, is_published, priority, created_at, updated_at, trial_end")
-        .eq("slug", slug)
+        .select("id, phone, slug, display_name, city, category, whatsapp, photo_url, profile_url, bio, tags, badge, hub_badge, price_label, is_published, trial_end, created_at")
+        .eq("slug", profileSlug)
         .maybeSingle();
 
       if(error) throw error;
@@ -448,7 +436,6 @@
     }
 
     async function upsertProfile(payload){
-      // ⚠️ upsert sur slug (il faut un unique index sur slug idéalement)
       const { data, error } = await sb
         .from("digiy_market_public_profiles")
         .upsert(payload, { onConflict: "slug" })
@@ -468,7 +455,6 @@
     }
 
     async function resolvePhoneFromSubscriptionSlug(subSlug){
-      // digiy_subscriptions_public : slug -> phone, module
       const { data, error } = await sb
         .from("digiy_subscriptions_public")
         .select("phone,module,slug")
@@ -485,7 +471,6 @@
       $("name").value = r.display_name || "";
       $("city").value = r.city || FORCE_CITY;
       $("category").value = r.category || "";
-      $("address").value = r.address || "";
       $("whatsapp").value = r.whatsapp || $("whatsapp").value || "";
       $("photo").value = r.photo_url || "";
       $("profile_url").value = r.profile_url || "";
@@ -494,7 +479,6 @@
       $("hub_badge").value = r.hub_badge || "🛒 MARKET SALY";
       $("price_label").value = r.price_label || "💰 Prix à discuter • WhatsApp direct";
 
-      // tags (array -> csv)
       const tags = Array.isArray(r.tags) ? r.tags : [];
       $("tags").value = tags.join(", ");
 
@@ -508,9 +492,8 @@
       const slug  = normSlug($("slug").value || "");
 
       const display_name = safeStr($("name").value, 60);
-      const city = FORCE_CITY; // verrouillé
+      const city = FORCE_CITY;
       const category = safeStr($("category").value, 80);
-      const address = safeStr($("address").value, 120);
       const whatsapp = normPhone($("whatsapp").value || phone || "");
       const photo_url = safeStr($("photo").value, 800) || defaultPhotoUrl();
       const profile_url = safeStr($("profile_url").value, 800) || VITRINE_URL;
@@ -519,22 +502,22 @@
       const hub_badge = safeStr($("hub_badge").value, 40) || "🛒 MARKET SALY";
       const price_label = safeStr($("price_label").value, 80);
 
-      const tagsArr = tagsToPgArrayFromCsv($("tags").value);
+      const tagsArr = tagsToArr($("tags").value);
 
       return {
         phone,
         slug,
         payload: {
+          phone,                 // ✅ si ta table a phone
           slug,
           display_name,
           city,
           category,
-          address,
           whatsapp,
           photo_url,
           profile_url,
           bio,
-          tags: tagsArr,          // ✅ JS array => Postgres text[]
+          tags: tagsArr,
           badge,
           hub_badge,
           price_label,
@@ -555,24 +538,41 @@
     async function actionLoadOrInit(){
       setStatus("🔎 Ouverture de ta fiche…", "warn", "PRO");
 
-      syncFromUrl();
       ensureCity();
       refreshPreview();
       syncProLink();
 
-      // 1) si on arrive avec ?slug=market-22177... (retour paiement)
-      const subSlug = normSlug(qp.get("slug") || "");
-      let inferredPhone = null;
+      // ✅ Compat: si on arrive avec ?sub=market-... (recommandé)
+      // ✅ Compat: si on arrive avec ?slug=market-... (ancien / redirect DIGIY PAY)
+      let sub = normSlug(qp.get("sub") || "");
+      const slugParam = normSlug(qp.get("slug") || "");
 
-      if(subSlug.startsWith("market-")){
-        inferredPhone = await resolvePhoneFromSubscriptionSlug(subSlug);
+      if(!sub && slugParam.startsWith("market-")) sub = slugParam;
+      if(sub.startsWith("market-")) state.subSlug = sub;
+
+      // ✅ profile slug vitrine : ?slug=chez-astou-saly
+      const profileSlug = (slugParam && !slugParam.startsWith("market-")) ? slugParam : normSlug(qp.get("pslug") || "");
+      if(profileSlug) $("slug").value = profileSlug;
+
+      // phone via url (optionnel)
+      const urlPhone = normPhone(qp.get("phone") || "");
+      if(urlPhone) $("phone").value = urlPhone;
+
+      // si on a un subSlug, on tente de retrouver le phone via subscriptions_public
+      if(state.subSlug){
+        const inferredPhone = await resolvePhoneFromSubscriptionSlug(state.subSlug);
         if(inferredPhone){
           $("phone").value = inferredPhone;
           $("slugAuto").textContent = "✅ Téléphone retrouvé via abonnement.";
+        } else {
+          $("slugAuto").textContent = "⚠️ Abonnement non résolu (subslug inconnu).";
         }
       }
 
-      // 2) si on a un slug vitrine (chez-astou-saly), on charge la fiche
+      refreshPreview();
+      syncProLink();
+
+      // charge fiche si slug vitrine présent
       const s = normSlug($("slug").value || "");
       if(s && !s.startsWith("market-")){
         try{
@@ -589,7 +589,7 @@
           setStatus("⚠️ Impossible de charger la fiche (RLS/SELECT).", "bad", "ERREUR");
         }
       } else {
-        setStatus("📝 Mets ton slug (ex: chez-astou-saly).", "warn", "SLUG");
+        setStatus("📝 Mets ton slug vitrine (ex: chez-astou-saly).", "warn", "SLUG");
       }
 
       await refreshAccessState();
@@ -630,7 +630,6 @@
 
       setStatus("💾 Enregistrement…", "warn", "SAVE");
       try{
-        // par défaut: on ne publie pas ici (juste save)
         const row = await upsertProfile({
           ...payload,
           is_published: false,
@@ -641,7 +640,7 @@
         await refreshAccessState();
       }catch(e){
         console.error(e);
-        setStatus("❌ Save impossible (RLS / policy / onConflict).", "bad", "ERREUR");
+        setStatus("❌ Save impossible (RLS / policy / unique slug / colonne manquante).", "bad", "ERREUR");
       }
     }
 
@@ -671,25 +670,24 @@
         await refreshAccessState();
       }catch(e){
         console.error(e);
-        setStatus("❌ Publication impossible (RLS / policy).", "bad", "ERREUR");
+        setStatus("❌ Publication impossible (RLS / policy / colonne manquante).", "bad", "ERREUR");
       }
     }
 
     function actionGoPay(){
       const phone = normPhone($("phone").value || "");
-      const slug  = normSlug($("slug").value || "");
+      const profileSlug  = normSlug($("slug").value || "");
 
       if(!phone || phone.length < 9){
         setStatus("⚠️ Mets ton téléphone avant d’aller payer.", "warn", "PHONE");
         return;
       }
-      if(!slug || slug.length < 3){
-        setStatus("⚠️ Mets ton slug avant d’aller payer.", "warn", "SLUG");
+      if(!profileSlug || profileSlug.length < 3){
+        setStatus("⚠️ Mets ton slug vitrine avant d’aller payer.", "warn", "SLUG");
         return;
       }
 
-      // On envoie vers ABOS
-      location.href = buildAbosUrl({ phoneDigits: phone, slug });
+      location.href = buildAbosUrl({ phoneDigits: phone, profileSlug });
     }
 
     function actionSupport(){
@@ -698,7 +696,8 @@
       const msg =
         "Salut DIGIY MARKET.\n\n" +
         (phone ? ("Téléphone: +" + phone + "\n") : "") +
-        (slug ? ("Slug: " + slug + "\n") : "") +
+        (slug ? ("Slug vitrine: " + slug + "\n") : "") +
+        (state.subSlug ? ("SubSlug: " + state.subSlug + "\n") : "") +
         "Ville: Saly\n" +
         "Je veux de l'aide sur ma fiche / paiement.\n";
       wa(msg);
@@ -710,7 +709,6 @@
     $("btnPay").addEventListener("click", actionGoPay);
     $("btnSupport").addEventListener("click", actionSupport);
 
-    // auto-clean slug + keep city
     $("slug").addEventListener("input", ()=>{
       $("slug").value = normSlug($("slug").value);
       $("slugAuto").textContent = "";
@@ -727,7 +725,6 @@
     });
 
     $("city").addEventListener("input", ()=>{
-      // 1 ville à la fois : on force
       ensureCity();
       refreshPreview();
     });
