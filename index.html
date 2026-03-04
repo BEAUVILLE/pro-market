@@ -257,10 +257,14 @@
       log('⏳ enqueue agent…');
       // On utilise LOC pour l'enqueue, car la queue est digiy_loc_pulse_outbox (rail existant)
       const { data, error } = await sb.rpc('digiy_agent_enqueue', {
-        p_module: 'LOC',
-        p_agent_code: 'MARKET_CATALOG_CLEAN',
-        p_payload: { title, description }
-      });
+  p_module: 'LOC',
+  p_agent_code: 'MARKET_CATALOG_CLEAN',
+  p_payload: { title, description },
+  p_phone: phone,
+  p_slug: null,
+  p_run_at: new Date().toISOString(),
+  p_priority: 'normal'
+});
       if(error) throw error;
       if(!data?.ok) throw new Error(data?.error || 'enqueue_failed');
 
