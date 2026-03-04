@@ -146,7 +146,7 @@
             </div>
 
             <div>
-              <div class="label">🔗 Ton slug (nom du lien)</div>
+              <div class="label">🔗 Ton slug vitrine (nom du lien)</div>
               <input id="slug" class="input" type="text" placeholder="Ex: chez-astou-saly"/>
               <div class="small">Conseil: termine par <b>-saly</b>. (On nettoie automatiquement.)</div>
               <div id="slugAuto" class="small" style="margin-top:6px;"></div>
@@ -374,13 +374,9 @@
       u.searchParams.set("plan", PLAN);
       u.searchParams.set("amount", String(AMOUNT));
       u.searchParams.set("code", CODE);
-
-      // retour sur cette page PRO (fiche)
-      u.searchParams.set("return", "https://pro-market.digiylyfe.com/");
-
+      u.searchParams.set("return", "https://pro-market.digiylyfe.com/"); // adapte si besoin
       if(phoneDigits) u.searchParams.set("phone", String(phoneDigits).replace(/\D/g,""));
-      if(profileSlug) u.searchParams.set("pslug", String(profileSlug)); // ✅ on garde le slug vitrine en mémoire côté ABOS si tu veux
-
+      if(profileSlug) u.searchParams.set("pslug", String(profileSlug));
       return u.toString();
     }
 
@@ -424,7 +420,6 @@
 
     /* ==================== DB helpers ==================== */
     async function loadExistingBySlug(profileSlug){
-      // ✅ select minimaliste (évite erreurs colonnes)
       const { data, error } = await sb
         .from("digiy_market_public_profiles")
         .select("id, phone, slug, display_name, city, category, whatsapp, photo_url, profile_url, bio, tags, badge, hub_badge, price_label, is_published, trial_end, created_at")
@@ -501,14 +496,13 @@
       const badge = safeStr($("badge").value, 40) || "🏪 PARTENAIRE";
       const hub_badge = safeStr($("hub_badge").value, 40) || "🛒 MARKET SALY";
       const price_label = safeStr($("price_label").value, 80);
-
       const tagsArr = tagsToArr($("tags").value);
 
       return {
         phone,
         slug,
         payload: {
-          phone,                 // ✅ si ta table a phone
+          phone,                 /* si ta table n'a PAS phone -> dis-moi, je l’enlève */
           slug,
           display_name,
           city,
@@ -542,15 +536,15 @@
       refreshPreview();
       syncProLink();
 
-      // ✅ Compat: si on arrive avec ?sub=market-... (recommandé)
-      // ✅ Compat: si on arrive avec ?slug=market-... (ancien / redirect DIGIY PAY)
+      // ✅ subSlug: ?sub=market-... (recommandé)
+      // ✅ compat: ?slug=market-... (ancien)
       let sub = normSlug(qp.get("sub") || "");
       const slugParam = normSlug(qp.get("slug") || "");
 
       if(!sub && slugParam.startsWith("market-")) sub = slugParam;
       if(sub.startsWith("market-")) state.subSlug = sub;
 
-      // ✅ profile slug vitrine : ?slug=chez-astou-saly
+      // ✅ slug vitrine : ?slug=chez-astou-saly
       const profileSlug = (slugParam && !slugParam.startsWith("market-")) ? slugParam : normSlug(qp.get("pslug") || "");
       if(profileSlug) $("slug").value = profileSlug;
 
