@@ -1,354 +1,264 @@
 <!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <meta name="theme-color" content="#061b14"/>
-  <title>DIGIY MARKET PRO — Nouveau produit</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>DIGIY MARKET PRO</title>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <style>
-    :root{
-      --bg:#061b14; --card:#0b2a1f; --line:rgba(255,255,255,.14);
-      --text:#eafff1; --muted:rgba(234,255,241,.72);
-      --gold:#facc15; --ok:#22c55e; --bad:#fb7185; --warn:#f59e0b;
-      --shadow:0 18px 55px rgba(0,0,0,.45);
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0; min-height:100vh; background:radial-gradient(1000px 800px at 15% 10%, rgba(250,204,21,.10), transparent 45%),
-      radial-gradient(900px 700px at 85% 20%, rgba(34,197,94,.10), transparent 48%),
-      var(--bg);
-      color:var(--text); font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-      display:flex; align-items:center; justify-content:center; padding:20px;
-    }
-    .wrap{width:min(980px,100%)}
-    .top{display:flex; gap:12px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap}
-    .brand{
-      display:flex; flex-direction:column; gap:6px;
-    }
-    .brand h1{margin:0; font-size:18px; letter-spacing:.4px}
-    .brand .sub{color:var(--muted); font-size:13px; line-height:1.35}
-    .badge{display:inline-flex; align-items:center; gap:8px; padding:7px 10px; border-radius:999px;
-      background:rgba(250,204,21,.12); border:1px solid rgba(250,204,21,.25); color:var(--text); font-size:12px}
-    .grid{display:grid; grid-template-columns:1.2fr .8fr; gap:14px; margin-top:14px}
-    @media (max-width: 900px){ .grid{grid-template-columns:1fr} }
+<style>
+body{
+background:#061b14;
+color:#eafff1;
+font-family:system-ui;
+padding:30px;
+}
 
-    .card{
-      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
-      border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); padding:14px;
-    }
-    .card h2{margin:0 0 10px; font-size:14px; color:rgba(234,255,241,.92); letter-spacing:.3px}
-    label{display:block; font-size:12px; color:var(--muted); margin:10px 0 6px}
-    input, textarea, select{
-      width:100%; padding:11px 12px; border-radius:12px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(0,0,0,.15); color:var(--text);
-      outline:none;
-    }
-    textarea{min-height:110px; resize:vertical}
-    .row{display:grid; grid-template-columns:1fr 1fr; gap:10px}
-    @media (max-width: 700px){ .row{grid-template-columns:1fr} }
+.card{
+background:#0b2a1f;
+padding:20px;
+border-radius:12px;
+margin-bottom:20px;
+}
 
-    .btns{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
-    button{
-      border:0; border-radius:12px; padding:11px 12px;
-      background:rgba(250,204,21,.14);
-      color:var(--text); cursor:pointer; font-weight:700; letter-spacing:.2px;
-      border:1px solid rgba(250,204,21,.26);
-    }
-    button.secondary{
-      background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14); font-weight:700;
-    }
-    button.danger{
-      background:rgba(251,113,133,.10); border:1px solid rgba(251,113,133,.26);
-    }
-    button:disabled{opacity:.55; cursor:not-allowed}
-    .hint{margin-top:10px; font-size:12px; color:var(--muted); line-height:1.45}
+input,textarea,select{
+width:100%;
+padding:10px;
+margin-top:6px;
+margin-bottom:12px;
+border-radius:8px;
+border:1px solid #244d3d;
+background:#041a13;
+color:white;
+}
 
-    .log{
-      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
-      font-size:12px; padding:10px; border-radius:12px;
-      background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.12);
-      white-space:pre-wrap; word-break:break-word;
-      min-height:140px;
-    }
-    .kpi{display:grid; grid-template-columns:1fr 1fr; gap:10px}
-    @media (max-width: 700px){ .kpi{grid-template-columns:1fr} }
-    .kpi .item{padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18)}
-    .kpi .item .k{font-size:11px; color:var(--muted)}
-    .kpi .item .v{margin-top:6px; font-weight:800}
-    .tag{display:inline-block; padding:4px 8px; border:1px solid rgba(255,255,255,.16);
-      border-radius:999px; font-size:12px; margin:4px 6px 0 0; background:rgba(0,0,0,.18)}
-    .ok{color:var(--ok)} .bad{color:var(--bad)} .warn{color:var(--warn)}
-    .mini{font-size:11px; color:var(--muted)}
-  </style>
+button{
+padding:10px 14px;
+border-radius:8px;
+border:0;
+margin-right:8px;
+cursor:pointer;
+background:#facc15;
+}
+
+button.secondary{
+background:#1f3d32;
+color:white;
+}
+
+.log{
+background:black;
+padding:10px;
+border-radius:8px;
+font-size:12px;
+white-space:pre-wrap;
+min-height:120px;
+}
+</style>
 </head>
 
 <body>
-<div class="wrap">
-  <div class="top">
-    <div class="brand">
-      <h1>🦅 DIGIY MARKET PRO — Nouveau produit</h1>
-      <div class="sub">
-        Flow: <b>Enqueue agent</b> → attendre résultat → <b>Apply (draft)</b> → <b>Publier</b><br/>
-        (Le worker serveur fait le traitement; ici c’est juste la console Pro.)
-      </div>
-    </div>
-    <div class="badge">🔐 Accès: PAY / RPC • 🌍 Public: published only</div>
-  </div>
 
-  <div class="grid">
-    <div class="card">
-      <h2>1) Saisie</h2>
+<div class="card">
 
-      <label>Téléphone (digits only recommandé)</label>
-      <input id="phone" placeholder="221771342889" value="221771342889"/>
+<h2>🦅 DIGIY MARKET PRO</h2>
 
-      <div class="row">
-        <div>
-          <label>Module accès (temporaire LOC, ensuite MARKET)</label>
-          <select id="accessModule">
-            <option value="LOC" selected>LOC (test)</option>
-            <option value="MARKET">MARKET (prod)</option>
-          </select>
-        </div>
-        <div>
-          <label>Prix (XOF) — optionnel</label>
-          <input id="price" type="number" min="0" step="1" placeholder="ex: 1500"/>
-        </div>
-      </div>
+<label>Téléphone</label>
+<input id="phone" value="221771342889"/>
 
-      <label>Titre (brut)</label>
-      <input id="title" placeholder="ex: Bissap frais !!!" value="Bissap frais"/>
+<label>Titre</label>
+<input id="title" value="Bissap frais"/>
 
-      <label>Description (brut)</label>
-      <textarea id="description" placeholder="Décris le produit, la zone, livraison, etc.">Test agent worker — Saly</textarea>
+<label>Description</label>
+<textarea id="description">Test agent worker — Saly</textarea>
 
-      <div class="btns">
-        <button id="btnEnqueue">🧠 Nettoyer & suggérer (agent)</button>
-        <button id="btnApply" class="secondary" disabled>📦 Créer en DRAFT (apply)</button>
-        <button id="btnPublish" class="secondary" disabled>🚀 Publier</button>
-        <button id="btnReset" class="danger">↺ Reset</button>
-      </div>
+<button id="btnEnqueue">🧠 Nettoyer</button>
+<button id="btnApply" class="secondary" disabled>Créer draft</button>
+<button id="btnPublish" class="secondary" disabled>Publier</button>
 
-      <div class="hint">
-        • L’agent écrit son résultat dans <span class="mini">digiy_loc_pulse_outbox.payload.result</span><br/>
-        • “Apply” crée une ligne dans <span class="mini">digiy_market_listings</span> (draft).<br/>
-        • “Publier” passe <span class="mini">status=published</span> (visible public via RLS).
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>2) Résultat & console</h2>
-
-      <div class="kpi">
-        <div class="item">
-          <div class="k">Job ID (outbox)</div>
-          <div class="v" id="jobId">—</div>
-        </div>
-        <div class="item">
-          <div class="k">Listing ID (market)</div>
-          <div class="v" id="listingId">—</div>
-        </div>
-      </div>
-
-      <label>Preview normalisé</label>
-      <div id="preview" class="log">—</div>
-
-      <label>Tags</label>
-      <div id="tags">—</div>
-
-      <label>Logs</label>
-      <div id="logs" class="log">Prêt.</div>
-    </div>
-  </div>
 </div>
 
+
+<div class="card">
+
+<b>Job ID</b>
+<div id="jobId">—</div>
+
+<b>Listing ID</b>
+<div id="listingId">—</div>
+
+<b>Preview</b>
+<div id="preview" class="log"></div>
+
+<b>Logs</b>
+<div id="logs" class="log"></div>
+
+</div>
+
+
 <script>
-  // ✅ Supabase constants (front)
-  const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
 
-  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const SUPABASE_URL="https://wesqmwjjtsefyjnluosj.supabase.co"
 
-  const el = (id)=>document.getElementById(id);
-  const log = (msg, cls='')=>{
-    const box = el('logs');
-    const line = `[${new Date().toISOString()}] ${msg}`;
-    box.textContent = (line + "\n" + box.textContent).slice(0, 4000);
-    if(cls) box.className = 'log ' + cls;
-  };
+const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 
-  const state = {
-    jobId: null,
-    listingId: null,
-    normalized: null
-  };
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY)
 
-  function digitsOnly(s){
-    return String(s||'').replace(/\D/g,'');
-  }
+const el=(id)=>document.getElementById(id)
 
-  function setJob(id){
-    state.jobId = id;
-    el('jobId').textContent = id || '—';
-  }
-  function setListing(id){
-    state.listingId = id;
-    el('listingId').textContent = id || '—';
-  }
-  function setPreview(obj){
-    state.normalized = obj || null;
-    el('preview').textContent = obj ? JSON.stringify(obj, null, 2) : '—';
-    const tags = (obj && obj.normalized && obj.normalized.tags) ? obj.normalized.tags : [];
-    el('tags').innerHTML = tags.length ? tags.map(t=>`<span class="tag">${t}</span>`).join('') : '—';
-  }
+const log=(t)=>{
+el("logs").textContent=t+"\n"+el("logs").textContent
+}
 
-  async function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
+const state={
+jobId:null,
+listingId:null
+}
 
-  async function waitJobArchived(jobId, timeoutMs=25000){
-    const t0 = Date.now();
-    while(Date.now()-t0 < timeoutMs){
-      const { data, error } = await sb
-        .from('digiy_loc_pulse_outbox')
-        .select('id,status,payload,locked_by,last_error')
-        .eq('id', jobId)
-        .maybeSingle();
+function digits(s){
+return String(s).replace(/\D/g,"")
+}
 
-      if(error){
-        log(`❌ read outbox error: ${error.message}`, 'bad');
-        await sleep(1200);
-        continue;
-      }
-      if(!data){
-        log('⚠️ job introuvable (id)', 'warn');
-        await sleep(1200);
-        continue;
-      }
+async function sleep(ms){
+return new Promise(r=>setTimeout(r,ms))
+}
 
-      if(data.status === 'archived' && data.payload && data.payload.result){
-        return data.payload.result;
-      }
+async function waitJob(jobId){
 
-      if(data.status === 'dead'){
-        throw new Error(data.last_error || 'job_dead');
-      }
+while(true){
 
-      await sleep(1200);
-    }
-    throw new Error('timeout_wait_job');
-  }
+const {data,error}=await sb.rpc(
+"digiy_agent_job_status",
+{p_job_id:jobId}
+)
 
-  async function enqueueAgent(){
-    const phone = digitsOnly(el('phone').value);
-    const title = el('title').value || '';
-    const description = el('description').value || '';
+if(error){
+log("RPC error "+error.message)
+await sleep(1000)
+continue
+}
 
-    if(!phone){ log('❌ phone requis', 'bad'); return; }
-    if(!title.trim()){ log('❌ titre requis', 'bad'); return; }
+if(!data?.ok){
+await sleep(1000)
+continue
+}
 
-    el('btnEnqueue').disabled = true;
-    el('btnApply').disabled = true;
-    el('btnPublish').disabled = true;
+log("status "+data.status)
 
-    try{
-      log('⏳ enqueue agent…');
-      // On utilise LOC pour l'enqueue, car la queue est digiy_loc_pulse_outbox (rail existant)
-      const { data, error } = await sb.rpc('digiy_agent_enqueue', {
-  p_module: 'LOC',
-  p_agent_code: 'MARKET_CATALOG_CLEAN',
-  p_payload: { title, description },
-  p_phone: phone,
-  p_slug: null,
-  p_run_at: new Date().toISOString(),
-  p_priority: 'normal'
-});
-      if(error) throw error;
-      if(!data?.ok) throw new Error(data?.error || 'enqueue_failed');
+if(data.status==="archived"){
+return data.result
+}
 
-      setJob(data.id);
-      log(`✅ job créé: ${data.id}`, 'ok');
+if(data.status==="dead"){
+throw "job failed"
+}
 
-      log('⏳ attente résultat (worker)…');
-      const result = await waitJobArchived(data.id);
-      setPreview(result);
-      log('✅ résultat agent reçu', 'ok');
+await sleep(1200)
 
-      el('btnApply').disabled = false;
-    }catch(e){
-      log(`❌ ${e.message || e}`, 'bad');
-    }finally{
-      el('btnEnqueue').disabled = false;
-    }
-  }
+}
 
-  async function applyDraft(){
-    const phone = digitsOnly(el('phone').value);
-    const accessModule = el('accessModule').value || 'LOC';
-    if(!phone){ log('❌ phone requis', 'bad'); return; }
-    if(!state.jobId){ log('❌ jobId manquant', 'bad'); return; }
+}
 
-    el('btnApply').disabled = true;
+async function enqueue(){
 
-    try{
-      log('⏳ apply agent result → market_listings (draft)…');
-      const { data, error } = await sb.rpc('digiy_market_apply_agent_result', {
-        p_job_id: state.jobId,
-        p_owner_phone: phone,
-        p_access_module: accessModule
-      });
-      if(error) throw error;
-      if(!data?.ok) throw new Error(data?.error || 'apply_failed');
+const phone=digits(el("phone").value)
 
-      setListing(data.listing_id);
-      log(`✅ listing draft créé: ${data.listing_id}`, 'ok');
-      el('btnPublish').disabled = false;
-    }catch(e){
-      log(`❌ ${e.message || e}`, 'bad');
-      el('btnApply').disabled = false;
-    }
-  }
+const title=el("title").value
+const description=el("description").value
 
-  async function publish(){
-    const phone = digitsOnly(el('phone').value);
-    const accessModule = el('accessModule').value || 'LOC';
-    if(!phone){ log('❌ phone requis', 'bad'); return; }
-    if(!state.listingId){ log('❌ listingId manquant', 'bad'); return; }
+log("enqueue agent")
 
-    el('btnPublish').disabled = true;
+const {data,error}=await sb.rpc(
+"digiy_agent_enqueue",
+{
+p_module:"LOC",
+p_agent_code:"MARKET_CATALOG_CLEAN",
+p_payload:{title,description},
+p_phone:phone,
+p_slug:null,
+p_run_at:new Date().toISOString(),
+p_priority:"normal"
+}
+)
 
-    try{
-      log('⏳ publication…');
-      const { data, error } = await sb.rpc('digiy_market_publish_listing', {
-        p_listing_id: state.listingId,
-        p_owner_phone: phone,
-        p_access_module: accessModule
-      });
-      if(error) throw error;
-      if(!data?.ok) throw new Error(data?.error || 'publish_failed');
+if(error){
+log(error.message)
+return
+}
 
-      log(`🚀 publié: ${data.listing_id}`, 'ok');
-    }catch(e){
-      log(`❌ ${e.message || e}`, 'bad');
-      el('btnPublish').disabled = false;
-    }
-  }
+state.jobId=data.id
 
-  function resetAll(){
-    setJob(null);
-    setListing(null);
-    setPreview(null);
-    el('btnApply').disabled = true;
-    el('btnPublish').disabled = true;
-    log('Reset done.');
-  }
+el("jobId").textContent=data.id
 
-  el('btnEnqueue').addEventListener('click', enqueueAgent);
-  el('btnApply').addEventListener('click', applyDraft);
-  el('btnPublish').addEventListener('click', publish);
-  el('btnReset').addEventListener('click', resetAll);
+log("job créé")
+
+const result=await waitJob(data.id)
+
+log("résultat reçu")
+
+el("preview").textContent=
+JSON.stringify(result,null,2)
+
+el("btnApply").disabled=false
+
+}
+
+async function apply(){
+
+const phone=digits(el("phone").value)
+
+const {data,error}=await sb.rpc(
+"digiy_market_apply_agent_result",
+{
+p_job_id:state.jobId,
+p_owner_phone:phone,
+p_access_module:"LOC"
+}
+)
+
+if(error){
+log(error.message)
+return
+}
+
+state.listingId=data.listing_id
+
+el("listingId").textContent=data.listing_id
+
+log("draft créé")
+
+el("btnPublish").disabled=false
+
+}
+
+async function publish(){
+
+const phone=digits(el("phone").value)
+
+const {data,error}=await sb.rpc(
+"digiy_market_publish_listing",
+{
+p_listing_id:state.listingId,
+p_owner_phone:phone,
+p_access_module:"LOC"
+}
+)
+
+if(error){
+log(error.message)
+return
+}
+
+log("listing publié")
+
+}
+
+el("btnEnqueue").onclick=enqueue
+el("btnApply").onclick=apply
+el("btnPublish").onclick=publish
+
 </script>
+
 </body>
 </html>
