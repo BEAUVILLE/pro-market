@@ -1,134 +1,745 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-<meta charset="utf-8"/>
-<title>DIGIY MARKET PRO — Ma Carte</title>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>DIGIY MARKET PRO — Ma fiche (Saly)</title>
+  <meta name="theme-color" content="#061b14"/>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<style>
+  <style>
+    :root{
+      --bg:#061b14; --card:#0b2a1f; --line:rgba(255,255,255,.14);
+      --text:#eafff1; --muted:rgba(234,255,241,.75);
+      --ok:#22c55e; --warn:#f59e0b; --bad:#ef4444; --gold:#facc15;
+      --radius:18px; --shadow:0 18px 50px rgba(0,0,0,.35);
+      --chip:#0a3a2a;
+    }
+    *{box-sizing:border-box}
+    body{ margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:var(--bg); color:var(--text); }
+    .wrap{ max-width:980px; margin:0 auto; padding:16px; }
+    .card{ background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow); }
+    .top{ display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; align-items:center; }
+    h1{ margin:0; font-size:18px; font-weight:1100; }
+    p{ margin:8px 0 0; color:var(--muted); line-height:1.4; }
+    .hr{ height:1px; background:var(--line); margin:14px 0; }
+    .status{
+      padding:12px; border-radius:16px; border:1px solid var(--line);
+      font-weight:1100; display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;
+    }
+    .status.ok{ border-color: rgba(34,197,94,.55); }
+    .status.warn{ border-color: rgba(245,158,11,.55); }
+    .status.bad{ border-color: rgba(239,68,68,.55); }
+    .tag{ font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid var(--line); color:var(--muted); }
+    .tag.ok{ color: var(--ok); border-color: rgba(34,197,94,.45); }
+    .tag.warn{ color: var(--warn); border-color: rgba(245,158,11,.45); }
+    .tag.bad{ color: var(--bad); border-color: rgba(239,68,68,.45); }
+    .tag.gold{ color: var(--gold); border-color: rgba(250,204,21,.55); }
 
-body{
-background:#020617;
-color:#F9FAFB;
-font-family:system-ui;
-margin:0;
-}
+    .grid{ display:grid; grid-template-columns: 1.2fr .8fr; gap:12px; }
+    @media(max-width:900px){ .grid{ grid-template-columns:1fr; } }
 
-.container{
-max-width:900px;
-margin:auto;
-padding:20px;
-}
+    .box{ border:1px solid var(--line); border-radius:16px; padding:14px; background:rgba(0,0,0,.12); }
+    .row{ display:flex; gap:10px; flex-wrap:wrap; }
+    .row > *{ flex:1; min-width:220px; }
+    .label{ font-weight:1100; margin-bottom:6px; }
+    .input{
+      width:100%;
+      padding:12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.12);
+      color:var(--text);
+      font-size:15px;
+      outline:none;
+    }
+    .input:focus{ border-color: rgba(250,204,21,.55); box-shadow:0 0 0 3px rgba(250,204,21,.12); }
+    .small{ font-size:13px; color:var(--muted); line-height:1.35; }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace; }
 
-.hero{
-background:#0B1120;
-padding:20px;
-border-radius:20px;
-margin-bottom:20px;
-}
+    .btnRow{ display:flex; gap:10px; flex-wrap:wrap; }
+    .btn{
+      flex:1; min-width:220px;
+      min-height:52px;
+      border-radius:16px;
+      cursor:pointer;
+      border:1px solid var(--line);
+      background:transparent;
+      color:var(--text);
+      padding:12px 14px;
+      font-weight:1100;
+      display:inline-flex; align-items:center; justify-content:center; gap:10px;
+      text-decoration:none;
+    }
+    .btn:disabled{ opacity:.55; cursor:not-allowed; }
+    .btn.ok{ border-color: rgba(34,197,94,.55); }
+    .btn.warn{ border-color: rgba(245,158,11,.55); }
+    .btn.gold{ border-color: rgba(250,204,21,.65); }
+    .btn.bad{ border-color: rgba(239,68,68,.55); }
 
-.hero h1{
-font-size:28px;
-margin:0;
-}
-
-.form{
-background:#0B1120;
-padding:20px;
-border-radius:20px;
-display:grid;
-gap:12px;
-}
-
-input,textarea{
-padding:12px;
-border-radius:12px;
-border:1px solid #334155;
-background:#020617;
-color:white;
-}
-
-button{
-padding:14px;
-border-radius:999px;
-border:none;
-font-weight:700;
-cursor:pointer;
-background:linear-gradient(135deg,#facc15,#f97316);
-}
-
-.preview{
-margin-top:20px;
-background:#0B1120;
-border-radius:20px;
-padding:20px;
-}
-
-.card{
-border-radius:20px;
-background:#111827;
-padding:16px;
-}
-
-.card img{
-width:100%;
-border-radius:12px;
-}
-
-</style>
+    .chips{ display:flex; gap:8px; flex-wrap:wrap; }
+    .chip{
+      font-size:12px; padding:7px 10px; border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      color:rgba(234,255,241,.9);
+      background:rgba(0,0,0,.10);
+      white-space:nowrap;
+    }
+    .chip.ok{ border-color: rgba(34,197,94,.35); color:#bfffe0; }
+    .chip.gold{ border-color: rgba(250,204,21,.35); color:#fff6c8; }
+    .preview{
+      border-radius:18px; overflow:hidden;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.18);
+    }
+    .preview .photo{
+      height:200px; background:rgba(0,0,0,.25);
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    .preview img{ width:100%; height:100%; object-fit:cover; display:block; }
+    .preview .body{ padding:12px; }
+    .preview .name{ font-weight:1200; color:var(--gold); font-size:18px; line-height:1.2; }
+    .preview .meta{ margin-top:6px; color:var(--muted); font-weight:900; font-size:13px; }
+    .preview .bio{ margin-top:8px; color:rgba(234,255,241,.9); font-weight:850; font-size:14px; line-height:1.35; }
+    .footer{ margin-top:14px; font-size:12px; color:var(--muted); text-align:center; }
+  </style>
 </head>
 
 <body>
+  <div class="wrap">
+    <div class="card">
 
-<div class="container">
+      <div class="top">
+        <div>
+          <h1>🛒 DIGIY MARKET PRO — Ma fiche (Saly)</h1>
+          <p class="small">
+            Tu remplis ta fiche → elle apparaît <b style="color:var(--ok)">direct</b> dans la vitrine <b>Saly</b> pendant <b>7 jours</b>.
+            Après, tu passes en <b style="color:var(--gold)">Abonné</b> (paiement) pour rester visible.
+          </p>
+        </div>
+        <div class="chips">
+          <span class="chip ok">Essai 7 jours</span>
+          <span class="chip gold">0% commission</span>
+          <span class="chip">Paiement direct</span>
+        </div>
+      </div>
 
-<div class="hero">
-<h1>🏪 Poser ma carte sur DIGIY MARKET</h1>
-<p>Ta boutique apparaîtra sur la place du marché de ta ville.</p>
-</div>
+      <div class="hr"></div>
 
-<div class="form">
+      <div class="status warn" id="statusBox">
+        <div id="statusText">⏳ Préparation…</div>
+        <span class="tag warn" id="statusTag">EN COURS</span>
+      </div>
 
-<input id="name" placeholder="Nom du commerce"/>
-<input id="city" value="Saly"/>
-<input id="category" placeholder="Catégorie"/>
-<input id="photo" placeholder="URL photo"/>
-<input id="whatsapp" placeholder="WhatsApp"/>
-<textarea id="bio" placeholder="Description"></textarea>
+      <div class="hr"></div>
 
-<button onclick="previewCard()">👁️ Prévisualiser</button>
-<button onclick="publish()">🚀 Publier ma carte</button>
+      <div class="grid">
 
-</div>
+        <!-- FORM -->
+        <div class="box">
+          <div class="row">
+            <div>
+              <div class="label">📞 Ton téléphone (digits)</div>
+              <input id="phone" class="input" type="tel" placeholder="Ex: 221778765785" inputmode="numeric"/>
+              <div class="small">Mets 221 + ton numéro (sans espaces, sans +).</div>
+            </div>
 
-<div class="preview" id="preview"></div>
+            <div>
+              <div class="label">🔗 Ton slug (nom du lien)</div>
+              <input id="slug" class="input" type="text" placeholder="Ex: chez-astou-saly"/>
+              <div class="small">Conseil: termine par <b>-saly</b>. (On nettoie automatiquement.)</div>
+              <div id="slugAuto" class="small" style="margin-top:6px;"></div>
+            </div>
+          </div>
 
-</div>
+          <div class="hr"></div>
 
-<script>
+          <div class="row">
+            <div>
+              <div class="label">🏪 Nom (visible)</div>
+              <input id="name" class="input" type="text" placeholder="Ex: Astou Boutique Téranga"/>
+            </div>
+            <div>
+              <div class="label">🏷️ Catégorie</div>
+              <input id="category" class="input" type="text" placeholder="Ex: Linge de maison / Sacs & Montres / Couture"/>
+            </div>
+          </div>
 
-function previewCard(){
+          <div class="hr"></div>
 
-const name=document.getElementById("name").value
-const city=document.getElementById("city").value
-const cat=document.getElementById("category").value
-const photo=document.getElementById("photo").value
-const bio=document.getElementById("bio").value
+          <div class="row">
+            <div>
+              <div class="label">📍 Ville</div>
+              <input id="city" class="input" type="text" value="Saly"/>
+              <div class="small">Ici on fait <b>1 ville à la fois</b> : Saly.</div>
+            </div>
+            <div>
+              <div class="label">💬 WhatsApp (digits)</div>
+              <input id="whatsapp" class="input" type="tel" placeholder="Ex: 221778765785" inputmode="numeric"/>
+              <div class="small">Si vide, on met ton téléphone.</div>
+            </div>
+          </div>
 
-document.getElementById("preview").innerHTML=`
-<div class="card">
-<img src="${photo}">
-<h3>${name}</h3>
-<p>${cat} • ${city}</p>
-<p>${bio}</p>
-</div>
-`
+          <div class="hr"></div>
 
-}
+          <div class="row">
+            <div>
+              <div class="label">🖼️ Photo (lien)</div>
+              <input id="photo" class="input" type="url" placeholder="https://…"/>
+              <div class="small">Tu peux mettre un lien (Unsplash, site, etc.).</div>
+            </div>
+            <div>
+              <div class="label">🏷️ Tags (séparés par virgules)</div>
+              <input id="tags" class="input" type="text" placeholder="ex: linge, maison, couture, saly"/>
+              <div class="small">On convertit en tableau automatiquement.</div>
+            </div>
+          </div>
 
-</script>
+          <div class="hr"></div>
 
+          <div>
+            <div class="label">📝 Bio (simple)</div>
+            <input id="bio" class="input" type="text" placeholder="Ex: Linge premium, couture sur mesure, textile local."/>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="row">
+            <div>
+              <div class="label">🏪 Badge</div>
+              <input id="badge" class="input" type="text" value="🏪 PARTENAIRE"/>
+            </div>
+            <div>
+              <div class="label">🏷️ Hub badge</div>
+              <input id="hub_badge" class="input" type="text" value="🛒 MARKET SALY"/>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="row">
+            <div>
+              <div class="label">💰 Texte prix (option)</div>
+              <input id="price_label" class="input" type="text" value="💰 Prix à discuter • WhatsApp direct"/>
+            </div>
+            <div>
+              <div class="label">🔗 Fiche (option)</div>
+              <input id="profile_url" class="input" type="url" placeholder="https://market.digiylyfe.com/…"/>
+              <div class="small">Si vide: on met la vitrine Market.</div>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="btnRow">
+            <button class="btn ok" id="btnSave" type="button">💾 Enregistrer</button>
+            <button class="btn warn" id="btnTrial" type="button">🚀 Publier (Essai 7 jours)</button>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="btnRow">
+            <button class="btn gold" id="btnPay" type="button">💳 Passer en Abonné (MARKET)</button>
+            <button class="btn bad" id="btnSupport" type="button">💬 Support WhatsApp</button>
+          </div>
+
+          <p class="small" id="hint" style="margin-top:10px;"></p>
+        </div>
+
+        <!-- PREVIEW -->
+        <div class="box">
+          <div class="label">👀 Aperçu vitrine</div>
+          <div class="preview" style="margin-top:10px;">
+            <div class="photo">
+              <img id="prevImg" alt="Photo" src="https://images.unsplash.com/photo-1528690873152-4cbd29d2c9c8?auto=format&fit=crop&w=1200&q=80"/>
+            </div>
+            <div class="body">
+              <div class="name" id="prevName">—</div>
+              <div class="meta" id="prevMeta">—</div>
+              <div class="bio" id="prevBio">—</div>
+              <div class="chips" style="margin-top:10px;">
+                <span class="chip" id="prevBadge">🏪 PARTENAIRE</span>
+                <span class="chip ok" id="prevHub">🛒 MARKET SALY</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+
+          <div class="label">🔗 Liens</div>
+          <div class="small" style="margin-top:8px; line-height:1.5;">
+            Vitrine : <a style="color:#bfffe0" href="https://market.digiylyfe.com/" target="_blank" rel="noopener">market.digiylyfe.com</a><br/>
+            Ton PRO : <span class="mono" id="myProLink">—</span>
+          </div>
+
+          <div class="hr"></div>
+          <div class="small">
+            Astuce: après paiement, ton accès PRO passe par <span class="mono">?slug=market-22177...</span> (DIGIY PAY).
+          </div>
+        </div>
+
+      </div>
+
+      <div class="footer">
+        DIGIY MARKET PRO — Saly • 0% commission • Paiement direct au pro ♾️
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+  (function(){
+    "use strict";
+
+    /* ==================== CONFIG ==================== */
+    const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    const SUPABASE_ANON_KEY =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+
+    const SUPPORT_WA = "221771342889";
+
+    const VITRINE_URL = "https://market.digiylyfe.com/";
+    const ABOS_URL    = "https://commencer-a-payer.digiylyfe.com/";
+
+    const MODULE = "MARKET";
+    const PLAN   = "standard";
+    const AMOUNT = 12900;
+    const CODE   = "6";
+
+    // ✅ Essai 7 jours
+    const TRIAL_DAYS = 7;
+    const FORCE_CITY = "Saly"; // 1 ville à la fois
+
+    if(!window.supabase) throw new Error("Supabase lib non chargée");
+
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
+    });
+
+    const $ = (id) => document.getElementById(id);
+    const qp = new URLSearchParams(location.search);
+
+    /* ==================== UI ==================== */
+    function setStatus(text, tone, tag){
+      const box = $("statusBox");
+      box.className = "status " + (tone || "warn");
+      $("statusText").textContent = text || "";
+      const tg = $("statusTag");
+      tg.className = "tag " + (tone || "warn");
+      tg.textContent = tag || "—";
+    }
+
+    function wa(msg){
+      location.href = "https://wa.me/" + SUPPORT_WA + "?text=" + encodeURIComponent(msg);
+    }
+
+    /* ==================== Utils ==================== */
+    function normPhone(p){ return String(p||"").trim().replace(/[^\d]/g,""); }
+
+    function normSlug(s){
+      return String(s||"")
+        .trim().toLowerCase()
+        .replace(/\s+/g,"-")
+        .replace(/[^a-z0-9-]/g,"")
+        .replace(/-+/g,"-")
+        .replace(/^-|-$/g,"");
+    }
+
+    function tagsToPgArrayFromCsv(csv){
+      const raw = String(csv||"").trim();
+      if(!raw) return [];
+      return raw.split(",").map(x=>x.trim()).filter(Boolean).slice(0, 20);
+    }
+
+    function nowPlusDays(days){
+      // retourne ISO string
+      const d = new Date(Date.now() + (Number(days||0) * 86400000));
+      return d.toISOString();
+    }
+
+    function safeStr(s, max=220){ return String(s||"").trim().slice(0, max); }
+
+    function defaultPhotoUrl(){
+      return "https://images.unsplash.com/photo-1528690873152-4cbd29d2c9c8?auto=format&fit=crop&w=1200&q=80";
+    }
+
+    function proLink(slug){
+      const u = new URL(location.origin + location.pathname);
+      if(slug) u.searchParams.set("slug", slug);
+      return u.toString();
+    }
+
+    function digiyPaySlug(phoneDigits){
+      // slug de subscription pour le retour après paiement
+      // market-22177...
+      return "market-" + String(phoneDigits||"").replace(/\D/g,"");
+    }
+
+    function buildAbosUrl({ phoneDigits, slug }){
+      const u = new URL(ABOS_URL);
+      u.searchParams.set("module", MODULE);
+      u.searchParams.set("plan", PLAN);
+      u.searchParams.set("amount", String(AMOUNT));
+      u.searchParams.set("code", CODE);
+      u.searchParams.set("return", "https://pro-market.digiylyfe.com/");
+      if(phoneDigits) u.searchParams.set("phone", String(phoneDigits).replace(/\D/g,""));
+      if(slug) u.searchParams.set("slug", String(slug));
+      return u.toString();
+    }
+
+    /* ==================== Preview ==================== */
+    function refreshPreview(){
+      const name = safeStr($("name").value, 60) || "—";
+      const city = safeStr($("city").value, 30) || FORCE_CITY;
+      const cat  = safeStr($("category").value, 60) || "—";
+      const bio  = safeStr($("bio").value, 140) || "—";
+      const badge = safeStr($("badge").value, 30) || "🏪 PARTENAIRE";
+      const hub = safeStr($("hub_badge").value, 30) || "🛒 MARKET SALY";
+      const photo = safeStr($("photo").value, 600) || defaultPhotoUrl();
+
+      $("prevName").textContent = name;
+      $("prevMeta").textContent = "📍 " + city + "  •  🏷️ " + cat;
+      $("prevBio").textContent = bio;
+      $("prevBadge").textContent = badge;
+      $("prevHub").textContent = hub;
+      $("prevImg").src = photo;
+    }
+
+    ["name","city","category","bio","badge","hub_badge","photo"].forEach(id=>{
+      $(id).addEventListener("input", refreshPreview);
+    });
+
+    /* ==================== State ==================== */
+    const state = {
+      row: null,
+      phone: "",
+      slug: "",
+      hasAccess: false
+    };
+
+    function syncFromUrl(){
+      const urlSlug = normSlug(qp.get("slug") || "");
+      if(urlSlug) $("slug").value = urlSlug;
+      // phone via url (optionnel)
+      const urlPhone = normPhone(qp.get("phone") || "");
+      if(urlPhone) $("phone").value = urlPhone;
+    }
+
+    function ensureCity(){
+      $("city").value = FORCE_CITY;
+    }
+
+    function syncProLink(){
+      const s = normSlug($("slug").value || "");
+      $("myProLink").textContent = s ? proLink(s) : "—";
+    }
+
+    /* ==================== DB helpers ==================== */
+    async function loadExistingBySlug(slug){
+      const { data, error } = await sb
+        .from("digiy_market_public_profiles")
+        .select("id, slug, display_name, city, category, address, whatsapp, photo_url, profile_url, bio, tags, badge, hub_badge, price_label, is_active, is_published, priority, created_at, updated_at, trial_end")
+        .eq("slug", slug)
+        .maybeSingle();
+
+      if(error) throw error;
+      return data || null;
+    }
+
+    async function upsertProfile(payload){
+      // ⚠️ upsert sur slug (il faut un unique index sur slug idéalement)
+      const { data, error } = await sb
+        .from("digiy_market_public_profiles")
+        .upsert(payload, { onConflict: "slug" })
+        .select("*")
+        .single();
+
+      if(error) throw error;
+      return data;
+    }
+
+    /* ==================== Access (DIGIY PAY) ==================== */
+    async function checkAccessMarketByPhone(phoneDigits){
+      if(!phoneDigits) return false;
+      const { data, error } = await sb.rpc("digiy_has_access", { p_phone: phoneDigits, p_module: "MARKET" });
+      if(error) return false;
+      return !!data;
+    }
+
+    async function resolvePhoneFromSubscriptionSlug(subSlug){
+      // digiy_subscriptions_public : slug -> phone, module
+      const { data, error } = await sb
+        .from("digiy_subscriptions_public")
+        .select("phone,module,slug")
+        .eq("slug", subSlug)
+        .maybeSingle();
+
+      if(error) return null;
+      return data?.phone ? String(data.phone) : null;
+    }
+
+    /* ==================== Fill form from row ==================== */
+    function fillFormFromRow(r){
+      $("slug").value = r.slug || $("slug").value;
+      $("name").value = r.display_name || "";
+      $("city").value = r.city || FORCE_CITY;
+      $("category").value = r.category || "";
+      $("address").value = r.address || "";
+      $("whatsapp").value = r.whatsapp || $("whatsapp").value || "";
+      $("photo").value = r.photo_url || "";
+      $("profile_url").value = r.profile_url || "";
+      $("bio").value = r.bio || "";
+      $("badge").value = r.badge || "🏪 PARTENAIRE";
+      $("hub_badge").value = r.hub_badge || "🛒 MARKET SALY";
+      $("price_label").value = r.price_label || "💰 Prix à discuter • WhatsApp direct";
+
+      // tags (array -> csv)
+      const tags = Array.isArray(r.tags) ? r.tags : [];
+      $("tags").value = tags.join(", ");
+
+      refreshPreview();
+      syncProLink();
+    }
+
+    /* ==================== Build payload ==================== */
+    function readPayload(){
+      const phone = normPhone($("phone").value || "");
+      const slug  = normSlug($("slug").value || "");
+
+      const display_name = safeStr($("name").value, 60);
+      const city = FORCE_CITY; // verrouillé
+      const category = safeStr($("category").value, 80);
+      const address = safeStr($("address").value, 120);
+      const whatsapp = normPhone($("whatsapp").value || phone || "");
+      const photo_url = safeStr($("photo").value, 800) || defaultPhotoUrl();
+      const profile_url = safeStr($("profile_url").value, 800) || VITRINE_URL;
+      const bio = safeStr($("bio").value, 180);
+      const badge = safeStr($("badge").value, 40) || "🏪 PARTENAIRE";
+      const hub_badge = safeStr($("hub_badge").value, 40) || "🛒 MARKET SALY";
+      const price_label = safeStr($("price_label").value, 80);
+
+      const tagsArr = tagsToPgArrayFromCsv($("tags").value);
+
+      return {
+        phone,
+        slug,
+        payload: {
+          slug,
+          display_name,
+          city,
+          category,
+          address,
+          whatsapp,
+          photo_url,
+          profile_url,
+          bio,
+          tags: tagsArr,          // ✅ JS array => Postgres text[]
+          badge,
+          hub_badge,
+          price_label,
+          is_active: true
+        }
+      };
+    }
+
+    function validateBasics({ phone, slug, payload }){
+      if(!phone || phone.length < 9) return "Téléphone obligatoire (digits).";
+      if(!slug || slug.length < 3) return "Slug obligatoire (ex: chez-astou-saly).";
+      if(!payload.display_name) return "Nom obligatoire.";
+      if(!payload.category) return "Catégorie obligatoire.";
+      return "";
+    }
+
+    /* ==================== Actions ==================== */
+    async function actionLoadOrInit(){
+      setStatus("🔎 Ouverture de ta fiche…", "warn", "PRO");
+
+      syncFromUrl();
+      ensureCity();
+      refreshPreview();
+      syncProLink();
+
+      // 1) si on arrive avec ?slug=market-22177... (retour paiement)
+      const subSlug = normSlug(qp.get("slug") || "");
+      let inferredPhone = null;
+
+      if(subSlug.startsWith("market-")){
+        inferredPhone = await resolvePhoneFromSubscriptionSlug(subSlug);
+        if(inferredPhone){
+          $("phone").value = inferredPhone;
+          $("slugAuto").textContent = "✅ Téléphone retrouvé via abonnement.";
+        }
+      }
+
+      // 2) si on a un slug vitrine (chez-astou-saly), on charge la fiche
+      const s = normSlug($("slug").value || "");
+      if(s && !s.startsWith("market-")){
+        try{
+          const r = await loadExistingBySlug(s);
+          state.row = r;
+          if(r){
+            fillFormFromRow(r);
+            setStatus("✅ Fiche trouvée. Tu peux modifier et publier.", "ok", "OK");
+          } else {
+            setStatus("📝 Nouvelle fiche. Remplis puis publie.", "warn", "NOUVEAU");
+          }
+        }catch(e){
+          console.error(e);
+          setStatus("⚠️ Impossible de charger la fiche (RLS/SELECT).", "bad", "ERREUR");
+        }
+      } else {
+        setStatus("📝 Mets ton slug (ex: chez-astou-saly).", "warn", "SLUG");
+      }
+
+      await refreshAccessState();
+    }
+
+    async function refreshAccessState(){
+      const phone = normPhone($("phone").value || "");
+      if(!phone){
+        state.hasAccess = false;
+        $("hint").textContent = "📞 Mets ton téléphone pour vérifier l’abonnement.";
+        $("btnPay").disabled = false;
+        return;
+      }
+
+      const ok = await checkAccessMarketByPhone(phone);
+      state.hasAccess = ok;
+
+      if(ok){
+        $("hint").innerHTML = "✅ <b>Abonnement MARKET actif</b>. Tu es tranquille.";
+        $("btnPay").textContent = "✅ Abonnement actif";
+        $("btnPay").disabled = true;
+      } else {
+        $("hint").innerHTML =
+          "🟡 Tu es en <b>essai</b> ou non abonné. " +
+          "Après 7 jours, clique <b>Passer en Abonné</b>.";
+        $("btnPay").textContent = "💳 Passer en Abonné (MARKET)";
+        $("btnPay").disabled = false;
+      }
+    }
+
+    async function actionSave(){
+      const { phone, slug, payload } = readPayload();
+      const err = validateBasics({ phone, slug, payload });
+      if(err){
+        setStatus("⚠️ " + err, "warn", "INFO");
+        return;
+      }
+
+      setStatus("💾 Enregistrement…", "warn", "SAVE");
+      try{
+        // par défaut: on ne publie pas ici (juste save)
+        const row = await upsertProfile({
+          ...payload,
+          is_published: false,
+          trial_end: null
+        });
+        state.row = row;
+        setStatus("✅ Enregistré. Tu peux publier (essai 7 jours).", "ok", "OK");
+        await refreshAccessState();
+      }catch(e){
+        console.error(e);
+        setStatus("❌ Save impossible (RLS / policy / onConflict).", "bad", "ERREUR");
+      }
+    }
+
+    async function actionPublishTrial(){
+      const { phone, slug, payload } = readPayload();
+      const err = validateBasics({ phone, slug, payload });
+      if(err){
+        setStatus("⚠️ " + err, "warn", "INFO");
+        return;
+      }
+
+      setStatus("🚀 Publication essai 7 jours…", "warn", "TRIAL");
+      try{
+        const row = await upsertProfile({
+          ...payload,
+          is_published: true,
+          trial_end: nowPlusDays(TRIAL_DAYS)
+        });
+
+        state.row = row;
+
+        setStatus("✅ Publié ! Tu es dans la vitrine Saly (7 jours).", "ok", "LIVE");
+        $("hint").innerHTML =
+          "🔥 Tu es visible <b>tout de suite</b> sur la vitrine. " +
+          "Date fin essai : <span class='mono'>" + (row.trial_end || "") + "</span>";
+
+        await refreshAccessState();
+      }catch(e){
+        console.error(e);
+        setStatus("❌ Publication impossible (RLS / policy).", "bad", "ERREUR");
+      }
+    }
+
+    function actionGoPay(){
+      const phone = normPhone($("phone").value || "");
+      const slug  = normSlug($("slug").value || "");
+
+      if(!phone || phone.length < 9){
+        setStatus("⚠️ Mets ton téléphone avant d’aller payer.", "warn", "PHONE");
+        return;
+      }
+      if(!slug || slug.length < 3){
+        setStatus("⚠️ Mets ton slug avant d’aller payer.", "warn", "SLUG");
+        return;
+      }
+
+      // On envoie vers ABOS
+      location.href = buildAbosUrl({ phoneDigits: phone, slug });
+    }
+
+    function actionSupport(){
+      const phone = normPhone($("phone").value || "");
+      const slug  = normSlug($("slug").value || "");
+      const msg =
+        "Salut DIGIY MARKET.\n\n" +
+        (phone ? ("Téléphone: +" + phone + "\n") : "") +
+        (slug ? ("Slug: " + slug + "\n") : "") +
+        "Ville: Saly\n" +
+        "Je veux de l'aide sur ma fiche / paiement.\n";
+      wa(msg);
+    }
+
+    /* ==================== Bind ==================== */
+    $("btnSave").addEventListener("click", actionSave);
+    $("btnTrial").addEventListener("click", actionPublishTrial);
+    $("btnPay").addEventListener("click", actionGoPay);
+    $("btnSupport").addEventListener("click", actionSupport);
+
+    // auto-clean slug + keep city
+    $("slug").addEventListener("input", ()=>{
+      $("slug").value = normSlug($("slug").value);
+      $("slugAuto").textContent = "";
+      syncProLink();
+    });
+
+    $("phone").addEventListener("input", async ()=>{
+      $("phone").value = normPhone($("phone").value);
+      await refreshAccessState();
+    });
+
+    $("whatsapp").addEventListener("input", ()=>{
+      $("whatsapp").value = normPhone($("whatsapp").value);
+    });
+
+    $("city").addEventListener("input", ()=>{
+      // 1 ville à la fois : on force
+      ensureCity();
+      refreshPreview();
+    });
+
+    // init
+    ensureCity();
+    refreshPreview();
+    syncProLink();
+    setStatus("✅ Prêt. Remplis ta fiche.", "ok", "READY");
+    actionLoadOrInit();
+
+  })();
+  </script>
 </body>
 </html>
