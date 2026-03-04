@@ -1,679 +1,349 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover, maximum-scale=1, user-scalable=no" />
-  <script src="./guard-pro.js?v=1"></script>  
-  <title>DIGIY MARKET PRO — POS</title>
-  <meta name="theme-color" content="#0b1020" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <meta name="theme-color" content="#061b14"/>
+  <title>DIGIY MARKET PRO — Nouveau produit</title>
 
-  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- Guard -->
-  <script src="./guard.js?v=marketpro-pos-final"></script>
 
   <style>
     :root{
-      --bg:#0b1020;--bg2:#050816;--card:#0f172a;--line:rgba(148,163,184,.18);
-      --ink:#f8fafc;--muted:rgba(226,232,240,.68);
-      --gold:#facc15;--ok:#22c55e;--bad:#f97373;--cyan:#38bdf8;
-      --shadow: 0 20px 80px rgba(0,0,0,.35);
+      --bg:#061b14; --card:#0b2a1f; --line:rgba(255,255,255,.14);
+      --text:#eafff1; --muted:rgba(234,255,241,.72);
+      --gold:#facc15; --ok:#22c55e; --bad:#fb7185; --warn:#f59e0b;
+      --shadow:0 18px 55px rgba(0,0,0,.45);
     }
     *{box-sizing:border-box}
-    html,body{height:100%}
     body{
-      margin:0;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu;
-      color:var(--ink);
-      background:
-        radial-gradient(1200px 800px at 20% 0%, rgba(250,204,21,.10), transparent 55%),
-        radial-gradient(900px 700px at 90% 20%, rgba(56,189,248,.10), transparent 55%),
-        radial-gradient(900px 700px at 40% 95%, rgba(34,197,94,.08), transparent 55%),
-        linear-gradient(180deg,var(--bg2),var(--bg));
+      margin:0; min-height:100vh; background:radial-gradient(1000px 800px at 15% 10%, rgba(250,204,21,.10), transparent 45%),
+      radial-gradient(900px 700px at 85% 20%, rgba(34,197,94,.10), transparent 48%),
+      var(--bg);
+      color:var(--text); font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+      display:flex; align-items:center; justify-content:center; padding:20px;
     }
-    header{
-      position:sticky;top:0;z-index:30;
-      backdrop-filter: blur(10px);
-      background: rgba(11,16,32,.78);
-      border-bottom: 1px solid var(--line);
+    .wrap{width:min(980px,100%)}
+    .top{display:flex; gap:12px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap}
+    .brand{
+      display:flex; flex-direction:column; gap:6px;
     }
-    .wrap{max-width:1200px;margin:0 auto;padding:12px}
-    .top{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-    .brand{display:flex;gap:10px;align-items:center}
-    .logo{
-      width:42px;height:42px;border-radius:14px;
-      display:grid;place-items:center;font-size:18px;
-      background:linear-gradient(135deg, rgba(250,204,21,.22), rgba(250,204,21,.06));
-      border:1px solid rgba(250,204,21,.28);
-    }
-    h1{margin:0;font-size:16px;letter-spacing:.3px}
-    .sub{margin:2px 0 0 0;color:var(--muted);font-size:12px}
-    .pill{
-      display:inline-block;padding:2px 8px;border-radius:999px;
-      border:1px solid var(--line);font-size:11px;color:var(--muted);
-    }
-    .actions{display:flex;gap:8px;flex-wrap:wrap}
-    .btn{
-      padding:10px 12px;border-radius:12px;
-      border:1px solid var(--line);
-      background:rgba(2,6,23,.35);
-      color:var(--ink);
-      font-weight:900;
-      cursor:pointer;
-      user-select:none;
-    }
-    .btn:hover{transform: translateY(-1px)}
-    .btn.gold{border-color:rgba(250,204,21,.30); background:rgba(250,204,21,.12)}
-    .btn.cyan{border-color:rgba(56,189,248,.30); background:rgba(56,189,248,.10)}
-    .btn.bad{border-color:rgba(249,115,115,.35); background:rgba(249,115,115,.10)}
-    .btn.ok{border-color:rgba(34,197,94,.35); background:rgba(34,197,94,.10)}
-    .btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+    .brand h1{margin:0; font-size:18px; letter-spacing:.4px}
+    .brand .sub{color:var(--muted); font-size:13px; line-height:1.35}
+    .badge{display:inline-flex; align-items:center; gap:8px; padding:7px 10px; border-radius:999px;
+      background:rgba(250,204,21,.12); border:1px solid rgba(250,204,21,.25); color:var(--text); font-size:12px}
+    .grid{display:grid; grid-template-columns:1.2fr .8fr; gap:14px; margin-top:14px}
+    @media (max-width: 900px){ .grid{grid-template-columns:1fr} }
 
-    main{max-width:1200px;margin:0 auto;padding:12px}
-    .grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:12px}
     .card{
-      grid-column: span 12;
-      background:rgba(15,23,42,.68);
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:14px;
-      box-shadow: var(--shadow);
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); padding:14px;
     }
-    @media(min-width:980px){
-      .c5{grid-column: span 5}
-      .c7{grid-column: span 7}
-    }
-    .label{color:var(--muted);font-size:12px;margin-bottom:6px}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .muted{color:var(--muted);font-size:12px}
-    #guard_status{
-      position:fixed;top:14px;right:14px;z-index:9999;
-      background:rgba(0,0,0,.82);border:1px solid rgba(255,255,255,.08);
-      color:#fff;padding:10px 12px;border-radius:12px;font-weight:1000;font-size:12px;
-    }
-    code{background:rgba(2,6,23,.35);border:1px solid var(--line);padding:1px 6px;border-radius:8px}
-
-    .scanBar{
-      display:flex;gap:10px;flex-wrap:wrap;align-items:center;
-    }
-    .input{
-      flex:1;
-      min-width:240px;
-      padding:12px 12px;
-      border-radius:14px;
-      border:1px solid var(--line);
-      background:rgba(2,6,23,.35);
-      color:var(--ink);
-      font-weight:900;
+    .card h2{margin:0 0 10px; font-size:14px; color:rgba(234,255,241,.92); letter-spacing:.3px}
+    label{display:block; font-size:12px; color:var(--muted); margin:10px 0 6px}
+    input, textarea, select{
+      width:100%; padding:11px 12px; border-radius:12px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.15); color:var(--text);
       outline:none;
     }
-    .input::placeholder{color:rgba(226,232,240,.45);font-weight:800}
-    .mini{padding:8px 10px;border-radius:12px;font-weight:900}
+    textarea{min-height:110px; resize:vertical}
+    .row{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    @media (max-width: 700px){ .row{grid-template-columns:1fr} }
 
-    .list{
-      margin-top:10px;
-      display:grid;
-      gap:8px;
+    .btns{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
+    button{
+      border:0; border-radius:12px; padding:11px 12px;
+      background:rgba(250,204,21,.14);
+      color:var(--text); cursor:pointer; font-weight:700; letter-spacing:.2px;
+      border:1px solid rgba(250,204,21,.26);
     }
-    .item{
-      display:flex;justify-content:space-between;gap:10px;align-items:flex-start;
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:10px;
-      background:rgba(2,6,23,.25);
+    button.secondary{
+      background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14); font-weight:700;
     }
-    .name{font-weight:1000}
-    .subline{color:var(--muted);font-size:12px;margin-top:2px}
-    .right{text-align:right}
-    .qtyBox{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:6px}
-    .qtyBtn{
-      width:34px;height:34px;border-radius:12px;
-      border:1px solid var(--line);
-      background:rgba(15,23,42,.55);
-      color:var(--ink);font-weight:1000;cursor:pointer;
+    button.danger{
+      background:rgba(251,113,133,.10); border:1px solid rgba(251,113,133,.26);
     }
-    .qtyVal{min-width:34px;text-align:center;font-weight:1000}
+    button:disabled{opacity:.55; cursor:not-allowed}
+    .hint{margin-top:10px; font-size:12px; color:var(--muted); line-height:1.45}
 
-    .totals{
-      display:grid;gap:8px;margin-top:10px;
-      border-top:1px dashed var(--line);
-      padding-top:10px;
+    .log{
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
+      font-size:12px; padding:10px; border-radius:12px;
+      background:rgba(0,0,0,.25); border:1px solid rgba(255,255,255,.12);
+      white-space:pre-wrap; word-break:break-word;
+      min-height:140px;
     }
-    .totRow{display:flex;justify-content:space-between;gap:10px}
-    .bigTotal{font-size:20px;font-weight:1100}
-
-    .payGrid{display:grid;gap:10px;margin-top:10px}
-    .payRow{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .payRow .input{min-width:160px}
-    .hint{font-size:12px;color:var(--muted);margin-top:6px}
-
-    .toast{
-      margin-top:10px;
-      padding:10px 12px;border-radius:14px;
-      border:1px solid var(--line);
-      background:rgba(0,0,0,.35);
-      font-weight:900;font-size:12px;
-      min-height:18px;
-    }
-    .toast.ok{border-color:rgba(34,197,94,.35)}
-    .toast.bad{border-color:rgba(249,115,115,.35)}
+    .kpi{display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    @media (max-width: 700px){ .kpi{grid-template-columns:1fr} }
+    .kpi .item{padding:10px; border-radius:12px; border:1px solid rgba(255,255,255,.12); background:rgba(0,0,0,.18)}
+    .kpi .item .k{font-size:11px; color:var(--muted)}
+    .kpi .item .v{margin-top:6px; font-weight:800}
+    .tag{display:inline-block; padding:4px 8px; border:1px solid rgba(255,255,255,.16);
+      border-radius:999px; font-size:12px; margin:4px 6px 0 0; background:rgba(0,0,0,.18)}
+    .ok{color:var(--ok)} .bad{color:var(--bad)} .warn{color:var(--warn)}
+    .mini{font-size:11px; color:var(--muted)}
   </style>
 </head>
 
 <body>
-  <div id="guard_status">🔐 Vérification…</div>
-
-  <header>
-    <div class="wrap">
-      <div class="top">
-        <div class="brand">
-          <div class="logo">🛒</div>
-          <div>
-            <h1>DIGIY MARKET PRO — POS <span class="pill" id="pillSlug">slug: —</span></h1>
-            <div class="sub" id="subTitle">Caisse grande surface • Scan • Panier • Ticket</div>
-          </div>
-        </div>
-        <div class="actions">
-          <button class="btn cyan" id="btnFocus">🎯 Scan</button>
-          <button class="btn gold" id="btnLastTicket">🧾 Ticket dernier</button>
-          <button class="btn" id="btnClearCart">🧹 Vider panier</button>
-          <button class="btn bad" id="btnLogout">🚪 Quitter</button>
-        </div>
+<div class="wrap">
+  <div class="top">
+    <div class="brand">
+      <h1>🦅 DIGIY MARKET PRO — Nouveau produit</h1>
+      <div class="sub">
+        Flow: <b>Enqueue agent</b> → attendre résultat → <b>Apply (draft)</b> → <b>Publier</b><br/>
+        (Le worker serveur fait le traitement; ici c’est juste la console Pro.)
       </div>
     </div>
-  </header>
+    <div class="badge">🔐 Accès: PAY / RPC • 🌍 Public: published only</div>
+  </div>
 
-  <main>
-    <div class="grid">
+  <div class="grid">
+    <div class="card">
+      <h2>1) Saisie</h2>
 
-      <div class="card c5">
-        <div class="label">Scan / Recherche</div>
-        <div class="scanBar">
-          <input id="scanInput" class="input" autocomplete="off" inputmode="search"
-                 placeholder="Scan code-barres / SKU / Nom (ex: 1234567890123)" />
-          <button class="btn ok" id="btnAdd">➕ Ajouter</button>
+      <label>Téléphone (digits only recommandé)</label>
+      <input id="phone" placeholder="221771342889" value="221771342889"/>
+
+      <div class="row">
+        <div>
+          <label>Module accès (temporaire LOC, ensuite MARKET)</label>
+          <select id="accessModule">
+            <option value="LOC" selected>LOC (test)</option>
+            <option value="MARKET">MARKET (prod)</option>
+          </select>
         </div>
-        <div class="hint">Astuce terrain : focus auto sur scan. Entrée = ajoute au panier.</div>
-        <div class="toast" id="scanToast">Prêt.</div>
-
-        <div style="height:10px"></div>
-        <div class="label">Dernier trouvé</div>
-        <div id="lastFound" class="muted">—</div>
+        <div>
+          <label>Prix (XOF) — optionnel</label>
+          <input id="price" type="number" min="0" step="1" placeholder="ex: 1500"/>
+        </div>
       </div>
 
-      <div class="card c7">
-        <div class="label">Panier</div>
-        <div id="cartList" class="list"></div>
+      <label>Titre (brut)</label>
+      <input id="title" placeholder="ex: Bissap frais !!!" value="Bissap frais"/>
 
-        <div class="totals">
-          <div class="totRow"><div class="muted">Sous-total</div><div id="tSub">0 FCFA</div></div>
-          <div class="totRow"><div class="muted">TVA</div><div id="tTax">0 FCFA</div></div>
-          <div class="totRow"><div class="bigTotal">TOTAL</div><div class="bigTotal" id="tTotal">0 FCFA</div></div>
+      <label>Description (brut)</label>
+      <textarea id="description" placeholder="Décris le produit, la zone, livraison, etc.">Test agent worker — Saly</textarea>
+
+      <div class="btns">
+        <button id="btnEnqueue">🧠 Nettoyer & suggérer (agent)</button>
+        <button id="btnApply" class="secondary" disabled>📦 Créer en DRAFT (apply)</button>
+        <button id="btnPublish" class="secondary" disabled>🚀 Publier</button>
+        <button id="btnReset" class="danger">↺ Reset</button>
+      </div>
+
+      <div class="hint">
+        • L’agent écrit son résultat dans <span class="mini">digiy_loc_pulse_outbox.payload.result</span><br/>
+        • “Apply” crée une ligne dans <span class="mini">digiy_market_listings</span> (draft).<br/>
+        • “Publier” passe <span class="mini">status=published</span> (visible public via RLS).
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>2) Résultat & console</h2>
+
+      <div class="kpi">
+        <div class="item">
+          <div class="k">Job ID (outbox)</div>
+          <div class="v" id="jobId">—</div>
         </div>
+        <div class="item">
+          <div class="k">Listing ID (market)</div>
+          <div class="v" id="listingId">—</div>
+        </div>
+      </div>
 
-     <div class="payGrid">
-  <div class="label">Paiement</div>
+      <label>Preview normalisé</label>
+      <div id="preview" class="log">—</div>
 
-  <div class="payRow">
-    <input id="payCash" class="input" inputmode="numeric"
-           placeholder="Cash (FCFA) ex: 3000" />
-    <input id="payWave" class="input" inputmode="numeric"
-           placeholder="Wave (FCFA) ex: 2000" />
-    <input id="payWaveRef" class="input"
-           placeholder="Ref Wave (option)" />
+      <label>Tags</label>
+      <div id="tags">—</div>
+
+      <label>Logs</label>
+      <div id="logs" class="log">Prêt.</div>
+    </div>
   </div>
-
-  <div class="payRow">
-    <button class="btn gold" id="btnCheckout">💸 Encaisser</button>
-    <button class="btn" id="btnTicket">🧾 Ouvrir ticket</button>
-  </div>
-
-  <!-- ✅ Livraison / FRET doit être ici -->
-  <div class="payRow">
-    <input id="deliveryId" class="input"
-           placeholder="UUID Livraison / FRET (option)" />
-    <button class="btn cyan" id="btnConfirmReceived">
-      ✅ Confirmer reçu
-    </button>
-  </div>
-
-  <div class="hint">
-    Encaisser crée le ticket + sort le stock.
-    Ensuite on enregistre le paiement mix.
-  </div>
-          <div class="toast" id="payToast">—</div>
-      </div> <!-- /payGrid -->
-
-    </div> <!-- /card c7 -->
-  </div>   <!-- /grid -->
-</main>
+</div>
 
 <script>
+  // ✅ Supabase constants (front)
+  const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+  const SUPABASE_ANON_KEY =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const $ = (s)=>document.querySelector(s);
+  const el = (id)=>document.getElementById(id);
+  const log = (msg, cls='')=>{
+    const box = el('logs');
+    const line = `[${new Date().toISOString()}] ${msg}`;
+    box.textContent = (line + "\n" + box.textContent).slice(0, 4000);
+    if(cls) box.className = 'log ' + cls;
+  };
 
-    function setStatus(txt){
-      const el = $("#guard_status");
-      if(el) el.textContent = txt;
-    }
-    function hideStatus(){
-      const el = $("#guard_status");
-      if(el) el.style.display = "none";
-    }
-    function money(n){
-      const x = Number(n || 0);
-      return (isFinite(x) ? Math.round(x) : 0).toString() + " FCFA";
-    }
-    function num(v){
-      const s = String(v||"").replace(/[^\d.]/g,"");
-      const n = Number(s);
-      return isFinite(n) ? n : 0;
-    }
-    function toast(el, msg, kind){
-      el.textContent = msg || "";
-      el.classList.remove("ok","bad");
-      if(kind) el.classList.add(kind);
-    }
+  const state = {
+    jobId: null,
+    listingId: null,
+    normalized: null
+  };
 
-    // =============================
-    // STATE
-    // =============================
-    let CTX = { slug:"", owner_id:"", store_id:"" };
-    let CART = []; // {id,name,barcode,price_sale,tax_rate,track_stock,qty_onhand,qty}
-
-    function cartKey(p){ return p.id; }
-    function findCart(pid){ return CART.find(x=>x.id===pid); }
-
-    function calc(){
-      let sub=0,tax=0;
-      for(const it of CART){
-        const line = (Number(it.qty)||0) * (Number(it.price_sale)||0);
-        sub += line;
-        tax += line * (Number(it.tax_rate)||0)/100;
-      }
-      return { sub: Math.round(sub), tax: Math.round(tax), total: Math.round(sub+tax) };
-    }
-
-    function renderCart(){
-      const box = $("#cartList");
-      box.innerHTML = "";
-
-      if(CART.length===0){
-        box.innerHTML = `<div class="muted">Panier vide. Scanne un article.</div>`;
-        $("#tSub").textContent = money(0);
-        $("#tTax").textContent = money(0);
-        $("#tTotal").textContent = money(0);
-        return;
-      }
-
-      for(const it of CART){
-        const wrap = document.createElement("div");
-        wrap.className = "item";
-        wrap.innerHTML = `
-          <div>
-            <div class="name">${escapeHtml(it.name || "Article")}</div>
-            <div class="subline">
-              ${it.barcode ? ("barcode: <code>"+escapeHtml(it.barcode)+"</code> • ") : ""}
-              stock: <b>${Number(it.qty_onhand||0)}</b>
-            </div>
-            <div class="qtyBox">
-              <button class="qtyBtn" data-act="dec" data-id="${it.id}">−</button>
-              <div class="qtyVal">${Number(it.qty||0)}</div>
-              <button class="qtyBtn" data-act="inc" data-id="${it.id}">+</button>
-              <button class="btn mini bad" data-act="rm" data-id="${it.id}">Suppr</button>
-            </div>
-          </div>
-          <div class="right">
-            <div><b>${money(it.price_sale)}</b></div>
-            <div class="subline">TVA ${Number(it.tax_rate||0)}%</div>
-            <div style="margin-top:8px;font-weight:1100">${money((Number(it.qty)||0)*Number(it.price_sale||0))}</div>
-          </div>
-        `;
-        box.appendChild(wrap);
-      }
-
-      const t = calc();
-      $("#tSub").textContent = money(t.sub);
-      $("#tTax").textContent = money(t.tax);
-      $("#tTotal").textContent = money(t.total);
-
-      // Delegation clicks
-      box.querySelectorAll("[data-act]").forEach(btn=>{
-        btn.onclick = ()=>{
-          const act = btn.getAttribute("data-act");
-          const id  = btn.getAttribute("data-id");
-          const it = findCart(id);
-          if(!it) return;
-
-          if(act==="inc"){
-            it.qty = (Number(it.qty)||0) + 1;
-          }else if(act==="dec"){
-            it.qty = Math.max(1, (Number(it.qty)||0) - 1);
-          }else if(act==="rm"){
-            CART = CART.filter(x=>x.id!==id);
-          }
-          renderCart();
-        };
-      });
-    }
-
-    function escapeHtml(s){
-      return String(s||"")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
-
-    // =============================
-    // SUPABASE (from guard)
-    // =============================
-    function sb(){
-      const x = window.DIGIY_GUARD?.getSb?.();
-      return x || null;
-    }
-
-    // =============================
-    // MARKET OPS
-    // =============================
-    async function ensureStore(){
-      const x = sb();
-      if(!x) throw new Error("Supabase non prêt");
-
-      const { data, error } = await x.rpc("market_get_store_by_slug", { p_slug: CTX.slug });
-      if(error) throw new Error(error.message);
-
-      const res = (typeof data === "string") ? safeJson(data) : data;
-      if(!res?.ok) throw new Error(res?.reason || "store refusé");
-
-      CTX.store_id = (res.store_id || "").toString().trim();
-      return res;
-    }
-
-    function safeJson(s){ try{ return JSON.parse(s); }catch(_){ return null; } }
-
-    async function scanAndGetOne(q){
-      const x = sb();
-      if(!x) throw new Error("Supabase non prêt");
-
-      q = String(q||"").trim();
-      if(!q) return null;
-
-      const { data, error } = await x.rpc("market_scan_by_slug", { p_slug: CTX.slug, p_q: q });
-      if(error) throw new Error(error.message);
-
-      const res = (typeof data === "string") ? safeJson(data) : data;
-      if(!res?.ok) throw new Error(res?.reason || "scan refusé");
-
-      const items = res.items || [];
-      if(items.length === 0) return null;
-      return items[0];
-    }
-
-    function addToCart(prod){
-      const existing = findCart(prod.id);
-      if(existing){
-        existing.qty = (Number(existing.qty)||0) + 1;
-      }else{
-        CART.push({
-          id: prod.id,
-          name: prod.name,
-          barcode: prod.barcode,
-          sku: prod.sku,
-          price_sale: Number(prod.price_sale||0),
-          tax_rate: Number(prod.tax_rate||0),
-          track_stock: !!prod.track_stock,
-          qty_onhand: Number(prod.qty_onhand||0),
-          qty: 1
-        });
-      }
-      renderCart();
-    }
-
-    async function checkout(){
-      const payToast = $("#payToast");
-      toast(payToast, "Encaissement…", "");
-
-      if(CART.length === 0){
-        toast(payToast, "Panier vide.", "bad");
-        return;
-      }
-
-      // payments
-      const cash = num($("#payCash").value);
-      const wave = num($("#payWave").value);
-      const waveRef = String($("#payWaveRef").value||"").trim();
-
-      const t = calc();
-      const paid = Math.round(cash + wave);
-
-      // build items jsonb
-      const items = CART.map(it=>({
-        product_id: it.id,
-        qty: Number(it.qty||0),
-        unit_price: Number(it.price_sale||0),
-        tax_rate: Number(it.tax_rate||0)
-      }));
-
-      // 1) commit sale (creates sale_id + stock moves)
-      const x = sb();
-      if(!x){ toast(payToast, "Supabase non prêt.", "bad"); return; }
-
-      const { data: d1, error: e1 } = await x.rpc("market_commit_sale_by_slug", {
-        p_slug: CTX.slug,
-        p_owner_id: CTX.owner_id,
-        p_payment_method: "cash", // on mettra mix après
-        p_paid_amount: paid,
-        p_items: items
-      });
-
-      if(e1){ toast(payToast, e1.message, "bad"); return; }
-      const r1 = (typeof d1 === "string") ? safeJson(d1) : d1;
-      if(!r1?.ok){ toast(payToast, r1?.reason || "Vente refusée", "bad"); return; }
-
-      const saleId = String(r1.sale_id || "").trim();
-      if(!saleId){ toast(payToast, "sale_id manquant", "bad"); return; }
-
-      // ✅ mémorise dernier ticket (c’est ICI)
-      localStorage.setItem("DIGIY_LAST_SALE_ID", saleId);
-
-      const deliveryId0 = String($("#deliveryId")?.value || "").trim();
-      if(deliveryId0) localStorage.setItem("DIGIY_LAST_DELIVERY_ID", deliveryId0);
-      
-      // 2) set payments mix (optional)
-      const payments = [];
-      if(cash > 0) payments.push({ method:"cash", amount: Math.round(cash) });
-      if(wave > 0) payments.push({ method:"wave", amount: Math.round(wave), reference: waveRef || null });
-
-      if(payments.length > 0){
-        const { data: d2, error: e2 } = await x.rpc("market_set_payments_by_slug", {
-          p_slug: CTX.slug,
-          p_owner_id: CTX.owner_id,
-          p_sale_id: saleId,
-          p_payments: payments
-        });
-
-        if(e2){
-          toast(payToast, "Vente OK, mais paiement mix KO: " + e2.message, "bad");
-        }else{
-          const r2 = (typeof d2 === "string") ? safeJson(d2) : d2;
-          if(!r2?.ok){
-            toast(payToast, "Vente OK, paiement mix refusé: " + (r2?.reason||""), "bad");
-          }else{
-            toast(payToast, "✅ Vente OK • Ticket: " + saleId.slice(0,8) + "… • Total: " + money(t.total), "ok");
-          }
-        }
-      }else{
-        toast(payToast, "✅ Vente OK (paiement non saisi) • Ticket: " + saleId.slice(0,8) + "…", "ok");
-      }
-
-      // reset cart
-      CART = [];
-      renderCart();
-      $("#payCash").value = "";
-      $("#payWave").value = "";
-      $("#payWaveRef").value = "";
-
-      // open ticket
-      setTimeout(()=>{
-        location.href = `./ticket.html?slug=${encodeURIComponent(CTX.slug)}&sale_id=${encodeURIComponent(saleId)}`;
-      }, 350);
-    }
-
-    // =============================
-    // UI WIRING
-    // =============================
-    function focusScan(){
-      const inp = $("#scanInput");
-      if(inp){ inp.focus(); inp.select?.(); }
-    }
-
-    async function addFromScan(){
-      const scanToast = $("#scanToast");
-      const q = String($("#scanInput").value||"").trim();
-      if(!q){
-        toast(scanToast, "Tape ou scanne un code.", "bad");
-        return;
-      }
-      try{
-        toast(scanToast, "Recherche…", "");
-        const p = await scanAndGetOne(q);
-        if(!p){
-          toast(scanToast, "Aucun produit trouvé.", "bad");
-          $("#lastFound").textContent = "—";
-          return;
-        }
-        $("#lastFound").innerHTML =
-          `<b>${escapeHtml(p.name||"Article")}</b> • ${p.barcode ? ("barcode <code>"+escapeHtml(p.barcode)+"</code> • ") : ""}stock <b>${Number(p.qty_onhand||0)}</b> • prix <b>${money(p.price_sale)}</b>`;
-        addToCart(p);
-        toast(scanToast, "✅ Ajouté au panier", "ok");
-        $("#scanInput").value = "";
-        focusScan();
-      }catch(e){
-        console.error(e);
-        toast(scanToast, "❌ " + (e?.message || "Erreur scan"), "bad");
-      }
-    }
-
-    $("#btnFocus").onclick = focusScan;
-    $("#btnAdd").onclick = addFromScan;
-
-    $("#scanInput").addEventListener("keydown", (e)=>{
-      if(e.key === "Enter"){
-        e.preventDefault();
-        addFromScan();
-      }
-    });
-
-    $("#btnClearCart").onclick = ()=>{
-      CART = [];
-      renderCart();
-      toast($("#payToast"), "Panier vidé.", "");
-      focusScan();
-    };
-
-    $("#btnCheckout").onclick = checkout;
-
-// ✅ Confirm delivery received (Vinted/FRET) -> RPC déjà posée
-$("#btnConfirmReceived")?.addEventListener("click", async ()=>{
-  const payToast = $("#payToast");
-  try{
-    const x = sb(); if(!x) throw new Error("Supabase non prêt");
-
-    const saleId = (localStorage.getItem("DIGIY_LAST_SALE_ID") || "").trim();
-    const deliveryId = String($("#deliveryId")?.value || "").trim()
-      || (localStorage.getItem("DIGIY_LAST_DELIVERY_ID") || "").trim();
-
-    if(!saleId) throw new Error("Encaisse d'abord un ticket (sale_id manquant).");
-    if(!deliveryId) throw new Error("UUID Livraison/FRET manquant.");
-
-    toast(payToast, "Validation réception…", "");
-
-    const { data, error } = await x.rpc("market_confirm_delivery_received_v1", {
-      p_slug: CTX.slug,
-      p_owner_id: CTX.owner_id,
-      p_sale_id: saleId,
-      p_delivery_id: deliveryId
-    });
-
-    if(error) throw new Error(error.message);
-
-    const res = (typeof data === "string") ? safeJson(data) : data;
-    if(!res?.ok) throw new Error(res?.reason || "Refus confirmation");
-
-    localStorage.setItem("DIGIY_LAST_DELIVERY_ID", deliveryId);
-    toast(payToast, "✅ Reçu confirmé • Ticket PAID", "ok");
-  }catch(e){
-    console.error(e);
-    toast(payToast, "❌ " + (e?.message || "Erreur"), "bad");
+  function digitsOnly(s){
+    return String(s||'').replace(/\D/g,'');
   }
-});
-    
-    $("#btnTicket").onclick = ()=>{
-      const saleId = (localStorage.getItem("DIGIY_LAST_SALE_ID") || "").trim();
-      if(!saleId){
-        toast($("#payToast"), "Aucun ticket mémorisé.", "bad");
-        return;
+
+  function setJob(id){
+    state.jobId = id;
+    el('jobId').textContent = id || '—';
+  }
+  function setListing(id){
+    state.listingId = id;
+    el('listingId').textContent = id || '—';
+  }
+  function setPreview(obj){
+    state.normalized = obj || null;
+    el('preview').textContent = obj ? JSON.stringify(obj, null, 2) : '—';
+    const tags = (obj && obj.normalized && obj.normalized.tags) ? obj.normalized.tags : [];
+    el('tags').innerHTML = tags.length ? tags.map(t=>`<span class="tag">${t}</span>`).join('') : '—';
+  }
+
+  async function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
+
+  async function waitJobArchived(jobId, timeoutMs=25000){
+    const t0 = Date.now();
+    while(Date.now()-t0 < timeoutMs){
+      const { data, error } = await sb
+        .from('digiy_loc_pulse_outbox')
+        .select('id,status,payload,locked_by,last_error')
+        .eq('id', jobId)
+        .maybeSingle();
+
+      if(error){
+        log(`❌ read outbox error: ${error.message}`, 'bad');
+        await sleep(1200);
+        continue;
       }
-      location.href = `./ticket.html?slug=${encodeURIComponent(CTX.slug)}&sale_id=${encodeURIComponent(saleId)}`;
-    };
-
-    $("#btnLastTicket").onclick = ()=>{
-      const saleId = (localStorage.getItem("DIGIY_LAST_SALE_ID") || "").trim();
-      if(!saleId){
-        toast($("#payToast"), "Aucun ticket mémorisé.", "bad");
-        return;
+      if(!data){
+        log('⚠️ job introuvable (id)', 'warn');
+        await sleep(1200);
+        continue;
       }
-      location.href = `./ticket.html?slug=${encodeURIComponent(CTX.slug)}&sale_id=${encodeURIComponent(saleId)}`;
-    };
 
-    $("#btnLogout").onclick = ()=>{
-      try{ window.DIGIY_GUARD.logout("./pin.html"); }catch(_){ location.replace("./pin.html"); }
-    };
-
-    // =============================
-    // BOOT GUARD
-    // =============================
-    (async ()=>{
-      try{
-        if(!window.DIGIY_GUARD?.boot){
-          setStatus("❌ Guard absent");
-          console.error("Guard absent / guard.js non chargé");
-          return;
-        }
-
-        setStatus("🔐 Vérification…");
-        const res = await window.DIGIY_GUARD.boot({ login: "./pin.html" });
-        if(!res.ok) return;
-
-        const s = res.session || {};
-        CTX.slug = (res.slug || s.slug || "").trim();
-        CTX.owner_id = (s.owner_id || "").trim();
-
-        $("#pillSlug").textContent = "slug: " + (CTX.slug || "—");
-        $("#subTitle").textContent = (s.title ? (s.title + " • ") : "") + "Caisse grande surface • Scan • Panier • Ticket";
-
-        // store provisioning
-        await ensureStore();
-
-        setStatus("✅ Accès OK");
-        setTimeout(hideStatus, 650);
-
-        renderCart();
-        focusScan();
-
-        console.log("🛒 MARKET PRO POS READY", { slug: CTX.slug, owner_id: CTX.owner_id, store_id: CTX.store_id });
-      }catch(e){
-        console.error(e);
-        setStatus("❌ Erreur accès");
+      if(data.status === 'archived' && data.payload && data.payload.result){
+        return data.payload.result;
       }
-    })();
-  </script>
-    
-  <!-- ✅ DIGIY KNOWLEDGE — Assistant MARKET PRO -->
-  <div data-digiy-module="MARKET"></div>
-  <script defer src="https://knowledge.digiylyfe.com/widget/digiy-widget-pro.js"></script>
 
+      if(data.status === 'dead'){
+        throw new Error(data.last_error || 'job_dead');
+      }
+
+      await sleep(1200);
+    }
+    throw new Error('timeout_wait_job');
+  }
+
+  async function enqueueAgent(){
+    const phone = digitsOnly(el('phone').value);
+    const title = el('title').value || '';
+    const description = el('description').value || '';
+
+    if(!phone){ log('❌ phone requis', 'bad'); return; }
+    if(!title.trim()){ log('❌ titre requis', 'bad'); return; }
+
+    el('btnEnqueue').disabled = true;
+    el('btnApply').disabled = true;
+    el('btnPublish').disabled = true;
+
+    try{
+      log('⏳ enqueue agent…');
+      // On utilise LOC pour l'enqueue, car la queue est digiy_loc_pulse_outbox (rail existant)
+      const { data, error } = await sb.rpc('digiy_agent_enqueue', {
+        p_module: 'LOC',
+        p_agent_code: 'MARKET_CATALOG_CLEAN',
+        p_payload: { title, description }
+      });
+      if(error) throw error;
+      if(!data?.ok) throw new Error(data?.error || 'enqueue_failed');
+
+      setJob(data.id);
+      log(`✅ job créé: ${data.id}`, 'ok');
+
+      log('⏳ attente résultat (worker)…');
+      const result = await waitJobArchived(data.id);
+      setPreview(result);
+      log('✅ résultat agent reçu', 'ok');
+
+      el('btnApply').disabled = false;
+    }catch(e){
+      log(`❌ ${e.message || e}`, 'bad');
+    }finally{
+      el('btnEnqueue').disabled = false;
+    }
+  }
+
+  async function applyDraft(){
+    const phone = digitsOnly(el('phone').value);
+    const accessModule = el('accessModule').value || 'LOC';
+    if(!phone){ log('❌ phone requis', 'bad'); return; }
+    if(!state.jobId){ log('❌ jobId manquant', 'bad'); return; }
+
+    el('btnApply').disabled = true;
+
+    try{
+      log('⏳ apply agent result → market_listings (draft)…');
+      const { data, error } = await sb.rpc('digiy_market_apply_agent_result', {
+        p_job_id: state.jobId,
+        p_owner_phone: phone,
+        p_access_module: accessModule
+      });
+      if(error) throw error;
+      if(!data?.ok) throw new Error(data?.error || 'apply_failed');
+
+      setListing(data.listing_id);
+      log(`✅ listing draft créé: ${data.listing_id}`, 'ok');
+      el('btnPublish').disabled = false;
+    }catch(e){
+      log(`❌ ${e.message || e}`, 'bad');
+      el('btnApply').disabled = false;
+    }
+  }
+
+  async function publish(){
+    const phone = digitsOnly(el('phone').value);
+    const accessModule = el('accessModule').value || 'LOC';
+    if(!phone){ log('❌ phone requis', 'bad'); return; }
+    if(!state.listingId){ log('❌ listingId manquant', 'bad'); return; }
+
+    el('btnPublish').disabled = true;
+
+    try{
+      log('⏳ publication…');
+      const { data, error } = await sb.rpc('digiy_market_publish_listing', {
+        p_listing_id: state.listingId,
+        p_owner_phone: phone,
+        p_access_module: accessModule
+      });
+      if(error) throw error;
+      if(!data?.ok) throw new Error(data?.error || 'publish_failed');
+
+      log(`🚀 publié: ${data.listing_id}`, 'ok');
+    }catch(e){
+      log(`❌ ${e.message || e}`, 'bad');
+      el('btnPublish').disabled = false;
+    }
+  }
+
+  function resetAll(){
+    setJob(null);
+    setListing(null);
+    setPreview(null);
+    el('btnApply').disabled = true;
+    el('btnPublish').disabled = true;
+    log('Reset done.');
+  }
+
+  el('btnEnqueue').addEventListener('click', enqueueAgent);
+  el('btnApply').addEventListener('click', applyDraft);
+  el('btnPublish').addEventListener('click', publish);
+  el('btnReset').addEventListener('click', resetAll);
+</script>
 </body>
 </html>
