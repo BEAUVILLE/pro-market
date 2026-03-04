@@ -1,263 +1,132 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="utf-8"/>
+<title>DIGIY MARKET PRO — Ma Carte</title>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>DIGIY MARKET PRO</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+
 body{
-background:#061b14;
-color:#eafff1;
+background:#020617;
+color:#F9FAFB;
 font-family:system-ui;
-padding:30px;
+margin:0;
 }
 
-.card{
-background:#0b2a1f;
+.container{
+max-width:900px;
+margin:auto;
 padding:20px;
-border-radius:12px;
+}
+
+.hero{
+background:#0B1120;
+padding:20px;
+border-radius:20px;
 margin-bottom:20px;
 }
 
-input,textarea,select{
-width:100%;
-padding:10px;
-margin-top:6px;
-margin-bottom:12px;
-border-radius:8px;
-border:1px solid #244d3d;
-background:#041a13;
+.hero h1{
+font-size:28px;
+margin:0;
+}
+
+.form{
+background:#0B1120;
+padding:20px;
+border-radius:20px;
+display:grid;
+gap:12px;
+}
+
+input,textarea{
+padding:12px;
+border-radius:12px;
+border:1px solid #334155;
+background:#020617;
 color:white;
 }
 
 button{
-padding:10px 14px;
-border-radius:8px;
-border:0;
-margin-right:8px;
+padding:14px;
+border-radius:999px;
+border:none;
+font-weight:700;
 cursor:pointer;
-background:#facc15;
+background:linear-gradient(135deg,#facc15,#f97316);
 }
 
-button.secondary{
-background:#1f3d32;
-color:white;
+.preview{
+margin-top:20px;
+background:#0B1120;
+border-radius:20px;
+padding:20px;
 }
 
-.log{
-background:black;
-padding:10px;
-border-radius:8px;
-font-size:12px;
-white-space:pre-wrap;
-min-height:120px;
+.card{
+border-radius:20px;
+background:#111827;
+padding:16px;
 }
+
+.card img{
+width:100%;
+border-radius:12px;
+}
+
 </style>
 </head>
 
 <body>
 
-<div class="card">
+<div class="container">
 
-<h2>🦅 DIGIY MARKET PRO</h2>
+<div class="hero">
+<h1>🏪 Poser ma carte sur DIGIY MARKET</h1>
+<p>Ta boutique apparaîtra sur la place du marché de ta ville.</p>
+</div>
 
-<label>Téléphone</label>
-<input id="phone" value="221771342889"/>
+<div class="form">
 
-<label>Titre</label>
-<input id="title" value="Bissap frais"/>
+<input id="name" placeholder="Nom du commerce"/>
+<input id="city" value="Saly"/>
+<input id="category" placeholder="Catégorie"/>
+<input id="photo" placeholder="URL photo"/>
+<input id="whatsapp" placeholder="WhatsApp"/>
+<textarea id="bio" placeholder="Description"></textarea>
 
-<label>Description</label>
-<textarea id="description">Test agent worker — Saly</textarea>
-
-<button id="btnEnqueue">🧠 Nettoyer</button>
-<button id="btnApply" class="secondary" disabled>Créer draft</button>
-<button id="btnPublish" class="secondary" disabled>Publier</button>
+<button onclick="previewCard()">👁️ Prévisualiser</button>
+<button onclick="publish()">🚀 Publier ma carte</button>
 
 </div>
 
-
-<div class="card">
-
-<b>Job ID</b>
-<div id="jobId">—</div>
-
-<b>Listing ID</b>
-<div id="listingId">—</div>
-
-<b>Preview</b>
-<div id="preview" class="log"></div>
-
-<b>Logs</b>
-<div id="logs" class="log"></div>
+<div class="preview" id="preview"></div>
 
 </div>
-
 
 <script>
 
-const SUPABASE_URL="https://wesqmwjjtsefyjnluosj.supabase.co"
+function previewCard(){
 
-const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+const name=document.getElementById("name").value
+const city=document.getElementById("city").value
+const cat=document.getElementById("category").value
+const photo=document.getElementById("photo").value
+const bio=document.getElementById("bio").value
 
-
-const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY)
-
-const el=(id)=>document.getElementById(id)
-
-const log=(t)=>{
-el("logs").textContent=t+"\n"+el("logs").textContent
-}
-
-const state={
-jobId:null,
-listingId:null
-}
-
-function digits(s){
-return String(s).replace(/\D/g,"")
-}
-
-async function sleep(ms){
-return new Promise(r=>setTimeout(r,ms))
-}
-
-async function waitJob(jobId){
-
-while(true){
-
-const {data,error}=await sb.rpc(
-"digiy_agent_job_status",
-{p_job_id:jobId}
-)
-
-if(error){
-log("RPC error "+error.message)
-await sleep(1000)
-continue
-}
-
-if(!data?.ok){
-await sleep(1000)
-continue
-}
-
-log("status "+data.status)
-
-if(data.status==="archived"){
-return data.result
-}
-
-if(data.status==="dead"){
-throw "job failed"
-}
-
-await sleep(1200)
+document.getElementById("preview").innerHTML=`
+<div class="card">
+<img src="${photo}">
+<h3>${name}</h3>
+<p>${cat} • ${city}</p>
+<p>${bio}</p>
+</div>
+`
 
 }
-
-}
-
-async function enqueue(){
-
-const phone=digits(el("phone").value)
-
-const title=el("title").value
-const description=el("description").value
-
-log("enqueue agent")
-
-const {data,error}=await sb.rpc(
-"digiy_agent_enqueue",
-{
-p_module:"LOC",
-p_agent_code:"MARKET_CATALOG_CLEAN",
-p_payload:{title,description},
-p_phone:phone,
-p_slug:null,
-p_run_at:new Date().toISOString(),
-p_priority:"normal"
-}
-)
-
-if(error){
-log(error.message)
-return
-}
-
-state.jobId=data.id
-
-el("jobId").textContent=data.id
-
-log("job créé")
-
-const result=await waitJob(data.id)
-
-log("résultat reçu")
-
-el("preview").textContent=
-JSON.stringify(result,null,2)
-
-el("btnApply").disabled=false
-
-}
-
-async function apply(){
-
-const phone=digits(el("phone").value)
-
-const {data,error}=await sb.rpc(
-"digiy_market_apply_agent_result",
-{
-p_job_id:state.jobId,
-p_owner_phone:phone,
-p_access_module:"LOC"
-}
-)
-
-if(error){
-log(error.message)
-return
-}
-
-state.listingId=data.listing_id
-
-el("listingId").textContent=data.listing_id
-
-log("draft créé")
-
-el("btnPublish").disabled=false
-
-}
-
-async function publish(){
-
-const phone=digits(el("phone").value)
-
-const {data,error}=await sb.rpc(
-"digiy_market_publish_listing",
-{
-p_listing_id:state.listingId,
-p_owner_phone:phone,
-p_access_module:"LOC"
-}
-)
-
-if(error){
-log(error.message)
-return
-}
-
-log("listing publié")
-
-}
-
-el("btnEnqueue").onclick=enqueue
-el("btnApply").onclick=apply
-el("btnPublish").onclick=publish
 
 </script>
 
