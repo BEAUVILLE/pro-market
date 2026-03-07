@@ -7,7 +7,12 @@
   <meta name="theme-color" content="#07140f"/>
   <meta name="description" content="Cockpit professionnel DIGIY MARKET : commandes, stats, lecture terrain."/>
 
+  <script>
+    window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    window.DIGIY_SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./guard.js"></script>
 
   <style>
     :root{
@@ -41,10 +46,7 @@
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
     }
 
-    body{
-      padding:16px;
-    }
-
+    body{ padding:16px; }
     a{color:inherit;text-decoration:none}
 
     .wrap{
@@ -54,8 +56,7 @@
       gap:14px;
     }
 
-    .card,
-    .hero{
+    .card,.hero{
       border:1px solid var(--line);
       border-radius:var(--r);
       background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.018));
@@ -90,9 +91,7 @@
       flex:0 0 auto;
     }
 
-    .brand-copy{
-      min-width:0;
-    }
+    .brand-copy{min-width:0}
 
     .eyebrow{
       font-size:12px;
@@ -158,9 +157,7 @@
       color:var(--muted);
     }
 
-    .hero{
-      overflow:hidden;
-    }
+    .hero{overflow:hidden}
 
     .hero-grid{
       display:grid;
@@ -313,9 +310,7 @@
       .layout{grid-template-columns:1.06fr .94fr}
     }
 
-    .panel{
-      padding:18px;
-    }
+    .panel{padding:18px}
 
     .panel h2{
       margin:0 0 8px;
@@ -376,9 +371,7 @@
       gap:14px;
     }
 
-    .order.preview{
-      opacity:.96;
-    }
+    .order.preview{opacity:.96}
 
     .order-top{
       display:flex;
@@ -622,26 +615,17 @@
   </div>
 
   <script>
-    const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInR5cCI6IkpXVCJ9".slice(0,0) || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
-
+    const SUPABASE_URL = window.DIGIY_SUPABASE_URL;
+    const SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON;
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const qs = new URLSearchParams(location.search);
-    const hintedSlug = (qs.get("slug") || "").trim();
-    const storedSlug =
-      sessionStorage.getItem("digiy_market_slug") ||
-      sessionStorage.getItem("digiy_market_last_slug") ||
-      localStorage.getItem("digiy_market_last_slug") ||
-      "";
-
-    const slug = hintedSlug || "";
     const $ = (id) => document.getElementById(id);
 
-    let IS_PREVIEW = !slug;
     let ACTIVE_FILTER = "all";
     let ALL_ORDERS = [];
     let PROFILE = null;
+    let RESOLVED_SLUG = "";
+    let IS_PREVIEW = true;
 
     function esc(v){
       return String(v ?? "")
@@ -659,19 +643,6 @@
     function formatPhone(v){
       const p = normalizePhone(v);
       return p || "—";
-    }
-
-    function fmtDate(v){
-      if(!v) return "—";
-      try{
-        return new Date(v).toLocaleDateString("fr-FR", {
-          year:"numeric",
-          month:"2-digit",
-          day:"2-digit"
-        });
-      }catch{
-        return String(v);
-      }
     }
 
     function fmtDateTime(v){
@@ -721,6 +692,13 @@
       $("sConfirmed").textContent = "0";
       $("sDone").textContent = "0";
       $("sCancelled").textContent = "0";
+    }
+
+    function resetView(){
+      $("orderList").innerHTML = "";
+      $("emptyState").style.display = "none";
+      ALL_ORDERS = [];
+      PROFILE = null;
     }
 
     function previewProfile(){
@@ -822,7 +800,7 @@
       $("pillCity").textContent = `📍 ${city}`;
       $("pillHours").textContent = `🕒 ${hours}`;
 
-      $("miniSlug").textContent = liveMode ? (p.slug || slug) : "Aperçu";
+      $("miniSlug").textContent = liveMode ? (p.slug || RESOLVED_SLUG) : "Aperçu";
       $("miniPhone").textContent = phone;
       $("miniWhatsapp").textContent = whatsapp;
       $("miniAddress").textContent = address;
@@ -836,8 +814,8 @@
       $("modeBadge").textContent = liveMode ? "Mode vivant" : "Mode aperçu";
 
       $("topSub").textContent = liveMode
-        ? `Cockpit chargé pour ${p.slug || slug}`
-        : (storedSlug ? `Aperçu actif • dernier slug connu : ${storedSlug}` : "Aucun slug détecté. Aperçu élégant actif.");
+        ? `Cockpit chargé pour ${p.slug || RESOLVED_SLUG}`
+        : "Aperçu élégant actif.";
 
       $("previewBox").style.display = liveMode ? "none" : "block";
       $("footerText").textContent = liveMode
@@ -845,15 +823,15 @@
         : "DIGIY MARKET PRO • Aperçu cockpit";
 
       $("btnSettings").href = liveMode
-        ? `./boutique.html?slug=${encodeURIComponent(p.slug || slug)}`
+        ? `./boutique.html?slug=${encodeURIComponent(p.slug || RESOLVED_SLUG)}`
         : "./boutique.html";
 
       $("btnPin").href = liveMode
-        ? `./pin.html?slug=${encodeURIComponent(p.slug || slug)}`
+        ? `./pin.html?slug=${encodeURIComponent(p.slug || RESOLVED_SLUG)}`
         : "./pin.html";
     }
 
-    function applyStats(data, preview=false){
+    function applyStats(data, preview = false){
       if(preview){
         $("sTotal").textContent = "4";
         $("sPending").textContent = "1";
@@ -911,6 +889,7 @@
     function liveActionsHtml(row){
       const phone = normalizePhone(row.customer_phone);
       const msg = `Bonjour ${row.customer_name || ""}, je vous contacte depuis DIGIY MARKET au sujet de votre commande : ${row.item_name || "commande"}.`;
+
       if(!phone){
         return `
           <div class="order-actions">
@@ -998,21 +977,21 @@
     }
 
     async function loadProfile(){
-      const data = await rpc("market_get_profile_by_slug", { p_slug: slug });
+      const data = await rpc("market_get_profile_by_slug", { p_slug: RESOLVED_SLUG });
       if(!data?.ok || !data?.profile) throw new Error(data?.error || "profile_error");
       PROFILE = data.profile;
       return PROFILE;
     }
 
     async function loadStats(){
-      const data = await rpc("market_stats_by_slug", { p_slug: slug });
+      const data = await rpc("market_stats_by_slug", { p_slug: RESOLVED_SLUG });
       if(!data?.ok) throw new Error(data?.error || "stats_error");
       applyStats(data, false);
     }
 
     async function loadOrders(){
       const data = await rpc("market_list_recent_orders_by_slug", {
-        p_slug: slug,
+        p_slug: RESOLVED_SLUG,
         p_limit: 100
       });
       if(!data?.ok && !Array.isArray(data?.rows)) throw new Error(data?.error || "orders_error");
@@ -1022,44 +1001,86 @@
 
     async function boot(){
       document.body.classList.add("loading");
+      resetView();
       resetStats();
-      $("orderList").innerHTML = "";
-      $("emptyState").style.display = "none";
 
       try{
-        if(!slug){
+        await window.DIGIY_GUARD.ready;
+        const st = window.DIGIY_GUARD.state;
+
+        if(st?.preview){
           IS_PREVIEW = true;
+          RESOLVED_SLUG = "";
           PROFILE = previewProfile();
           ALL_ORDERS = previewOrders();
           applyProfile(PROFILE, false);
           applyStats(null, true);
           renderOrders();
+
+          if(st.reason === "preview_no_identity"){
+            $("topSub").textContent = "Aucun slug détecté. Aperçu affiché.";
+          }else if(st.reason === "unknown_identity"){
+            $("topSub").textContent = "Slug inconnu. Aperçu affiché.";
+          }else if(st.reason === "guard_error"){
+            $("topSub").textContent = "Guard indisponible. Aperçu affiché.";
+          }
+
           return;
         }
 
-        IS_PREVIEW = false;
-        const profile = await loadProfile();
-        applyProfile(profile, true);
+        if(st?.access_ok){
+          RESOLVED_SLUG = st.slug || "";
+          if(!RESOLVED_SLUG){
+            IS_PREVIEW = true;
+            PROFILE = previewProfile();
+            ALL_ORDERS = previewOrders();
+            applyProfile(PROFILE, false);
+            applyStats(null, true);
+            renderOrders();
+            $("topSub").textContent = "Accès OK mais slug absent. Aperçu affiché.";
+            return;
+          }
 
-        await Promise.all([
-          loadStats(),
-          loadOrders()
-        ]);
+          IS_PREVIEW = false;
+          const profile = await loadProfile();
+          applyProfile(profile, true);
 
-        sessionStorage.setItem("digiy_market_slug", profile.slug || slug);
-        sessionStorage.setItem("digiy_market_last_slug", profile.slug || slug);
-        localStorage.setItem("digiy_market_last_slug", profile.slug || slug);
-      }catch(err){
-        console.error(err);
+          await Promise.all([
+            loadStats(),
+            loadOrders()
+          ]);
+
+          sessionStorage.setItem("digiy_market_slug", profile.slug || RESOLVED_SLUG);
+          sessionStorage.setItem("digiy_market_last_slug", profile.slug || RESOLVED_SLUG);
+          localStorage.setItem("digiy_market_last_slug", profile.slug || RESOLVED_SLUG);
+          return;
+        }
+
         IS_PREVIEW = true;
+        RESOLVED_SLUG = "";
         PROFILE = previewProfile();
         ALL_ORDERS = previewOrders();
         applyProfile(PROFILE, false);
         applyStats(null, true);
         renderOrders();
-        $("topSub").textContent = slug
-          ? `Slug introuvable ou inactif : ${slug}. Aperçu affiché.`
-          : "Aperçu actif.";
+
+        if(st?.reason === "no_subscription"){
+          $("topSub").textContent = "Accès non actif. Aperçu affiché.";
+        }else if(st?.reason === "unknown_identity"){
+          $("topSub").textContent = "Slug inconnu. Aperçu affiché.";
+        }else{
+          $("topSub").textContent = "Accès indisponible. Aperçu affiché.";
+        }
+      }catch(err){
+        console.error(err);
+        IS_PREVIEW = true;
+        RESOLVED_SLUG = "";
+        PROFILE = previewProfile();
+        ALL_ORDERS = previewOrders();
+        applyProfile(PROFILE, false);
+        applyStats(null, true);
+        renderOrders();
+        $("topSub").textContent = "Erreur de chargement du cockpit. Aperçu affiché.";
       }finally{
         document.body.classList.remove("loading");
       }
