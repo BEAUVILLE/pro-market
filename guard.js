@@ -1,37 +1,65 @@
-// guard-pro.js — DIGIY PRO access gate (preview-safe, slug-smart)
+// guard.js — DIGIY MARKET PRO access gate (cockpit-compatible, preview-safe)
 (() => {
   "use strict";
 
-  const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+  const SUPABASE_URL =
+    window.DIGIY_SUPABASE_URL ||
+    "https://wesqmwjjtsefyjnluosj.supabase.co";
+
   const SUPABASE_ANON_KEY =
+    window.DIGIY_SUPABASE_ANON ||
+    window.DIGIY_SUPABASE_ANON_KEY ||
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
 
-  // ✅ À ADAPTER PAR MODULE
   const MODULE_CODE = "MARKET";
+  const MODULE_KEY = MODULE_CODE.toLowerCase();
   const PAY_URL = "https://commencer-a-payer.digiylyfe.com/";
 
-  // ✅ Très important :
-  // true  = autorise le mode aperçu si aucun slug/phone
-  // false = protège dur et renvoie vers payer
+  // true  => cockpit peut tomber en aperçu
+  // false => redirection vers paiement si accès non prouvé
   const ALLOW_PREVIEW_WITHOUT_IDENTITY = true;
+  const ALLOW_PREVIEW_IF_NO_ACCESS = true;
 
   const qs = new URLSearchParams(location.search);
-  const slugQ = (qs.get("slug") || "").trim();
-  const phoneQ = (qs.get("phone") || "").trim();
 
-  function normPhone(p) {
-    const d = String(p || "").replace(/[^\d]/g, "");
+  function stripAccents(v) {
+    return String(v || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+  }
+
+  function normPhone(v) {
+    const d = String(v || "").replace(/[^\d]/g, "").trim();
     return d.length >= 9 ? d : "";
   }
 
-  function normSlug(s) {
-    return String(s || "")
+  function normSlug(v) {
+    return stripAccents(v)
       .trim()
       .toLowerCase()
       .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9-]/g, "")
+      .replace(/[^a-z0-9-]/g, "-")
       .replace(/-+/g, "-")
       .replace(/^-|-$/g, "");
+  }
+
+  function isSubSlug(v) {
+    const s = normSlug(v);
+    return s.startsWith(`${MODULE_KEY}-`);
+  }
+
+  function getStorage(key) {
+    return (
+      sessionStorage.getItem(key) ||
+      localStorage.getItem(key) ||
+      ""
+    );
+  }
+
+  function setStorage(key, value) {
+    if (!value) return;
+    sessionStorage.setItem(key, value);
+    localStorage.setItem(key, value);
   }
 
   function buildHeaders() {
@@ -53,8 +81,8 @@
     return { ok: r.ok, status: r.status, data: j };
   }
 
-  async function fetchPublicSubBySlug(slug) {
-    const s = normSlug(slug);
+  async function fetchPublicSubBySlug(subSlug) {
+    const s = normSlug(subSlug);
     if (!s) return null;
 
     const url =
@@ -76,7 +104,7 @@
 
     return {
       phone: normPhone(arr[0].phone || ""),
-      slug: normSlug(arr[0].slug || ""),
+      subSlug: normSlug(arr[0].slug || ""),
       module: String(arr[0].module || "")
     };
   }
@@ -104,80 +132,150 @@
 
     return {
       phone: normPhone(arr[0].phone || ""),
-      slug: normSlug(arr[0].slug || ""),
+      subSlug: normSlug(arr[0].slug || ""),
       module: String(arr[0].module || "")
     };
   }
 
-  function rememberIdentity({ phone, slug }) {
+  function rememberIdentity({ phone, subSlug, profileSlug }) {
     const p = normPhone(phone);
-    const s = normSlug(slug);
+    const ss = normSlug(subSlug);
+    const ps = normSlug(profileSlug);
 
     if (p) {
-      localStorage.setItem(`digiy_${MODULE_CODE.toLowerCase()}_phone`, p);
-      sessionStorage.setItem(`digiy_${MODULE_CODE.toLowerCase()}_phone`, p);
+      setStorage(`digiy_${MODULE_KEY}_phone`, p);
     }
 
-    if (s) {
-      localStorage.setItem(`digiy_${MODULE_CODE.toLowerCase()}_last_slug`, s);
-      sessionStorage.setItem(`digiy_${MODULE_CODE.toLowerCase()}_slug`, s);
-      sessionStorage.setItem(`digiy_${MODULE_CODE.toLowerCase()}_last_slug`, s);
+    if (ss) {
+      setStorage(`digiy_${MODULE_KEY}_sub_slug`, ss);
+    }
+
+    if (ps) {
+      setStorage(`digiy_${MODULE_KEY}_profile_slug`, ps);
+      setStorage(`digiy_${MODULE_KEY}_slug`, ps);
+      setStorage(`digiy_${MODULE_KEY}_last_slug`, ps);
     }
   }
 
-  function enrichUrlIfMissingSlug(slug) {
-    const s = normSlug(slug);
-    if (!s) return;
-    if (normSlug(qs.get("slug") || "")) return;
+  function readRememberedIdentity() {
+    return {
+      phone: normPhone(getStorage(`digiy_${MODULE_KEY}_phone`)),
+      subSlug: normSlug(getStorage(`digiy_${MODULE_KEY}_sub_slug`)),
+      profileSlug:
+        normSlug(getStorage(`digiy_${MODULE_KEY}_profile_slug`)) ||
+        normSlug(getStorage(`digiy_${MODULE_KEY}_slug`)) ||
+        normSlug(getStorage(`digiy_${MODULE_KEY}_last_slug`))
+    };
+  }
 
+  function enrichUrl({ subSlug, profileSlug, phone }) {
     const u = new URL(location.href);
-    u.searchParams.set("slug", s);
+
+    const ss = normSlug(subSlug);
+    const ps = normSlug(profileSlug);
+    const p = normPhone(phone);
+
+    if (ss && !u.searchParams.get("sub")) {
+      u.searchParams.set("sub", ss);
+    }
+
+    if (ps) {
+      if (!u.searchParams.get("pslug")) {
+        u.searchParams.set("pslug", ps);
+      }
+      if (!u.searchParams.get("slug") || isSubSlug(u.searchParams.get("slug"))) {
+        u.searchParams.set("slug", ps);
+      }
+    }
+
+    if (p && !u.searchParams.get("phone")) {
+      u.searchParams.set("phone", p);
+    }
+
     history.replaceState(null, "", u.toString());
   }
 
-  function goPay({ phone, slug }) {
+  function goPay({ phone, subSlug, profileSlug }) {
     const u = new URL(PAY_URL);
     const p = normPhone(phone);
-    const s = normSlug(slug);
+    const ss = normSlug(subSlug);
+    const ps = normSlug(profileSlug);
 
     u.searchParams.set("module", MODULE_CODE);
-
     if (p) u.searchParams.set("phone", p);
-    if (s) u.searchParams.set("slug", s);
-
-    // retour vers la page actuelle
+    if (ss) u.searchParams.set("sub", ss);
+    if (ps) u.searchParams.set("pslug", ps);
     u.searchParams.set("return", location.href);
 
     location.replace(u.toString());
   }
 
-  async function go() {
-    let slug = normSlug(slugQ);
-    let phone = normPhone(phoneQ);
+  const guard = {
+    state: {
+      preview: true,
+      access_ok: false,
+      reason: "booting",
+      phone: "",
+      slug: "",      // IMPORTANT: ici = slug boutique / profil
+      sub_slug: "",  // IMPORTANT: ici = slug abonnement MARKET-...
+      module: MODULE_CODE
+    },
+    ready: null
+  };
 
-    // 1) slug-first : résoudre phone via slug
-    if (!phone && slug) {
-      const sub = await fetchPublicSubBySlug(slug);
+  window.DIGIY_GUARD = guard;
+
+  guard.ready = (async () => {
+    let slugParam = normSlug(qs.get("slug") || "");
+    let pslugParam = normSlug(qs.get("pslug") || "");
+    let subParam = normSlug(qs.get("sub") || "");
+    let phoneParam = normPhone(qs.get("phone") || "");
+
+    // compat : si ?slug=market-221...
+    if (!subParam && isSubSlug(slugParam)) {
+      subParam = slugParam;
+      slugParam = "";
+    }
+
+    const remembered = readRememberedIdentity();
+
+    let profileSlug = pslugParam || slugParam || remembered.profileSlug || "";
+    let subSlug = subParam || remembered.subSlug || "";
+    let phone = phoneParam || remembered.phone || "";
+
+    // 1) si on a un sub slug mais pas phone => résoudre phone
+    if (subSlug && !phone) {
+      const sub = await fetchPublicSubBySlug(subSlug);
       if (sub?.phone) phone = normPhone(sub.phone);
-      if (sub?.slug) slug = normSlug(sub.slug);
+      if (sub?.subSlug) subSlug = normSlug(sub.subSlug);
     }
 
-    // 2) phone-only : résoudre slug via phone
-    if (phone && !slug) {
+    // 2) si on a phone mais pas sub slug => résoudre sub slug
+    if (phone && !subSlug) {
       const sub = await fetchPublicSubByPhone(phone);
-      if (sub?.slug) slug = normSlug(sub.slug);
+      if (sub?.subSlug) subSlug = normSlug(sub.subSlug);
     }
 
-    // 3) mémoriser + enrichir URL si slug retrouvé
-    if (phone || slug) {
-      rememberIdentity({ phone, slug });
-      if (slug) enrichUrlIfMissingSlug(slug);
-    }
+    // 3) mémoriser ce qu’on sait
+    rememberIdentity({ phone, subSlug, profileSlug });
+    enrichUrl({ phone, subSlug, profileSlug });
 
-    // 4) aucun identifiant : soit aperçu, soit payer
-    if (!phone && !slug) {
-      if (ALLOW_PREVIEW_WITHOUT_IDENTITY) return;
-      return goPay({ phone: "", slug: "" });
+    // 4) aucun identifiant exploitable
+    if (!phone && !subSlug && !profileSlug) {
+      guard.state = {
+        preview: true,
+        access_ok: false,
+        reason: "preview_no_identity",
+        phone: "",
+        slug: "",
+        sub_slug: "",
+        module: MODULE_CODE
+      };
+
+      if (!ALLOW_PREVIEW_WITHOUT_IDENTITY) {
+        goPay({ phone: "", subSlug: "", profileSlug: "" });
+      }
+      return;
     }
 
     // 5) si on a un phone, la vérité backend décide
@@ -187,22 +285,72 @@
         p_module: MODULE_CODE
       });
 
-      // ✅ accès OK
-      if (res.ok && res.data === true) return;
+      if (res.ok && res.data === true) {
+        guard.state = {
+          preview: false,
+          access_ok: true,
+          reason: "access_ok",
+          phone,
+          slug: profileSlug || "",
+          sub_slug: subSlug || "",
+          module: MODULE_CODE
+        };
+        return;
+      }
 
-      // ❌ pas accès
-      return goPay({ phone, slug });
+      guard.state = {
+        preview: true,
+        access_ok: false,
+        reason: "no_subscription",
+        phone,
+        slug: profileSlug || "",
+        sub_slug: subSlug || "",
+        module: MODULE_CODE
+      };
+
+      if (!ALLOW_PREVIEW_IF_NO_ACCESS) {
+        goPay({ phone, subSlug, profileSlug });
+      }
+      return;
     }
 
-    // 6) si on a seulement un slug mais pas de phone résolu
-    // preview autorisé si demandé, sinon payer
-    if (ALLOW_PREVIEW_WITHOUT_IDENTITY) return;
-    return goPay({ phone: "", slug });
-  }
+    // 6) on a un slug boutique seulement, mais pas de phone prouvé
+    guard.state = {
+      preview: true,
+      access_ok: false,
+      reason: "unknown_identity",
+      phone: "",
+      slug: profileSlug || "",
+      sub_slug: subSlug || "",
+      module: MODULE_CODE
+    };
 
-  go().catch(() => {
-    // safe fallback
-    if (ALLOW_PREVIEW_WITHOUT_IDENTITY && !normPhone(phoneQ) && !normSlug(slugQ)) return;
-    goPay({ phone: phoneQ, slug: slugQ });
+    if (!ALLOW_PREVIEW_WITHOUT_IDENTITY) {
+      goPay({ phone: "", subSlug, profileSlug });
+    }
+  })().catch((err) => {
+    console.error("DIGIY_GUARD error:", err);
+
+    const slugParam = normSlug(qs.get("slug") || "");
+    const pslugParam = normSlug(qs.get("pslug") || "");
+    const subParam = normSlug(qs.get("sub") || "");
+    const phoneParam = normPhone(qs.get("phone") || "");
+
+    const profileSlug = pslugParam || (isSubSlug(slugParam) ? "" : slugParam);
+    const subSlug = subParam || (isSubSlug(slugParam) ? slugParam : "");
+
+    guard.state = {
+      preview: true,
+      access_ok: false,
+      reason: "guard_error",
+      phone: phoneParam || "",
+      slug: profileSlug || "",
+      sub_slug: subSlug || "",
+      module: MODULE_CODE
+    };
+
+    if (!ALLOW_PREVIEW_WITHOUT_IDENTITY && !ALLOW_PREVIEW_IF_NO_ACCESS) {
+      goPay({ phone: phoneParam, subSlug, profileSlug });
+    }
   });
 })();
