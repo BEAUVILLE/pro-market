@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#07140f"/>
   <meta name="description" content="Cockpit professionnel DIGIY MARKET : commandes, stats, lecture terrain."/>
 
- <script>
+<script>
   const SUPABASE_URL = window.DIGIY_SUPABASE_URL;
   const SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON;
   const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -237,7 +237,6 @@
       ? `DIGIY MARKET PRO • ${name} • Cockpit vivant`
       : "DIGIY MARKET PRO • Aperçu cockpit";
 
-    // on garde le rail PRO slug-only
     $("btnSettings").href = liveMode && ACCESS_SLUG
       ? `./boutique.html?slug=${encodeURIComponent(ACCESS_SLUG)}`
       : "./boutique.html";
