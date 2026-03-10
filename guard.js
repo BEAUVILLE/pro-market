@@ -216,8 +216,8 @@
       access_ok: false,
       reason: "booting",
       phone: "",
-      slug: "",      // IMPORTANT: ici = slug boutique / profil
-      sub_slug: "",  // IMPORTANT: ici = slug abonnement MARKET-...
+      slug: "",      // slug boutique / profil
+      sub_slug: "",  // slug abonnement MARKET-...
       module: MODULE_CODE
     },
     ready: null
