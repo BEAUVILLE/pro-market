@@ -7,8 +7,12 @@
   <meta name="theme-color" content="#07140f"/>
   <meta name="description" content="Réglages boutique DIGIY MARKET PRO : identité, contact, horaires, publication."/>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
+ <script>
+  window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+  window.DIGIY_SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./guard.js"></script>
   <style>
     :root{
       --bg:#07140f;
@@ -639,313 +643,343 @@
   </div>
 
   <script>
-    const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+  const SUPABASE_URL = window.DIGIY_SUPABASE_URL;
+  const SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON;
+  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const $ = (id) => document.getElementById(id);
 
-    const qs = new URLSearchParams(location.search);
-    const hintedSlug = (qs.get("slug") || "").trim();
-    const storedSlug =
-      sessionStorage.getItem("digiy_market_slug") ||
-      sessionStorage.getItem("digiy_market_last_slug") ||
-      localStorage.getItem("digiy_market_last_slug") ||
-      "";
+  let ACCESS_SLUG = "";
+  let ACCESS_PHONE = "";
+  let IS_PREVIEW = true;
+  let CURRENT_PROFILE = null;
 
-    const slug = hintedSlug || "";
-    const $ = (id) => document.getElementById(id);
+  function normalizePhone(v){
+    return String(v || "").replace(/[^\d]/g, "");
+  }
 
-    let IS_PREVIEW = !slug;
-    let CURRENT_PROFILE = null;
+  function formatPhone(v){
+    const p = normalizePhone(v);
+    return p || "—";
+  }
 
-    function normalizePhone(v){
-      return String(v || "").replace(/[^\d]/g, "");
+  function setStatus(msg, tone = ""){
+    const box = $("statusBox");
+    box.className = "statusbox" + (tone ? " " + tone : "");
+    box.textContent = msg;
+  }
+
+  function setBusy(isBusy){
+    [
+      "businessName","category","city","publicPhone","whatsapp",
+      "addressText","openHours","deliveryNote","description",
+      "coverImageUrl","logoUrl"
+    ].forEach(id => {
+      $(id).disabled = isBusy || IS_PREVIEW;
+    });
+
+    $("btnSave").disabled = isBusy || IS_PREVIEW;
+    $("btnPublish").disabled = isBusy || IS_PREVIEW;
+    $("btnUnpublish").disabled = isBusy || IS_PREVIEW;
+  }
+
+  function previewProfile(){
+    return {
+      slug: "",
+      owner_phone: "221771342889",
+      business_name: "Astou Market",
+      category: "Cosmétiques / Produits naturels",
+      city: "Saly",
+      public_phone: "221771342889",
+      whatsapp: "221771342889",
+      address_text: "Saly centre",
+      description: "Boutique locale, produits utiles et bons.",
+      open_hours: "08h - 20h",
+      delivery_note: "Livraison locale selon zone",
+      cover_image_url: "",
+      logo_url: "",
+      is_published: false,
+      published_at: null
+    };
+  }
+
+  function publicShopUrl(s){
+    return s
+      ? `./../DIGIY MARKET/boutique.html?slug=${encodeURIComponent(s)}`
+      : "./../DIGIY MARKET/boutique.html";
+  }
+
+  function cockpitUrl(s){
+    return s
+      ? `./cockpit.html?slug=${encodeURIComponent(s)}`
+      : "./cockpit.html";
+  }
+
+  function pinUrl(s){
+    return s
+      ? `./pin.html?slug=${encodeURIComponent(s)}`
+      : "./pin.html";
+  }
+
+  function applyProfile(profile, liveMode){
+    const p = profile || previewProfile();
+    CURRENT_PROFILE = p;
+
+    const name = p.business_name || "Boutique DIGIY";
+    const category = p.category || "Boutique locale";
+    const city = p.city || "Terrain local";
+    const phone = formatPhone(p.public_phone);
+    const whatsapp = formatPhone(p.whatsapp || p.public_phone);
+    const address = p.address_text || "Adresse à confirmer";
+    const hours = p.open_hours || "Horaires à confirmer";
+    const delivery = p.delivery_note || "Livraison selon zone.";
+    const currentSlug = ACCESS_SLUG || p.slug || "";
+
+    $("businessName").value = p.business_name || "";
+    $("category").value = p.category || "";
+    $("city").value = p.city || "";
+    $("publicPhone").value = p.public_phone || "";
+    $("whatsapp").value = p.whatsapp || "";
+    $("addressText").value = p.address_text || "";
+    $("openHours").value = p.open_hours || "";
+    $("deliveryNote").value = p.delivery_note || "";
+    $("description").value = p.description || "";
+    $("coverImageUrl").value = p.cover_image_url || "";
+    $("logoUrl").value = p.logo_url || "";
+
+    $("shopName").textContent = name;
+    $("shopSubtitle").textContent = liveMode
+      ? "Régle ton identité, ton contact, tes horaires et ta visibilité publique."
+      : "Aperçu pro élégant avant chargement réel de la boutique.";
+
+    $("pillCategory").textContent = `🏷️ ${category}`;
+    $("pillCity").textContent = `📍 ${city}`;
+    $("pillHours").textContent = `🕒 ${hours}`;
+
+    $("miniSlug").textContent = liveMode ? (currentSlug || "—") : "Aperçu";
+    $("miniPhone").textContent = phone;
+    $("miniWhatsapp").textContent = whatsapp;
+    $("miniAddress").textContent = address;
+
+    $("factShop").textContent = name;
+    $("factCity").textContent = city;
+    $("factHours").textContent = hours;
+    $("factDelivery").textContent = delivery;
+
+    $("modeBadge").className = liveMode ? "mode live" : "mode";
+    $("modeBadge").textContent = liveMode ? "Mode vivant" : "Mode aperçu";
+
+    $("publishBadge").className = "badge " + (p.is_published ? "on" : "off");
+    $("publishBadge").textContent = p.is_published ? "Publiée" : "Non publiée";
+
+    $("topSub").textContent = liveMode
+      ? `Boutique chargée pour ${currentSlug}`
+      : "Aperçu actif.";
+
+    $("previewBox").style.display = liveMode ? "none" : "flex";
+    $("footerText").textContent = liveMode
+      ? `DIGIY MARKET PRO • ${name} • Réglages vivants`
+      : "DIGIY MARKET PRO • Aperçu réglages";
+
+    $("btnPublic").href = publicShopUrl(currentSlug);
+    $("btnCockpit").href = cockpitUrl(currentSlug);
+    $("btnPin").href = pinUrl(currentSlug);
+  }
+
+  async function rpc(name, args){
+    const { data, error } = await sb.rpc(name, args);
+    if(error) throw error;
+    return data;
+  }
+
+  async function loadProfile(){
+    if(!ACCESS_SLUG) throw new Error("access_slug_missing");
+
+    const data = await rpc("market_get_profile_by_slug", { p_slug: ACCESS_SLUG });
+    if(!data?.ok || !data?.profile){
+      throw new Error(data?.error || "profile_error");
+    }
+    return data.profile;
+  }
+
+  function collectForm(){
+    return {
+      p_slug: ACCESS_SLUG,
+      p_business_name: $("businessName").value.trim() || null,
+      p_category: $("category").value.trim() || null,
+      p_city: $("city").value.trim() || null,
+      p_public_phone: normalizePhone($("publicPhone").value) || null,
+      p_whatsapp: normalizePhone($("whatsapp").value) || null,
+      p_address_text: $("addressText").value.trim() || null,
+      p_description: $("description").value.trim() || null,
+      p_open_hours: $("openHours").value.trim() || null,
+      p_delivery_note: $("deliveryNote").value.trim() || null,
+      p_cover_image_url: $("coverImageUrl").value.trim() || null,
+      p_logo_url: $("logoUrl").value.trim() || null
+    };
+  }
+
+  async function saveProfile(){
+    if(IS_PREVIEW){
+      setStatus("Mode aperçu : impossible d’enregistrer sans accès PRO.", "warn");
+      return;
     }
 
-    function formatPhone(v){
-      const p = normalizePhone(v);
-      return p || "—";
+    if($("btnSave").dataset.busy === "1") return;
+
+    const name = $("businessName").value.trim();
+    if(!name){
+      setStatus("Le nom de la boutique est manquant.", "err");
+      $("businessName").focus();
+      return;
     }
 
-    function setStatus(msg, tone=""){
-      const box = $("statusBox");
-      box.className = "statusbox" + (tone ? " " + tone : "");
-      box.textContent = msg;
+    $("btnSave").dataset.busy = "1";
+    setBusy(true);
+    setStatus("Enregistrement de la boutique...");
+
+    try{
+      const data = await rpc("market_upsert_profile_by_slug", collectForm());
+
+      if(!data?.ok || !data?.profile){
+        throw new Error(data?.error || "save_failed");
+      }
+
+      applyProfile(data.profile, true);
+
+      sessionStorage.setItem("digiy_market_slug", ACCESS_SLUG);
+      sessionStorage.setItem("digiy_market_last_slug", ACCESS_SLUG);
+      localStorage.setItem("digiy_market_last_slug", ACCESS_SLUG);
+
+      setStatus("Boutique enregistrée.", "ok");
+    }catch(err){
+      console.error(err);
+      setStatus("Impossible d’enregistrer la boutique.", "err");
+    }finally{
+      $("btnSave").dataset.busy = "0";
+      setBusy(false);
+    }
+  }
+
+  async function setPublish(value){
+    if(IS_PREVIEW){
+      setStatus("Mode aperçu : impossible de publier sans accès PRO.", "warn");
+      return;
     }
 
-    function setBusy(isBusy){
-      [
-        "businessName","category","city","publicPhone","whatsapp",
-        "addressText","openHours","deliveryNote","description",
-        "coverImageUrl","logoUrl"
-      ].forEach(id => { $(id).disabled = isBusy || IS_PREVIEW; });
+    const key = value ? "btnPublish" : "btnUnpublish";
+    if($(key).dataset.busy === "1") return;
 
-      $("btnSave").disabled = isBusy || IS_PREVIEW;
-      $("btnPublish").disabled = isBusy || IS_PREVIEW;
-      $("btnUnpublish").disabled = isBusy || IS_PREVIEW;
+    $(key).dataset.busy = "1";
+    setBusy(true);
+    setStatus(value ? "Publication en cours..." : "Dépublication en cours...");
+
+    try{
+      const data = await rpc("market_set_publish_by_slug", {
+        p_slug: ACCESS_SLUG,
+        p_is_published: value
+      });
+
+      if(!data?.ok){
+        throw new Error(data?.error || "publish_failed");
+      }
+
+      if(CURRENT_PROFILE){
+        CURRENT_PROFILE.is_published = !!data.is_published;
+        CURRENT_PROFILE.published_at = data.published_at || null;
+      }
+
+      applyProfile(CURRENT_PROFILE || previewProfile(), true);
+      setStatus(value ? "Boutique publiée." : "Boutique dépubliée.", "ok");
+    }catch(err){
+      console.error(err);
+      setStatus(value ? "Impossible de publier la boutique." : "Impossible de dépublier la boutique.", "err");
+    }finally{
+      $(key).dataset.busy = "0";
+      setBusy(false);
     }
+  }
 
-    function previewProfile(){
-      return {
-        slug: "",
-        owner_phone: "221771342889",
-        business_name: "Astou Market",
-        category: "Cosmétiques / Produits naturels",
-        city: "Saly",
-        public_phone: "221771342889",
-        whatsapp: "221771342889",
-        address_text: "Saly centre",
-        description: "Boutique locale, produits utiles et bons.",
-        open_hours: "08h - 20h",
-        delivery_note: "Livraison locale selon zone",
-        cover_image_url: "",
-        logo_url: "",
-        is_published: false,
-        published_at: null
-      };
-    }
+  function showPreview(msg){
+    IS_PREVIEW = true;
+    ACCESS_SLUG = "";
+    ACCESS_PHONE = "";
+    applyProfile(previewProfile(), false);
+    setStatus(msg || "Mode aperçu.", "warn");
+  }
 
-    function publicShopUrl(s){
-      return s
-        ? `./../DIGIY MARKET/boutique.html?slug=${encodeURIComponent(s)}`
-        : "./../DIGIY MARKET/boutique.html";
-    }
+  async function boot(){
+    document.body.classList.add("loading");
+    setStatus("Chargement...");
 
-    function cockpitUrl(s){
-      return s
-        ? `./cockpit.html?slug=${encodeURIComponent(s)}`
-        : "./cockpit.html";
-    }
+    try{
+      await window.DIGIY_GUARD.ready;
+      const st = window.DIGIY_GUARD?.state || {};
 
-    function pinUrl(s){
-      return s
-        ? `./pin.html?slug=${encodeURIComponent(s)}`
-        : "./pin.html";
-    }
-
-    function applyProfile(profile, liveMode){
-      const p = profile || previewProfile();
-      CURRENT_PROFILE = p;
-
-      const name = p.business_name || "Boutique DIGIY";
-      const category = p.category || "Boutique locale";
-      const city = p.city || "Terrain local";
-      const phone = formatPhone(p.public_phone);
-      const whatsapp = formatPhone(p.whatsapp || p.public_phone);
-      const address = p.address_text || "Adresse à confirmer";
-      const hours = p.open_hours || "Horaires à confirmer";
-      const delivery = p.delivery_note || "Livraison selon zone.";
-      const currentSlug = p.slug || slug || storedSlug || "";
-
-      $("businessName").value = p.business_name || "";
-      $("category").value = p.category || "";
-      $("city").value = p.city || "";
-      $("publicPhone").value = p.public_phone || "";
-      $("whatsapp").value = p.whatsapp || "";
-      $("addressText").value = p.address_text || "";
-      $("openHours").value = p.open_hours || "";
-      $("deliveryNote").value = p.delivery_note || "";
-      $("description").value = p.description || "";
-      $("coverImageUrl").value = p.cover_image_url || "";
-      $("logoUrl").value = p.logo_url || "";
-
-      $("shopName").textContent = name;
-      $("shopSubtitle").textContent = liveMode
-        ? "Régle ton identité, ton contact, tes horaires et ta visibilité publique."
-        : "Aperçu pro élégant avant chargement réel de la boutique.";
-
-      $("pillCategory").textContent = `🏷️ ${category}`;
-      $("pillCity").textContent = `📍 ${city}`;
-      $("pillHours").textContent = `🕒 ${hours}`;
-
-      $("miniSlug").textContent = currentSlug || "Aperçu";
-      $("miniPhone").textContent = phone;
-      $("miniWhatsapp").textContent = whatsapp;
-      $("miniAddress").textContent = address;
-
-      $("factShop").textContent = name;
-      $("factCity").textContent = city;
-      $("factHours").textContent = hours;
-      $("factDelivery").textContent = delivery;
-
-      $("modeBadge").className = liveMode ? "mode live" : "mode";
-      $("modeBadge").textContent = liveMode ? "Mode vivant" : "Mode aperçu";
-
-      $("publishBadge").className = "badge " + (p.is_published ? "on" : "off");
-      $("publishBadge").textContent = p.is_published ? "Publiée" : "Non publiée";
-
-      $("topSub").textContent = liveMode
-        ? `Boutique chargée pour ${currentSlug}`
-        : (storedSlug ? `Aperçu actif • dernier slug connu : ${storedSlug}` : "Aucun slug détecté. Aperçu actif.");
-
-      $("previewBox").style.display = liveMode ? "none" : "flex";
-      $("footerText").textContent = liveMode
-        ? `DIGIY MARKET PRO • ${name} • Réglages vivants`
-        : "DIGIY MARKET PRO • Aperçu réglages";
-
-      $("btnPublic").href = publicShopUrl(currentSlug);
-      $("btnCockpit").href = cockpitUrl(currentSlug);
-      $("btnPin").href = pinUrl(currentSlug);
-    }
-
-    async function rpc(name, args){
-      const { data, error } = await sb.rpc(name, args);
-      if(error) throw error;
-      return data;
-    }
-
-    async function loadProfile(){
-      const data = await rpc("market_get_profile_by_slug", { p_slug: slug });
-      if(!data?.ok || !data?.profile) throw new Error(data?.error || "profile_error");
-      return data.profile;
-    }
-
-    function collectForm(){
-      return {
-        p_slug: slug,
-        p_business_name: $("businessName").value.trim() || null,
-        p_category: $("category").value.trim() || null,
-        p_city: $("city").value.trim() || null,
-        p_public_phone: normalizePhone($("publicPhone").value) || null,
-        p_whatsapp: normalizePhone($("whatsapp").value) || null,
-        p_address_text: $("addressText").value.trim() || null,
-        p_description: $("description").value.trim() || null,
-        p_open_hours: $("openHours").value.trim() || null,
-        p_delivery_note: $("deliveryNote").value.trim() || null,
-        p_cover_image_url: $("coverImageUrl").value.trim() || null,
-        p_logo_url: $("logoUrl").value.trim() || null
-      };
-    }
-
-    async function saveProfile(){
-      if(IS_PREVIEW){
-        setStatus("Mode aperçu : impossible d’enregistrer sans slug.", "warn");
+      if(st?.preview){
+        if(st.reason === "preview_no_identity"){
+          showPreview("Mode aperçu. Ajoute ?slug=market-... pour ouvrir la boutique PRO.");
+        }else if(st.reason === "unknown_identity"){
+          showPreview("Slug inconnu. Aperçu affiché.");
+        }else if(st.reason === "guard_error"){
+          showPreview("Guard indisponible. Aperçu affiché.");
+        }else if(st.reason === "no_subscription"){
+          showPreview("Accès non actif. Aperçu affiché.");
+        }else{
+          showPreview("Accès indisponible. Aperçu affiché.");
+        }
         return;
       }
-      if($("btnSave").dataset.busy === "1") return;
 
-      const name = $("businessName").value.trim();
-      if(!name){
-        setStatus("Le nom de la boutique est manquant.", "err");
-        $("businessName").focus();
-        return;
-      }
+      if(st?.access_ok){
+        ACCESS_SLUG = st.slug || "";
+        ACCESS_PHONE = st.phone || "";
+        IS_PREVIEW = false;
 
-      $("btnSave").dataset.busy = "1";
-      setBusy(true);
-      setStatus("Enregistrement de la boutique...");
-
-      try{
-        const data = await rpc("market_upsert_profile_by_slug", collectForm());
-        if(!data?.ok || !data?.profile){
-          throw new Error(data?.error || "save_failed");
-        }
-
-        applyProfile(data.profile, true);
-        sessionStorage.setItem("digiy_market_slug", data.profile.slug || slug);
-        sessionStorage.setItem("digiy_market_last_slug", data.profile.slug || slug);
-        localStorage.setItem("digiy_market_last_slug", data.profile.slug || slug);
-
-        setStatus("Boutique enregistrée.", "ok");
-      }catch(err){
-        console.error(err);
-        setStatus("Impossible d’enregistrer la boutique.", "err");
-      }finally{
-        $("btnSave").dataset.busy = "0";
-        setBusy(false);
-      }
-    }
-
-    async function setPublish(value){
-      if(IS_PREVIEW){
-        setStatus("Mode aperçu : impossible de publier sans slug.", "warn");
-        return;
-      }
-      const key = value ? "btnPublish" : "btnUnpublish";
-      if($(key).dataset.busy === "1") return;
-
-      $(key).dataset.busy = "1";
-      setBusy(true);
-      setStatus(value ? "Publication en cours..." : "Dépublication en cours...");
-
-      try{
-        const data = await rpc("market_set_publish_by_slug", {
-          p_slug: slug,
-          p_is_published: value
-        });
-
-        if(!data?.ok){
-          throw new Error(data?.error || "publish_failed");
-        }
-
-        if(CURRENT_PROFILE){
-          CURRENT_PROFILE.is_published = !!data.is_published;
-          CURRENT_PROFILE.published_at = data.published_at || null;
-        }
-
-        applyProfile(CURRENT_PROFILE || previewProfile(), true);
-        setStatus(value ? "Boutique publiée." : "Boutique dépubliée.", "ok");
-      }catch(err){
-        console.error(err);
-        setStatus(value ? "Impossible de publier la boutique." : "Impossible de dépublier la boutique.", "err");
-      }finally{
-        $(key).dataset.busy = "0";
-        setBusy(false);
-      }
-    }
-
-    async function boot(){
-      document.body.classList.add("loading");
-      setStatus("Chargement...");
-
-      try{
-        if(!slug){
-          IS_PREVIEW = true;
-          applyProfile(previewProfile(), false);
-          setStatus("Mode aperçu. Ajoute ?slug=... pour modifier une vraie boutique.", "warn");
+        if(!ACCESS_SLUG){
+          showPreview("Accès OK mais slug absent. Aperçu affiché.");
           return;
         }
 
-        IS_PREVIEW = false;
         const profile = await loadProfile();
         applyProfile(profile, true);
 
-        sessionStorage.setItem("digiy_market_slug", profile.slug || slug);
-        sessionStorage.setItem("digiy_market_last_slug", profile.slug || slug);
-        localStorage.setItem("digiy_market_last_slug", profile.slug || slug);
+        sessionStorage.setItem("digiy_market_slug", ACCESS_SLUG);
+        sessionStorage.setItem("digiy_market_last_slug", ACCESS_SLUG);
+        localStorage.setItem("digiy_market_last_slug", ACCESS_SLUG);
 
-        setStatus("Boutique chargée.");
-      }catch(err){
-        console.error(err);
-        IS_PREVIEW = true;
-        applyProfile(previewProfile(), false);
-        $("topSub").textContent = slug
-          ? `Slug introuvable ou inactif : ${slug}. Aperçu affiché.`
-          : "Aperçu actif.";
-        setStatus("Impossible de charger la vraie boutique. Aperçu affiché.", "warn");
-      }finally{
-        document.body.classList.remove("loading");
-        setBusy(false);
+        setStatus("Boutique chargée.", "ok");
+        return;
       }
+
+      showPreview("Accès indisponible. Aperçu affiché.");
+    }catch(err){
+      console.error(err);
+      showPreview("Impossible de charger la vraie boutique. Aperçu affiché.");
+    }finally{
+      document.body.classList.remove("loading");
+      setBusy(false);
     }
+  }
 
-    $("btnSave").addEventListener("click", saveProfile);
-    $("btnPublish").addEventListener("click", () => setPublish(true));
-    $("btnUnpublish").addEventListener("click", () => setPublish(false));
+  $("btnSave").addEventListener("click", saveProfile);
+  $("btnPublish").addEventListener("click", () => setPublish(true));
+  $("btnUnpublish").addEventListener("click", () => setPublish(false));
 
-    [
-      "businessName","category","city","publicPhone","whatsapp",
-      "addressText","openHours","deliveryNote","coverImageUrl","logoUrl"
-    ].forEach((id) => {
-      $(id).addEventListener("keydown", (e) => {
-        if(e.key === "Enter"){
-          e.preventDefault();
-          saveProfile();
-        }
-      });
+  [
+    "businessName","category","city","publicPhone","whatsapp",
+    "addressText","openHours","deliveryNote","description",
+    "coverImageUrl","logoUrl"
+  ].forEach((id) => {
+    $(id).addEventListener("keydown", (e) => {
+      if(e.key === "Enter" && id !== "description"){
+        e.preventDefault();
+        saveProfile();
+      }
     });
+  });
 
-    boot();
-  </script>
+  boot();
+</script>
 </body>
 </html>
