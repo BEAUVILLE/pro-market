@@ -7,563 +7,1142 @@
   <meta name="theme-color" content="#07140f"/>
   <meta name="description" content="Cockpit professionnel DIGIY MARKET : commandes, stats, lecture terrain."/>
 
-<script>
-  const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
-  const SUPPORT_WA = "221771342889";
+  <script>
+    window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    window.DIGIY_SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./guard.js"></script>
 
-  const $ = (id) => document.getElementById(id);
-
-  function setStatus(msg, tone = ""){
-    const box = $("statusBox");
-    box.className = "statusbox" + (tone ? " " + tone : "");
-    box.textContent = msg;
-  }
-
-  if(!window.supabase || typeof window.supabase.createClient !== "function"){
-    console.error("Supabase JS non chargé.");
-    setStatus("Erreur : bibliothèque Supabase non chargée.", "err");
-    throw new Error("Supabase JS non chargé");
-  }
-
-  if(!SUPABASE_URL || !SUPABASE_ANON_KEY || SUPABASE_ANON_KEY.split(".").length !== 3){
-    console.error("Clé Supabase invalide ou absente.");
-    setStatus("Erreur : clé Supabase invalide ou absente.", "err");
-    throw new Error("Clé Supabase invalide");
-  }
-
-  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-      detectSessionInUrl: false
+  <style>
+    :root{
+      --bg:#07140f;
+      --card:#10241b;
+      --card2:#0d2018;
+      --line:rgba(255,255,255,.10);
+      --text:#ecfff4;
+      --muted:rgba(236,255,244,.72);
+      --primary:#22c55e;
+      --primary2:#16a34a;
+      --gold:#facc15;
+      --danger:#ef4444;
+      --warn:#f59e0b;
+      --info:#38bdf8;
+      --shadow:0 20px 60px rgba(0,0,0,.38);
+      --r:24px;
+      --max:1180px;
     }
-  });
 
-  const qs = new URLSearchParams(location.search);
-  const hintedSlug = String(qs.get("slug") || "").trim();
-
-  const rememberedSlug =
-    sessionStorage.getItem("digiy_market_slug") ||
-    sessionStorage.getItem("digiy_market_last_slug") ||
-    localStorage.getItem("digiy_market_last_slug") ||
-    "";
-
-  const routeSlug = hintedSlug || rememberedSlug || "";
-  function esc(v){
-    return String(v ?? "")
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
-  }
-
-  function normalizePhone(v){
-    return String(v || "").replace(/[^\d]/g, "");
-  }
-
-  function formatPhone(v){
-    const p = normalizePhone(v);
-    return p || "—";
-  }
-
-  function fmtDateTime(v){
-    if(!v) return "—";
-    try{
-      return new Date(v).toLocaleString("fr-FR", {
-        year:"numeric",
-        month:"2-digit",
-        day:"2-digit",
-        hour:"2-digit",
-        minute:"2-digit"
-      });
-    }catch{
-      return String(v);
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;
+      padding:0;
+      min-height:100%;
+      background:
+        radial-gradient(900px 520px at 10% -10%, rgba(34,197,94,.14), transparent 60%),
+        radial-gradient(900px 520px at 110% 0%, rgba(250,204,21,.10), transparent 55%),
+        linear-gradient(180deg, #07140f, #05100c 55%, #040b08 100%);
+      color:var(--text);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
     }
-  }
 
-  function normStatus(v){
-    const s = String(v || "pending").toLowerCase().trim();
-    if(["pending","confirmed","cancelled","done"].includes(s)) return s;
-    return "pending";
-  }
+    body{ padding:16px; }
+    a{color:inherit;text-decoration:none}
 
-  function statusLabel(v){
-    const s = normStatus(v);
-    if(s === "pending") return "Pending";
-    if(s === "confirmed") return "Confirmée";
-    if(s === "cancelled") return "Annulée";
-    if(s === "done") return "Done";
-    return s;
-  }
+    .wrap{
+      max-width:var(--max);
+      margin:auto;
+      display:grid;
+      gap:14px;
+    }
 
-  function waLink(phone, msg){
-    const p = normalizePhone(phone);
-    return p ? `https://wa.me/${p}?text=${encodeURIComponent(msg || "")}` : "#";
-  }
+    .card,.hero{
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.018));
+      box-shadow:var(--shadow);
+    }
 
-  async function rpc(name, args){
-    const { data, error } = await sb.rpc(name, args);
-    if(error) throw error;
-    return data;
-  }
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      padding:16px 18px;
+    }
 
-  function resetStats(){
-    $("sTotal").textContent = "0";
-    $("sPending").textContent = "0";
-    $("sConfirmed").textContent = "0";
-    $("sDone").textContent = "0";
-    $("sCancelled").textContent = "0";
-  }
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
+    }
 
-  function resetView(){
-    $("orderList").innerHTML = "";
-    $("emptyState").style.display = "none";
-    ALL_ORDERS = [];
-    PROFILE = null;
-  }
+    .brand-mark{
+      width:48px;
+      height:48px;
+      border-radius:16px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(135deg, rgba(34,197,94,.18), rgba(250,204,21,.14));
+      border:1px solid rgba(255,255,255,.10);
+      font-size:22px;
+      flex:0 0 auto;
+    }
 
-  function previewProfile(){
-    return {
-      slug: "",
-      business_name: "Astou Market",
-      category: "Cosmétiques / Produits naturels",
-      city: "Saly",
-      public_phone: "221771342889",
-      whatsapp: "221771342889",
-      address_text: "Saly centre",
-      description: "Boutique locale, produits utiles et bons.",
-      open_hours: "08h - 20h",
-      delivery_note: "Livraison locale selon zone."
-    };
-  }
+    .brand-copy{min-width:0}
 
-  function previewOrders(){
-    const now = new Date();
-    const addHours = (n) => new Date(now.getTime() - (n * 3600 * 1000)).toISOString();
+    .eyebrow{
+      font-size:12px;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color:var(--gold);
+      font-weight:950;
+      margin-bottom:3px;
+    }
 
-    return [
-      {
-        id: "preview-1",
-        status: "pending",
-        created_at: addHours(1),
-        customer_name: "Moussa Fall",
-        customer_phone: "221770000001",
-        item_name: "Huile de moringa",
-        quantity: 2,
-        unit_label: "flacons",
-        note: "Livraison demain matin",
-        delivery_mode: "delivery",
-        delivery_address: "Ngaparou",
-        city: "Saly"
-      },
-      {
-        id: "preview-2",
-        status: "confirmed",
-        created_at: addHours(3),
-        customer_name: "Awa Ndiaye",
-        customer_phone: "221770000002",
-        item_name: "Savon noir",
-        quantity: 3,
-        unit_label: "pièces",
-        note: "Je passe récupérer à 18h",
-        delivery_mode: "pickup",
-        delivery_address: null,
-        city: "Saly"
-      },
-      {
-        id: "preview-3",
-        status: "done",
-        created_at: addHours(8),
-        customer_name: "Cheikh Ba",
-        customer_phone: "221770000003",
-        item_name: "Crème karité",
-        quantity: 1,
-        unit_label: "pot",
-        note: "",
-        delivery_mode: "pickup",
-        delivery_address: null,
-        city: "Saly"
-      },
-      {
-        id: "preview-4",
-        status: "cancelled",
-        created_at: addHours(12),
-        customer_name: "Mariama Sarr",
-        customer_phone: "221770000004",
-        item_name: "Parfum local",
-        quantity: 1,
-        unit_label: "flacon",
-        note: "Client a reporté",
-        delivery_mode: "delivery",
-        delivery_address: "Somone",
-        city: "Saly"
+    .brand-title{
+      font-size:clamp(18px,2vw,22px);
+      font-weight:950;
+      line-height:1.1;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .brand-sub{
+      color:var(--muted);
+      font-size:13px;
+      font-weight:800;
+      margin-top:4px;
+    }
+
+    .top-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      min-height:46px;
+      padding:11px 15px;
+      border-radius:14px;
+      font-weight:950;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      cursor:pointer;
+      transition:.18s ease;
+      box-shadow:var(--shadow);
+    }
+
+    .btn:hover{transform:translateY(-1px)}
+    .btn.primary{
+      background:linear-gradient(135deg, var(--primary), var(--primary2));
+      color:#041b12;
+      border-color:transparent;
+    }
+    .btn.gold{
+      background:rgba(250,204,21,.12);
+      color:var(--gold);
+      border-color:rgba(250,204,21,.22);
+    }
+    .btn.ghost{
+      background:rgba(255,255,255,.04);
+      color:var(--muted);
+    }
+
+    .hero{overflow:hidden}
+
+    .hero-grid{
+      display:grid;
+      grid-template-columns:1.1fr .9fr;
+      min-height:340px;
+    }
+
+    @media(max-width:980px){
+      .hero-grid{grid-template-columns:1fr}
+    }
+
+    .hero-body{
+      padding:24px;
+      display:grid;
+      gap:16px;
+      align-content:start;
+    }
+
+    .hero-side{
+      padding:24px;
+      border-left:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      display:grid;
+      gap:12px;
+      align-content:start;
+    }
+
+    @media(max-width:980px){
+      .hero-side{
+        border-left:none;
+        border-top:1px solid var(--line);
       }
-    ];
-  }
-
-  function fallbackLiveProfile(){
-    return {
-      slug: PROFILE_SLUG || "",
-      business_name: "Boutique DIGIY",
-      category: "Boutique locale",
-      city: "Saly",
-      public_phone: ACCESS_PHONE || "—",
-      whatsapp: ACCESS_PHONE || "—",
-      address_text: "Adresse à confirmer",
-      description: "Boutique locale, produits utiles et bons.",
-      open_hours: "Horaires à confirmer",
-      delivery_note: "Livraison locale selon zone."
-    };
-  }
-
-  function applyProfile(profile, liveMode){
-    const p = profile || previewProfile();
-    const name = p.business_name || "Boutique DIGIY";
-    const category = p.category || "Boutique locale";
-    const city = p.city || "Terrain local";
-    const phone = formatPhone(p.public_phone);
-    const whatsapp = formatPhone(p.whatsapp || p.public_phone);
-    const address = p.address_text || "Adresse à confirmer";
-    const hours = p.open_hours || "Horaires à confirmer";
-    const delivery = p.delivery_note || "Livraison selon zone.";
-
-    $("shopName").textContent = name;
-    $("shopSubtitle").textContent = liveMode
-      ? "Lecture commandes, stats, et suivi de la boutique."
-      : "Aperçu pro du cockpit commandes avant chargement réel.";
-
-    $("pillCategory").textContent = `🏷️ ${category}`;
-    $("pillCity").textContent = `📍 ${city}`;
-    $("pillHours").textContent = `🕒 ${hours}`;
-
-    $("miniSlug").textContent = liveMode ? (ACCESS_SLUG || "—") : "Aperçu";
-    $("miniPhone").textContent = phone;
-    $("miniWhatsapp").textContent = whatsapp;
-    $("miniAddress").textContent = address;
-
-    $("factShop").textContent = name;
-    $("factCity").textContent = city;
-    $("factHours").textContent = hours;
-    $("factDelivery").textContent = delivery;
-
-    $("modeBadge").className = liveMode ? "mode live" : "mode";
-    $("modeBadge").textContent = liveMode ? "Mode vivant" : "Mode aperçu";
-
-    $("topSub").textContent = liveMode
-      ? `Cockpit chargé pour ${ACCESS_SLUG || "MARKET"}`
-      : "Aperçu élégant actif.";
-
-    $("previewBox").style.display = liveMode ? "none" : "block";
-    $("footerText").textContent = liveMode
-      ? `DIGIY MARKET PRO • ${name} • Cockpit vivant`
-      : "DIGIY MARKET PRO • Aperçu cockpit";
-
-    $("btnSettings").href = liveMode && ACCESS_SLUG
-      ? `./boutique.html?slug=${encodeURIComponent(ACCESS_SLUG)}`
-      : "./boutique.html";
-
-    $("btnPin").href = liveMode && ACCESS_SLUG
-      ? `./pin.html?slug=${encodeURIComponent(ACCESS_SLUG)}`
-      : "./pin.html";
-  }
-
-  function applyStats(data, preview = false){
-    if(preview){
-      $("sTotal").textContent = "4";
-      $("sPending").textContent = "1";
-      $("sConfirmed").textContent = "1";
-      $("sDone").textContent = "1";
-      $("sCancelled").textContent = "1";
-      return;
     }
 
-    $("sTotal").textContent = String(Number(data?.total || 0));
-    $("sPending").textContent = String(Number(data?.pending || 0));
-    $("sConfirmed").textContent = String(Number(data?.confirmed || 0));
-    $("sDone").textContent = String(Number(data?.done || 0));
-    $("sCancelled").textContent = String(Number(data?.cancelled || 0));
-  }
+    .mode{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:9px 13px;
+      border-radius:999px;
+      border:1px solid rgba(250,204,21,.24);
+      background:rgba(250,204,21,.10);
+      color:#fff1a8;
+      font-size:12px;
+      font-weight:950;
+      width:max-content;
+    }
 
-  function normalizeOrders(payload){
-    let rows = [];
+    .mode.live{
+      border-color:rgba(34,197,94,.24);
+      background:rgba(34,197,94,.10);
+      color:#bbf7d0;
+    }
 
-    if(Array.isArray(payload)) rows = payload;
-    else if(Array.isArray(payload?.rows)) rows = payload.rows;
-    else if(Array.isArray(payload?.orders)) rows = payload.orders;
-    else if(Array.isArray(payload?.data)) rows = payload.data;
+    h1{
+      margin:0;
+      font-size:clamp(28px,4vw,44px);
+      line-height:1.05;
+      letter-spacing:-.02em;
+    }
 
-    return rows.map((r) => ({
-      id: String(r?.id ?? r?.order_id ?? ""),
-      status: normStatus(r?.status),
-      created_at: r?.created_at || null,
-      customer_name: r?.customer_name || r?.client_name || r?.name || "Sans nom",
-      customer_phone: r?.customer_phone || r?.phone || "",
-      item_name: r?.item_name || r?.product_name || r?.request_name || "Demande",
-      quantity: r?.quantity ?? 1,
-      unit_label: r?.unit_label || "",
-      note: r?.note || r?.message || "",
-      delivery_mode: r?.delivery_mode || "pickup",
-      delivery_address: r?.delivery_address || "",
-      city: r?.city || ""
-    }));
-  }
+    .subtitle{
+      color:var(--muted);
+      font-size:16px;
+      font-weight:800;
+      line-height:1.55;
+    }
 
-  function filterRows(rows){
-    if(ACTIVE_FILTER === "all") return rows;
-    return rows.filter(r => normStatus(r.status) === ACTIVE_FILTER);
-  }
+    .pills{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
 
-  function previewActionsHtml(){
-    return `
-      <div class="order-actions">
-        <a class="action-btn preview" href="./pin.html">🔑 Entrer par PIN</a>
-        <a class="action-btn preview" href="./boutique.html">🛠️ Régler la boutique</a>
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:9px 12px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.18);
+      color:var(--muted);
+      font-size:12px;
+      font-weight:900;
+    }
+
+    .mini{
+      padding:14px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.16);
+    }
+
+    .mini .k{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:800;
+      margin-bottom:6px;
+    }
+
+    .mini .v{
+      font-size:15px;
+      font-weight:900;
+      line-height:1.5;
+      word-break:break-word;
+    }
+
+    .stats-grid{
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:12px;
+    }
+
+    @media(max-width:980px){
+      .stats-grid{grid-template-columns:repeat(3,1fr)}
+    }
+
+    @media(max-width:640px){
+      .stats-grid{grid-template-columns:repeat(2,1fr)}
+    }
+
+    .stat{
+      padding:16px;
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.16);
+      box-shadow:var(--shadow);
+    }
+
+    .stat .label{
+      color:var(--muted);
+      font-size:13px;
+      font-weight:800;
+      margin-bottom:8px;
+    }
+
+    .stat .value{
+      font-size:30px;
+      font-weight:1000;
+      line-height:1;
+    }
+
+    .layout{
+      display:grid;
+      gap:14px;
+    }
+
+    @media(min-width:980px){
+      .layout{grid-template-columns:1.06fr .94fr}
+    }
+
+    .panel{padding:18px}
+
+    .panel h2{
+      margin:0 0 8px;
+      font-size:22px;
+    }
+
+    .muted{
+      color:var(--muted);
+      font-size:14px;
+      font-weight:800;
+      line-height:1.55;
+    }
+
+    .panel-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-bottom:14px;
+    }
+
+    .filters{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .chip{
+      border:1px solid var(--line);
+      background:#0b241b;
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:999px;
+      cursor:pointer;
+      font-weight:800;
+      font-size:13px;
+    }
+
+    .chip.active{
+      background:#11392b;
+      border-color:rgba(250,204,21,.45);
+      color:#fff3b0;
+    }
+
+    .list{
+      display:grid;
+      gap:14px;
+      margin-top:12px;
+    }
+
+    .order{
+      background:var(--card2);
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+      display:grid;
+      gap:14px;
+    }
+
+    .order.preview{opacity:.96}
+
+    .order-top{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:flex-start;
+    }
+
+    .order-main{
+      display:grid;
+      gap:6px;
+    }
+
+    .order-name{
+      font-weight:900;
+      font-size:1.08rem;
+    }
+
+    .meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      color:var(--muted);
+      font-size:.95rem;
+      font-weight:800;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      border-radius:999px;
+      padding:9px 12px;
+      font-weight:900;
+      border:1px solid transparent;
+      white-space:nowrap;
+    }
+
+    .badge.pending{background:rgba(245,158,11,.14); color:#ffd38a; border-color:rgba(245,158,11,.25)}
+    .badge.confirmed{background:rgba(34,197,94,.14); color:#9ef2ba; border-color:rgba(34,197,94,.25)}
+    .badge.cancelled{background:rgba(239,68,68,.14); color:#ffb0b0; border-color:rgba(239,68,68,.25)}
+    .badge.done{background:rgba(56,189,248,.14); color:#b7ecff; border-color:rgba(56,189,248,.25)}
+
+    .note{
+      border-left:3px solid rgba(250,204,21,.4);
+      padding-left:12px;
+      color:var(--muted);
+      line-height:1.5;
+      font-weight:800;
+    }
+
+    .order-actions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .action-btn{
+      appearance:none;
+      border:1px solid var(--line);
+      background:#0a2119;
+      color:var(--text);
+      border-radius:12px;
+      padding:10px 12px;
+      cursor:pointer;
+      font-weight:900;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      text-decoration:none;
+    }
+
+    .action-btn.wa{background:#103525}
+    .action-btn.preview{
+      background:rgba(255,255,255,.04);
+      color:var(--muted);
+      border-style:dashed;
+    }
+
+    .empty{
+      padding:28px 18px;
+      color:var(--muted);
+      text-align:center;
+      font-weight:800;
+      border:1px dashed rgba(255,255,255,.10);
+      border-radius:18px;
+      margin-top:12px;
+    }
+
+    .footer{
+      text-align:center;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      padding:6px 0 2px;
+    }
+
+    .loading{
+      opacity:.72;
+      pointer-events:none;
+    }
+
+    @media(max-width:640px){
+      .top-actions,.filters,.order-actions{width:100%}
+      .top-actions > *, .order-actions > *{flex:1 1 auto}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="card topbar">
+      <div class="brand">
+        <div class="brand-mark">🛍️</div>
+        <div class="brand-copy">
+          <div class="eyebrow">DIGIY MARKET PRO</div>
+          <div class="brand-title">Cockpit commandes</div>
+          <div class="brand-sub" id="topSub">Chargement du cockpit…</div>
+        </div>
       </div>
-    `;
-  }
 
-  function liveActionsHtml(row){
-    const phone = normalizePhone(row.customer_phone);
-    const msg = `Bonjour ${row.customer_name || ""}, je vous contacte depuis DIGIY MARKET au sujet de votre commande : ${row.item_name || "commande"}.`;
+      <div class="top-actions">
+        <button class="btn ghost" id="btnReload" type="button">🔄 Recharger</button>
+        <a class="btn gold" id="btnPin" href="./pin.html">🔑 Entrer par PIN</a>
+        <a class="btn" id="btnSettings" href="./boutique.html">🛠️ Réglages boutique</a>
+      </div>
+    </section>
 
-    if(!phone){
+    <section class="hero">
+      <div class="hero-grid">
+        <div class="hero-body">
+          <div class="mode" id="modeBadge">Mode aperçu</div>
+
+          <div>
+            <h1 id="shopName">Astou Market</h1>
+            <div class="subtitle" id="shopSubtitle">
+              Lecture commandes, suivi terrain, vision simple de la boutique.
+            </div>
+          </div>
+
+          <div class="pills">
+            <div class="pill" id="pillCategory">🏷️ Boutique locale</div>
+            <div class="pill" id="pillCity">📍 Saly</div>
+            <div class="pill" id="pillHours">🕒 08h - 20h</div>
+          </div>
+        </div>
+
+        <div class="hero-side">
+          <div class="mini">
+            <div class="k">Slug</div>
+            <div class="v" id="miniSlug">—</div>
+          </div>
+
+          <div class="mini">
+            <div class="k">Téléphone public</div>
+            <div class="v" id="miniPhone">—</div>
+          </div>
+
+          <div class="mini">
+            <div class="k">WhatsApp</div>
+            <div class="v" id="miniWhatsapp">—</div>
+          </div>
+
+          <div class="mini">
+            <div class="k">Adresse</div>
+            <div class="v" id="miniAddress">—</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="stats-grid">
+      <div class="stat"><div class="label">Total</div><div class="value" id="sTotal">0</div></div>
+      <div class="stat"><div class="label">Pending</div><div class="value" id="sPending">0</div></div>
+      <div class="stat"><div class="label">Confirmées</div><div class="value" id="sConfirmed">0</div></div>
+      <div class="stat"><div class="label">Done</div><div class="value" id="sDone">0</div></div>
+      <div class="stat"><div class="label">Annulées</div><div class="value" id="sCancelled">0</div></div>
+    </section>
+
+    <section class="layout">
+      <section class="card panel">
+        <div class="panel-head">
+          <div>
+            <h2>Commandes récentes</h2>
+            <div class="muted">
+              Lecture simple des commandes reçues. Les actions de changement de statut viendront en phase 2.
+            </div>
+          </div>
+
+          <div class="filters" id="filters">
+            <button class="chip active" type="button" data-filter="all">Toutes</button>
+            <button class="chip" type="button" data-filter="pending">Pending</button>
+            <button class="chip" type="button" data-filter="confirmed">Confirmées</button>
+            <button class="chip" type="button" data-filter="done">Done</button>
+            <button class="chip" type="button" data-filter="cancelled">Annulées</button>
+          </div>
+        </div>
+
+        <div class="list" id="orderList"></div>
+        <div class="empty" id="emptyState" style="display:none;">Aucune commande pour l’instant.</div>
+      </section>
+
+      <section class="card panel">
+        <h2>Lecture terrain</h2>
+        <div class="muted" id="sideLead">
+          Le cockpit aide le commerçant à voir ce qui arrive sans tourner dans des écrans inutiles.
+        </div>
+
+        <div class="list" style="margin-top:14px">
+          <div class="mini">
+            <div class="k">Boutique</div>
+            <div class="v" id="factShop">Astou Market</div>
+          </div>
+
+          <div class="mini">
+            <div class="k">Ville</div>
+            <div class="v" id="factCity">Saly</div>
+          </div>
+
+          <div class="mini">
+            <div class="k">Horaires</div>
+            <div class="v" id="factHours">08h - 20h</div>
+          </div>
+
+          <div class="mini">
+            <div class="k">Livraison</div>
+            <div class="v" id="factDelivery">Livraison locale selon zone</div>
+          </div>
+        </div>
+
+        <div class="empty" id="previewBox" style="display:none;">
+          Mode aperçu actif. Entre avec un slug pour lire les vraies commandes de la boutique.
+        </div>
+      </section>
+    </section>
+
+    <div class="footer" id="footerText">
+      DIGIY MARKET PRO • Cockpit commandes
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = window.DIGIY_SUPABASE_URL;
+    const SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON;
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const $ = (id) => document.getElementById(id);
+
+    let ACTIVE_FILTER = "all";
+    let ALL_ORDERS = [];
+    let PROFILE = null;
+    let ACCESS_SLUG = "";
+    let ACCESS_PHONE = "";
+    let PROFILE_SLUG = "";
+    let IS_PREVIEW = true;
+
+    function esc(v){
+      return String(v ?? "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function normalizePhone(v){
+      return String(v || "").replace(/[^\d]/g, "");
+    }
+
+    function formatPhone(v){
+      const p = normalizePhone(v);
+      return p || "—";
+    }
+
+    function fmtDateTime(v){
+      if(!v) return "—";
+      try{
+        return new Date(v).toLocaleString("fr-FR", {
+          year:"numeric",
+          month:"2-digit",
+          day:"2-digit",
+          hour:"2-digit",
+          minute:"2-digit"
+        });
+      }catch{
+        return String(v);
+      }
+    }
+
+    function normStatus(v){
+      const s = String(v || "pending").toLowerCase().trim();
+      if(["pending","confirmed","cancelled","done"].includes(s)) return s;
+      return "pending";
+    }
+
+    function statusLabel(v){
+      const s = normStatus(v);
+      if(s === "pending") return "Pending";
+      if(s === "confirmed") return "Confirmée";
+      if(s === "cancelled") return "Annulée";
+      if(s === "done") return "Done";
+      return s;
+    }
+
+    function waLink(phone, msg){
+      const p = normalizePhone(phone);
+      return p ? `https://wa.me/${p}?text=${encodeURIComponent(msg || "")}` : "#";
+    }
+
+    async function rpc(name, args){
+      const { data, error } = await sb.rpc(name, args);
+      if(error) throw error;
+      return data;
+    }
+
+    function resetStats(){
+      $("sTotal").textContent = "0";
+      $("sPending").textContent = "0";
+      $("sConfirmed").textContent = "0";
+      $("sDone").textContent = "0";
+      $("sCancelled").textContent = "0";
+    }
+
+    function resetView(){
+      $("orderList").innerHTML = "";
+      $("emptyState").style.display = "none";
+      ALL_ORDERS = [];
+      PROFILE = null;
+    }
+
+    function previewProfile(){
+      return {
+        slug: "",
+        business_name: "Astou Market",
+        category: "Cosmétiques / Produits naturels",
+        city: "Saly",
+        public_phone: "221771342889",
+        whatsapp: "221771342889",
+        address_text: "Saly centre",
+        description: "Boutique locale, produits utiles et bons.",
+        open_hours: "08h - 20h",
+        delivery_note: "Livraison locale selon zone."
+      };
+    }
+
+    function previewOrders(){
+      const now = new Date();
+      const addHours = (n) => new Date(now.getTime() - (n * 3600 * 1000)).toISOString();
+
+      return [
+        {
+          id: "preview-1",
+          status: "pending",
+          created_at: addHours(1),
+          customer_name: "Moussa Fall",
+          customer_phone: "221770000001",
+          item_name: "Huile de moringa",
+          quantity: 2,
+          unit_label: "flacons",
+          note: "Livraison demain matin",
+          delivery_mode: "delivery",
+          delivery_address: "Ngaparou",
+          city: "Saly"
+        },
+        {
+          id: "preview-2",
+          status: "confirmed",
+          created_at: addHours(3),
+          customer_name: "Awa Ndiaye",
+          customer_phone: "221770000002",
+          item_name: "Savon noir",
+          quantity: 3,
+          unit_label: "pièces",
+          note: "Je passe récupérer à 18h",
+          delivery_mode: "pickup",
+          delivery_address: null,
+          city: "Saly"
+        },
+        {
+          id: "preview-3",
+          status: "done",
+          created_at: addHours(8),
+          customer_name: "Cheikh Ba",
+          customer_phone: "221770000003",
+          item_name: "Crème karité",
+          quantity: 1,
+          unit_label: "pot",
+          note: "",
+          delivery_mode: "pickup",
+          delivery_address: null,
+          city: "Saly"
+        },
+        {
+          id: "preview-4",
+          status: "cancelled",
+          created_at: addHours(12),
+          customer_name: "Mariama Sarr",
+          customer_phone: "221770000004",
+          item_name: "Parfum local",
+          quantity: 1,
+          unit_label: "flacon",
+          note: "Client a reporté",
+          delivery_mode: "delivery",
+          delivery_address: "Somone",
+          city: "Saly"
+        }
+      ];
+    }
+
+    function fallbackLiveProfile(){
+      return {
+        slug: PROFILE_SLUG || "",
+        business_name: "Boutique DIGIY",
+        category: "Boutique locale",
+        city: "Saly",
+        public_phone: ACCESS_PHONE || "—",
+        whatsapp: ACCESS_PHONE || "—",
+        address_text: "Adresse à confirmer",
+        description: "Boutique locale, produits utiles et bons.",
+        open_hours: "Horaires à confirmer",
+        delivery_note: "Livraison locale selon zone."
+      };
+    }
+
+    function applyProfile(profile, liveMode){
+      const p = profile || previewProfile();
+      const name = p.business_name || "Boutique DIGIY";
+      const category = p.category || "Boutique locale";
+      const city = p.city || "Terrain local";
+      const phone = formatPhone(p.public_phone);
+      const whatsapp = formatPhone(p.whatsapp || p.public_phone);
+      const address = p.address_text || "Adresse à confirmer";
+      const hours = p.open_hours || "Horaires à confirmer";
+      const delivery = p.delivery_note || "Livraison selon zone.";
+
+      $("shopName").textContent = name;
+      $("shopSubtitle").textContent = liveMode
+        ? "Lecture commandes, stats, et suivi de la boutique."
+        : "Aperçu pro du cockpit commandes avant chargement réel.";
+
+      $("pillCategory").textContent = `🏷️ ${category}`;
+      $("pillCity").textContent = `📍 ${city}`;
+      $("pillHours").textContent = `🕒 ${hours}`;
+
+      $("miniSlug").textContent = liveMode ? (ACCESS_SLUG || "—") : "Aperçu";
+      $("miniPhone").textContent = phone;
+      $("miniWhatsapp").textContent = whatsapp;
+      $("miniAddress").textContent = address;
+
+      $("factShop").textContent = name;
+      $("factCity").textContent = city;
+      $("factHours").textContent = hours;
+      $("factDelivery").textContent = delivery;
+
+      $("modeBadge").className = liveMode ? "mode live" : "mode";
+      $("modeBadge").textContent = liveMode ? "Mode vivant" : "Mode aperçu";
+
+      $("topSub").textContent = liveMode
+        ? `Cockpit chargé pour ${ACCESS_SLUG || "MARKET"}`
+        : "Aperçu élégant actif.";
+
+      $("previewBox").style.display = liveMode ? "none" : "block";
+      $("footerText").textContent = liveMode
+        ? `DIGIY MARKET PRO • ${name} • Cockpit vivant`
+        : "DIGIY MARKET PRO • Aperçu cockpit";
+
+      $("btnSettings").href = liveMode && ACCESS_SLUG
+        ? `./boutique.html?slug=${encodeURIComponent(ACCESS_SLUG)}`
+        : "./boutique.html";
+
+      $("btnPin").href = liveMode && ACCESS_SLUG
+        ? `./pin.html?slug=${encodeURIComponent(ACCESS_SLUG)}`
+        : "./pin.html";
+    }
+
+    function applyStats(data, preview = false){
+      if(preview){
+        $("sTotal").textContent = "4";
+        $("sPending").textContent = "1";
+        $("sConfirmed").textContent = "1";
+        $("sDone").textContent = "1";
+        $("sCancelled").textContent = "1";
+        return;
+      }
+
+      $("sTotal").textContent = String(Number(data?.total || 0));
+      $("sPending").textContent = String(Number(data?.pending || 0));
+      $("sConfirmed").textContent = String(Number(data?.confirmed || 0));
+      $("sDone").textContent = String(Number(data?.done || 0));
+      $("sCancelled").textContent = String(Number(data?.cancelled || 0));
+    }
+
+    function normalizeOrders(payload){
+      let rows = [];
+
+      if(Array.isArray(payload)) rows = payload;
+      else if(Array.isArray(payload?.rows)) rows = payload.rows;
+      else if(Array.isArray(payload?.orders)) rows = payload.orders;
+      else if(Array.isArray(payload?.data)) rows = payload.data;
+
+      return rows.map((r) => ({
+        id: String(r?.id ?? r?.order_id ?? ""),
+        status: normStatus(r?.status),
+        created_at: r?.created_at || null,
+        customer_name: r?.customer_name || r?.client_name || r?.name || "Sans nom",
+        customer_phone: r?.customer_phone || r?.phone || "",
+        item_name: r?.item_name || r?.product_name || r?.request_name || "Demande",
+        quantity: r?.quantity ?? 1,
+        unit_label: r?.unit_label || "",
+        note: r?.note || r?.message || "",
+        delivery_mode: r?.delivery_mode || "pickup",
+        delivery_address: r?.delivery_address || "",
+        city: r?.city || ""
+      }));
+    }
+
+    function filterRows(rows){
+      if(ACTIVE_FILTER === "all") return rows;
+      return rows.filter(r => normStatus(r.status) === ACTIVE_FILTER);
+    }
+
+    function previewActionsHtml(){
       return `
         <div class="order-actions">
-          <a class="action-btn preview" href="https://wa.me/221771342889?text=${encodeURIComponent("Salut DIGIY MARKET, le client n'a pas de téléphone sur cette commande.")}" target="_blank" rel="noopener">📩 Demander aide</a>
+          <a class="action-btn preview" href="./pin.html">🔑 Entrer par PIN</a>
+          <a class="action-btn preview" href="./boutique.html">🛠️ Régler la boutique</a>
         </div>
       `;
     }
 
-    return `
-      <div class="order-actions">
-        <a class="action-btn wa" href="${waLink(phone, msg)}" target="_blank" rel="noopener">💬 WhatsApp client</a>
-      </div>
-    `;
-  }
+    function liveActionsHtml(row){
+      const phone = normalizePhone(row.customer_phone);
+      const msg = `Bonjour ${row.customer_name || ""}, je vous contacte depuis DIGIY MARKET au sujet de votre commande : ${row.item_name || "commande"}.`;
 
-  function renderOrders(){
-    const list = $("orderList");
-    const empty = $("emptyState");
-    const rows = filterRows(ALL_ORDERS);
-
-    if(!rows.length){
-      list.innerHTML = "";
-      empty.style.display = "block";
-      empty.textContent = IS_PREVIEW
-        ? "Aperçu disponible, mais aucune ligne à afficher."
-        : "Aucune commande pour l’instant.";
-      return;
-    }
-
-    empty.style.display = "none";
-
-    list.innerHTML = rows.map((row) => {
-      const status = normStatus(row.status);
-      const customer = esc(row.customer_name);
-      const phone = esc(formatPhone(row.customer_phone));
-      const item = esc(row.item_name);
-      const qty = esc(row.quantity || "1");
-      const unit = esc(row.unit_label || "");
-      const created = esc(fmtDateTime(row.created_at));
-      const mode = row.delivery_mode === "delivery" ? "Livraison" : "Retrait";
-      const address = esc(row.delivery_address || "—");
-      const note = esc(row.note || "");
+      if(!phone){
+        return `
+          <div class="order-actions">
+            <a class="action-btn preview" href="https://wa.me/221771342889?text=${encodeURIComponent("Salut DIGIY MARKET, le client n'a pas de téléphone sur cette commande.")}" target="_blank" rel="noopener">📩 Demander aide</a>
+          </div>
+        `;
+      }
 
       return `
-        <article class="order ${IS_PREVIEW ? "preview" : ""}">
-          <div class="order-top">
-            <div class="order-main">
-              <div class="order-name">${customer}</div>
-              <div class="meta">
-                <span>🧾 ${item}</span>
-                <span>📦 ${qty}${unit ? " " + unit : ""}</span>
-                <span>📞 ${phone}</span>
-                <span>🕓 ${created}</span>
+        <div class="order-actions">
+          <a class="action-btn wa" href="${waLink(phone, msg)}" target="_blank" rel="noopener">💬 WhatsApp client</a>
+        </div>
+      `;
+    }
+
+    function renderOrders(){
+      const list = $("orderList");
+      const empty = $("emptyState");
+      const rows = filterRows(ALL_ORDERS);
+
+      if(!rows.length){
+        list.innerHTML = "";
+        empty.style.display = "block";
+        empty.textContent = IS_PREVIEW
+          ? "Aperçu disponible, mais aucune ligne à afficher."
+          : "Aucune commande pour l’instant.";
+        return;
+      }
+
+      empty.style.display = "none";
+
+      list.innerHTML = rows.map((row) => {
+        const status = normStatus(row.status);
+        const customer = esc(row.customer_name);
+        const phone = esc(formatPhone(row.customer_phone));
+        const item = esc(row.item_name);
+        const qty = esc(row.quantity || "1");
+        const unit = esc(row.unit_label || "");
+        const created = esc(fmtDateTime(row.created_at));
+        const mode = row.delivery_mode === "delivery" ? "Livraison" : "Retrait";
+        const address = esc(row.delivery_address || "—");
+        const note = esc(row.note || "");
+
+        return `
+          <article class="order ${IS_PREVIEW ? "preview" : ""}">
+            <div class="order-top">
+              <div class="order-main">
+                <div class="order-name">${customer}</div>
+                <div class="meta">
+                  <span>🧾 ${item}</span>
+                  <span>📦 ${qty}${unit ? " " + unit : ""}</span>
+                  <span>📞 ${phone}</span>
+                  <span>🕓 ${created}</span>
+                </div>
+              </div>
+
+              <div class="badge ${status}">
+                ${esc(statusLabel(status))}
               </div>
             </div>
 
-            <div class="badge ${status}">
-              ${esc(statusLabel(status))}
+            <div class="meta">
+              <span>🚚 ${esc(mode)}</span>
+              <span>📍 ${address}</span>
+              ${row.city ? `<span>🌍 ${esc(row.city)}</span>` : ""}
             </div>
-          </div>
 
-          <div class="meta">
-            <span>🚚 ${esc(mode)}</span>
-            <span>📍 ${address}</span>
-            ${row.city ? `<span>🌍 ${esc(row.city)}</span>` : ""}
-          </div>
+            ${note ? `<div class="note">“${note}”</div>` : ""}
 
-          ${note ? `<div class="note">“${note}”</div>` : ""}
-
-          ${IS_PREVIEW ? previewActionsHtml() : liveActionsHtml(row)}
-        </article>
-      `;
-    }).join("");
-  }
-
-  function initFilters(){
-    $("filters").querySelectorAll(".chip").forEach((chip) => {
-      chip.addEventListener("click", () => {
-        $("filters").querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
-        chip.classList.add("active");
-        ACTIVE_FILTER = chip.dataset.filter || "all";
-        renderOrders();
-      });
-    });
-  }
-
-  async function loadProfile(){
-    const phone = ACCESS_PHONE || window.DIGIY_GUARD?.state?.phone || "";
-    if(!phone) return fallbackLiveProfile();
-
-    const { data, error } = await sb
-      .from("digiy_market_public_profiles")
-      .select("slug,phone,display_name,category,city,whatsapp,bio")
-      .eq("phone", phone)
-      .maybeSingle();
-
-    if(error){
-      console.error("loadProfile error:", error);
-      return fallbackLiveProfile();
+            ${IS_PREVIEW ? previewActionsHtml() : liveActionsHtml(row)}
+          </article>
+        `;
+      }).join("");
     }
 
-    PROFILE = {
-      slug: data?.slug || "",
-      business_name: data?.display_name || "Boutique DIGIY",
-      category: data?.category || "Boutique locale",
-      city: data?.city || "Saly",
-      public_phone: data?.phone || phone,
-      whatsapp: data?.whatsapp || data?.phone || phone,
-      address_text: "Adresse à confirmer",
-      description: data?.bio || "Boutique locale, produits utiles et bons.",
-      open_hours: "Horaires à confirmer",
-      delivery_note: "Livraison locale selon zone."
-    };
+    function initFilters(){
+      $("filters").querySelectorAll(".chip").forEach((chip) => {
+        chip.addEventListener("click", () => {
+          $("filters").querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+          chip.classList.add("active");
+          ACTIVE_FILTER = chip.dataset.filter || "all";
+          renderOrders();
+        });
+      });
+    }
 
-    PROFILE_SLUG = PROFILE.slug || "";
-    return PROFILE;
-  }
+    async function loadProfile(){
+      const phone = ACCESS_PHONE || window.DIGIY_GUARD?.state?.phone || "";
+      if(!phone) return fallbackLiveProfile();
 
-  async function loadStats(){
-    if(!ACCESS_SLUG) throw new Error("access_slug_missing");
+      const { data, error } = await sb
+        .from("digiy_market_public_profiles")
+        .select("slug,phone,display_name,category,city,whatsapp,bio")
+        .eq("phone", phone)
+        .maybeSingle();
 
-    const data = await rpc("market_stats_by_slug", { p_slug: ACCESS_SLUG });
-    if(!data?.ok) throw new Error(data?.error || "stats_error");
-    applyStats(data, false);
-  }
-
-  async function loadOrders(){
-    if(!ACCESS_SLUG) throw new Error("access_slug_missing");
-
-    const data = await rpc("market_list_recent_orders_by_slug", {
-      p_slug: ACCESS_SLUG,
-      p_limit: 100
-    });
-
-    if(!data?.ok && !Array.isArray(data?.rows)) throw new Error(data?.error || "orders_error");
-    ALL_ORDERS = normalizeOrders(data);
-    renderOrders();
-  }
-
-  function showPreview(reasonText){
-    IS_PREVIEW = true;
-    ACCESS_SLUG = "";
-    ACCESS_PHONE = "";
-    PROFILE_SLUG = "";
-    PROFILE = previewProfile();
-    ALL_ORDERS = previewOrders();
-    applyProfile(PROFILE, false);
-    applyStats(null, true);
-    renderOrders();
-    if(reasonText) $("topSub").textContent = reasonText;
-  }
-
-  async function boot(){
-    document.body.classList.add("loading");
-    resetView();
-    resetStats();
-
-    try{
-      await window.DIGIY_GUARD.ready;
-      const st = window.DIGIY_GUARD?.state || {};
-
-      if(st?.preview){
-        if(st.reason === "preview_no_identity"){
-          showPreview("Aucun slug détecté. Aperçu affiché.");
-        }else if(st.reason === "unknown_identity"){
-          showPreview("Slug inconnu. Aperçu affiché.");
-        }else if(st.reason === "guard_error"){
-          showPreview("Guard indisponible. Aperçu affiché.");
-        }else if(st.reason === "no_subscription"){
-          showPreview("Accès non actif. Aperçu affiché.");
-        }else{
-          showPreview("Accès indisponible. Aperçu affiché.");
-        }
-        return;
+      if(error){
+        console.error("loadProfile error:", error);
+        return fallbackLiveProfile();
       }
 
-      if(st?.access_ok){
-        ACCESS_SLUG = st.slug || "";
-        ACCESS_PHONE = st.phone || "";
+      PROFILE = {
+        slug: data?.slug || "",
+        business_name: data?.display_name || "Boutique DIGIY",
+        category: data?.category || "Boutique locale",
+        city: data?.city || "Saly",
+        public_phone: data?.phone || phone,
+        whatsapp: data?.whatsapp || data?.phone || phone,
+        address_text: "Adresse à confirmer",
+        description: data?.bio || "Boutique locale, produits utiles et bons.",
+        open_hours: "Horaires à confirmer",
+        delivery_note: "Livraison locale selon zone."
+      };
 
-        if(!ACCESS_SLUG){
-          showPreview("Accès OK mais slug absent. Aperçu affiché.");
+      PROFILE_SLUG = PROFILE.slug || "";
+      return PROFILE;
+    }
+
+    async function loadStats(){
+      if(!ACCESS_SLUG) throw new Error("access_slug_missing");
+
+      const data = await rpc("market_stats_by_slug", { p_slug: ACCESS_SLUG });
+      if(!data?.ok) throw new Error(data?.error || "stats_error");
+      applyStats(data, false);
+    }
+
+    async function loadOrders(){
+      if(!ACCESS_SLUG) throw new Error("access_slug_missing");
+
+      const data = await rpc("market_list_recent_orders_by_slug", {
+        p_slug: ACCESS_SLUG,
+        p_limit: 100
+      });
+
+      if(!data?.ok && !Array.isArray(data?.rows)) throw new Error(data?.error || "orders_error");
+      ALL_ORDERS = normalizeOrders(data);
+      renderOrders();
+    }
+
+    function showPreview(reasonText){
+      IS_PREVIEW = true;
+      ACCESS_SLUG = "";
+      ACCESS_PHONE = "";
+      PROFILE_SLUG = "";
+      PROFILE = previewProfile();
+      ALL_ORDERS = previewOrders();
+      applyProfile(PROFILE, false);
+      applyStats(null, true);
+      renderOrders();
+      if(reasonText) $("topSub").textContent = reasonText;
+    }
+
+    async function boot(){
+      document.body.classList.add("loading");
+      resetView();
+      resetStats();
+
+      try{
+        await window.DIGIY_GUARD.ready;
+        const st = window.DIGIY_GUARD?.state || {};
+
+        if(st?.preview){
+          if(st.reason === "preview_no_identity"){
+            showPreview("Aucun slug détecté. Aperçu affiché.");
+          }else if(st.reason === "unknown_identity"){
+            showPreview("Slug inconnu. Aperçu affiché.");
+          }else if(st.reason === "guard_error"){
+            showPreview("Guard indisponible. Aperçu affiché.");
+          }else if(st.reason === "no_subscription"){
+            showPreview("Accès non actif. Aperçu affiché.");
+          }else{
+            showPreview("Accès indisponible. Aperçu affiché.");
+          }
           return;
         }
 
-        IS_PREVIEW = false;
+        if(st?.access_ok){
+          ACCESS_SLUG = st.slug || "";
+          ACCESS_PHONE = st.phone || "";
 
-        const profile = await loadProfile();
-        applyProfile(profile, true);
+          if(!ACCESS_SLUG){
+            showPreview("Accès OK mais slug absent. Aperçu affiché.");
+            return;
+          }
 
-        const results = await Promise.allSettled([
-          loadStats(),
-          loadOrders()
-        ]);
+          IS_PREVIEW = false;
 
-        const statsFailed = results[0]?.status === "rejected";
-        const ordersFailed = results[1]?.status === "rejected";
+          const profile = await loadProfile();
+          applyProfile(profile, true);
 
-        if(statsFailed) {
-          console.error("loadStats failed:", results[0].reason);
+          const results = await Promise.allSettled([
+            loadStats(),
+            loadOrders()
+          ]);
+
+          const statsFailed = results[0]?.status === "rejected";
+          const ordersFailed = results[1]?.status === "rejected";
+
+          if(statsFailed){
+            console.error("loadStats failed:", results[0].reason);
+          }
+
+          if(ordersFailed){
+            console.error("loadOrders failed:", results[1].reason);
+            ALL_ORDERS = [];
+            renderOrders();
+          }
+
+          sessionStorage.setItem("digiy_market_slug", ACCESS_SLUG);
+          sessionStorage.setItem("digiy_market_last_slug", ACCESS_SLUG);
+          localStorage.setItem("digiy_market_last_slug", ACCESS_SLUG);
+
+          if(PROFILE_SLUG){
+            sessionStorage.setItem("digiy_market_profile_slug", PROFILE_SLUG);
+            localStorage.setItem("digiy_market_profile_slug", PROFILE_SLUG);
+          }
+
+          if(statsFailed || ordersFailed){
+            $("topSub").textContent = `Cockpit chargé partiellement pour ${ACCESS_SLUG}`;
+          }
+
+          return;
         }
 
-        if(ordersFailed){
-          console.error("loadOrders failed:", results[1].reason);
-          ALL_ORDERS = [];
-          renderOrders();
-        }
-
-        sessionStorage.setItem("digiy_market_slug", ACCESS_SLUG);
-        sessionStorage.setItem("digiy_market_last_slug", ACCESS_SLUG);
-        localStorage.setItem("digiy_market_last_slug", ACCESS_SLUG);
-
-        if(PROFILE_SLUG){
-          sessionStorage.setItem("digiy_market_profile_slug", PROFILE_SLUG);
-          localStorage.setItem("digiy_market_profile_slug", PROFILE_SLUG);
-        }
-
-        if(statsFailed || ordersFailed){
-          $("topSub").textContent = `Cockpit chargé partiellement pour ${ACCESS_SLUG}`;
-        }
-
-        return;
+        showPreview("Accès indisponible. Aperçu affiché.");
+      }catch(err){
+        console.error(err);
+        showPreview("Erreur de chargement du cockpit. Aperçu affiché.");
+      }finally{
+        document.body.classList.remove("loading");
       }
-
-      showPreview("Accès indisponible. Aperçu affiché.");
-    }catch(err){
-      console.error(err);
-      showPreview("Erreur de chargement du cockpit. Aperçu affiché.");
-    }finally{
-      document.body.classList.remove("loading");
     }
-  }
 
-  $("btnReload").addEventListener("click", boot);
-  initFilters();
-  boot();
-</script>
+    $("btnReload").addEventListener("click", boot);
+    initFilters();
+    boot();
+  </script>
 </body>
 </html>
