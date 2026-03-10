@@ -7,6 +7,10 @@
   <meta name="theme-color" content="#07140f"/>
   <meta name="description" content="Entrée sécurisée DIGIY MARKET PRO par téléphone et PIN."/>
 
+  <script>
+    window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    window.DIGIY_SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
@@ -51,17 +55,14 @@
       gap:14px;
     }
 
-    .hero,
-    .card{
+    .hero,.card{
       border:1px solid var(--line);
       border-radius:var(--r);
       background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.018));
       box-shadow:var(--shadow);
     }
 
-    .hero{
-      overflow:hidden;
-    }
+    .hero{overflow:hidden}
 
     .hero-grid{
       display:grid;
@@ -414,7 +415,7 @@
 
         <div class="actions">
           <button class="btn primary" id="btnLogin" type="button">🔑 Ouvrir mon cockpit</button>
-          <a class="btn gold" id="btnSupport" href="https://wa.me/221771342889?text=Salut%20DIGIY%20MARKET%20PRO%2C%20j%27ai%20besoin%20d%27aide%20pour%20mon%20PIN." target="_blank" rel="noopener">💬 Support WhatsApp</a>
+          <a class="btn gold" id="btnSupport" href="#" target="_blank" rel="noopener">💬 Support WhatsApp</a>
           <a class="btn" id="btnCockpit" href="./cockpit.html">📊 Voir le cockpit</a>
         </div>
 
@@ -461,10 +462,22 @@
   </div>
 
   <script>
-    const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+    const SUPABASE_URL = window.DIGIY_SUPABASE_URL;
+    const SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON;
+    const SUPPORT_WA = "221771342889";
 
-    const hintedSlug = (new URL(location.href).searchParams.get("slug") || "").trim();
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const qs = new URLSearchParams(location.search);
+    const hintedSlug = String(qs.get("slug") || "").trim();
+
+    const rememberedSlug =
+      sessionStorage.getItem("digiy_market_slug") ||
+      sessionStorage.getItem("digiy_market_last_slug") ||
+      localStorage.getItem("digiy_market_last_slug") ||
+      "";
+
+    const routeSlug = hintedSlug || rememberedSlug || "";
 
     const $ = (id) => document.getElementById(id);
 
@@ -476,7 +489,7 @@
       return String(v || "").trim().replace(/\s+/g, "");
     }
 
-    function setStatus(msg, tone=""){
+    function setStatus(msg, tone = ""){
       const box = $("statusBox");
       box.className = "statusbox" + (tone ? " " + tone : "");
       box.textContent = msg;
@@ -500,7 +513,22 @@
         : "./../DIGIY MARKET/boutique.html";
     }
 
-    async function callMarketPinLogin(sb, phone, pin){
+    function buildSupportUrl(){
+      const phone = normalizePhone($("phone").value);
+      const pin = normalizePin($("pin").value);
+      const msg = [
+        "Salut DIGIY MARKET PRO,",
+        "",
+        routeSlug ? `Slug: ${routeSlug}` : "",
+        phone ? `Téléphone: ${phone}` : "",
+        pin ? `PIN saisi: ${pin}` : "",
+        "J’ai besoin d’aide pour mon accès PIN."
+      ].filter(Boolean).join("\n");
+
+      return `https://wa.me/${SUPPORT_WA}?text=${encodeURIComponent(msg)}`;
+    }
+
+    async function callMarketPinLogin(phone, pin){
       const tries = [
         { p_phone: phone, p_pin: pin },
         { phone: phone, pin: pin }
@@ -517,7 +545,7 @@
       throw lastError || new Error("RPC market_pin_login indisponible");
     }
 
-    async function login(sb){
+    async function login(){
       const phone = normalizePhone($("phone").value);
       const pin = normalizePin($("pin").value);
 
@@ -535,7 +563,7 @@
       setStatus("Vérification du PIN...");
 
       try{
-        const data = await callMarketPinLogin(sb, phone, pin);
+        const data = await callMarketPinLogin(phone, pin);
 
         if(!data?.ok){
           const err = data?.error || data?.message || "PIN invalide ou accès refusé.";
@@ -543,7 +571,13 @@
           return;
         }
 
-        const targetSlug = String(data?.slug || hintedSlug || "").trim();
+        const targetSlug = String(
+          data?.slug ||
+          data?.subscription_slug ||
+          data?.access_slug ||
+          routeSlug ||
+          ""
+        ).trim();
 
         if(!targetSlug){
           setStatus("PIN reconnu, mais aucun slug MARKET n’a été retourné.", "warn");
@@ -551,7 +585,9 @@
         }
 
         localStorage.setItem("digiy_last_phone", phone);
+        localStorage.setItem("digiy_market_phone", phone);
         localStorage.setItem("digiy_market_last_slug", targetSlug);
+
         sessionStorage.setItem("digiy_market_phone", phone);
         sessionStorage.setItem("digiy_market_slug", targetSlug);
         sessionStorage.setItem("digiy_market_last_slug", targetSlug);
@@ -569,44 +605,57 @@
       }
     }
 
-    function initUi(sb){
-      const lastPhone = localStorage.getItem("digiy_last_phone") || "";
+    function initUi(){
+      const lastPhone =
+        localStorage.getItem("digiy_market_phone") ||
+        localStorage.getItem("digiy_last_phone") ||
+        "";
+
       if(lastPhone) $("phone").value = lastPhone;
 
-      $("btnCockpit").href = cockpitUrl(hintedSlug);
-      $("btnPublicView").href = publicShopUrl(hintedSlug);
+      $("btnCockpit").href = cockpitUrl(routeSlug);
+      $("btnPublicView").href = publicShopUrl(routeSlug);
+      $("btnSupport").href = buildSupportUrl();
 
-      $("destText").textContent = hintedSlug
-        ? `cockpit.html?slug=${hintedSlug}`
+      $("destText").textContent = routeSlug
+        ? `cockpit.html?slug=${routeSlug}`
         : "cockpit.html?slug=...";
 
-      $("pillSlug").textContent = hintedSlug
-        ? `🧭 Slug guidé : ${hintedSlug}`
+      $("pillSlug").textContent = routeSlug
+        ? `🧭 Slug guidé : ${routeSlug}`
         : "🧭 Route libre";
 
-      if(hintedSlug){
-        setStatus(`Slug détecté : ${hintedSlug}. Entre ton téléphone et ton PIN.`, "warn");
+      if(routeSlug){
+        setStatus(`Slug détecté : ${routeSlug}. Entre ton téléphone et ton PIN.`, "warn");
       }
 
-      $("btnLogin").addEventListener("click", () => login(sb));
+      $("btnLogin").addEventListener("click", login);
+
+      $("phone").addEventListener("input", () => {
+        $("phone").value = normalizePhone($("phone").value);
+        $("btnSupport").href = buildSupportUrl();
+      });
+
+      $("pin").addEventListener("input", () => {
+        $("pin").value = normalizePin($("pin").value);
+        $("btnSupport").href = buildSupportUrl();
+      });
 
       $("pin").addEventListener("keydown", (e) => {
-        if(e.key === "Enter") login(sb);
+        if(e.key === "Enter") login();
       });
 
       $("phone").addEventListener("keydown", (e) => {
-        if(e.key === "Enter") login(sb);
+        if(e.key === "Enter") login();
       });
     }
 
-    const supabaseLib = window.supabase;
-    if(!supabaseLib || typeof supabaseLib.createClient !== "function"){
+    if(!window.supabase || typeof window.supabase.createClient !== "function"){
       console.error("Supabase JS non chargé.");
       setStatus("Erreur : bibliothèque Supabase non chargée.", "err");
       $("btnLogin").disabled = true;
     }else{
-      const sb = supabaseLib.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      initUi(sb);
+      initUi();
     }
   </script>
 </body>
