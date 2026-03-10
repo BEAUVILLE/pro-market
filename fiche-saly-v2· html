@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>DIGIY MARKET PRO — Ma fiche (Saly)</title>
+  <title>DIGIY MARKET PRO — Cockpit vendeur (Saly)</title>
   <meta name="theme-color" content="#061b14"/>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -102,16 +102,16 @@
     <div class="card">
       <div class="top">
         <div>
-          <h1>🛒 DIGIY MARKET PRO — Ma fiche (Saly)</h1>
+          <h1>🛒 DIGIY MARKET PRO — Cockpit vendeur (Saly)</h1>
           <p class="small">
-            Tu remplis ta fiche → elle apparaît <b style="color:var(--ok)">direct</b> dans la vitrine <b>Saly</b> pendant <b>7 jours</b>.
-            Après, tu passes en <b style="color:var(--gold)">Abonné</b> pour rester visible.
+            Ici, tu prépares, ajustes et pilotes ta fiche depuis le <b style="color:var(--ok)">cockpit vendeur</b>.
+            Cette page sert à garder une vue propre sur ta présence <b>Saly</b>, sans afficher de promesse d’essai en façade.
           </p>
         </div>
         <div class="chips">
-          <span class="chip ok">Essai 7 jours</span>
-          <span class="chip gold">0% commission</span>
-          <span class="chip">Paiement direct</span>
+          <span class="chip ok">Cockpit vendeur</span>
+          <span class="chip gold">Vue fiche</span>
+          <span class="chip">Pilotage terrain</span>
         </div>
       </div>
 
@@ -221,13 +221,13 @@
 
           <div class="btnRow">
             <button class="btn ok" id="btnSave" type="button">💾 Enregistrer</button>
-            <button class="btn warn" id="btnTrial" type="button">🚀 Publier 7 jours</button>
+            <button class="btn warn" id="btnTrial" type="button">👁️ Mettre à jour la vue</button>
           </div>
 
           <div class="hr"></div>
 
           <div class="btnRow">
-            <button class="btn gold" id="btnPay" type="button">💳 Passer en Abonné</button>
+            <button class="btn gold" id="btnPay" type="button">🧭 Ouvrir le parcours MARKET</button>
             <button class="btn bad" id="btnSupport" type="button">💬 Support WhatsApp</button>
           </div>
 
@@ -270,14 +270,14 @@
           <div class="hr"></div>
 
           <div class="notice small">
-            Après paiement, ton accès PRO peut arriver avec <span class="mono">?sub=market-22177...</span>.
-            Cette page accepte aussi <span class="mono">?slug=chez-astou-saly</span> pour ouvrir la fiche directement.
+            Cette page est pensée comme un <span class="mono">cockpit vendeur</span>.
+            Elle accepte <span class="mono">?sub=market-22177...</span> pour l’accès PRO et <span class="mono">?slug=chez-astou-saly</span> pour ouvrir une fiche directement.
           </div>
         </div>
       </div>
 
       <div class="footer">
-        DIGIY MARKET PRO — Saly • 0% commission • paiement direct au pro ♾️
+        DIGIY MARKET PRO — Saly • cockpit vendeur • pilotage propre ♾️
       </div>
     </div>
   </div>
@@ -579,7 +579,7 @@
         state.hasAccess = false;
         $('hint').textContent = '📞 Mets ton téléphone pour vérifier l’abonnement.';
         $('btnPay').disabled = false;
-        $('btnPay').textContent = '💳 Passer en Abonné';
+        $('btnPay').textContent = '🧭 Ouvrir le parcours MARKET';
         return;
       }
 
@@ -587,11 +587,11 @@
       state.hasAccess = ok;
 
       if(ok){
-        $('hint').innerHTML = '✅ <b>Abonnement MARKET actif</b>. Tu es tranquille.';
-        $('btnPay').textContent = '✅ Abonnement actif';
+        $('hint').innerHTML = '✅ Accès MARKET reconnu.';
+        $('btnPay').textContent = '✅ Accès MARKET actif';
         $('btnPay').disabled = true;
       }else{
-        $('hint').innerHTML = '🟡 Tu es en <b>essai</b> ou non abonné. Après 7 jours, passe en <b>Abonné</b>.';
+        $('hint').innerHTML = '🟡 Le cockpit est disponible. Le parcours MARKET reste piloté à part.';
         $('btnPay').textContent = '💳 Passer en Abonné';
         $('btnPay').disabled = false;
       }
@@ -635,9 +635,9 @@
           state.row = row;
           if(row){
             fillFormFromRow(row);
-            setStatus('✅ Fiche trouvée. Tu peux modifier et republier.', 'ok', 'OK');
+            setStatus('✅ Fiche trouvée. Tu peux modifier et mettre à jour la vue cockpit.', 'ok', 'OK');
           }else{
-            setStatus('📝 Nouvelle fiche. Remplis puis publie.', 'warn', 'NOUVEAU');
+            setStatus('📝 Nouvelle fiche. Remplis puis mets à jour la vue cockpit.', 'warn', 'NOUVEAU');
           }
         }catch(e){
           console.error(e);
@@ -668,7 +668,7 @@
           trial_end:null
         });
         state.row = row;
-        setStatus('✅ Enregistré. Tu peux publier 7 jours.', 'ok', 'OK');
+        setStatus('✅ Enregistré. Ta vue cockpit est à jour.', 'ok', 'OK');
         await refreshAccessState();
       }catch(e){
         console.error(e);
@@ -687,7 +687,7 @@
       }
 
       setBusy(true);
-      setStatus('🚀 Publication essai 7 jours…', 'warn', 'TRIAL');
+      setStatus('👁️ Mise à jour de la vue cockpit…', 'warn', 'VUE');
       try{
         const row = await upsertProfile({
           ...data.payload,
@@ -695,8 +695,8 @@
           trial_end:nowPlusDays(TRIAL_DAYS)
         });
         state.row = row;
-        setStatus('✅ Publié. Tu es visible dans la vitrine Saly.', 'ok', 'LIVE');
-        $('hint').innerHTML = '🔥 Tu es visible tout de suite. Fin essai : <span class="mono">' + (row.trial_end || '') + '</span>';
+        setStatus('✅ Vue cockpit mise à jour.', 'ok', 'LIVE');
+        $('hint').innerHTML = '✅ La fiche est bien remontée dans le cockpit vendeur.';
         await refreshAccessState();
       }catch(e){
         console.error(e);
