@@ -43,6 +43,39 @@
 
     a{color:inherit;text-decoration:none}
 
+    .floating-back{
+      position:fixed;
+      top:calc(env(safe-area-inset-top, 0px) + 14px);
+      left:calc(env(safe-area-inset-left, 0px) + 14px);
+      z-index:99999;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding:12px 16px;
+      border-radius:999px;
+      border:1px solid rgba(250,204,21,.32);
+      background:linear-gradient(135deg, rgba(250,204,21,.96), rgba(34,197,94,.92));
+      color:#041b12;
+      text-decoration:none;
+      font-weight:1000;
+      font-size:14px;
+      line-height:1;
+      box-shadow:0 16px 40px rgba(0,0,0,.38);
+      backdrop-filter:blur(10px);
+      -webkit-backdrop-filter:blur(10px);
+      transition:transform .18s ease, box-shadow .18s ease;
+    }
+
+    .floating-back:hover{
+      transform:translateY(-1px);
+      box-shadow:0 20px 46px rgba(0,0,0,.45);
+    }
+
+    .floating-back:active{
+      transform:translateY(0);
+    }
+
     .card{
       width:100%;
       max-width:var(--max);
@@ -224,9 +257,26 @@
       font-weight:800;
       padding:0 28px 24px;
     }
+
+    @media(max-width:640px){
+      .floating-back{
+        top:calc(env(safe-area-inset-top, 0px) + 10px);
+        left:calc(env(safe-area-inset-left, 0px) + 10px);
+        padding:11px 14px;
+        font-size:13px;
+      }
+
+      .body{
+        padding:22px 18px 18px;
+      }
+    }
   </style>
 </head>
 <body>
+  <a class="floating-back" href="https://digiylyfe.com/" aria-label="Retour au site DIGIYLYFE">
+    ↩️ Retour site
+  </a>
+
   <div class="card">
     <div class="body">
       <div class="badge"><span class="dot"></span> DIGIY MARKET PRO</div>
