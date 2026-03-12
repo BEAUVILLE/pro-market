@@ -14,7 +14,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-produits-20260312-v4"></script>
+  <script src="./guard.js?v=market-produits-20260312-v5"></script>
 
   <style>
     :root{
@@ -469,7 +469,7 @@
           <button class="btn warn" id="btnPublish" type="button">🌍 Publier</button>
           <a class="btn primary" id="btnCockpit" href="./cockpit.html">📊 Cockpit</a>
           <a class="btn" id="btnBoutique" href="./boutique.html">🛠️ Boutique</a>
-          <a class="btn gold" id="btnPublic" href="./index.html">🌍 Fiche publique</a>
+          <a class="btn gold" id="btnPublic" href="./fiche.html">🌍 Fiche publique</a>
         </div>
       </div>
 
@@ -722,7 +722,7 @@
     $("btnDashboardTop").href = ACCESS_SLUG ? withSlug("./dashboard-pro.html") : "./dashboard-pro.html";
     $("btnCockpit").href = ACCESS_SLUG ? withSlug("./cockpit.html") : "./cockpit.html";
     $("btnBoutique").href = ACCESS_SLUG ? withSlug("./boutique.html") : "./boutique.html";
-    $("btnPublic").href = ACCESS_SLUG ? withSlug("./index.html") : "./index.html";
+    $("btnPublic").href = ACCESS_SLUG ? withSlug("./fiche.html") : "./fiche.html";
     $("linkDashboard").href = ACCESS_SLUG ? withSlug("./dashboard-pro.html") : "./dashboard-pro.html";
     $("linkCockpit").href = ACCESS_SLUG ? withSlug("./cockpit.html") : "./cockpit.html";
     $("linkBoutique").href = ACCESS_SLUG ? withSlug("./boutique.html") : "./boutique.html";
@@ -730,37 +730,32 @@
 
   function resolveSlug(){
     const qs = new URLSearchParams(location.search);
-    const candidates = [
-      qs.get("slug"),
-      window.DIGIY_GUARD?.state?.slug,
-      sessionStorage.getItem("digiy_market_slug"),
-      localStorage.getItem("digiy_market_last_slug"),
-      sessionStorage.getItem("digiy_slug"),
-      localStorage.getItem("digiy_slug"),
-      sessionStorage.getItem("DIGIY_MARKET_SLUG"),
-      localStorage.getItem("DIGIY_MARKET_SLUG")
-    ];
 
-    for (const item of candidates){
-      const s = normSlug(item || "");
-      if (s) return s;
-    }
+    const fromQuery = normSlug(qs.get("slug"));
+    if (fromQuery) return fromQuery;
+
+    const fromGuard = normSlug(window.DIGIY_GUARD?.state?.slug);
+    if (fromGuard) return fromGuard;
+
+    const marketSession = normSlug(sessionStorage.getItem("digiy_market_slug"));
+    if (marketSession) return marketSession;
+
+    const marketLocal = normSlug(localStorage.getItem("digiy_market_last_slug"));
+    if (marketLocal) return marketLocal;
+
     return "";
   }
 
   function resolvePhone(){
-    const candidates = [
-      window.DIGIY_GUARD?.state?.phone,
-      sessionStorage.getItem("digiy_market_phone"),
-      localStorage.getItem("digiy_market_last_phone"),
-      sessionStorage.getItem("digiy_phone"),
-      localStorage.getItem("digiy_phone")
-    ];
+    const fromGuard = normPhone(window.DIGIY_GUARD?.state?.phone);
+    if (fromGuard) return fromGuard;
 
-    for (const item of candidates){
-      const p = normPhone(item || "");
-      if (p) return p;
-    }
+    const marketSession = normPhone(sessionStorage.getItem("digiy_market_phone"));
+    if (marketSession) return marketSession;
+
+    const marketLocal = normPhone(localStorage.getItem("digiy_market_last_phone"));
+    if (marketLocal) return marketLocal;
+
     return "";
   }
 
@@ -852,6 +847,8 @@
     $("infoWhatsapp").textContent = "—";
     $("infoAddress").textContent = "—";
     $("infoCategories").textContent = "—";
+
+    document.title = "DIGIY PRO MARKET — Produits";
 
     updateLinks();
     updatePublishButton();
@@ -1155,7 +1152,7 @@
         persistSession:false,
         autoRefreshToken:false,
         detectSessionInUrl:false,
-        storageKey:"digiy-market-produits-v4"
+        storageKey:"digiy-market-produits-v5"
       }
     });
     return SB_CLIENT;
