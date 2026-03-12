@@ -14,7 +14,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-cockpit-20260312-v3"></script>
+  <script src="./guard.js?v=market-cockpit-20260312-v4"></script>
 
   <style>
     :root{
@@ -513,7 +513,7 @@
         <a class="btn" id="btnSettings" href="./boutique.html">🛠️ Réglages boutique</a>
         <a class="btn" id="btnProducts" href="./produits.html">📦 Produits</a>
         <a class="btn gold" id="btnPin" href="./pin.html">🔑 Entrer par PIN</a>
-        <a class="btn" id="btnPublic" href="./index.html">🌍 Voir la fiche publique</a>
+        <a class="btn" id="btnPublic" href="./fiche.html">🌍 Voir la fiche publique</a>
       </div>
     </section>
 
@@ -733,37 +733,32 @@
 
       function resolveSlug(){
         const qs = new URLSearchParams(location.search);
-        const candidates = [
-          qs.get("slug"),
-          window.DIGIY_GUARD?.state?.slug,
-          sessionStorage.getItem("digiy_market_slug"),
-          localStorage.getItem("digiy_market_last_slug"),
-          sessionStorage.getItem("digiy_slug"),
-          localStorage.getItem("digiy_slug"),
-          sessionStorage.getItem("DIGIY_MARKET_SLUG"),
-          localStorage.getItem("DIGIY_MARKET_SLUG")
-        ];
 
-        for (const item of candidates){
-          const s = normSlug(item || "");
-          if (s) return s;
-        }
+        const fromQuery = normSlug(qs.get("slug"));
+        if (fromQuery) return fromQuery;
+
+        const fromGuard = normSlug(window.DIGIY_GUARD?.state?.slug);
+        if (fromGuard) return fromGuard;
+
+        const marketSession = normSlug(sessionStorage.getItem("digiy_market_slug"));
+        if (marketSession) return marketSession;
+
+        const marketLocal = normSlug(localStorage.getItem("digiy_market_last_slug"));
+        if (marketLocal) return marketLocal;
+
         return "";
       }
 
       function resolvePhone(){
-        const candidates = [
-          window.DIGIY_GUARD?.state?.phone,
-          sessionStorage.getItem("digiy_market_phone"),
-          localStorage.getItem("digiy_market_last_phone"),
-          sessionStorage.getItem("digiy_phone"),
-          localStorage.getItem("digiy_phone")
-        ];
+        const fromGuard = normalizePhone(window.DIGIY_GUARD?.state?.phone);
+        if (fromGuard) return fromGuard;
 
-        for (const item of candidates){
-          const p = normalizePhone(item || "");
-          if (p) return p;
-        }
+        const marketSession = normalizePhone(sessionStorage.getItem("digiy_market_phone"));
+        if (marketSession) return marketSession;
+
+        const marketLocal = normalizePhone(localStorage.getItem("digiy_market_last_phone"));
+        if (marketLocal) return marketLocal;
+
         return "";
       }
 
@@ -853,7 +848,7 @@
         $("btnSettings").href = ACCESS_SLUG ? withSlug("./boutique.html") : "./boutique.html";
         $("btnProducts").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
         $("btnPin").href = ACCESS_SLUG ? withSlug("./pin.html") : "./pin.html";
-        $("btnPublic").href = ACCESS_SLUG ? withSlug("./index.html") : "./index.html";
+        $("btnPublic").href = ACCESS_SLUG ? withSlug("./fiche.html") : "./fiche.html";
       }
 
       function applyStats(){
@@ -903,7 +898,9 @@
           ? (data.is_blank
               ? "Boutique personnelle vierge. Complète le profil et ajoute tes produits."
               : "Cockpit vendeur personnel chargé avec les vraies données de la boutique.")
-          : "Coque visible du cockpit vendeur. Le contenu réel s’ouvre avec un slug MARKET valide.";
+          : (ACCESS_SLUG
+              ? "Slug détecté, mais accès non ouvert. La coque reste visible sans exposer d’autres données."
+              : "Coque visible du cockpit vendeur. Le contenu réel s’ouvre avec un slug MARKET valide.");
 
         $("pillCategory").textContent = "🏷️ " + categories;
         $("pillCity").textContent = "📍 " + city;
@@ -990,16 +987,17 @@
 
       function liveActionsHtml(row){
         const wa = PROFILE?.profile?.whatsapp || PROFILE?.phone || "";
+        const waPhone = normalizePhone(wa);
         const text = `Bonjour, je gère mon produit "${row.title}" dans DIGIY PRO MARKET.`;
-        const waBtn = wa
-          ? `<a class="action-btn wa" href="https://wa.me/${encodeURIComponent(normalizePhone(wa))}?text=${encodeURIComponent(text)}" target="_blank" rel="noopener">💬 WhatsApp boutique</a>`
+        const waBtn = waPhone
+          ? `<a class="action-btn wa" href="https://wa.me/${encodeURIComponent(waPhone)}?text=${encodeURIComponent(text)}" target="_blank" rel="noopener">💬 WhatsApp boutique</a>`
           : "";
 
         return `
           <div class="product-actions">
             <a class="action-btn ghost" href="${withSlug("./produits.html")}">📦 Gérer les produits</a>
             <a class="action-btn ghost" href="${withSlug("./boutique.html")}">🛠️ Réglages boutique</a>
-            <a class="action-btn ghost" href="${withSlug("./index.html")}">🌍 Voir la vitrine</a>
+            <a class="action-btn ghost" href="${withSlug("./fiche.html")}">🌍 Voir la fiche publique</a>
             ${waBtn}
           </div>
         `;
