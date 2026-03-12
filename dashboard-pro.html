@@ -7,13 +7,14 @@
   <meta name="theme-color" content="#07140f" />
   <meta name="description" content="Admin central DIGIY PRO MARKET : accès, boutique, publication, produits, navigation." />
 
- <script>
-  window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-  window.DIGIY_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
-  window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
-</script>
+  <script>
+    window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    window.DIGIY_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+    window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+  </script>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-admin-20260312-v2"></script>
+  <script src="./guard.js?v=market-admin-20260312-v3"></script>
 
   <style>
     :root{
@@ -285,8 +286,8 @@
             <div class="v" id="statInactive">0</div>
           </div>
           <div class="stat">
-            <div class="k">En avant</div>
-            <div class="v" id="statFeatured">0</div>
+            <div class="k">Produits publiés</div>
+            <div class="v" id="statPublishedProducts">0</div>
           </div>
           <div class="stat">
             <div class="k">Total</div>
@@ -390,6 +391,41 @@
       .replaceAll("'", "&#039;");
   }
 
+  function toText(v, fallback){
+    const s = String(v || "").trim();
+    return s || (fallback || "");
+  }
+
+  function getResolvedSlug(payload){
+    return normSlug(
+      payload?.slug ||
+      payload?.workspace_slug ||
+      payload?.profile?.workspace_slug ||
+      payload?.profile?.slug ||
+      ACCESS_SLUG
+    );
+  }
+
+  function getShopName(profile){
+    return toText(profile?.shop_name, toText(profile?.business_name, "Boutique DIGIY"));
+  }
+
+  function extractProductRows(payload){
+    if (Array.isArray(payload)) return payload;
+    if (Array.isArray(payload?.products)) return payload.products;
+    if (Array.isArray(payload?.items)) return payload.items;
+    if (Array.isArray(payload?.data)) return payload.data;
+    return [];
+  }
+
+  function normalizeStats(stats){
+    const total = Number(stats?.total_products ?? stats?.products_total ?? 0) || 0;
+    const active = Number(stats?.active_products ?? stats?.products_active ?? 0) || 0;
+    const published = Number(stats?.published_products ?? stats?.products_published ?? 0) || 0;
+    const inactive = Math.max(total - active, 0);
+    return { total, active, inactive, published };
+  }
+
   function setBusy(isBusy){
     BUSY = !!isBusy;
     $("btnReload").disabled = BUSY;
@@ -459,19 +495,19 @@
   }
 
   function updateLinks(){
-    $("btnPin").href = withSlug("./pin.html");
-    $("btnPin2").href = withSlug("./pin.html");
-    $("btnCockpit").href = withSlug("./cockpit.html");
-    $("btnCockpit2").href = withSlug("./cockpit.html");
-    $("btnBoutique").href = withSlug("./boutique.html");
-    $("btnBoutique2").href = withSlug("./boutique.html");
-    $("btnProduits").href = withSlug("./produits.html");
-    $("btnProduits2").href = withSlug("./produits.html");
-    $("btnProductsTop").href = withSlug("./produits.html");
-    $("btnPublic").href = withSlug("./index.html");
-    $("linkSupport").href = withSlug("./boutique.html");
-    $("linkCockpit").href = withSlug("./cockpit.html");
-    $("linkProducts").href = withSlug("./produits.html");
+    $("btnPin").href = ACCESS_SLUG ? withSlug("./pin.html") : "./pin.html";
+    $("btnPin2").href = ACCESS_SLUG ? withSlug("./pin.html") : "./pin.html";
+    $("btnCockpit").href = ACCESS_SLUG ? withSlug("./cockpit.html") : "./cockpit.html";
+    $("btnCockpit2").href = ACCESS_SLUG ? withSlug("./cockpit.html") : "./cockpit.html";
+    $("btnBoutique").href = ACCESS_SLUG ? withSlug("./boutique.html") : "./boutique.html";
+    $("btnBoutique2").href = ACCESS_SLUG ? withSlug("./boutique.html") : "./boutique.html";
+    $("btnProduits").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
+    $("btnProduits2").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
+    $("btnProductsTop").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
+    $("btnPublic").href = ACCESS_SLUG ? withSlug("./index.html") : "./index.html";
+    $("linkSupport").href = ACCESS_SLUG ? withSlug("./boutique.html") : "./boutique.html";
+    $("linkCockpit").href = ACCESS_SLUG ? withSlug("./cockpit.html") : "./cockpit.html";
+    $("linkProducts").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
   }
 
   function setNotifs(items){
@@ -499,14 +535,15 @@
   }
 
   function normalizeProducts(rows){
-    return (Array.isArray(rows) ? rows : []).map((r) => ({
+    return extractProductRows(rows).map((r) => ({
       id: String(r?.id || ""),
       title: r?.title || r?.product_name || r?.name || "Produit",
       category: r?.category || r?.category_text || "",
-      price_fcfa: Number(r?.price_fcfa || r?.price || 0),
-      is_active: !!r?.is_active,
-      is_featured: !!r?.is_featured,
-      product_position: Number(r?.product_position || 100),
+      price_fcfa: Number(r?.price_fcfa ?? r?.price ?? 0) || 0,
+      is_active: r?.is_active == null ? true : !!r?.is_active,
+      is_published: !!(r?.is_published ?? r?.published ?? false),
+      is_featured: !!(r?.is_featured ?? r?.featured ?? false),
+      product_position: Number(r?.product_position ?? r?.position ?? 100) || 100,
       updated_at: r?.updated_at || null
     })).sort((a, b) => {
       const pos = a.product_position - b.product_position;
@@ -516,26 +553,22 @@
   }
 
   function applyStatsFromState(stats){
-    const active = Number(stats?.products_active || 0);
-    const inactive = Number(stats?.products_inactive || 0);
-    const featured = Number(stats?.products_featured || 0);
-    const total = active + inactive;
-
-    $("statActive").textContent = String(active);
-    $("statInactive").textContent = String(inactive);
-    $("statFeatured").textContent = String(featured);
-    $("statTotal").textContent = String(total);
+    const s = normalizeStats(stats || {});
+    $("statActive").textContent = String(s.active);
+    $("statInactive").textContent = String(s.inactive);
+    $("statPublishedProducts").textContent = String(s.published);
+    $("statTotal").textContent = String(s.total);
   }
 
   function applyStatsFromProducts(){
     const active = PRODUCTS.filter(p => p.is_active).length;
     const inactive = PRODUCTS.length - active;
-    const featured = PRODUCTS.filter(p => p.is_featured).length;
+    const published = PRODUCTS.filter(p => p.is_published).length;
     const total = PRODUCTS.length;
 
     $("statActive").textContent = String(active);
     $("statInactive").textContent = String(inactive);
-    $("statFeatured").textContent = String(featured);
+    $("statPublishedProducts").textContent = String(published);
     $("statTotal").textContent = String(total);
   }
 
@@ -553,7 +586,7 @@
 
     $("statActive").textContent = "0";
     $("statInactive").textContent = "0";
-    $("statFeatured").textContent = "0";
+    $("statPublishedProducts").textContent = "0";
     $("statTotal").textContent = "0";
 
     $("infoSlug").textContent = ACCESS_SLUG || "—";
@@ -585,9 +618,14 @@
 
   function applyLiveState(data){
     const p = data.profile || {};
-    const stats = data.stats || {};
+    const stats = normalizeStats(data.stats || {});
     CURRENT = data;
     ACCESS_PHONE = normPhone(data.phone || ACCESS_PHONE);
+
+    const resolvedSlug = getResolvedSlug(data);
+    if (resolvedSlug) ACCESS_SLUG = resolvedSlug;
+
+    const shopName = getShopName(p);
 
     $("dot").className = "statusDot ok";
     $("statusLine").textContent = "Accès actif";
@@ -596,29 +634,29 @@
       : "Boutique réelle chargée.";
     $("pillStatus").innerHTML = 'Statut : <b>Actif</b>';
 
-    $("shopName").textContent = p.shop_name || "Boutique DIGIY";
-    $("metaLine").innerHTML = `<span>Ville : ${escapeHtml(p.city || "—")}</span><span>•</span><span>Publication : ${p.is_published ? "Oui" : "Non"}</span>`;
+    $("shopName").textContent = shopName;
+    $("metaLine").innerHTML = `<span>Ville : ${escapeHtml(toText(p.city, "—"))}</span><span>•</span><span>Publication : ${p.is_published ? "Oui" : "Non"}</span>`;
 
     applyStatsFromState(stats);
 
-    $("infoSlug").textContent = data.slug || ACCESS_SLUG || "—";
-    $("infoPhone").textContent = displayPhone(data.phone);
-    $("infoWhatsapp").textContent = displayPhone(p.whatsapp || data.phone);
-    $("infoAddress").textContent = p.address || "—";
-    $("infoCategories").textContent = p.categories_text || "—";
+    $("infoSlug").textContent = resolvedSlug || "—";
+    $("infoPhone").textContent = displayPhone(data.phone || ACCESS_PHONE);
+    $("infoWhatsapp").textContent = displayPhone(p.whatsapp || data.phone || ACCESS_PHONE);
+    $("infoAddress").textContent = toText(p.address, "—");
+    $("infoCategories").textContent = toText(p.categories_text, "—");
 
-    $("brandTitle").textContent = p.shop_name || "DIGIY PRO MARKET";
-    $("brandSub").textContent = data.slug
-      ? `Admin central • ${data.slug}`
+    $("brandTitle").textContent = shopName;
+    $("brandSub").textContent = resolvedSlug
+      ? `Admin central • ${resolvedSlug}`
       : "Admin central vendeur";
 
-    document.title = p.shop_name
-      ? `${p.shop_name} — Admin central DIGIY PRO MARKET`
+    document.title = shopName
+      ? `${shopName} — Admin central DIGIY PRO MARKET`
       : "DIGIY PRO MARKET — Admin central";
 
     updateLinks();
 
-    const active = Number(stats.products_active || 0);
+    const active = Number(stats.active || 0);
     const notifs = [];
 
     if (data.is_blank) {
@@ -685,12 +723,13 @@
 
     const top = PRODUCTS.slice(0, 3).map(p => {
       const state = p.is_active ? "Actif" : "Inactif";
+      const published = p.is_published ? " • Publié" : "";
       const feat = p.is_featured ? " • En avant" : "";
       return `
         <div style="padding:10px 0;border-bottom:1px solid var(--line)">
           <b>${escapeHtml(p.title)}</b>
           <div class="muted" style="margin-top:4px;font-weight:750">
-            ${escapeHtml(p.category || "Sans catégorie")} • ${Number(p.price_fcfa || 0).toLocaleString("fr-FR")} FCFA • ${state}${feat}
+            ${escapeHtml(p.category || "Sans catégorie")} • ${Number(p.price_fcfa || 0).toLocaleString("fr-FR")} FCFA • ${state}${published}${feat}
           </div>
         </div>
       `;
@@ -767,7 +806,7 @@
       }
 
       ACCESS_OK = true;
-      ACCESS_SLUG = normSlug(cockpit.slug || ACCESS_SLUG);
+      ACCESS_SLUG = getResolvedSlug(cockpit) || ACCESS_SLUG;
       ACCESS_PHONE = normPhone(cockpit.phone || ACCESS_PHONE);
       storeAccess();
 
