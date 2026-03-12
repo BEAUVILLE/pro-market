@@ -14,7 +14,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-produits-20260312-v3"></script>
+  <script src="./guard.js?v=market-produits-20260312-v4"></script>
 
   <style>
     :root{
@@ -835,6 +835,7 @@
     $("statusLine").textContent = "Accès protégé";
     $("expiryLine").textContent = reason || "Aucun slug MARKET actif.";
     $("pillStatus").innerHTML = 'Statut : <b>Bloqué</b>';
+    $("brandTitle").textContent = "DIGIY PRO MARKET";
     $("brandSub").textContent = ACCESS_SLUG
       ? "Slug détecté • données protégées"
       : "Gestion catalogue vendeur";
@@ -1143,33 +1144,27 @@
     return issues;
   }
 
+  let SB_CLIENT = null;
   async function makeClient(){
+    if (SB_CLIENT) return SB_CLIENT;
     if (!window.supabase || !SUPABASE_URL || !SUPABASE_ANON_KEY){
       throw new Error("supabase_config_missing");
     }
-    return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-      auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false }
+    SB_CLIENT = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth:{
+        persistSession:false,
+        autoRefreshToken:false,
+        detectSessionInUrl:false,
+        storageKey:"digiy-market-produits-v4"
+      }
     });
+    return SB_CLIENT;
   }
 
   async function rpc(client, name, args){
     const { data, error } = await client.rpc(name, args);
     if(error) throw error;
     return data;
-  }
-
-  async function rpcTry(client, name, variants){
-    let lastError = null;
-    for(const args of variants){
-      try{
-        const { data, error } = await client.rpc(name, args);
-        if(!error) return data;
-        lastError = error;
-      }catch(e){
-        lastError = e;
-      }
-    }
-    throw lastError || new Error(name + "_rpc_error");
   }
 
   async function loadCockpit(client){
@@ -1221,6 +1216,7 @@
 
   async function saveProduct(product){
     const client = await makeClient();
+
     const payload = {
       id: product.id,
       title: product.title,
@@ -1235,23 +1231,25 @@
       product_position: product.product_position
     };
 
-    return rpcTry(client, "digiy_market_upsert_product_by_slug", [
-      { p_slug: ACCESS_SLUG, p_product: payload },
-      { p_slug: ACCESS_SLUG, p_payload: payload },
-      { p_slug: ACCESS_SLUG, ...payload },
-      { slug: ACCESS_SLUG, product: payload },
-      { slug: ACCESS_SLUG, payload: payload }
-    ]);
+    const { data, error } = await client.rpc("digiy_market_upsert_product_by_slug", {
+      p_payload: payload,
+      p_slug: ACCESS_SLUG
+    });
+
+    if (error) throw error;
+    return data;
   }
 
   async function disableProduct(productId){
     const client = await makeClient();
-    return rpcTry(client, "digiy_market_disable_product_by_slug", [
-      { p_slug: ACCESS_SLUG, p_product_id: productId },
-      { p_slug: ACCESS_SLUG, id: productId },
-      { slug: ACCESS_SLUG, product_id: productId },
-      { slug: ACCESS_SLUG, id: productId }
-    ]);
+
+    const { data, error } = await client.rpc("digiy_market_disable_product_by_slug", {
+      p_slug: ACCESS_SLUG,
+      p_product_id: productId
+    });
+
+    if (error) throw error;
+    return data;
   }
 
   async function togglePublish(){
@@ -1271,12 +1269,14 @@
     $("btnPublish").disabled = true;
     try{
       const client = await makeClient();
-      await rpcTry(client, "digiy_market_set_publish_by_slug", [
-        { p_slug: ACCESS_SLUG, p_is_published: next },
-        { p_slug: ACCESS_SLUG, p_published: next },
-        { slug: ACCESS_SLUG, is_published: next },
-        { slug: ACCESS_SLUG, published: next }
-      ]);
+
+      const { data, error } = await client.rpc("digiy_market_set_publish_by_slug", {
+        p_slug: ACCESS_SLUG,
+        p_is_published: next
+      });
+
+      if (error) throw error;
+      if (data && data.ok === false) throw new Error(data.reason || data.error || "market_publish_error");
 
       const cockpit = await loadCockpit(client);
       if (cockpit){
