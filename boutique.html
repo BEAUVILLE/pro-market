@@ -3,16 +3,18 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>DIGIY MARKET PRO — Boutique</title>
+  <title>DIGIY PRO MARKET — Réglages boutique</title>
   <meta name="theme-color" content="#07140f"/>
-  <meta name="description" content="Réglages boutique DIGIY MARKET PRO : identité, contact, horaires, publication."/>
+  <meta name="description" content="Réglages boutique DIGIY PRO MARKET : identité, contact, publication, lecture terrain."/>
 
- <script>
-  window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-  window.DIGIY_SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
-</script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./guard.js"></script>
+  <script>
+    window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    window.DIGIY_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+    window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./guard.js?v=market-boutique-20260312-clean"></script>
+
   <style>
     :root{
       --bg:#07140f;
@@ -26,7 +28,6 @@
       --gold:#facc15;
       --danger:#ef4444;
       --warn:#f59e0b;
-      --info:#38bdf8;
       --shadow:0 20px 60px rgba(0,0,0,.38);
       --r:24px;
       --max:1180px;
@@ -46,7 +47,7 @@
     }
 
     body{ padding:16px; }
-    a{ color:inherit; text-decoration:none; }
+    a{color:inherit;text-decoration:none}
 
     .wrap{
       max-width:var(--max);
@@ -90,7 +91,7 @@
       flex:0 0 auto;
     }
 
-    .brand-copy{ min-width:0; }
+    .brand-copy{min-width:0}
 
     .eyebrow{
       font-size:12px;
@@ -140,48 +141,38 @@
       box-shadow:var(--shadow);
     }
 
-    .btn:hover{ transform:translateY(-1px); }
-    .btn:disabled{
-      opacity:.58;
-      cursor:not-allowed;
-      transform:none;
-    }
-
+    .btn:hover{transform:translateY(-1px)}
+    .btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
     .btn.primary{
       background:linear-gradient(135deg, var(--primary), var(--primary2));
       color:#041b12;
       border-color:transparent;
     }
-
     .btn.gold{
       background:rgba(250,204,21,.12);
       color:var(--gold);
       border-color:rgba(250,204,21,.22);
     }
-
+    .btn.warn{
+      background:rgba(245,158,11,.12);
+      color:#fde68a;
+      border-color:rgba(245,158,11,.24);
+    }
     .btn.ghost{
       background:rgba(255,255,255,.04);
       color:var(--muted);
     }
 
-    .btn.danger{
-      background:rgba(239,68,68,.12);
-      color:#fecaca;
-      border-color:rgba(239,68,68,.22);
-    }
-
-    .hero{
-      overflow:hidden;
-    }
+    .hero{overflow:hidden}
 
     .hero-grid{
       display:grid;
-      grid-template-columns:1.08fr .92fr;
+      grid-template-columns:1.1fr .9fr;
       min-height:320px;
     }
 
     @media(max-width:980px){
-      .hero-grid{ grid-template-columns:1fr; }
+      .hero-grid{grid-template-columns:1fr}
     }
 
     .hero-body{
@@ -229,7 +220,7 @@
 
     h1{
       margin:0;
-      font-size:clamp(28px,4vw,44px);
+      font-size:clamp(28px,4vw,42px);
       line-height:1.05;
       letter-spacing:-.02em;
     }
@@ -260,30 +251,6 @@
       font-weight:900;
     }
 
-    .badge{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      border-radius:999px;
-      padding:9px 12px;
-      font-weight:900;
-      border:1px solid transparent;
-      white-space:nowrap;
-      width:max-content;
-    }
-
-    .badge.off{
-      background:rgba(245,158,11,.14);
-      color:#ffd38a;
-      border-color:rgba(245,158,11,.25);
-    }
-
-    .badge.on{
-      background:rgba(34,197,94,.14);
-      color:#9ef2ba;
-      border-color:rgba(34,197,94,.25);
-    }
-
     .mini{
       padding:14px;
       border-radius:18px;
@@ -311,11 +278,10 @@
     }
 
     @media(min-width:980px){
-      .layout{ grid-template-columns:1.08fr .92fr; }
+      .layout{grid-template-columns:1.08fr .92fr}
     }
 
-    .panel{ padding:18px; }
-
+    .panel{padding:18px}
     .panel h2{
       margin:0 0 8px;
       font-size:22px;
@@ -328,119 +294,129 @@
       line-height:1.55;
     }
 
-    .form-grid{
+    .grid2{
       display:grid;
       gap:12px;
-      margin-top:16px;
+    }
+
+    @media(min-width:760px){
+      .grid2{grid-template-columns:1fr 1fr}
     }
 
     .field{
       display:grid;
-      gap:8px;
+      gap:6px;
     }
 
-    .field.two{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:12px;
-    }
-
-    @media(max-width:700px){
-      .field.two{ grid-template-columns:1fr; }
-    }
-
-    label{
-      font-size:13px;
+    .label{
       color:var(--muted);
+      font-size:12px;
       font-weight:900;
+      letter-spacing:.02em;
     }
 
-    input, textarea{
+    .in, textarea{
       width:100%;
-      min-height:52px;
-      border-radius:14px;
+      padding:13px 14px;
+      border-radius:16px;
       border:1px solid rgba(255,255,255,.12);
-      background:rgba(0,0,0,.16);
+      background:rgba(0,0,0,.12);
       color:var(--text);
-      padding:12px 14px;
+      font-size:15px;
+      font-weight:900;
       outline:none;
-      font:inherit;
+    }
+
+    .in:disabled, textarea:disabled{
+      opacity:.68;
+      cursor:not-allowed;
     }
 
     textarea{
-      min-height:110px;
+      min-height:104px;
       resize:vertical;
-    }
-
-    input::placeholder,
-    textarea::placeholder{
-      color:rgba(236,255,244,.38);
+      font-family:inherit;
     }
 
     .actions{
       display:flex;
       gap:10px;
       flex-wrap:wrap;
-      margin-top:16px;
+      margin-top:12px;
     }
 
-    .statusbox{
-      margin-top:14px;
-      padding:12px 14px;
-      border-radius:16px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(0,0,0,.16);
+    .msg{
+      margin-top:12px;
       font-weight:900;
-      color:var(--muted);
-      min-height:48px;
-      display:flex;
-      align-items:center;
-      line-height:1.45;
     }
 
-    .statusbox.ok{
-      color:#bbf7d0;
-      border-color:rgba(34,197,94,.22);
-      background:rgba(34,197,94,.10);
-    }
+    .msg.ok{color:#86efac}
+    .msg.bad{color:#fca5a5}
+    .msg.warn{color:#fde68a}
 
-    .statusbox.warn{
-      color:#fde68a;
-      border-color:rgba(250,204,21,.22);
-      background:rgba(250,204,21,.08);
-    }
-
-    .statusbox.err{
-      color:#fecaca;
-      border-color:rgba(239,68,68,.22);
-      background:rgba(239,68,68,.08);
-    }
-
-    .facts{
+    .stats{
       display:grid;
+      grid-template-columns:repeat(4,1fr);
       gap:12px;
       margin-top:14px;
     }
 
-    .fact{
+    @media(max-width:820px){
+      .stats{grid-template-columns:repeat(2,1fr)}
+    }
+
+    .stat{
       padding:14px;
       border-radius:18px;
-      border:1px solid rgba(255,255,255,.09);
+      border:1px solid rgba(255,255,255,.10);
       background:rgba(0,0,0,.16);
     }
 
-    .fact .k{
+    .stat .k{
       font-size:12px;
       color:var(--muted);
       font-weight:800;
       margin-bottom:6px;
     }
 
-    .fact .v{
-      font-size:15px;
+    .stat .v{
+      font-size:24px;
+      font-weight:1000;
+      line-height:1;
+    }
+
+    .stateRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      padding:14px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.16);
+      margin-top:14px;
+    }
+
+    .stateText{
       font-weight:900;
       line-height:1.5;
-      word-break:break-word;
+    }
+
+    .reading{
+      display:grid;
+      gap:12px;
+      margin-top:12px;
+    }
+
+    .empty{
+      padding:20px 16px;
+      color:var(--muted);
+      text-align:center;
+      font-weight:800;
+      border:1px dashed rgba(255,255,255,.10);
+      border-radius:18px;
+      margin-top:12px;
     }
 
     .footer{
@@ -468,38 +444,37 @@
       <div class="brand">
         <div class="brand-mark">🛍️</div>
         <div class="brand-copy">
-          <div class="eyebrow">DIGIY MARKET PRO</div>
+          <div class="eyebrow">DIGIY PRO MARKET</div>
           <div class="brand-title">Réglages boutique</div>
           <div class="brand-sub" id="topSub">Chargement de la boutique…</div>
         </div>
       </div>
 
       <div class="top-actions">
-        <a class="btn ghost" id="btnCockpit" href="./cockpit.html">📊 Cockpit</a>
+        <button class="btn ghost" id="btnReload" type="button">🔄 Recharger</button>
+        <a class="btn" id="btnCockpit" href="./cockpit.html">📊 Cockpit</a>
         <a class="btn gold" id="btnPin" href="./pin.html">🔑 Entrer par PIN</a>
-        <a class="btn" id="btnPublic" href="./../DIGIY MARKET/boutique.html">🌍 Voir la fiche publique</a>
+        <a class="btn" id="btnPublic" href="./index.html">🌍 Voir la fiche publique</a>
       </div>
     </section>
 
     <section class="hero">
       <div class="hero-grid">
         <div class="hero-body">
-          <div class="mode" id="modeBadge">Mode aperçu</div>
+          <div class="mode" id="modeBadge">Mode protégé</div>
 
           <div>
-            <h1 id="shopName">Astou Market</h1>
+            <h1 id="shopNameHero">Boutique DIGIY</h1>
             <div class="subtitle" id="shopSubtitle">
-              Régle ton identité, ton contact, tes horaires et ta visibilité publique.
+              Coque visible de la boutique. Le contenu réel s’ouvre avec un slug MARKET valide.
             </div>
           </div>
 
           <div class="pills">
-            <div class="pill" id="pillCategory">🏷️ Boutique locale</div>
-            <div class="pill" id="pillCity">📍 Saly</div>
-            <div class="pill" id="pillHours">🕒 08h - 20h</div>
+            <div class="pill" id="pillCategories">🏷️ Catégories à définir</div>
+            <div class="pill" id="pillCity">📍 Ville à définir</div>
+            <div class="pill" id="pillPublish">🌍 Non publiée</div>
           </div>
-
-          <div class="badge off" id="publishBadge">Non publiée</div>
         </div>
 
         <div class="hero-side">
@@ -509,7 +484,7 @@
           </div>
 
           <div class="mini">
-            <div class="k">Téléphone public</div>
+            <div class="k">Téléphone lié</div>
             <div class="v" id="miniPhone">—</div>
           </div>
 
@@ -533,453 +508,551 @@
           Ici tu règles ce que le client verra publiquement. Simple, utile, terrain.
         </div>
 
-        <div class="form-grid">
+        <div class="grid2" style="margin-top:14px">
           <div class="field">
-            <label for="businessName">Nom de la boutique</label>
-            <input id="businessName" type="text" placeholder="Ex: Astou Market">
+            <div class="label">Nom de la boutique</div>
+            <input class="in" id="shopName" placeholder="Ex: Astou Market"/>
           </div>
-
-          <div class="field two">
-            <div>
-              <label for="category">Catégorie</label>
-              <input id="category" type="text" placeholder="Ex: Cosmétiques / Produits naturels">
-            </div>
-            <div>
-              <label for="city">Ville</label>
-              <input id="city" type="text" placeholder="Ex: Saly">
-            </div>
-          </div>
-
-          <div class="field two">
-            <div>
-              <label for="publicPhone">Téléphone public</label>
-              <input id="publicPhone" type="tel" inputmode="tel" placeholder="Ex: 221771342889">
-            </div>
-            <div>
-              <label for="whatsapp">WhatsApp</label>
-              <input id="whatsapp" type="tel" inputmode="tel" placeholder="Ex: 221771342889">
-            </div>
-          </div>
-
           <div class="field">
-            <label for="addressText">Adresse</label>
-            <input id="addressText" type="text" placeholder="Ex: Saly centre">
+            <div class="label">Nom responsable</div>
+            <input class="in" id="ownerName" placeholder="Ex: Astou"/>
           </div>
+        </div>
 
-          <div class="field two">
-            <div>
-              <label for="openHours">Horaires</label>
-              <input id="openHours" type="text" placeholder="Ex: 08h - 20h">
-            </div>
-            <div>
-              <label for="deliveryNote">Livraison / note terrain</label>
-              <input id="deliveryNote" type="text" placeholder="Ex: Livraison locale selon zone">
-            </div>
-          </div>
-
+        <div class="grid2" style="margin-top:12px">
           <div class="field">
-            <label for="description">Description</label>
-            <textarea id="description" placeholder="Ex: Boutique locale, produits utiles et bons."></textarea>
+            <div class="label">Ville</div>
+            <input class="in" id="city" placeholder="Ex: Saly"/>
           </div>
+          <div class="field">
+            <div class="label">Catégories</div>
+            <input class="in" id="categoriesText" placeholder="Ex: Cosmétiques / Produits naturels"/>
+          </div>
+        </div>
 
-          <div class="field two">
-            <div>
-              <label for="coverImageUrl">Image couverture</label>
-              <input id="coverImageUrl" type="url" placeholder="https://...">
-            </div>
-            <div>
-              <label for="logoUrl">Logo</label>
-              <input id="logoUrl" type="url" placeholder="https://...">
-            </div>
+        <div class="grid2" style="margin-top:12px">
+          <div class="field">
+            <div class="label">Téléphone lié</div>
+            <input class="in" id="linkedPhone" readonly/>
+          </div>
+          <div class="field">
+            <div class="label">WhatsApp</div>
+            <input class="in" id="whatsapp" placeholder="Ex: 221771342889"/>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:12px">
+          <div class="label">Zones / quartier</div>
+          <input class="in" id="zones" placeholder="Ex: Saly centre, Ngaparou"/>
+        </div>
+
+        <div class="field" style="margin-top:12px">
+          <div class="label">Adresse</div>
+          <input class="in" id="address" placeholder="Ex: Saly centre"/>
+        </div>
+
+        <div class="field" style="margin-top:12px">
+          <div class="label">Livraison / note terrain</div>
+          <input class="in" id="deliveryNote" placeholder="Ex: Livraison locale selon zone"/>
+        </div>
+
+        <div class="field" style="margin-top:12px">
+          <div class="label">Paiement / note utile</div>
+          <input class="in" id="paymentNote" placeholder="Ex: Wave / espèces"/>
+        </div>
+
+        <div class="field" style="margin-top:12px">
+          <div class="label">Description</div>
+          <textarea id="description" placeholder="Ex: Boutique locale, produits utiles et bons."></textarea>
+        </div>
+
+        <div class="grid2" style="margin-top:12px">
+          <div class="field">
+            <div class="label">Image couverture</div>
+            <input class="in" id="coverUrl" placeholder="https://..."/>
+          </div>
+          <div class="field">
+            <div class="label">Logo / photo</div>
+            <input class="in" id="photoUrl" placeholder="https://..."/>
           </div>
         </div>
 
         <div class="actions">
           <button class="btn primary" id="btnSave" type="button">💾 Enregistrer</button>
-          <button class="btn gold" id="btnPublish" type="button">📢 Publier</button>
-          <button class="btn danger" id="btnUnpublish" type="button">🙈 Dépublier</button>
+          <button class="btn" id="btnReloadProfile" type="button">↻ Recharger profil</button>
         </div>
 
-        <div id="statusBox" class="statusbox">Prêt.</div>
+        <div class="msg" id="msgProfile">Prêt.</div>
       </section>
 
       <section class="card panel">
-        <h2>Lecture terrain</h2>
+        <h2>Publication & lecture terrain</h2>
         <div class="muted" id="sideLead">
           Le public doit comprendre la boutique vite, sans deviner ce que tu vends ni comment te joindre.
         </div>
 
-        <div class="facts">
-          <div class="fact">
-            <div class="k">Boutique</div>
-            <div class="v" id="factShop">Astou Market</div>
-          </div>
-
-          <div class="fact">
-            <div class="k">Ville</div>
-            <div class="v" id="factCity">Saly</div>
-          </div>
-
-          <div class="fact">
-            <div class="k">Horaires</div>
-            <div class="v" id="factHours">08h - 20h</div>
-          </div>
-
-          <div class="fact">
-            <div class="k">Livraison</div>
-            <div class="v" id="factDelivery">Livraison locale selon zone</div>
+        <div class="stateRow">
+          <div class="stateText" id="publishState">Chargement…</div>
+          <div class="actions" style="margin-top:0">
+            <button class="btn primary" id="btnPublish" type="button">📢 Publier</button>
+            <button class="btn warn" id="btnUnpublish" type="button">🙈 Dépublier</button>
           </div>
         </div>
 
-        <div class="statusbox warn" id="previewBox" style="margin-top:16px; display:none;">
-          Mode aperçu actif. Ajoute un slug pour modifier une vraie boutique.
+        <div class="msg" id="msgPublish">Prêt.</div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="k">Produits actifs</div>
+            <div class="v" id="statActive">0</div>
+          </div>
+          <div class="stat">
+            <div class="k">Produits inactifs</div>
+            <div class="v" id="statInactive">0</div>
+          </div>
+          <div class="stat">
+            <div class="k">Produits en avant</div>
+            <div class="v" id="statFeatured">0</div>
+          </div>
+          <div class="stat">
+            <div class="k">État</div>
+            <div class="v" id="statPublished">NON</div>
+          </div>
+        </div>
+
+        <div class="reading">
+          <div class="mini">
+            <div class="k">Boutique</div>
+            <div class="v" id="factShop">Boutique DIGIY</div>
+          </div>
+
+          <div class="mini">
+            <div class="k">Ville</div>
+            <div class="v" id="factCity">À définir</div>
+          </div>
+
+          <div class="mini">
+            <div class="k">Livraison</div>
+            <div class="v" id="factDelivery">À définir</div>
+          </div>
+
+          <div class="mini">
+            <div class="k">Paiement</div>
+            <div class="v" id="factPayment">À définir</div>
+          </div>
+        </div>
+
+        <div class="empty" id="previewBox">
+          Aucun slug MARKET actif détecté. La coque reste visible, mais la vraie boutique reste protégée.
         </div>
       </section>
     </section>
 
     <div class="footer" id="footerText">
-      DIGIY MARKET PRO • Réglages boutique
+      DIGIY PRO MARKET • Réglages boutique
     </div>
   </div>
 
   <script>
-  const SUPABASE_URL = window.DIGIY_SUPABASE_URL;
-  const SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON;
-  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    (function(){
+      "use strict";
 
-  const $ = (id) => document.getElementById(id);
-
-  let ACCESS_SLUG = "";
-  let ACCESS_PHONE = "";
-  let IS_PREVIEW = true;
-  let CURRENT_PROFILE = null;
-
-  function normalizePhone(v){
-    return String(v || "").replace(/[^\d]/g, "");
-  }
-
-  function formatPhone(v){
-    const p = normalizePhone(v);
-    return p || "—";
-  }
-
-  function setStatus(msg, tone = ""){
-    const box = $("statusBox");
-    box.className = "statusbox" + (tone ? " " + tone : "");
-    box.textContent = msg;
-  }
-
-  function setBusy(isBusy){
-    [
-      "businessName","category","city","publicPhone","whatsapp",
-      "addressText","openHours","deliveryNote","description",
-      "coverImageUrl","logoUrl"
-    ].forEach(id => {
-      $(id).disabled = isBusy || IS_PREVIEW;
-    });
-
-    $("btnSave").disabled = isBusy || IS_PREVIEW;
-    $("btnPublish").disabled = isBusy || IS_PREVIEW;
-    $("btnUnpublish").disabled = isBusy || IS_PREVIEW;
-  }
-
-  function previewProfile(){
-    return {
-      slug: "",
-      owner_phone: "221771342889",
-      business_name: "Astou Market",
-      category: "Cosmétiques / Produits naturels",
-      city: "Saly",
-      public_phone: "221771342889",
-      whatsapp: "221771342889",
-      address_text: "Saly centre",
-      description: "Boutique locale, produits utiles et bons.",
-      open_hours: "08h - 20h",
-      delivery_note: "Livraison locale selon zone",
-      cover_image_url: "",
-      logo_url: "",
-      is_published: false,
-      published_at: null
-    };
-  }
-
-  function publicShopUrl(s){
-    return s
-      ? `./../DIGIY MARKET/boutique.html?slug=${encodeURIComponent(s)}`
-      : "./../DIGIY MARKET/boutique.html";
-  }
-
-  function cockpitUrl(s){
-    return s
-      ? `./cockpit.html?slug=${encodeURIComponent(s)}`
-      : "./cockpit.html";
-  }
-
-  function pinUrl(s){
-    return s
-      ? `./pin.html?slug=${encodeURIComponent(s)}`
-      : "./pin.html";
-  }
-
-  function applyProfile(profile, liveMode){
-    const p = profile || previewProfile();
-    CURRENT_PROFILE = p;
-
-    const name = p.business_name || "Boutique DIGIY";
-    const category = p.category || "Boutique locale";
-    const city = p.city || "Terrain local";
-    const phone = formatPhone(p.public_phone);
-    const whatsapp = formatPhone(p.whatsapp || p.public_phone);
-    const address = p.address_text || "Adresse à confirmer";
-    const hours = p.open_hours || "Horaires à confirmer";
-    const delivery = p.delivery_note || "Livraison selon zone.";
-    const currentSlug = ACCESS_SLUG || p.slug || "";
-
-    $("businessName").value = p.business_name || "";
-    $("category").value = p.category || "";
-    $("city").value = p.city || "";
-    $("publicPhone").value = p.public_phone || "";
-    $("whatsapp").value = p.whatsapp || "";
-    $("addressText").value = p.address_text || "";
-    $("openHours").value = p.open_hours || "";
-    $("deliveryNote").value = p.delivery_note || "";
-    $("description").value = p.description || "";
-    $("coverImageUrl").value = p.cover_image_url || "";
-    $("logoUrl").value = p.logo_url || "";
-
-    $("shopName").textContent = name;
-    $("shopSubtitle").textContent = liveMode
-      ? "Régle ton identité, ton contact, tes horaires et ta visibilité publique."
-      : "Aperçu pro élégant avant chargement réel de la boutique.";
-
-    $("pillCategory").textContent = `🏷️ ${category}`;
-    $("pillCity").textContent = `📍 ${city}`;
-    $("pillHours").textContent = `🕒 ${hours}`;
-
-    $("miniSlug").textContent = liveMode ? (currentSlug || "—") : "Aperçu";
-    $("miniPhone").textContent = phone;
-    $("miniWhatsapp").textContent = whatsapp;
-    $("miniAddress").textContent = address;
-
-    $("factShop").textContent = name;
-    $("factCity").textContent = city;
-    $("factHours").textContent = hours;
-    $("factDelivery").textContent = delivery;
-
-    $("modeBadge").className = liveMode ? "mode live" : "mode";
-    $("modeBadge").textContent = liveMode ? "Mode vivant" : "Mode aperçu";
-
-    $("publishBadge").className = "badge " + (p.is_published ? "on" : "off");
-    $("publishBadge").textContent = p.is_published ? "Publiée" : "Non publiée";
-
-    $("topSub").textContent = liveMode
-      ? `Boutique chargée pour ${currentSlug}`
-      : "Aperçu actif.";
-
-    $("previewBox").style.display = liveMode ? "none" : "flex";
-    $("footerText").textContent = liveMode
-      ? `DIGIY MARKET PRO • ${name} • Réglages vivants`
-      : "DIGIY MARKET PRO • Aperçu réglages";
-
-    $("btnPublic").href = publicShopUrl(currentSlug);
-    $("btnCockpit").href = cockpitUrl(currentSlug);
-    $("btnPin").href = pinUrl(currentSlug);
-  }
-
-  async function rpc(name, args){
-    const { data, error } = await sb.rpc(name, args);
-    if(error) throw error;
-    return data;
-  }
-
-  async function loadProfile(){
-    if(!ACCESS_SLUG) throw new Error("access_slug_missing");
-
-    const data = await rpc("market_get_profile_by_slug", { p_slug: ACCESS_SLUG });
-    if(!data?.ok || !data?.profile){
-      throw new Error(data?.error || "profile_error");
-    }
-    return data.profile;
-  }
-
-  function collectForm(){
-    return {
-      p_slug: ACCESS_SLUG,
-      p_business_name: $("businessName").value.trim() || null,
-      p_category: $("category").value.trim() || null,
-      p_city: $("city").value.trim() || null,
-      p_public_phone: normalizePhone($("publicPhone").value) || null,
-      p_whatsapp: normalizePhone($("whatsapp").value) || null,
-      p_address_text: $("addressText").value.trim() || null,
-      p_description: $("description").value.trim() || null,
-      p_open_hours: $("openHours").value.trim() || null,
-      p_delivery_note: $("deliveryNote").value.trim() || null,
-      p_cover_image_url: $("coverImageUrl").value.trim() || null,
-      p_logo_url: $("logoUrl").value.trim() || null
-    };
-  }
-
-  async function saveProfile(){
-    if(IS_PREVIEW){
-      setStatus("Mode aperçu : impossible d’enregistrer sans accès PRO.", "warn");
-      return;
-    }
-
-    if($("btnSave").dataset.busy === "1") return;
-
-    const name = $("businessName").value.trim();
-    if(!name){
-      setStatus("Le nom de la boutique est manquant.", "err");
-      $("businessName").focus();
-      return;
-    }
-
-    $("btnSave").dataset.busy = "1";
-    setBusy(true);
-    setStatus("Enregistrement de la boutique...");
-
-    try{
-      const data = await rpc("market_upsert_profile_by_slug", collectForm());
-
-      if(!data?.ok || !data?.profile){
-        throw new Error(data?.error || "save_failed");
-      }
-
-      applyProfile(data.profile, true);
-
-      sessionStorage.setItem("digiy_market_slug", ACCESS_SLUG);
-      sessionStorage.setItem("digiy_market_last_slug", ACCESS_SLUG);
-      localStorage.setItem("digiy_market_last_slug", ACCESS_SLUG);
-
-      setStatus("Boutique enregistrée.", "ok");
-    }catch(err){
-      console.error(err);
-      setStatus("Impossible d’enregistrer la boutique.", "err");
-    }finally{
-      $("btnSave").dataset.busy = "0";
-      setBusy(false);
-    }
-  }
-
-  async function setPublish(value){
-    if(IS_PREVIEW){
-      setStatus("Mode aperçu : impossible de publier sans accès PRO.", "warn");
-      return;
-    }
-
-    const key = value ? "btnPublish" : "btnUnpublish";
-    if($(key).dataset.busy === "1") return;
-
-    $(key).dataset.busy = "1";
-    setBusy(true);
-    setStatus(value ? "Publication en cours..." : "Dépublication en cours...");
-
-    try{
-      const data = await rpc("market_set_publish_by_slug", {
-        p_slug: ACCESS_SLUG,
-        p_is_published: value
+      const SUPABASE_URL = window.DIGIY_SUPABASE_URL;
+      const SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON;
+      const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false }
       });
 
-      if(!data?.ok){
-        throw new Error(data?.error || "publish_failed");
+      const $ = (id) => document.getElementById(id);
+
+      let ACCESS_SLUG = "";
+      let ACCESS_PHONE = "";
+      let ACCESS_OK = false;
+      let CURRENT_COCKPIT = null;
+      let CURRENT_PUBLISHED = false;
+
+      function normSlug(v){
+        return String(v || "").trim().toLowerCase();
       }
 
-      if(CURRENT_PROFILE){
-        CURRENT_PROFILE.is_published = !!data.is_published;
-        CURRENT_PROFILE.published_at = data.published_at || null;
+      function normPhone(v){
+        const d = String(v || "").replace(/[^\d]/g, "");
+        if (!d) return "";
+        if (d.startsWith("221") && d.length === 12) return d;
+        if (d.length === 9) return "221" + d;
+        return d;
       }
 
-      applyProfile(CURRENT_PROFILE || previewProfile(), true);
-      setStatus(value ? "Boutique publiée." : "Boutique dépubliée.", "ok");
-    }catch(err){
-      console.error(err);
-      setStatus(value ? "Impossible de publier la boutique." : "Impossible de dépublier la boutique.", "err");
-    }finally{
-      $(key).dataset.busy = "0";
-      setBusy(false);
-    }
-  }
+      function formatPhone(v){
+        const p = normPhone(v);
+        return p ? "+" + p : "—";
+      }
 
-  function showPreview(msg){
-    IS_PREVIEW = true;
-    ACCESS_SLUG = "";
-    ACCESS_PHONE = "";
-    applyProfile(previewProfile(), false);
-    setStatus(msg || "Mode aperçu.", "warn");
-  }
+      function withSlug(base){
+        const u = new URL(base, location.href);
+        if (ACCESS_SLUG) u.searchParams.set("slug", ACCESS_SLUG);
+        return u.pathname + u.search;
+      }
 
-  async function boot(){
-    document.body.classList.add("loading");
-    setStatus("Chargement...");
+      function setMsgProfile(txt, type){
+        const el = $("msgProfile");
+        el.textContent = txt;
+        el.className = "msg " + (type || "");
+      }
 
-    try{
-      await window.DIGIY_GUARD.ready;
-      const st = window.DIGIY_GUARD?.state || {};
+      function setMsgPublish(txt, type){
+        const el = $("msgPublish");
+        el.textContent = txt;
+        el.className = "msg " + (type || "");
+      }
 
-      if(st?.preview){
-        if(st.reason === "preview_no_identity"){
-          showPreview("Mode aperçu. Ajoute ?slug=market-... pour ouvrir la boutique PRO.");
-        }else if(st.reason === "unknown_identity"){
-          showPreview("Slug inconnu. Aperçu affiché.");
-        }else if(st.reason === "guard_error"){
-          showPreview("Guard indisponible. Aperçu affiché.");
-        }else if(st.reason === "no_subscription"){
-          showPreview("Accès non actif. Aperçu affiché.");
-        }else{
-          showPreview("Accès indisponible. Aperçu affiché.");
+      function setFormDisabled(disabled){
+        [
+          "shopName","ownerName","city","categoriesText","whatsapp","zones","address",
+          "deliveryNote","paymentNote","description","coverUrl","photoUrl"
+        ].forEach(id => {
+          $(id).disabled = disabled;
+        });
+
+        ["btnSave","btnPublish","btnUnpublish"].forEach(id => {
+          $(id).disabled = disabled;
+        });
+      }
+
+      async function waitGuardIfAny(){
+        try{
+          if (window.DIGIY_GUARD?.ready && typeof window.DIGIY_GUARD.ready.then === "function"){
+            await window.DIGIY_GUARD.ready;
+          }
+        }catch(e){
+          console.warn("guard ready warning:", e);
         }
-        return;
       }
 
-      if(st?.access_ok){
-        ACCESS_SLUG = st.slug || "";
-        ACCESS_PHONE = st.phone || "";
-        IS_PREVIEW = false;
+      function resolveSlug(){
+        const qs = new URLSearchParams(location.search);
+        const fromUrl = normSlug(qs.get("slug") || "");
+        if (fromUrl) return fromUrl;
 
-        if(!ACCESS_SLUG){
-          showPreview("Accès OK mais slug absent. Aperçu affiché.");
+        const fromGuard = normSlug(window.DIGIY_GUARD?.state?.slug || "");
+        if (fromGuard) return fromGuard;
+
+        const fromSession = normSlug(sessionStorage.getItem("digiy_market_slug") || "");
+        if (fromSession) return fromSession;
+
+        const fromLocal = normSlug(localStorage.getItem("digiy_market_last_slug") || "");
+        if (fromLocal) return fromLocal;
+
+        return "";
+      }
+
+      function blockedCockpit(){
+        return {
+          ok: false,
+          slug: "",
+          phone: "",
+          public_label: "DIGIY PRO MARKET",
+          profile: {
+            shop_name: "",
+            owner_name: "",
+            city: "",
+            zones: "",
+            address: "",
+            whatsapp: "",
+            photo_url: "",
+            cover_url: "",
+            description: "",
+            categories_text: "",
+            delivery_note: "",
+            payment_note: "",
+            is_published: false,
+            is_active: true
+          },
+          stats: {
+            products_active: 0,
+            products_inactive: 0,
+            products_featured: 0
+          }
+        };
+      }
+
+      function resetForm(){
+        $("shopName").value = "";
+        $("ownerName").value = "";
+        $("city").value = "";
+        $("categoriesText").value = "";
+        $("linkedPhone").value = "";
+        $("whatsapp").value = "";
+        $("zones").value = "";
+        $("address").value = "";
+        $("deliveryNote").value = "";
+        $("paymentNote").value = "";
+        $("description").value = "";
+        $("coverUrl").value = "";
+        $("photoUrl").value = "";
+      }
+
+      function applyStats(stats, isPublished, liveMode){
+        $("statActive").textContent = String(Number(stats?.products_active || 0));
+        $("statInactive").textContent = String(Number(stats?.products_inactive || 0));
+        $("statFeatured").textContent = String(Number(stats?.products_featured || 0));
+        $("statPublished").textContent = liveMode ? (isPublished ? "OUI" : "NON") : "NON";
+      }
+
+      function renderPublishState(){
+        const txt = CURRENT_PUBLISHED
+          ? "Publié • boutique visible publiquement"
+          : "Non publiée • boutique encore en préparation";
+        $("publishState").textContent = txt;
+      }
+
+      function applyCockpit(data, liveMode){
+        const payload = data || blockedCockpit();
+        const p = payload.profile || {};
+
+        CURRENT_COCKPIT = payload;
+        CURRENT_PUBLISHED = !!p.is_published;
+
+        ACCESS_PHONE = normPhone(payload.phone || ACCESS_PHONE);
+
+        const shop = p.shop_name || "Boutique DIGIY";
+        const owner = p.owner_name || "";
+        const city = p.city || "Ville à définir";
+        const categories = p.categories_text || "Catégories à définir";
+        const address = p.address || "Adresse à définir";
+        const whatsapp = p.whatsapp || payload.phone || "";
+        const delivery = p.delivery_note || "Livraison à définir";
+        const payment = p.payment_note || "Paiement à définir";
+        const subtitle = liveMode
+          ? (payload.is_blank
+              ? "Boutique personnelle vierge. Tu peux maintenant la remplir proprement."
+              : "Boutique réelle chargée. Tu peux ajuster ton identité, ton contact et ta publication.")
+          : "Coque protégée visible. Le contenu réel s’ouvre avec un slug MARKET valide.";
+
+        $("shopNameHero").textContent = shop;
+        $("shopSubtitle").textContent = subtitle;
+
+        $("pillCategories").textContent = "🏷️ " + categories;
+        $("pillCity").textContent = "📍 " + city;
+        $("pillPublish").textContent = "🌍 " + (p.is_published ? "Publiée" : "Non publiée");
+
+        $("miniSlug").textContent = liveMode ? (payload.slug || "—") : "—";
+        $("miniPhone").textContent = formatPhone(payload.phone);
+        $("miniWhatsapp").textContent = formatPhone(whatsapp);
+        $("miniAddress").textContent = address;
+
+        $("factShop").textContent = shop;
+        $("factCity").textContent = city;
+        $("factDelivery").textContent = delivery;
+        $("factPayment").textContent = payment;
+
+        $("modeBadge").className = liveMode ? "mode live" : "mode";
+        $("modeBadge").textContent = liveMode ? "Mode vivant" : "Mode protégé";
+
+        $("topSub").textContent = liveMode
+          ? `Réglages chargés pour ${payload.slug || "MARKET"}`
+          : "Aucun accès ouvert pour l’instant.";
+
+        $("previewBox").style.display = liveMode ? "none" : "block";
+        $("footerText").textContent = liveMode
+          ? `DIGIY PRO MARKET • ${shop} • Réglages vivants`
+          : "DIGIY PRO MARKET • Réglages protégés";
+
+        $("btnCockpit").href = liveMode ? withSlug("./cockpit.html") : "./cockpit.html";
+        $("btnPin").href = liveMode ? withSlug("./pin.html") : "./pin.html";
+        $("btnPublic").href = liveMode ? withSlug("./index.html") : "./index.html";
+
+        resetForm();
+        $("shopName").value = p.shop_name || "";
+        $("ownerName").value = owner;
+        $("city").value = p.city || "";
+        $("categoriesText").value = p.categories_text || "";
+        $("linkedPhone").value = formatPhone(payload.phone);
+        $("whatsapp").value = p.whatsapp || normPhone(payload.phone || "");
+        $("zones").value = p.zones || "";
+        $("address").value = p.address || "";
+        $("deliveryNote").value = p.delivery_note || "";
+        $("paymentNote").value = p.payment_note || "";
+        $("description").value = p.description || "";
+        $("coverUrl").value = p.cover_url || "";
+        $("photoUrl").value = p.photo_url || "";
+
+        renderPublishState();
+        applyStats(payload.stats || {}, !!p.is_published, liveMode);
+      }
+
+      function syncPreviewFromInputs(){
+        const shop = $("shopName").value.trim() || "Boutique DIGIY";
+        const city = $("city").value.trim() || "Ville à définir";
+        const categories = $("categoriesText").value.trim() || "Catégories à définir";
+        const delivery = $("deliveryNote").value.trim() || "Livraison à définir";
+        const payment = $("paymentNote").value.trim() || "Paiement à définir";
+        const address = $("address").value.trim() || "Adresse à définir";
+        const whatsapp = $("whatsapp").value.trim();
+
+        $("shopNameHero").textContent = shop;
+        $("pillCategories").textContent = "🏷️ " + categories;
+        $("pillCity").textContent = "📍 " + city;
+        $("miniWhatsapp").textContent = formatPhone(whatsapp);
+        $("miniAddress").textContent = address;
+        $("factShop").textContent = shop;
+        $("factCity").textContent = city;
+        $("factDelivery").textContent = delivery;
+        $("factPayment").textContent = payment;
+      }
+
+      async function fetchCockpit(){
+        if (!ACCESS_SLUG) return { ok:false, reason:"missing_slug" };
+        const { data, error } = await sb.rpc("digiy_market_get_cockpit_by_slug", {
+          p_slug: ACCESS_SLUG
+        });
+        if (error) throw error;
+        return data || { ok:false, reason:"empty_response" };
+      }
+
+      async function saveProfile(){
+        if (!ACCESS_OK || !ACCESS_SLUG){
+          setMsgProfile("⚠️ Accès non ouvert pour enregistrer la vraie boutique.", "bad");
           return;
         }
 
-        const profile = await loadProfile();
-        applyProfile(profile, true);
+        try{
+          setMsgProfile("⏳ Enregistrement de la boutique…", "warn");
+
+          const { data, error } = await sb.rpc("digiy_market_save_profile", {
+            p_slug: ACCESS_SLUG,
+            p_shop_name: $("shopName").value.trim(),
+            p_owner_name: $("ownerName").value.trim(),
+            p_city: $("city").value.trim(),
+            p_zones: $("zones").value.trim(),
+            p_address: $("address").value.trim(),
+            p_whatsapp: normPhone($("whatsapp").value.trim()),
+            p_photo_url: $("photoUrl").value.trim(),
+            p_cover_url: $("coverUrl").value.trim(),
+            p_description: $("description").value.trim(),
+            p_categories_text: $("categoriesText").value.trim(),
+            p_delivery_note: $("deliveryNote").value.trim(),
+            p_payment_note: $("paymentNote").value.trim(),
+            p_priority: 100,
+            p_is_published: CURRENT_PUBLISHED,
+            p_is_active: true
+          });
+
+          if (error) throw error;
+          if (!data?.ok) throw new Error(data?.reason || "market_save_profile_error");
+
+          setMsgProfile("✅ Boutique enregistrée.", "ok");
+          await loadLiveCockpit();
+        }catch(e){
+          console.error(e);
+          setMsgProfile("❌ Impossible d’enregistrer la boutique.", "bad");
+        }
+      }
+
+      async function setPublishState(nextState){
+        if (!ACCESS_OK || !ACCESS_SLUG){
+          setMsgPublish("⚠️ Accès non ouvert pour modifier la publication.", "bad");
+          return;
+        }
+
+        try{
+          setMsgPublish("⏳ Mise à jour publication…", "warn");
+
+          const { data, error } = await sb.rpc("digiy_market_set_publish_by_slug", {
+            p_slug: ACCESS_SLUG,
+            p_is_published: !!nextState
+          });
+
+          if (error) throw error;
+          if (!data?.ok) throw new Error(data?.reason || "market_publish_error");
+
+          CURRENT_PUBLISHED = !!nextState;
+          setMsgPublish(nextState ? "✅ Boutique publiée." : "✅ Boutique dépubliée.", "ok");
+          await loadLiveCockpit();
+        }catch(e){
+          console.error(e);
+          setMsgPublish("❌ Impossible de modifier la publication.", "bad");
+        }
+      }
+
+      async function loadLiveCockpit(){
+        const data = await fetchCockpit();
+
+        if (!data?.ok){
+          ACCESS_OK = false;
+          applyCockpit(blockedCockpit(), false);
+          setFormDisabled(true);
+          setMsgProfile("⚠️ Slug détecté mais accès non ouvert. Boutique réelle protégée.", "warn");
+          setMsgPublish("Accès non ouvert.", "warn");
+          return;
+        }
+
+        ACCESS_OK = true;
+        ACCESS_PHONE = normPhone(data.phone || "");
+        ACCESS_SLUG = data.slug || ACCESS_SLUG;
 
         sessionStorage.setItem("digiy_market_slug", ACCESS_SLUG);
-        sessionStorage.setItem("digiy_market_last_slug", ACCESS_SLUG);
         localStorage.setItem("digiy_market_last_slug", ACCESS_SLUG);
 
-        setStatus("Boutique chargée.", "ok");
-        return;
+        applyCockpit(data, true);
+        setFormDisabled(false);
       }
 
-      showPreview("Accès indisponible. Aperçu affiché.");
-    }catch(err){
-      console.error(err);
-      showPreview("Impossible de charger la vraie boutique. Aperçu affiché.");
-    }finally{
-      document.body.classList.remove("loading");
-      setBusy(false);
-    }
-  }
+      async function boot(){
+        document.body.classList.add("loading");
 
-  $("btnSave").addEventListener("click", saveProfile);
-  $("btnPublish").addEventListener("click", () => setPublish(true));
-  $("btnUnpublish").addEventListener("click", () => setPublish(false));
+        try{
+          await waitGuardIfAny();
 
-  [
-    "businessName","category","city","publicPhone","whatsapp",
-    "addressText","openHours","deliveryNote","description",
-    "coverImageUrl","logoUrl"
-  ].forEach((id) => {
-    $(id).addEventListener("keydown", (e) => {
-      if(e.key === "Enter" && id !== "description"){
-        e.preventDefault();
-        saveProfile();
+          ACCESS_SLUG = resolveSlug();
+
+          if (!ACCESS_SLUG){
+            ACCESS_OK = false;
+            applyCockpit(blockedCockpit(), false);
+            setFormDisabled(true);
+            setMsgProfile("Aucun slug MARKET détecté. La coque reste visible.", "warn");
+            setMsgPublish("Aucun slug MARKET détecté.", "warn");
+            return;
+          }
+
+          await loadLiveCockpit();
+
+          if (ACCESS_OK){
+            setMsgProfile(
+              CURRENT_COCKPIT?.is_blank
+                ? "✅ Boutique vierge chargée. Tu peux commencer à remplir."
+                : "✅ Boutique réelle chargée.",
+              "ok"
+            );
+            setMsgPublish("Prêt.", "");
+          }
+        }catch(e){
+          console.error(e);
+          ACCESS_OK = false;
+          applyCockpit(blockedCockpit(), false);
+          setFormDisabled(true);
+          setMsgProfile("❌ Impossible de charger la vraie boutique. Coque protégée affichée.", "bad");
+          setMsgPublish("Erreur de chargement.", "bad");
+        }finally{
+          document.body.classList.remove("loading");
+        }
       }
-    });
-  });
 
-  boot();
-</script>
+      [
+        "shopName","ownerName","city","categoriesText","whatsapp","zones","address",
+        "deliveryNote","paymentNote","description","coverUrl","photoUrl"
+      ].forEach(id => {
+        $(id).addEventListener("input", syncPreviewFromInputs);
+      });
+
+      $("btnSave").addEventListener("click", saveProfile);
+      $("btnReloadProfile").addEventListener("click", boot);
+      $("btnReload").addEventListener("click", boot);
+      $("btnPublish").addEventListener("click", () => setPublishState(true));
+      $("btnUnpublish").addEventListener("click", () => setPublishState(false));
+
+      boot();
+    })();
+  </script>
 </body>
 </html>
