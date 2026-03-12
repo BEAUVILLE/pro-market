@@ -14,7 +14,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-admin-20260312-v3"></script>
+  <script src="./guard.js?v=market-admin-20260312-v4"></script>
 
   <style>
     :root{
@@ -299,7 +299,7 @@
           <a class="btn primary" id="btnCockpit" href="./cockpit.html">📊 Cockpit</a>
           <a class="btn" id="btnBoutique" href="./boutique.html">🛠️ Boutique</a>
           <a class="btn" id="btnProduits" href="./produits.html">📦 Produits</a>
-          <a class="btn gold" id="btnPublic" href="./index.html">🌍 Fiche publique</a>
+          <a class="btn gold" id="btnPublic" href="./fiche.html">🌍 Fiche publique</a>
         </div>
       </div>
 
@@ -460,37 +460,32 @@
 
   function resolveSlug(){
     const qs = new URLSearchParams(location.search);
-    const candidates = [
-      qs.get("slug"),
-      window.DIGIY_GUARD?.state?.slug,
-      sessionStorage.getItem("digiy_market_slug"),
-      localStorage.getItem("digiy_market_last_slug"),
-      sessionStorage.getItem("digiy_slug"),
-      localStorage.getItem("digiy_slug"),
-      sessionStorage.getItem("DIGIY_MARKET_SLUG"),
-      localStorage.getItem("DIGIY_MARKET_SLUG")
-    ];
 
-    for (const item of candidates){
-      const s = normSlug(item || "");
-      if (s) return s;
-    }
+    const fromQuery = normSlug(qs.get("slug"));
+    if (fromQuery) return fromQuery;
+
+    const fromGuard = normSlug(window.DIGIY_GUARD?.state?.slug);
+    if (fromGuard) return fromGuard;
+
+    const marketSession = normSlug(sessionStorage.getItem("digiy_market_slug"));
+    if (marketSession) return marketSession;
+
+    const marketLocal = normSlug(localStorage.getItem("digiy_market_last_slug"));
+    if (marketLocal) return marketLocal;
+
     return "";
   }
 
   function resolvePhone(){
-    const candidates = [
-      window.DIGIY_GUARD?.state?.phone,
-      sessionStorage.getItem("digiy_market_phone"),
-      localStorage.getItem("digiy_market_last_phone"),
-      sessionStorage.getItem("digiy_phone"),
-      localStorage.getItem("digiy_phone")
-    ];
+    const fromGuard = normPhone(window.DIGIY_GUARD?.state?.phone);
+    if (fromGuard) return fromGuard;
 
-    for (const item of candidates){
-      const p = normPhone(item || "");
-      if (p) return p;
-    }
+    const marketSession = normPhone(sessionStorage.getItem("digiy_market_phone"));
+    if (marketSession) return marketSession;
+
+    const marketLocal = normPhone(localStorage.getItem("digiy_market_last_phone"));
+    if (marketLocal) return marketLocal;
+
     return "";
   }
 
@@ -504,7 +499,7 @@
     $("btnProduits").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
     $("btnProduits2").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
     $("btnProductsTop").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
-    $("btnPublic").href = ACCESS_SLUG ? withSlug("./index.html") : "./index.html";
+    $("btnPublic").href = ACCESS_SLUG ? withSlug("./fiche.html") : "./fiche.html";
     $("linkSupport").href = ACCESS_SLUG ? withSlug("./boutique.html") : "./boutique.html";
     $("linkCockpit").href = ACCESS_SLUG ? withSlug("./cockpit.html") : "./cockpit.html";
     $("linkProducts").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
@@ -572,6 +567,10 @@
     $("statTotal").textContent = String(total);
   }
 
+  function resetProductPreview(text){
+    $("productPreview").innerHTML = text || "Aucun produit visible.";
+  }
+
   function applyBlockedState(reason){
     ACCESS_OK = false;
     CURRENT = null;
@@ -600,9 +599,13 @@
       ? "Slug détecté • données protégées"
       : "Admin central vendeur";
 
-    $("productPreview").innerHTML = ACCESS_SLUG
-      ? "Slug détecté, mais aucun produit réel n’est exposé tant que l’accès n’est pas ouvert."
-      : "Aucun produit visible sans accès ouvert.";
+    resetProductPreview(
+      ACCESS_SLUG
+        ? "Slug détecté, mais aucun produit réel n’est exposé tant que l’accès n’est pas ouvert."
+        : "Aucun produit visible sans accès ouvert."
+    );
+
+    document.title = "DIGIY PRO MARKET — Admin central";
 
     updateLinks();
 
@@ -712,12 +715,12 @@
 
   function renderProductPreview(){
     if (!ACCESS_OK) {
-      $("productPreview").innerHTML = "Aucun produit visible sans accès ouvert.";
+      resetProductPreview("Aucun produit visible sans accès ouvert.");
       return;
     }
 
     if (!PRODUCTS.length) {
-      $("productPreview").innerHTML = "Aucun produit pour l’instant.";
+      resetProductPreview("Aucun produit pour l’instant.");
       return;
     }
 
@@ -827,6 +830,7 @@
         console.error(e);
         PRODUCTS = [];
         renderProductPreview();
+        applyStatsFromState(cockpit.stats || {});
         setMsgMain("⚠️ Admin chargé, mais impossible de lire les produits pour l’instant.", "warn");
       }
 
