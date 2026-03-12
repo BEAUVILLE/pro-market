@@ -8,13 +8,13 @@
   <meta name="description" content="Réglages boutique DIGIY PRO MARKET : identité, contact, publication, lecture terrain."/>
 
   <script>
-  window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-  window.DIGIY_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
-  window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
-</script>
+    window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    window.DIGIY_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+    window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+  </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-boutique-20260312-v3"></script>
+  <script src="./guard.js?v=market-boutique-20260312-v4"></script>
 
   <style>
     :root{
@@ -493,7 +493,7 @@
         <a class="btn" id="btnCockpit" href="./cockpit.html">📊 Cockpit</a>
         <a class="btn" id="btnProducts" href="./produits.html">📦 Produits</a>
         <a class="btn gold" id="btnPin" href="./pin.html">🔑 Entrer par PIN</a>
-        <a class="btn" id="btnPublic" href="./index.html">🌍 Voir la fiche publique</a>
+        <a class="btn" id="btnPublic" href="./fiche.html">🌍 Voir la fiche publique</a>
       </div>
     </section>
 
@@ -837,22 +837,18 @@
 
       function resolveSlug(){
         const qs = new URLSearchParams(location.search);
+        const fromQuery = normSlug(qs.get("slug"));
+        if (fromQuery) return fromQuery;
 
-        const candidates = [
-          qs.get("slug"),
-          window.DIGIY_GUARD?.state?.slug,
-          sessionStorage.getItem("digiy_market_slug"),
-          localStorage.getItem("digiy_market_last_slug"),
-          sessionStorage.getItem("digiy_slug"),
-          localStorage.getItem("digiy_slug"),
-          sessionStorage.getItem("DIGIY_MARKET_SLUG"),
-          localStorage.getItem("DIGIY_MARKET_SLUG")
-        ];
+        const fromGuard = normSlug(window.DIGIY_GUARD?.state?.slug);
+        if (fromGuard) return fromGuard;
 
-        for (const item of candidates){
-          const s = normSlug(item || "");
-          if (s) return s;
-        }
+        const marketSession = normSlug(sessionStorage.getItem("digiy_market_slug"));
+        if (marketSession) return marketSession;
+
+        const marketLocal = normSlug(localStorage.getItem("digiy_market_last_slug"));
+        if (marketLocal) return marketLocal;
+
         return "";
       }
 
@@ -1069,7 +1065,7 @@
         $("btnCockpit").href = liveMode ? withSlug("./cockpit.html") : "./cockpit.html";
         $("btnProducts").href = liveMode ? withSlug("./produits.html") : "./produits.html";
         $("btnPin").href = liveMode ? withSlug("./pin.html") : "./pin.html";
-        $("btnPublic").href = liveMode ? withSlug("./index.html") : "./index.html";
+        $("btnPublic").href = liveMode ? withSlug("./fiche.html") : "./fiche.html";
 
         document.title = liveMode
           ? `${shop} — Réglages boutique DIGIY PRO MARKET`
