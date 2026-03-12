@@ -1,1 +1,1321 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <title>DIGIY PRO MARKET — Produits</title>
+  <meta name="theme-color" content="#0b1020" />
+  <meta
+    name="description"
+    content="DIGIY PRO MARKET — gestion réelle du catalogue produits, sans démo, avec backend Supabase réel."
+  />
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+
+    /*
+      IMPORTANT :
+      Je n’ai pas la clé ANON complète visible dans ce fil.
+      Colle ici ta vraie clé publique ANON complète.
+    */
+    window.DIGIY_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+  </script>
+
+  <style>
+    :root{
+      --bg:#08111f;
+      --bg2:#0d1830;
+      --card:#121d39;
+      --card2:#17264a;
+      --line:rgba(255,255,255,.10);
+      --text:#eef4ff;
+      --muted:#9cb0d3;
+      --gold:#f4c95d;
+      --green:#22c55e;
+      --orange:#f59e0b;
+      --red:#ef4444;
+      --blue:#60a5fa;
+      --shadow:0 24px 60px rgba(0,0,0,.28);
+      --radius:20px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:linear-gradient(180deg,var(--bg),#07101c 40%, #050b14 100%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+    a{color:inherit;text-decoration:none}
+    button,input,textarea,select{font:inherit}
+
+    .wrap{
+      width:min(1220px,calc(100% - 24px));
+      margin:0 auto;
+      padding:18px 0 48px;
+    }
+
+    .topbar{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      margin-bottom:16px;
+    }
+
+    .brand{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    .kicker{
+      color:var(--gold);
+      font-size:.84rem;
+      font-weight:800;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+
+    h1{
+      margin:0;
+      font-size:clamp(1.5rem,2.5vw,2.2rem);
+      line-height:1.08;
+    }
+
+    .sub{
+      color:var(--muted);
+      font-size:.96rem;
+    }
+
+    .nav{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .nav a,
+    .nav button{
+      border:none;
+      cursor:pointer;
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      padding:11px 14px;
+      border-radius:999px;
+      transition:.18s ease;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);
+    }
+
+    .nav a:hover,
+    .nav button:hover{
+      transform:translateY(-1px);
+      background:rgba(255,255,255,.10);
+    }
+
+    .hero{
+      display:grid;
+      grid-template-columns:1.4fr .9fr;
+      gap:16px;
+      margin-bottom:16px;
+    }
+
+    .panel{
+      background:linear-gradient(180deg,var(--card),var(--card2));
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .panel-inner{
+      padding:18px;
+    }
+
+    .status-line{
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:10px;
+      margin-top:10px;
+    }
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.08);
+      font-size:.92rem;
+    }
+
+    .dot{
+      width:10px;height:10px;border-radius:999px;background:var(--blue);
+      box-shadow:0 0 0 4px rgba(96,165,250,.14);
+      flex:0 0 auto;
+    }
+    .dot.green{background:var(--green);box-shadow:0 0 0 4px rgba(34,197,94,.14)}
+    .dot.orange{background:var(--orange);box-shadow:0 0 0 4px rgba(245,158,11,.14)}
+    .dot.red{background:var(--red);box-shadow:0 0 0 4px rgba(239,68,68,.14)}
+
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:12px;
+    }
+
+    .stat{
+      padding:16px;
+      border-radius:18px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .stat .label{
+      color:var(--muted);
+      font-size:.88rem;
+      margin-bottom:6px;
+    }
+
+    .stat .value{
+      font-weight:900;
+      font-size:1.35rem;
+      letter-spacing:-.02em;
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns:390px minmax(0,1fr);
+      gap:16px;
+    }
+
+    .section-title{
+      margin:0 0 14px;
+      font-size:1.05rem;
+      font-weight:900;
+      letter-spacing:-.02em;
+    }
+
+    .muted{
+      color:var(--muted);
+    }
+
+    .form-grid{
+      display:grid;
+      gap:12px;
+    }
+
+    .field{
+      display:grid;
+      gap:7px;
+    }
+
+    .field label{
+      font-size:.93rem;
+      color:var(--muted);
+      font-weight:700;
+    }
+
+    .input,
+    .textarea,
+    .select{
+      width:100%;
+      border:none;
+      outline:none;
+      color:var(--text);
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:14px;
+      padding:13px 14px;
+    }
+
+    .textarea{
+      min-height:110px;
+      resize:vertical;
+    }
+
+    .row-2{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+
+    .row-3{
+      display:grid;
+      grid-template-columns:1.1fr .8fr .8fr;
+      gap:12px;
+    }
+
+    .check{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:12px 14px;
+      border-radius:14px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .btn{
+      border:none;
+      cursor:pointer;
+      color:#08111f;
+      background:var(--gold);
+      font-weight:900;
+      border-radius:14px;
+      padding:13px 16px;
+      transition:.18s ease;
+    }
+
+    .btn:hover{transform:translateY(-1px)}
+    .btn.secondary{
+      color:var(--text);
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.10);
+    }
+    .btn.green{background:var(--green);color:#04130a}
+    .btn.red{background:var(--red);color:white}
+    .btn.blue{background:var(--blue);color:#07111c}
+    .btn:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+      transform:none;
+    }
+
+    .toolbar{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:14px;
+    }
+
+    .toolbar-left,.toolbar-right{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      align-items:center;
+    }
+
+    .search{
+      min-width:min(100%,290px);
+    }
+
+    .products{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:14px;
+    }
+
+    .card{
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.045);
+      border-radius:18px;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      min-height:100%;
+    }
+
+    .thumb{
+      aspect-ratio:16/10;
+      width:100%;
+      background:
+        linear-gradient(135deg, rgba(244,201,93,.18), rgba(96,165,250,.12)),
+        rgba(255,255,255,.04);
+      border-bottom:1px solid rgba(255,255,255,.08);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--muted);
+      font-weight:800;
+      overflow:hidden;
+    }
+
+    .thumb img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .card-body{
+      padding:14px;
+      display:grid;
+      gap:10px;
+    }
+
+    .card-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .card-title{
+      margin:0;
+      font-size:1.04rem;
+      font-weight:900;
+      letter-spacing:-.02em;
+    }
+
+    .pill{
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:.82rem;
+      font-weight:800;
+      white-space:nowrap;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.08);
+    }
+
+    .pill.active{
+      color:#d8ffe5;
+      background:rgba(34,197,94,.14);
+      border-color:rgba(34,197,94,.28);
+    }
+
+    .pill.inactive{
+      color:#ffe2e2;
+      background:rgba(239,68,68,.14);
+      border-color:rgba(239,68,68,.28);
+    }
+
+    .meta{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      color:var(--muted);
+      font-size:.9rem;
+    }
+
+    .desc{
+      color:#dbe7ff;
+      opacity:.92;
+      line-height:1.55;
+      font-size:.95rem;
+      display:-webkit-box;
+      -webkit-line-clamp:3;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+      min-height:4.4em;
+    }
+
+    .card-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .empty{
+      padding:26px;
+      border-radius:18px;
+      border:1px dashed rgba(255,255,255,.15);
+      background:rgba(255,255,255,.03);
+      color:var(--muted);
+      text-align:center;
+    }
+
+    .locked{
+      padding:26px;
+      border-radius:22px;
+      border:1px solid rgba(255,255,255,.10);
+      background:linear-gradient(180deg,#101a34,#0d1730);
+      box-shadow:var(--shadow);
+    }
+
+    .locked h2{
+      margin:0 0 10px;
+      font-size:1.35rem;
+    }
+
+    .locked p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.6;
+    }
+
+    .hidden{display:none !important}
+
+    .toast{
+      position:fixed;
+      left:50%;
+      bottom:18px;
+      transform:translateX(-50%) translateY(20px);
+      background:#0e1730;
+      color:var(--text);
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:999px;
+      padding:12px 16px;
+      box-shadow:var(--shadow);
+      opacity:0;
+      pointer-events:none;
+      transition:.22s ease;
+      z-index:999;
+      max-width:min(92vw,680px);
+      text-align:center;
+    }
+
+    .toast.show{
+      opacity:1;
+      transform:translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 1040px){
+      .hero{grid-template-columns:1fr}
+      .layout{grid-template-columns:1fr}
+    }
+
+    @media (max-width: 760px){
+      .wrap{width:min(100% - 16px,1220px)}
+      .stats{grid-template-columns:1fr 1fr}
+      .row-2,.row-3,.products{grid-template-columns:1fr}
+      .panel-inner{padding:15px}
+      .nav{width:100%}
+      .nav a,.nav button{flex:1 1 auto;text-align:center}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="kicker">DIGIY PRO MARKET</div>
+        <h1 id="pageTitle">Gestion catalogue produits</h1>
+        <div class="sub" id="pageSub">Rail réel uniquement. Aucune donnée de démo injectée.</div>
+      </div>
+
+      <div class="nav">
+        <a id="navDashboard" href="./dashboard-pro.html">Dashboard</a>
+        <a id="navCockpit" href="./cockpit.html">Cockpit</a>
+        <a id="navBoutique" href="./boutique.html">Boutique</a>
+        <button type="button" id="btnRefreshTop">Rafraîchir</button>
+      </div>
+    </div>
+
+    <section id="lockedView" class="locked hidden">
+      <h2 id="lockedTitle">Accès protégé</h2>
+      <p id="lockedText">Cette page attend un slug valide et un accès réel.</p>
+    </section>
+
+    <section id="loadingView" class="panel">
+      <div class="panel-inner">
+        <div class="badge"><span class="dot"></span><span id="loadingText">Chargement du rail PRO MARKET…</span></div>
+      </div>
+    </section>
+
+    <main id="mainView" class="hidden">
+      <section class="hero">
+        <div class="panel">
+          <div class="panel-inner">
+            <div class="kicker">Boutique active</div>
+            <h2 id="heroShopName" style="margin:6px 0 0;font-size:1.55rem;">DIGIY PRO MARKET</h2>
+            <div class="sub" id="heroShopSub">Chargement des vraies données…</div>
+
+            <div class="status-line">
+              <div class="badge" id="shopStatusBadge">
+                <span class="dot orange" id="shopStatusDot"></span>
+                <span id="shopStatusText">Statut inconnu</span>
+              </div>
+
+              <div class="badge">
+                <span>Slug :</span>
+                <strong id="shopSlug">—</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-inner">
+            <div class="stats">
+              <div class="stat">
+                <div class="label">Produits total</div>
+                <div class="value" id="statTotal">0</div>
+              </div>
+              <div class="stat">
+                <div class="label">Produits actifs</div>
+                <div class="value" id="statActive">0</div>
+              </div>
+              <div class="stat">
+                <div class="label">Produits masqués</div>
+                <div class="value" id="statInactive">0</div>
+              </div>
+              <div class="stat">
+                <div class="label">Stock cumulé</div>
+                <div class="value" id="statStock">0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="layout">
+        <aside class="panel">
+          <div class="panel-inner">
+            <h3 class="section-title" id="formTitle">Ajouter / modifier un produit</h3>
+            <div class="muted" style="margin-bottom:14px;">
+              Ici on gère le vrai catalogue. Rien n’est pré-rempli en démo.
+            </div>
+
+            <form id="productForm" class="form-grid" autocomplete="off">
+              <input type="hidden" id="productId" />
+
+              <div class="field">
+                <label for="title">Nom du produit</label>
+                <input id="title" class="input" type="text" placeholder="Ex : Sac à main, robe, parfum, téléphone…" />
+              </div>
+
+              <div class="row-3">
+                <div class="field">
+                  <label for="price">Prix</label>
+                  <input id="price" class="input" type="number" min="0" step="1" placeholder="Ex : 5000" />
+                </div>
+
+                <div class="field">
+                  <label for="currency">Devise</label>
+                  <select id="currency" class="select">
+                    <option value="XOF">XOF</option>
+                    <option value="EUR">EUR</option>
+                    <option value="USD">USD</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="stock">Stock</label>
+                  <input id="stock" class="input" type="number" min="0" step="1" placeholder="Ex : 3" />
+                </div>
+              </div>
+
+              <div class="row-2">
+                <div class="field">
+                  <label for="category">Catégorie</label>
+                  <input id="category" class="input" type="text" placeholder="Ex : Mode, Beauté, Téléphone, Maison…" />
+                </div>
+
+                <div class="field">
+                  <label for="imageUrl">Image URL</label>
+                  <input id="imageUrl" class="input" type="url" placeholder="https://..." />
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="description">Description</label>
+                <textarea id="description" class="textarea" placeholder="Décris le produit simplement et clairement…"></textarea>
+              </div>
+
+              <label class="check">
+                <input id="isActive" type="checkbox" checked />
+                <span>Produit actif et visible dans le catalogue</span>
+              </label>
+
+              <div class="actions">
+                <button id="btnSave" class="btn" type="submit">Enregistrer le produit</button>
+                <button id="btnReset" class="btn secondary" type="button">Vider le formulaire</button>
+              </div>
+            </form>
+          </div>
+        </aside>
+
+        <section class="panel">
+          <div class="panel-inner">
+            <div class="toolbar">
+              <div class="toolbar-left">
+                <input id="searchInput" class="input search" type="search" placeholder="Rechercher un produit…" />
+                <button id="btnRefresh" class="btn secondary" type="button">Actualiser la liste</button>
+              </div>
+
+              <div class="toolbar-right">
+                <button id="btnPublish" class="btn blue" type="button">Publier la boutique</button>
+              </div>
+            </div>
+
+            <div id="emptyBox" class="empty hidden">
+              Aucun produit réel trouvé pour ce slug.
+            </div>
+
+            <div id="productsGrid" class="products"></div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    (function () {
+      const SUPABASE_URL = window.DIGIY_SUPABASE_URL || "";
+      const SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON_KEY || "";
+      const HAS_VALID_CONFIG =
+        SUPABASE_URL.startsWith("https://") &&
+        SUPABASE_ANON_KEY &&
+        !SUPABASE_ANON_KEY.includes("COLLE_ICI") &&
+        SUPABASE_ANON_KEY.length > 80;
+
+      const $ = (sel, root = document) => root.querySelector(sel);
+
+      const els = {
+        lockedView: $("#lockedView"),
+        lockedTitle: $("#lockedTitle"),
+        lockedText: $("#lockedText"),
+        loadingView: $("#loadingView"),
+        loadingText: $("#loadingText"),
+        mainView: $("#mainView"),
+
+        pageTitle: $("#pageTitle"),
+        pageSub: $("#pageSub"),
+
+        navDashboard: $("#navDashboard"),
+        navCockpit: $("#navCockpit"),
+        navBoutique: $("#navBoutique"),
+        btnRefreshTop: $("#btnRefreshTop"),
+
+        heroShopName: $("#heroShopName"),
+        heroShopSub: $("#heroShopSub"),
+        shopStatusText: $("#shopStatusText"),
+        shopStatusDot: $("#shopStatusDot"),
+        shopSlug: $("#shopSlug"),
+
+        statTotal: $("#statTotal"),
+        statActive: $("#statActive"),
+        statInactive: $("#statInactive"),
+        statStock: $("#statStock"),
+
+        formTitle: $("#formTitle"),
+        productForm: $("#productForm"),
+        productId: $("#productId"),
+        title: $("#title"),
+        price: $("#price"),
+        currency: $("#currency"),
+        stock: $("#stock"),
+        category: $("#category"),
+        imageUrl: $("#imageUrl"),
+        description: $("#description"),
+        isActive: $("#isActive"),
+        btnSave: $("#btnSave"),
+        btnReset: $("#btnReset"),
+
+        searchInput: $("#searchInput"),
+        btnRefresh: $("#btnRefresh"),
+        btnPublish: $("#btnPublish"),
+        productsGrid: $("#productsGrid"),
+        emptyBox: $("#emptyBox"),
+        toast: $("#toast")
+      };
+
+      const STORAGE_KEYS = [
+        "digiy_market_slug",
+        "digiy_slug",
+        "DIGIY_MARKET_SLUG",
+        "DIGIY_PRO_SLUG",
+        "DIGIY_MARKET_WORKSPACE_SLUG"
+      ];
+
+      const state = {
+        sb: null,
+        slug: "",
+        cockpit: null,
+        products: [],
+        saving: false,
+        loading: false
+      };
+
+      function toast(message) {
+        els.toast.textContent = message;
+        els.toast.classList.add("show");
+        clearTimeout(toast._t);
+        toast._t = setTimeout(() => els.toast.classList.remove("show"), 2600);
+      }
+
+      function setLoading(message) {
+        els.loadingView.classList.remove("hidden");
+        els.mainView.classList.add("hidden");
+        els.lockedView.classList.add("hidden");
+        els.loadingText.textContent = message || "Chargement…";
+      }
+
+      function setLocked(title, text) {
+        els.loadingView.classList.add("hidden");
+        els.mainView.classList.add("hidden");
+        els.lockedView.classList.remove("hidden");
+        els.lockedTitle.textContent = title;
+        els.lockedText.textContent = text;
+      }
+
+      function setReady() {
+        els.loadingView.classList.add("hidden");
+        els.lockedView.classList.add("hidden");
+        els.mainView.classList.remove("hidden");
+      }
+
+      function getSlugFromUrl() {
+        const url = new URL(window.location.href);
+        return (url.searchParams.get("slug") || "").trim();
+      }
+
+      function getSlugFromStorage() {
+        for (const key of STORAGE_KEYS) {
+          const value = (localStorage.getItem(key) || "").trim();
+          if (value) return value;
+        }
+        return "";
+      }
+
+      function rememberSlug(slug) {
+        if (!slug) return;
+        try {
+          localStorage.setItem("digiy_market_slug", slug);
+          localStorage.setItem("digiy_slug", slug);
+        } catch (_) {}
+      }
+
+      function resolveSlug() {
+        return getSlugFromUrl() || getSlugFromStorage() || "";
+      }
+
+      function setNavLinks(slug) {
+        const q = slug ? `?slug=${encodeURIComponent(slug)}` : "";
+        els.navDashboard.href = `./dashboard-pro.html${q}`;
+        els.navCockpit.href = `./cockpit.html${q}`;
+        els.navBoutique.href = `./boutique.html${q}`;
+      }
+
+      function firstValue(obj, keys, fallback = "") {
+        for (const key of keys) {
+          const value = obj?.[key];
+          if (value !== undefined && value !== null && value !== "") return value;
+        }
+        return fallback;
+      }
+
+      function toBool(value) {
+        if (typeof value === "boolean") return value;
+        if (typeof value === "number") return value === 1;
+        if (typeof value === "string") {
+          const v = value.trim().toLowerCase();
+          return ["true", "1", "yes", "oui", "active", "enabled", "published", "public"].includes(v);
+        }
+        return false;
+      }
+
+      function toNumber(value, fallback = 0) {
+        if (value === null || value === undefined || value === "") return fallback;
+        const n = Number(value);
+        return Number.isFinite(n) ? n : fallback;
+      }
+
+      function formatMoney(amount, currency = "XOF") {
+        const n = Number(amount);
+        if (!Number.isFinite(n)) return "Prix non renseigné";
+        try {
+          return new Intl.NumberFormat("fr-FR", {
+            style: "currency",
+            currency: currency || "XOF",
+            maximumFractionDigits: 0
+          }).format(n);
+        } catch (_) {
+          return `${n.toLocaleString("fr-FR")} ${currency || "XOF"}`;
+        }
+      }
+
+      function escapeHtml(value) {
+        return String(value ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function normalizeCockpit(data) {
+        if (!data) return {};
+        if (Array.isArray(data)) return data[0] || {};
+        if (typeof data !== "object") return {};
+        if (data.data && typeof data.data === "object" && !Array.isArray(data.data)) return data.data;
+        if (data.payload && typeof data.payload === "object" && !Array.isArray(data.payload)) return data.payload;
+        return data;
+      }
+
+      function normalizeProducts(data) {
+        if (!data) return [];
+        if (Array.isArray(data)) return data.map(normalizeProduct).filter(Boolean);
+
+        const root = normalizeCockpit(data);
+        const buckets = ["products", "items", "rows", "list", "data"];
+        for (const key of buckets) {
+          if (Array.isArray(root?.[key])) {
+            return root[key].map(normalizeProduct).filter(Boolean);
+          }
+        }
+        return [];
+      }
+
+      function normalizeProduct(item) {
+        if (!item || typeof item !== "object") return null;
+
+        const id = firstValue(item, ["id", "product_id", "uuid"], "");
+        const title = firstValue(item, ["title", "name", "label", "product_name"], "");
+        const price = firstValue(item, ["price", "price_xof", "amount"], "");
+        const currency = firstValue(item, ["currency", "devise"], "XOF");
+        const stock = firstValue(item, ["stock", "qty", "quantity", "inventory"], "");
+        const category = firstValue(item, ["category", "categorie", "type"], "");
+        const description = firstValue(item, ["description", "details", "summary"], "");
+        const imageUrl = firstValue(item, ["image_url", "image", "photo_url", "cover_url"], "");
+        const isActiveField = firstValue(item, ["is_active", "active", "is_enabled", "enabled"], "");
+        const statusField = firstValue(item, ["status", "visibility"], "");
+
+        const isActive = statusField
+          ? !["inactive", "disabled", "hidden", "off", "draft"].includes(String(statusField).toLowerCase())
+          : toBool(isActiveField || true);
+
+        return {
+          raw: item,
+          id,
+          title: title || "Produit sans nom",
+          price: price === "" ? null : Number(price),
+          currency: currency || "XOF",
+          stock: stock === "" ? 0 : toNumber(stock, 0),
+          category: category || "",
+          description: description || "",
+          image_url: imageUrl || "",
+          is_active: isActive,
+          status: isActive ? "active" : "inactive",
+          created_at: firstValue(item, ["created_at"], ""),
+          updated_at: firstValue(item, ["updated_at"], "")
+        };
+      }
+
+      async function rpcTry(name, variants) {
+        let lastError = null;
+
+        for (const args of variants) {
+          try {
+            const { data, error } = await state.sb.rpc(name, args);
+            if (!error) return { ok: true, data, args };
+            lastError = error;
+          } catch (err) {
+            lastError = err;
+          }
+        }
+
+        return { ok: false, error: lastError };
+      }
+
+      function buildSlugVariants(slug) {
+        return [
+          { p_slug: slug },
+          { slug: slug },
+          { p_workspace_slug: slug },
+          { workspace_slug: slug }
+        ];
+      }
+
+      function buildPublishVariants(slug, published) {
+        return [
+          { p_slug: slug, p_is_published: published },
+          { slug: slug, is_published: published },
+          { p_slug: slug, p_published: published },
+          { slug: slug, published: published },
+          { p_workspace_slug: slug, p_is_published: published }
+        ];
+      }
+
+      function buildDisableVariants(slug, productId) {
+        return [
+          { p_slug: slug, p_product_id: productId },
+          { slug: slug, product_id: productId },
+          { p_slug: slug, id: productId },
+          { slug: slug, id: productId },
+          { p_workspace_slug: slug, p_product_id: productId }
+        ];
+      }
+
+      function buildUpsertVariants(slug, product) {
+        const flat = {
+          id: product.id || null,
+          title: product.title,
+          name: product.title,
+          label: product.title,
+          price: product.price,
+          price_xof: product.currency === "XOF" ? product.price : null,
+          currency: product.currency,
+          category: product.category,
+          description: product.description,
+          image_url: product.image_url,
+          stock: product.stock,
+          qty: product.stock,
+          is_active: product.is_active,
+          status: product.is_active ? "active" : "inactive"
+        };
+
+        const prefixed = {
+          p_id: flat.id,
+          p_title: flat.title,
+          p_name: flat.name,
+          p_label: flat.label,
+          p_price: flat.price,
+          p_price_xof: flat.price_xof,
+          p_currency: flat.currency,
+          p_category: flat.category,
+          p_description: flat.description,
+          p_image_url: flat.image_url,
+          p_stock: flat.stock,
+          p_qty: flat.qty,
+          p_is_active: flat.is_active,
+          p_status: flat.status
+        };
+
+        return [
+          { p_slug: slug, p_product: flat },
+          { slug: slug, product: flat },
+          { p_workspace_slug: slug, p_product: flat },
+          { p_slug: slug, p_payload: flat },
+          { slug: slug, payload: flat },
+          { p_slug: slug, ...flat },
+          { slug: slug, ...flat },
+          { p_slug: slug, ...prefixed }
+        ];
+      }
+
+      function getPublishedFlag(cockpit) {
+        return toBool(
+          firstValue(cockpit, [
+            "is_published",
+            "published",
+            "public_enabled",
+            "is_public",
+            "is_active_public"
+          ], false)
+        );
+      }
+
+      function renderHeader() {
+        const cockpit = state.cockpit || {};
+        const shopName = firstValue(cockpit, ["public_label", "shop_name", "business_name", "name"], "DIGIY PRO MARKET");
+        const city = firstValue(cockpit, ["city", "town"], "");
+        const category = firstValue(cockpit, ["category", "sector"], "");
+        const subtitleParts = [city, category].filter(Boolean);
+
+        els.pageTitle.textContent = `Produits — ${shopName}`;
+        els.pageSub.textContent = "Catalogue réel PRO MARKET, sans preview mensongère.";
+        els.heroShopName.textContent = shopName;
+        els.heroShopSub.textContent = subtitleParts.length
+          ? subtitleParts.join(" • ")
+          : "Gestion réelle du catalogue vendeur";
+        els.shopSlug.textContent = state.slug || "—";
+
+        const published = getPublishedFlag(cockpit);
+        els.shopStatusText.textContent = published ? "Boutique publiée" : "Boutique masquée";
+        els.shopStatusDot.className = `dot ${published ? "green" : "orange"}`;
+        els.btnPublish.textContent = published ? "Masquer la boutique" : "Publier la boutique";
+      }
+
+      function renderStats() {
+        const total = state.products.length;
+        const active = state.products.filter(p => p.is_active).length;
+        const inactive = total - active;
+        const stock = state.products.reduce((sum, p) => sum + toNumber(p.stock, 0), 0);
+
+        els.statTotal.textContent = String(total);
+        els.statActive.textContent = String(active);
+        els.statInactive.textContent = String(inactive);
+        els.statStock.textContent = String(stock);
+      }
+
+      function getFilteredProducts() {
+        const q = (els.searchInput.value || "").trim().toLowerCase();
+        if (!q) return [...state.products];
+
+        return state.products.filter((p) => {
+          return [
+            p.title,
+            p.category,
+            p.description,
+            p.id
+          ].join(" ").toLowerCase().includes(q);
+        });
+      }
+
+      function renderProducts() {
+        const products = getFilteredProducts();
+
+        els.productsGrid.innerHTML = "";
+        els.emptyBox.classList.toggle("hidden", products.length !== 0);
+
+        if (!products.length) return;
+
+        const html = products.map((p) => {
+          const price = p.price === null ? "Prix non renseigné" : formatMoney(p.price, p.currency);
+          const thumb = p.image_url
+            ? `<img src="${escapeHtml(p.image_url)}" alt="${escapeHtml(p.title)}" loading="lazy" />`
+            : `<div>Aucune image</div>`;
+
+          return `
+            <article class="card">
+              <div class="thumb">${thumb}</div>
+              <div class="card-body">
+                <div class="card-head">
+                  <h3 class="card-title">${escapeHtml(p.title)}</h3>
+                  <span class="pill ${p.is_active ? "active" : "inactive"}">
+                    ${p.is_active ? "Actif" : "Masqué"}
+                  </span>
+                </div>
+
+                <div class="meta">
+                  ${p.category ? `<span>${escapeHtml(p.category)}</span>` : ""}
+                  <span>${escapeHtml(price)}</span>
+                  <span>Stock : ${escapeHtml(String(toNumber(p.stock, 0)))}</span>
+                </div>
+
+                <div class="desc">${escapeHtml(p.description || "Aucune description")}</div>
+
+                <div class="card-actions">
+                  <button class="btn secondary js-edit" type="button" data-id="${escapeHtml(p.id)}">Modifier</button>
+                  <button class="btn red js-disable" type="button" data-id="${escapeHtml(p.id)}">Désactiver</button>
+                </div>
+              </div>
+            </article>
+          `;
+        }).join("");
+
+        els.productsGrid.innerHTML = html;
+
+        els.productsGrid.querySelectorAll(".js-edit").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const id = btn.getAttribute("data-id");
+            const product = state.products.find(p => String(p.id) === String(id));
+            if (!product) return;
+            fillForm(product);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          });
+        });
+
+        els.productsGrid.querySelectorAll(".js-disable").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const id = btn.getAttribute("data-id");
+            const product = state.products.find(p => String(p.id) === String(id));
+            if (!product) return;
+
+            const ok = window.confirm(`Masquer ce produit ?\n\n${product.title}`);
+            if (!ok) return;
+
+            btn.disabled = true;
+            const resp = await rpcTry("digiy_market_disable_product_by_slug", buildDisableVariants(state.slug, id));
+            btn.disabled = false;
+
+            if (!resp.ok) {
+              console.error("digiy_market_disable_product_by_slug error:", resp.error);
+              toast("Échec désactivation produit");
+              return;
+            }
+
+            toast("Produit désactivé");
+            await loadProducts();
+          });
+        });
+      }
+
+      function resetForm() {
+        els.productForm.reset();
+        els.productId.value = "";
+        els.currency.value = "XOF";
+        els.isActive.checked = true;
+        els.formTitle.textContent = "Ajouter / modifier un produit";
+        els.btnSave.textContent = "Enregistrer le produit";
+      }
+
+      function fillForm(product) {
+        els.productId.value = product.id || "";
+        els.title.value = product.title || "";
+        els.price.value = product.price ?? "";
+        els.currency.value = product.currency || "XOF";
+        els.stock.value = product.stock ?? 0;
+        els.category.value = product.category || "";
+        els.imageUrl.value = product.image_url || "";
+        els.description.value = product.description || "";
+        els.isActive.checked = !!product.is_active;
+        els.formTitle.textContent = "Modifier le produit";
+        els.btnSave.textContent = "Enregistrer les modifications";
+      }
+
+      function collectForm() {
+        const title = els.title.value.trim();
+        const priceRaw = els.price.value.trim();
+        const stockRaw = els.stock.value.trim();
+
+        return {
+          id: els.productId.value.trim() || null,
+          title,
+          price: priceRaw === "" ? null : Number(priceRaw),
+          currency: (els.currency.value || "XOF").trim(),
+          stock: stockRaw === "" ? 0 : toNumber(stockRaw, 0),
+          category: els.category.value.trim(),
+          description: els.description.value.trim(),
+          image_url: els.imageUrl.value.trim(),
+          is_active: !!els.isActive.checked
+        };
+      }
+
+      async function loadCockpit() {
+        const resp = await rpcTry("digiy_market_get_cockpit_by_slug", buildSlugVariants(state.slug));
+
+        if (!resp.ok) {
+          console.error("digiy_market_get_cockpit_by_slug error:", resp.error);
+          setLocked(
+            "Accès protégé",
+            "Impossible de charger le cockpit réel avec ce slug. La coque reste vide et protégée."
+          );
+          return false;
+        }
+
+        const cockpit = normalizeCockpit(resp.data);
+
+        if (!cockpit || cockpit.ok === false) {
+          setLocked(
+            "Accès protégé",
+            firstValue(cockpit, ["message", "error"], "Slug inactif ou accès non autorisé.")
+          );
+          return false;
+        }
+
+        state.cockpit = cockpit;
+        renderHeader();
+        setReady();
+        return true;
+      }
+
+      async function loadProducts() {
+        state.loading = true;
+        els.btnRefresh.disabled = true;
+        els.btnRefreshTop.disabled = true;
+
+        const resp = await rpcTry("digiy_market_list_products_by_slug", buildSlugVariants(state.slug));
+
+        els.btnRefresh.disabled = false;
+        els.btnRefreshTop.disabled = false;
+        state.loading = false;
+
+        if (!resp.ok) {
+          console.error("digiy_market_list_products_by_slug error:", resp.error);
+          toast("Échec chargement catalogue");
+          state.products = [];
+          renderStats();
+          renderProducts();
+          return;
+        }
+
+        state.products = normalizeProducts(resp.data);
+        renderStats();
+        renderProducts();
+      }
+
+      async function handleSave(event) {
+        event.preventDefault();
+        if (state.saving) return;
+
+        const product = collectForm();
+
+        if (!product.title) {
+          toast("Le nom du produit est obligatoire");
+          els.title.focus();
+          return;
+        }
+
+        state.saving = true;
+        els.btnSave.disabled = true;
+        els.btnSave.textContent = "Enregistrement…";
+
+        const resp = await rpcTry(
+          "digiy_market_upsert_product_by_slug",
+          buildUpsertVariants(state.slug, product)
+        );
+
+        state.saving = false;
+        els.btnSave.disabled = false;
+        els.btnSave.textContent = product.id ? "Enregistrer les modifications" : "Enregistrer le produit";
+
+        if (!resp.ok) {
+          console.error("digiy_market_upsert_product_by_slug error:", resp.error);
+          toast("Échec enregistrement produit");
+          return;
+        }
+
+        toast(product.id ? "Produit modifié" : "Produit ajouté");
+        resetForm();
+        await loadProducts();
+      }
+
+      async function togglePublish() {
+        const current = getPublishedFlag(state.cockpit || {});
+        const next = !current;
+
+        els.btnPublish.disabled = true;
+        const resp = await rpcTry("digiy_market_set_publish_by_slug", buildPublishVariants(state.slug, next));
+        els.btnPublish.disabled = false;
+
+        if (!resp.ok) {
+          console.error("digiy_market_set_publish_by_slug error:", resp.error);
+          toast("Échec changement visibilité boutique");
+          return;
+        }
+
+        state.cockpit = {
+          ...(state.cockpit || {}),
+          is_published: next,
+          published: next
+        };
+
+        renderHeader();
+        toast(next ? "Boutique publiée" : "Boutique masquée");
+      }
+
+      async function init() {
+        if (!HAS_VALID_CONFIG) {
+          setLocked(
+            "Configuration incomplète",
+            "L’URL Supabase est posée, mais la clé ANON complète doit être remise dans ce fichier avant usage."
+          );
+          return;
+        }
+
+        state.sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        state.slug = resolveSlug();
+        setNavLinks(state.slug);
+
+        if (!state.slug) {
+          setLocked(
+            "Accès protégé",
+            "Aucun slug trouvé dans l’URL ou la session locale. Cette page reste vide tant qu’un slug réel n’est pas présent."
+          );
+          return;
+        }
+
+        rememberSlug(state.slug);
+        setNavLinks(state.slug);
+        setLoading("Chargement du cockpit réel…");
+
+        const ok = await loadCockpit();
+        if (!ok) return;
+
+        await loadProducts();
+      }
+
+      els.productForm.addEventListener("submit", handleSave);
+      els.btnReset.addEventListener("click", resetForm);
+      els.btnRefresh.addEventListener("click", loadProducts);
+      els.btnRefreshTop.addEventListener("click", loadProducts);
+      els.btnPublish.addEventListener("click", togglePublish);
+      els.searchInput.addEventListener("input", renderProducts);
+
+      init();
+    })();
+  </script>
+</body>
+</html>
