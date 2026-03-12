@@ -14,7 +14,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-cockpit-20260312-v2"></script>
+  <script src="./guard.js?v=market-cockpit-20260312-v3"></script>
 
   <style>
     :root{
@@ -419,6 +419,7 @@
 
     .badge.active{background:rgba(34,197,94,.14); color:#9ef2ba; border-color:rgba(34,197,94,.25)}
     .badge.inactive{background:rgba(239,68,68,.14); color:#ffb0b0; border-color:rgba(239,68,68,.25)}
+    .badge.published{background:rgba(56,189,248,.14); color:#bae6fd; border-color:rgba(56,189,248,.25)}
     .badge.featured{background:rgba(250,204,21,.14); color:#fff0a7; border-color:rgba(250,204,21,.25)}
 
     .note{
@@ -563,8 +564,8 @@
       <div class="stat"><div class="label">Total produits</div><div class="value" id="sTotal">0</div></div>
       <div class="stat"><div class="label">Actifs</div><div class="value" id="sActive">0</div></div>
       <div class="stat"><div class="label">Inactifs</div><div class="value" id="sInactive">0</div></div>
-      <div class="stat"><div class="label">En avant</div><div class="value" id="sFeatured">0</div></div>
-      <div class="stat"><div class="label">Publié</div><div class="value" id="sPublished">NON</div></div>
+      <div class="stat"><div class="label">Produits publiés</div><div class="value" id="sPublishedCount">0</div></div>
+      <div class="stat"><div class="label">Boutique publiée</div><div class="value" id="sPublishedState">NON</div></div>
     </section>
 
     <section class="layout">
@@ -581,7 +582,7 @@
             <button class="chip active" type="button" data-filter="all">Tous</button>
             <button class="chip" type="button" data-filter="active">Actifs</button>
             <button class="chip" type="button" data-filter="inactive">Inactifs</button>
-            <button class="chip" type="button" data-filter="featured">En avant</button>
+            <button class="chip" type="button" data-filter="published">Publiés</button>
           </div>
         </div>
 
@@ -693,6 +694,25 @@
         }
       }
 
+      function toText(v, fallback){
+        const s = String(v || "").trim();
+        return s || (fallback || "");
+      }
+
+      function getResolvedSlug(payload){
+        return normSlug(
+          payload?.slug ||
+          payload?.workspace_slug ||
+          payload?.profile?.workspace_slug ||
+          payload?.profile?.slug ||
+          ACCESS_SLUG
+        );
+      }
+
+      function getShopName(profile){
+        return toText(profile?.shop_name, toText(profile?.business_name, "Boutique DIGIY"));
+      }
+
       function withSlug(base){
         const u = new URL(base, location.href);
         if (ACCESS_SLUG) u.searchParams.set("slug", ACCESS_SLUG);
@@ -772,19 +792,23 @@
         return {
           ok: false,
           slug: slug || "",
+          workspace_slug: slug || "",
           phone: phone || "",
           public_label: "DIGIY PRO MARKET",
           access: "accès protégé",
           is_blank: true,
           profile: {
             shop_name: "",
+            business_name: "",
             owner_name: "",
             city: "",
             zones: "",
             address: "",
             whatsapp: "",
             photo_url: "",
+            logo_url: "",
             cover_url: "",
+            cover_image_url: "",
             description: "",
             categories_text: "",
             delivery_note: "",
@@ -794,19 +818,27 @@
             is_active: true
           },
           stats: {
-            products_active: 0,
-            products_inactive: 0,
-            products_featured: 0
+            total_products: 0,
+            active_products: 0,
+            published_products: 0
           }
         };
+      }
+
+      function normalizeStats(stats){
+        const total = Number(stats?.total_products ?? stats?.products_total ?? 0) || 0;
+        const active = Number(stats?.active_products ?? stats?.products_active ?? 0) || 0;
+        const published = Number(stats?.published_products ?? stats?.products_published ?? 0) || 0;
+        const inactive = Math.max(total - active, 0);
+        return { total, active, inactive, published };
       }
 
       function resetStats(){
         $("sTotal").textContent = "0";
         $("sActive").textContent = "0";
         $("sInactive").textContent = "0";
-        $("sFeatured").textContent = "0";
-        $("sPublished").textContent = "NON";
+        $("sPublishedCount").textContent = "0";
+        $("sPublishedState").textContent = "NON";
       }
 
       function resetView(){
@@ -817,33 +849,34 @@
       }
 
       function updateNavLinks(){
-        $("btnDashboard").href = withSlug("./dashboard-pro.html");
-        $("btnSettings").href = withSlug("./boutique.html");
-        $("btnProducts").href = withSlug("./produits.html");
-        $("btnPin").href = withSlug("./pin.html");
-        $("btnPublic").href = withSlug("./index.html");
+        $("btnDashboard").href = ACCESS_SLUG ? withSlug("./dashboard-pro.html") : "./dashboard-pro.html";
+        $("btnSettings").href = ACCESS_SLUG ? withSlug("./boutique.html") : "./boutique.html";
+        $("btnProducts").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
+        $("btnPin").href = ACCESS_SLUG ? withSlug("./pin.html") : "./pin.html";
+        $("btnPublic").href = ACCESS_SLUG ? withSlug("./index.html") : "./index.html";
       }
 
       function applyStats(){
-        const published = ACCESS_OK ? !!(PROFILE?.profile?.is_published) : false;
-
-        let active = Number(PROFILE?.stats?.products_active || 0);
-        let inactive = Number(PROFILE?.stats?.products_inactive || 0);
-        let featured = Number(PROFILE?.stats?.products_featured || 0);
-        let total = active + inactive;
+        const publishedShop = ACCESS_OK ? !!(PROFILE?.profile?.is_published) : false;
+        let s = normalizeStats(PROFILE?.stats || {});
 
         if (ACCESS_OK && Array.isArray(ALL_PRODUCTS) && ALL_PRODUCTS.length){
-          active = ALL_PRODUCTS.filter(r => r.is_active).length;
-          inactive = ALL_PRODUCTS.length - active;
-          featured = ALL_PRODUCTS.filter(r => r.is_featured).length;
-          total = ALL_PRODUCTS.length;
+          const total = ALL_PRODUCTS.length;
+          const active = ALL_PRODUCTS.filter(r => r.is_active).length;
+          const published = ALL_PRODUCTS.filter(r => r.is_published).length;
+          s = {
+            total,
+            active,
+            inactive: Math.max(total - active, 0),
+            published
+          };
         }
 
-        $("sTotal").textContent = String(total);
-        $("sActive").textContent = String(active);
-        $("sInactive").textContent = String(inactive);
-        $("sFeatured").textContent = String(featured);
-        $("sPublished").textContent = published ? "OUI" : "NON";
+        $("sTotal").textContent = String(s.total);
+        $("sActive").textContent = String(s.active);
+        $("sInactive").textContent = String(s.inactive);
+        $("sPublishedCount").textContent = String(s.published);
+        $("sPublishedState").textContent = publishedShop ? "OUI" : "NON";
       }
 
       function applyProfile(payload, liveMode){
@@ -853,14 +886,17 @@
         PROFILE = data;
         ACCESS_PHONE = normalizePhone(data.phone || ACCESS_PHONE);
 
-        const shopName = p.shop_name || "Boutique DIGIY";
-        const city = p.city || "Ville à définir";
-        const categories = p.categories_text || "Catégories à définir";
+        const resolvedSlug = getResolvedSlug(data);
+        if (resolvedSlug) ACCESS_SLUG = resolvedSlug;
+
+        const shopName = getShopName(p);
+        const city = toText(p.city, "Ville à définir");
+        const categories = toText(p.categories_text, "Catégories à définir");
         const publication = p.is_published ? "Publiée" : "Non publiée";
-        const address = p.address || "Adresse à définir";
+        const address = toText(p.address, "Adresse à définir");
         const whatsapp = p.whatsapp || data.phone || "";
-        const delivery = p.delivery_note || "Livraison à définir";
-        const payment = p.payment_note || "Paiement à définir";
+        const delivery = toText(p.delivery_note, "Livraison à définir");
+        const payment = toText(p.payment_note, "Paiement à définir");
 
         $("shopName").textContent = shopName;
         $("shopSubtitle").textContent = liveMode
@@ -873,7 +909,7 @@
         $("pillCity").textContent = "📍 " + city;
         $("pillPublish").textContent = "🌍 " + publication;
 
-        $("miniSlug").textContent = ACCESS_SLUG || data.slug || "—";
+        $("miniSlug").textContent = liveMode ? (resolvedSlug || "—") : (ACCESS_SLUG || "—");
         $("miniPhone").textContent = formatPhone(data.phone || ACCESS_PHONE);
         $("miniWhatsapp").textContent = formatPhone(whatsapp);
         $("miniAddress").textContent = address;
@@ -887,7 +923,7 @@
         $("modeBadge").textContent = liveMode ? "Mode vivant" : "Mode protégé";
 
         $("topSub").textContent = liveMode
-          ? `Cockpit chargé pour ${data.slug || ACCESS_SLUG || "MARKET"}`
+          ? `Cockpit chargé pour ${resolvedSlug || "MARKET"}`
           : (ACCESS_SLUG
               ? `Slug détecté : ${ACCESS_SLUG} • accès protégé`
               : "Aucun accès ouvert pour l’instant.");
@@ -911,20 +947,30 @@
         applyStats();
       }
 
+      function extractProductRows(payload){
+        if (Array.isArray(payload)) return payload;
+        if (Array.isArray(payload?.products)) return payload.products;
+        if (Array.isArray(payload?.items)) return payload.items;
+        if (Array.isArray(payload?.data)) return payload.data;
+        return [];
+      }
+
       function normalizeProducts(payload){
-        const rows = Array.isArray(payload) ? payload : [];
+        const rows = extractProductRows(payload);
+
         return rows.map((r) => ({
           id: String(r?.id || ""),
-          title: r?.title || r?.product_name || r?.name || "Produit",
+          title: r?.title || r?.product_name || r?.name || r?.label || "Produit",
           category: r?.category || r?.category_text || "",
-          price_fcfa: Number(r?.price_fcfa || r?.price || 0),
-          old_price_fcfa: r?.old_price_fcfa == null ? null : Number(r.old_price_fcfa),
+          price_fcfa: Number(r?.price_fcfa ?? r?.price ?? 0) || 0,
+          old_price_fcfa: r?.old_price_fcfa == null ? null : (Number(r.old_price_fcfa) || 0),
           unit_label: r?.unit_label || "",
           photo_url: r?.photo_url || "",
           description: r?.description || "",
-          is_active: !!r?.is_active,
-          is_featured: !!r?.is_featured,
-          product_position: Number(r?.product_position || 100),
+          is_active: r?.is_active == null ? true : !!r?.is_active,
+          is_published: !!(r?.is_published ?? r?.published ?? false),
+          is_featured: !!(r?.is_featured ?? r?.featured ?? false),
+          product_position: Number(r?.product_position ?? r?.position ?? 100) || 100,
           created_at: r?.created_at || null,
           updated_at: r?.updated_at || null
         })).sort((a, b) => {
@@ -938,7 +984,7 @@
         if (ACTIVE_FILTER === "all") return rows;
         if (ACTIVE_FILTER === "active") return rows.filter(r => r.is_active);
         if (ACTIVE_FILTER === "inactive") return rows.filter(r => !r.is_active);
-        if (ACTIVE_FILTER === "featured") return rows.filter(r => r.is_featured);
+        if (ACTIVE_FILTER === "published") return rows.filter(r => r.is_published);
         return rows;
       }
 
@@ -992,6 +1038,7 @@
         list.innerHTML = filtered.map((row) => {
           const badges = [];
           badges.push(`<span class="badge ${row.is_active ? "active" : "inactive"}">${row.is_active ? "Actif" : "Inactif"}</span>`);
+          if (row.is_published) badges.push(`<span class="badge published">Publié</span>`);
           if (row.is_featured) badges.push(`<span class="badge featured">En avant</span>`);
 
           return `
@@ -1113,7 +1160,7 @@
           }
 
           ACCESS_OK = true;
-          ACCESS_SLUG = normSlug(cockpit.slug || ACCESS_SLUG);
+          ACCESS_SLUG = getResolvedSlug(cockpit) || ACCESS_SLUG;
           ACCESS_PHONE = normalizePhone(cockpit.phone || ACCESS_PHONE);
           storeAccess();
 
