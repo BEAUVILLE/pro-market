@@ -12,8 +12,9 @@
     window.DIGIY_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
     window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
   </script>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-boutique-20260312-clean"></script>
+  <script src="./guard.js?v=market-boutique-20260312-v2"></script>
 
   <style>
     :root{
@@ -28,6 +29,7 @@
       --gold:#facc15;
       --danger:#ef4444;
       --warn:#f59e0b;
+      --info:#60a5fa;
       --shadow:0 20px 60px rgba(0,0,0,.38);
       --r:24px;
       --max:1180px;
@@ -161,6 +163,11 @@
     .btn.ghost{
       background:rgba(255,255,255,.04);
       color:var(--muted);
+    }
+    .btn.info{
+      background:rgba(96,165,250,.12);
+      color:#bfdbfe;
+      border-color:rgba(96,165,250,.20);
     }
 
     .hero{overflow:hidden}
@@ -327,6 +334,11 @@
       outline:none;
     }
 
+    .in:focus, textarea:focus{
+      border-color:rgba(34,197,94,.40);
+      box-shadow:0 0 0 3px rgba(34,197,94,.10);
+    }
+
     .in:disabled, textarea:disabled{
       opacity:.68;
       cursor:not-allowed;
@@ -348,6 +360,7 @@
     .msg{
       margin-top:12px;
       font-weight:900;
+      line-height:1.5;
     }
 
     .msg.ok{color:#86efac}
@@ -417,6 +430,7 @@
       border:1px dashed rgba(255,255,255,.10);
       border-radius:18px;
       margin-top:12px;
+      line-height:1.6;
     }
 
     .footer{
@@ -431,6 +445,29 @@
       opacity:.72;
       pointer-events:none;
     }
+
+    .checklist{
+      margin-top:14px;
+      padding:14px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.16);
+      display:grid;
+      gap:8px;
+    }
+
+    .checkitem{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      color:var(--muted);
+      font-size:14px;
+      font-weight:900;
+      line-height:1.45;
+    }
+
+    .checkitem.ok{color:#bbf7d0}
+    .checkitem.bad{color:#fde68a}
 
     @media(max-width:640px){
       .top-actions,.actions{width:100%}
@@ -452,7 +489,9 @@
 
       <div class="top-actions">
         <button class="btn ghost" id="btnReload" type="button">🔄 Recharger</button>
+        <a class="btn info" id="btnDashboard" href="./dashboard-pro.html">🧭 Dashboard</a>
         <a class="btn" id="btnCockpit" href="./cockpit.html">📊 Cockpit</a>
+        <a class="btn" id="btnProducts" href="./produits.html">📦 Produits</a>
         <a class="btn gold" id="btnPin" href="./pin.html">🔑 Entrer par PIN</a>
         <a class="btn" id="btnPublic" href="./index.html">🌍 Voir la fiche publique</a>
       </div>
@@ -620,6 +659,13 @@
           </div>
         </div>
 
+        <div class="checklist" id="readinessBox">
+          <div class="checkitem bad" id="checkName">• Nom boutique à compléter</div>
+          <div class="checkitem bad" id="checkContact">• Contact WhatsApp ou téléphone à compléter</div>
+          <div class="checkitem bad" id="checkPlace">• Ville ou adresse à compléter</div>
+          <div class="checkitem bad" id="checkContent">• Catégorie ou description à compléter</div>
+        </div>
+
         <div class="reading">
           <div class="mini">
             <div class="k">Boutique</div>
@@ -659,6 +705,12 @@
 
       const SUPABASE_URL = window.DIGIY_SUPABASE_URL;
       const SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON;
+
+      if (!window.supabase || !SUPABASE_URL || !SUPABASE_ANON_KEY) {
+        console.error("Supabase client/config manquant.");
+        return;
+      }
+
       const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
         auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false }
       });
@@ -670,6 +722,8 @@
       let ACCESS_OK = false;
       let CURRENT_COCKPIT = null;
       let CURRENT_PUBLISHED = false;
+      let CURRENT_PRIORITY = 100;
+      let BUSY = false;
 
       function normSlug(v){
         return String(v || "").trim().toLowerCase();
@@ -706,6 +760,15 @@
         el.className = "msg " + (type || "");
       }
 
+      function setBusy(isBusy){
+        BUSY = !!isBusy;
+        document.body.classList.toggle("loading", BUSY);
+        ["btnSave","btnPublish","btnUnpublish","btnReload","btnReloadProfile"].forEach(id => {
+          const el = $(id);
+          if (el) el.disabled = BUSY || el.disabled;
+        });
+      }
+
       function setFormDisabled(disabled){
         [
           "shopName","ownerName","city","categoriesText","whatsapp","zones","address",
@@ -721,8 +784,19 @@
 
       async function waitGuardIfAny(){
         try{
-          if (window.DIGIY_GUARD?.ready && typeof window.DIGIY_GUARD.ready.then === "function"){
-            await window.DIGIY_GUARD.ready;
+          const guard = window.DIGIY_GUARD;
+          if (!guard) return;
+
+          if (guard.ready && typeof guard.ready.then === "function") {
+            await guard.ready;
+            return;
+          }
+
+          if (typeof guard.ready === "function") {
+            const maybePromise = guard.ready();
+            if (maybePromise && typeof maybePromise.then === "function") {
+              await maybePromise;
+            }
           }
         }catch(e){
           console.warn("guard ready warning:", e);
@@ -731,18 +805,22 @@
 
       function resolveSlug(){
         const qs = new URLSearchParams(location.search);
-        const fromUrl = normSlug(qs.get("slug") || "");
-        if (fromUrl) return fromUrl;
 
-        const fromGuard = normSlug(window.DIGIY_GUARD?.state?.slug || "");
-        if (fromGuard) return fromGuard;
+        const candidates = [
+          qs.get("slug"),
+          window.DIGIY_GUARD?.state?.slug,
+          sessionStorage.getItem("digiy_market_slug"),
+          localStorage.getItem("digiy_market_last_slug"),
+          sessionStorage.getItem("digiy_slug"),
+          localStorage.getItem("digiy_slug"),
+          sessionStorage.getItem("DIGIY_MARKET_SLUG"),
+          localStorage.getItem("DIGIY_MARKET_SLUG")
+        ];
 
-        const fromSession = normSlug(sessionStorage.getItem("digiy_market_slug") || "");
-        if (fromSession) return fromSession;
-
-        const fromLocal = normSlug(localStorage.getItem("digiy_market_last_slug") || "");
-        if (fromLocal) return fromLocal;
-
+        for (const item of candidates){
+          const s = normSlug(item || "");
+          if (s) return s;
+        }
         return "";
       }
 
@@ -752,6 +830,7 @@
           slug: "",
           phone: "",
           public_label: "DIGIY PRO MARKET",
+          is_blank: false,
           profile: {
             shop_name: "",
             owner_name: "",
@@ -766,7 +845,8 @@
             delivery_note: "",
             payment_note: "",
             is_published: false,
-            is_active: true
+            is_active: true,
+            priority: 100
           },
           stats: {
             products_active: 0,
@@ -792,6 +872,87 @@
         $("photoUrl").value = "";
       }
 
+      function getDraft(){
+        return {
+          shop_name: $("shopName").value.trim(),
+          owner_name: $("ownerName").value.trim(),
+          city: $("city").value.trim(),
+          categories_text: $("categoriesText").value.trim(),
+          linked_phone: normPhone(ACCESS_PHONE),
+          whatsapp: normPhone($("whatsapp").value.trim()) || normPhone(ACCESS_PHONE),
+          zones: $("zones").value.trim(),
+          address: $("address").value.trim(),
+          delivery_note: $("deliveryNote").value.trim(),
+          payment_note: $("paymentNote").value.trim(),
+          description: $("description").value.trim(),
+          cover_url: $("coverUrl").value.trim(),
+          photo_url: $("photoUrl").value.trim()
+        };
+      }
+
+      function getPublishIssues(draft){
+        const d = draft || getDraft();
+        const issues = [];
+
+        if (!d.shop_name) {
+          issues.push("Nom boutique à compléter");
+        }
+        if (!(d.whatsapp || d.linked_phone)) {
+          issues.push("Contact WhatsApp ou téléphone à compléter");
+        }
+        if (!(d.city || d.address)) {
+          issues.push("Ville ou adresse à compléter");
+        }
+        if (!(d.categories_text || d.description)) {
+          issues.push("Catégorie ou description à compléter");
+        }
+
+        return issues;
+      }
+
+      function renderReadiness(draft){
+        const d = draft || getDraft();
+        const checks = [
+          {
+            id: "checkName",
+            ok: !!d.shop_name,
+            okText: "• Nom boutique prêt",
+            badText: "• Nom boutique à compléter"
+          },
+          {
+            id: "checkContact",
+            ok: !!(d.whatsapp || d.linked_phone),
+            okText: "• Contact utile prêt",
+            badText: "• Contact WhatsApp ou téléphone à compléter"
+          },
+          {
+            id: "checkPlace",
+            ok: !!(d.city || d.address),
+            okText: "• Ville / adresse prêtes",
+            badText: "• Ville ou adresse à compléter"
+          },
+          {
+            id: "checkContent",
+            ok: !!(d.categories_text || d.description),
+            okText: "• Lecture boutique claire",
+            badText: "• Catégorie ou description à compléter"
+          }
+        ];
+
+        checks.forEach(item => {
+          const el = $(item.id);
+          el.className = "checkitem " + (item.ok ? "ok" : "bad");
+          el.textContent = item.ok ? item.okText : item.badText;
+        });
+
+        const issues = getPublishIssues(d);
+        $("sideLead").textContent = issues.length === 0
+          ? "La fiche est assez claire pour sortir au public. Tu peux publier."
+          : "Avant publication, complète les points ci-dessous pour que le client comprenne la boutique tout de suite.";
+
+        return issues;
+      }
+
       function applyStats(stats, isPublished, liveMode){
         $("statActive").textContent = String(Number(stats?.products_active || 0));
         $("statInactive").textContent = String(Number(stats?.products_inactive || 0));
@@ -800,10 +961,14 @@
       }
 
       function renderPublishState(){
-        const txt = CURRENT_PUBLISHED
+        const issues = renderReadiness();
+        const status = CURRENT_PUBLISHED
           ? "Publié • boutique visible publiquement"
           : "Non publiée • boutique encore en préparation";
-        $("publishState").textContent = txt;
+
+        $("publishState").textContent = issues.length === 0
+          ? status
+          : `${status} • fiche encore à compléter`;
       }
 
       function applyCockpit(data, liveMode){
@@ -812,6 +977,7 @@
 
         CURRENT_COCKPIT = payload;
         CURRENT_PUBLISHED = !!p.is_published;
+        CURRENT_PRIORITY = Number(p.priority || payload.priority || 100) || 100;
 
         ACCESS_PHONE = normPhone(payload.phone || ACCESS_PHONE);
 
@@ -858,9 +1024,15 @@
           ? `DIGIY PRO MARKET • ${shop} • Réglages vivants`
           : "DIGIY PRO MARKET • Réglages protégés";
 
+        $("btnDashboard").href = liveMode ? withSlug("./dashboard-pro.html") : "./dashboard-pro.html";
         $("btnCockpit").href = liveMode ? withSlug("./cockpit.html") : "./cockpit.html";
+        $("btnProducts").href = liveMode ? withSlug("./produits.html") : "./produits.html";
         $("btnPin").href = liveMode ? withSlug("./pin.html") : "./pin.html";
         $("btnPublic").href = liveMode ? withSlug("./index.html") : "./index.html";
+
+        document.title = liveMode
+          ? `${shop} — Réglages boutique DIGIY PRO MARKET`
+          : "DIGIY PRO MARKET — Réglages boutique";
 
         resetForm();
         $("shopName").value = p.shop_name || "";
@@ -882,30 +1054,36 @@
       }
 
       function syncPreviewFromInputs(){
-        const shop = $("shopName").value.trim() || "Boutique DIGIY";
-        const city = $("city").value.trim() || "Ville à définir";
-        const categories = $("categoriesText").value.trim() || "Catégories à définir";
-        const delivery = $("deliveryNote").value.trim() || "Livraison à définir";
-        const payment = $("paymentNote").value.trim() || "Paiement à définir";
-        const address = $("address").value.trim() || "Adresse à définir";
-        const whatsapp = $("whatsapp").value.trim();
+        const draft = getDraft();
+        const shop = draft.shop_name || "Boutique DIGIY";
+        const city = draft.city || "Ville à définir";
+        const categories = draft.categories_text || "Catégories à définir";
+        const delivery = draft.delivery_note || "Livraison à définir";
+        const payment = draft.payment_note || "Paiement à définir";
+        const address = draft.address || "Adresse à définir";
+        const whatsapp = draft.whatsapp;
 
         $("shopNameHero").textContent = shop;
         $("pillCategories").textContent = "🏷️ " + categories;
         $("pillCity").textContent = "📍 " + city;
+        $("pillPublish").textContent = "🌍 " + (CURRENT_PUBLISHED ? "Publiée" : "Non publiée");
         $("miniWhatsapp").textContent = formatPhone(whatsapp);
         $("miniAddress").textContent = address;
         $("factShop").textContent = shop;
         $("factCity").textContent = city;
         $("factDelivery").textContent = delivery;
         $("factPayment").textContent = payment;
+
+        renderPublishState();
       }
 
       async function fetchCockpit(){
         if (!ACCESS_SLUG) return { ok:false, reason:"missing_slug" };
+
         const { data, error } = await sb.rpc("digiy_market_get_cockpit_by_slug", {
           p_slug: ACCESS_SLUG
         });
+
         if (error) throw error;
         return data || { ok:false, reason:"empty_response" };
       }
@@ -916,24 +1094,27 @@
           return;
         }
 
+        const draft = getDraft();
+
         try{
+          setBusy(true);
           setMsgProfile("⏳ Enregistrement de la boutique…", "warn");
 
           const { data, error } = await sb.rpc("digiy_market_save_profile", {
             p_slug: ACCESS_SLUG,
-            p_shop_name: $("shopName").value.trim(),
-            p_owner_name: $("ownerName").value.trim(),
-            p_city: $("city").value.trim(),
-            p_zones: $("zones").value.trim(),
-            p_address: $("address").value.trim(),
-            p_whatsapp: normPhone($("whatsapp").value.trim()),
-            p_photo_url: $("photoUrl").value.trim(),
-            p_cover_url: $("coverUrl").value.trim(),
-            p_description: $("description").value.trim(),
-            p_categories_text: $("categoriesText").value.trim(),
-            p_delivery_note: $("deliveryNote").value.trim(),
-            p_payment_note: $("paymentNote").value.trim(),
-            p_priority: 100,
+            p_shop_name: draft.shop_name,
+            p_owner_name: draft.owner_name,
+            p_city: draft.city,
+            p_zones: draft.zones,
+            p_address: draft.address,
+            p_whatsapp: draft.whatsapp,
+            p_photo_url: draft.photo_url,
+            p_cover_url: draft.cover_url,
+            p_description: draft.description,
+            p_categories_text: draft.categories_text,
+            p_delivery_note: draft.delivery_note,
+            p_payment_note: draft.payment_note,
+            p_priority: CURRENT_PRIORITY,
             p_is_published: CURRENT_PUBLISHED,
             p_is_active: true
           });
@@ -946,6 +1127,8 @@
         }catch(e){
           console.error(e);
           setMsgProfile("❌ Impossible d’enregistrer la boutique.", "bad");
+        }finally{
+          setBusy(false);
         }
       }
 
@@ -955,7 +1138,17 @@
           return;
         }
 
+        const draft = getDraft();
+        const issues = getPublishIssues(draft);
+
+        if (nextState && issues.length){
+          setMsgPublish("⚠️ Publication bloquée : " + issues.join(" • "), "warn");
+          renderReadiness(draft);
+          return;
+        }
+
         try{
+          setBusy(true);
           setMsgPublish("⏳ Mise à jour publication…", "warn");
 
           const { data, error } = await sb.rpc("digiy_market_set_publish_by_slug", {
@@ -972,6 +1165,8 @@
         }catch(e){
           console.error(e);
           setMsgPublish("❌ Impossible de modifier la publication.", "bad");
+        }finally{
+          setBusy(false);
         }
       }
 
@@ -994,14 +1189,18 @@
         sessionStorage.setItem("digiy_market_slug", ACCESS_SLUG);
         localStorage.setItem("digiy_market_last_slug", ACCESS_SLUG);
 
+        if (ACCESS_PHONE) {
+          sessionStorage.setItem("digiy_market_phone", ACCESS_PHONE);
+          localStorage.setItem("digiy_market_last_phone", ACCESS_PHONE);
+        }
+
         applyCockpit(data, true);
         setFormDisabled(false);
       }
 
       async function boot(){
-        document.body.classList.add("loading");
-
         try{
+          setBusy(true);
           await waitGuardIfAny();
 
           ACCESS_SLUG = resolveSlug();
@@ -1024,7 +1223,7 @@
                 : "✅ Boutique réelle chargée.",
               "ok"
             );
-            setMsgPublish("Prêt.", "");
+            setMsgPublish(CURRENT_PUBLISHED ? "Boutique déjà publiée." : "Boutique en brouillon.", "");
           }
         }catch(e){
           console.error(e);
@@ -1034,7 +1233,7 @@
           setMsgProfile("❌ Impossible de charger la vraie boutique. Coque protégée affichée.", "bad");
           setMsgPublish("Erreur de chargement.", "bad");
         }finally{
-          document.body.classList.remove("loading");
+          setBusy(false);
         }
       }
 
