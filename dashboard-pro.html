@@ -9,11 +9,12 @@
 
   <script>
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-    window.DIGIY_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+    window.DIGIY_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
     window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
   </script>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-admin-20260312-clean"></script>
+  <script src="./guard.js?v=market-admin-20260312-v2"></script>
 
   <style>
     :root{
@@ -35,6 +36,7 @@
     }
 
     *{box-sizing:border-box}
+
     body{
       margin:0;
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
@@ -215,8 +217,19 @@
     .empty{
       padding:16px;border-radius:16px;border:1px dashed var(--line);
       color:var(--muted);font-weight:800;text-align:center;
-      background:rgba(255,255,255,.02)
+      background:rgba(255,255,255,.02);
+      line-height:1.6;
     }
+
+    .msg{
+      margin-top:12px;
+      font-weight:900;
+      line-height:1.5;
+    }
+
+    .msg.ok{color:#86efac}
+    .msg.bad{color:#fca5a5}
+    .msg.warn{color:#fde68a}
   </style>
 </head>
 <body>
@@ -233,6 +246,8 @@
 
       <div class="right">
         <div class="pill" id="pillStatus">Statut : <b>…</b></div>
+        <button class="btn" id="btnReload" type="button">🔄 Recharger</button>
+        <a class="btn" id="btnProductsTop" href="./produits.html">📦 Produits</a>
         <a class="btn" id="btnPin" href="./pin.html">🔑 PIN</a>
       </div>
     </div>
@@ -249,6 +264,8 @@
             <div class="muted" style="font-weight:800;font-size:13px;margin-top:2px" id="expiryLine">—</div>
           </div>
         </div>
+
+        <div class="msg" id="msgMain">Prêt.</div>
 
         <div class="hr"></div>
 
@@ -281,6 +298,7 @@
         <div class="footer">
           <a class="btn primary" id="btnCockpit" href="./cockpit.html">📊 Cockpit</a>
           <a class="btn" id="btnBoutique" href="./boutique.html">🛠️ Boutique</a>
+          <a class="btn" id="btnProduits" href="./produits.html">📦 Produits</a>
           <a class="btn gold" id="btnPublic" href="./index.html">🌍 Fiche publique</a>
         </div>
       </div>
@@ -303,6 +321,7 @@
           <a class="btn" id="btnPin2" href="./pin.html">🔑 Porte PIN</a>
           <a class="btn" id="btnCockpit2" href="./cockpit.html">📊 Cockpit vendeur</a>
           <a class="btn" id="btnBoutique2" href="./boutique.html">🛠️ Réglages</a>
+          <a class="btn" id="btnProduits2" href="./produits.html">📦 Catalogue</a>
         </div>
       </div>
 
@@ -317,7 +336,8 @@
 
         <div class="footer">
           <a class="smallLink" href="./boutique.html" id="linkSupport">Réglages boutique</a>
-          <a class="smallLink" href="./cockpit.html" id="linkProducts">Cockpit vendeur</a>
+          <a class="smallLink" href="./cockpit.html" id="linkCockpit">Cockpit vendeur</a>
+          <a class="smallLink" href="./produits.html" id="linkProducts">Produits</a>
         </div>
       </div>
 
@@ -330,16 +350,14 @@
 
   const SUPABASE_URL = window.DIGIY_SUPABASE_URL;
   const SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON;
-  const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-    auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false }
-  });
-
   const $ = (id) => document.getElementById(id);
 
   let ACCESS_SLUG = "";
+  let ACCESS_PHONE = "";
   let ACCESS_OK = false;
   let CURRENT = null;
   let PRODUCTS = [];
+  let BUSY = false;
 
   function normSlug(v){
     return String(v || "").trim().toLowerCase();
@@ -364,16 +382,41 @@
     return u.pathname + u.search;
   }
 
-  async function rpc(name, args){
-    const { data, error } = await sb.rpc(name, args);
-    if(error) throw error;
-    return data;
+  function escapeHtml(str){
+    return String(str || "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+  }
+
+  function setBusy(isBusy){
+    BUSY = !!isBusy;
+    $("btnReload").disabled = BUSY;
+  }
+
+  function setMsgMain(txt, type){
+    const el = $("msgMain");
+    el.textContent = txt;
+    el.className = "msg " + (type || "");
   }
 
   async function waitGuardIfAny(){
     try{
-      if (window.DIGIY_GUARD?.ready && typeof window.DIGIY_GUARD.ready.then === "function"){
-        await window.DIGIY_GUARD.ready;
+      const guard = window.DIGIY_GUARD;
+      if (!guard) return;
+
+      if (guard.ready && typeof guard.ready.then === "function"){
+        await guard.ready;
+        return;
+      }
+
+      if (typeof guard.ready === "function"){
+        const maybePromise = guard.ready();
+        if (maybePromise && typeof maybePromise.then === "function"){
+          await maybePromise;
+        }
       }
     }catch(e){
       console.warn("guard ready warning:", e);
@@ -382,19 +425,54 @@
 
   function resolveSlug(){
     const qs = new URLSearchParams(location.search);
-    const fromUrl = normSlug(qs.get("slug") || "");
-    if (fromUrl) return fromUrl;
+    const candidates = [
+      qs.get("slug"),
+      window.DIGIY_GUARD?.state?.slug,
+      sessionStorage.getItem("digiy_market_slug"),
+      localStorage.getItem("digiy_market_last_slug"),
+      sessionStorage.getItem("digiy_slug"),
+      localStorage.getItem("digiy_slug"),
+      sessionStorage.getItem("DIGIY_MARKET_SLUG"),
+      localStorage.getItem("DIGIY_MARKET_SLUG")
+    ];
 
-    const fromGuard = normSlug(window.DIGIY_GUARD?.state?.slug || "");
-    if (fromGuard) return fromGuard;
-
-    const fromSession = normSlug(sessionStorage.getItem("digiy_market_slug") || "");
-    if (fromSession) return fromSession;
-
-    const fromLocal = normSlug(localStorage.getItem("digiy_market_last_slug") || "");
-    if (fromLocal) return fromLocal;
-
+    for (const item of candidates){
+      const s = normSlug(item || "");
+      if (s) return s;
+    }
     return "";
+  }
+
+  function resolvePhone(){
+    const candidates = [
+      window.DIGIY_GUARD?.state?.phone,
+      sessionStorage.getItem("digiy_market_phone"),
+      localStorage.getItem("digiy_market_last_phone"),
+      sessionStorage.getItem("digiy_phone"),
+      localStorage.getItem("digiy_phone")
+    ];
+
+    for (const item of candidates){
+      const p = normPhone(item || "");
+      if (p) return p;
+    }
+    return "";
+  }
+
+  function updateLinks(){
+    $("btnPin").href = withSlug("./pin.html");
+    $("btnPin2").href = withSlug("./pin.html");
+    $("btnCockpit").href = withSlug("./cockpit.html");
+    $("btnCockpit2").href = withSlug("./cockpit.html");
+    $("btnBoutique").href = withSlug("./boutique.html");
+    $("btnBoutique2").href = withSlug("./boutique.html");
+    $("btnProduits").href = withSlug("./produits.html");
+    $("btnProduits2").href = withSlug("./produits.html");
+    $("btnProductsTop").href = withSlug("./produits.html");
+    $("btnPublic").href = withSlug("./index.html");
+    $("linkSupport").href = withSlug("./boutique.html");
+    $("linkCockpit").href = withSlug("./cockpit.html");
+    $("linkProducts").href = withSlug("./produits.html");
   }
 
   function setNotifs(items){
@@ -402,7 +480,7 @@
     box.innerHTML = "";
 
     if(!items.length){
-      box.innerHTML = `<div class="notif"><div><b>Rien à signaler</b><div class="muted" style="font-weight:750;margin-top:2px">Tout roule.</div></div><div class="tag ok">OK</div></div>`;
+      box.innerHTML = '<div class="notif"><div><b>Rien à signaler</b><div class="muted" style="font-weight:750;margin-top:2px">Tout roule.</div></div><div class="tag ok">OK</div></div>';
       return;
     }
 
@@ -412,13 +490,54 @@
       div.className = "notif";
       div.innerHTML = `
         <div>
-          <b>${it.title}</b>
-          <div class="muted" style="font-weight:750;margin-top:2px">${it.text}</div>
+          <b>${escapeHtml(it.title)}</b>
+          <div class="muted" style="font-weight:750;margin-top:2px">${escapeHtml(it.text)}</div>
         </div>
-        <div class="tag ${tagClass}">${it.tag}</div>
+        <div class="tag ${tagClass}">${escapeHtml(it.tag)}</div>
       `;
       box.appendChild(div);
     }
+  }
+
+  function normalizeProducts(rows){
+    return (Array.isArray(rows) ? rows : []).map((r) => ({
+      id: String(r?.id || ""),
+      title: r?.title || r?.product_name || r?.name || "Produit",
+      category: r?.category || r?.category_text || "",
+      price_fcfa: Number(r?.price_fcfa || r?.price || 0),
+      is_active: !!r?.is_active,
+      is_featured: !!r?.is_featured,
+      product_position: Number(r?.product_position || 100),
+      updated_at: r?.updated_at || null
+    })).sort((a, b) => {
+      const pos = a.product_position - b.product_position;
+      if (pos !== 0) return pos;
+      return String(b.updated_at || "").localeCompare(String(a.updated_at || ""));
+    });
+  }
+
+  function applyStatsFromState(stats){
+    const active = Number(stats?.products_active || 0);
+    const inactive = Number(stats?.products_inactive || 0);
+    const featured = Number(stats?.products_featured || 0);
+    const total = active + inactive;
+
+    $("statActive").textContent = String(active);
+    $("statInactive").textContent = String(inactive);
+    $("statFeatured").textContent = String(featured);
+    $("statTotal").textContent = String(total);
+  }
+
+  function applyStatsFromProducts(){
+    const active = PRODUCTS.filter(p => p.is_active).length;
+    const inactive = PRODUCTS.length - active;
+    const featured = PRODUCTS.filter(p => p.is_featured).length;
+    const total = PRODUCTS.length;
+
+    $("statActive").textContent = String(active);
+    $("statInactive").textContent = String(inactive);
+    $("statFeatured").textContent = String(featured);
+    $("statTotal").textContent = String(total);
   }
 
   function applyBlockedState(reason){
@@ -429,35 +548,39 @@
     $("dot").className = "statusDot bad";
     $("statusLine").textContent = "Accès protégé";
     $("expiryLine").textContent = reason || "Aucun slug MARKET actif.";
-    $("pillStatus").innerHTML = `Statut : <b>Bloqué</b>`;
+    $("pillStatus").innerHTML = 'Statut : <b>Bloqué</b>';
     $("shopName").textContent = "Boutique DIGIY";
-    $("metaLine").innerHTML = `<span>Ville : —</span><span>•</span><span>Publication : —</span>`;
+    $("metaLine").innerHTML = '<span>Ville : —</span><span>•</span><span>Publication : —</span>';
 
     $("statActive").textContent = "0";
     $("statInactive").textContent = "0";
     $("statFeatured").textContent = "0";
     $("statTotal").textContent = "0";
 
-    $("infoSlug").textContent = "—";
-    $("infoPhone").textContent = "—";
+    $("infoSlug").textContent = ACCESS_SLUG || "—";
+    $("infoPhone").textContent = displayPhone(ACCESS_PHONE);
     $("infoWhatsapp").textContent = "—";
     $("infoAddress").textContent = "—";
     $("infoCategories").textContent = "—";
 
-    $("productPreview").innerHTML = "Aucun produit visible sans accès ouvert.";
+    $("brandTitle").textContent = "DIGIY PRO MARKET";
+    $("brandSub").textContent = ACCESS_SLUG
+      ? "Slug détecté • données protégées"
+      : "Admin central vendeur";
 
-    $("btnCockpit").href = "./cockpit.html";
-    $("btnBoutique").href = "./boutique.html";
-    $("btnPublic").href = "./index.html";
-    $("btnPin").href = "./pin.html";
-    $("btnPin2").href = "./pin.html";
-    $("btnCockpit2").href = "./cockpit.html";
-    $("btnBoutique2").href = "./boutique.html";
-    $("linkSupport").href = "./boutique.html";
-    $("linkProducts").href = "./cockpit.html";
+    $("productPreview").innerHTML = ACCESS_SLUG
+      ? "Slug détecté, mais aucun produit réel n’est exposé tant que l’accès n’est pas ouvert."
+      : "Aucun produit visible sans accès ouvert.";
+
+    updateLinks();
 
     setNotifs([
-      {level:"warn",tag:"ACCÈS",title:"Coque admin visible",text:"L’admin existe, mais les données réelles restent protégées tant que le slug n’est pas ouvert."}
+      {
+        level:"warn",
+        tag:"ACCÈS",
+        title:"Coque admin visible",
+        text:"L’admin existe, mais les données réelles restent protégées tant que le slug MARKET n’est pas ouvert."
+      }
     ]);
   }
 
@@ -465,60 +588,86 @@
     const p = data.profile || {};
     const stats = data.stats || {};
     CURRENT = data;
-
-    const active = Number(stats.products_active || 0);
-    const inactive = Number(stats.products_inactive || 0);
-    const featured = Number(stats.products_featured || 0);
-    const total = active + inactive;
+    ACCESS_PHONE = normPhone(data.phone || ACCESS_PHONE);
 
     $("dot").className = "statusDot ok";
     $("statusLine").textContent = "Accès actif";
     $("expiryLine").textContent = data.is_blank
       ? "Boutique vierge prête à remplir."
       : "Boutique réelle chargée.";
-    $("pillStatus").innerHTML = `Statut : <b>Actif</b>`;
+    $("pillStatus").innerHTML = 'Statut : <b>Actif</b>';
 
     $("shopName").textContent = p.shop_name || "Boutique DIGIY";
-    $("metaLine").innerHTML = `<span>Ville : ${p.city || "—"}</span><span>•</span><span>Publication : ${p.is_published ? "Oui" : "Non"}</span>`;
+    $("metaLine").innerHTML = `<span>Ville : ${escapeHtml(p.city || "—")}</span><span>•</span><span>Publication : ${p.is_published ? "Oui" : "Non"}</span>`;
 
-    $("statActive").textContent = String(active);
-    $("statInactive").textContent = String(inactive);
-    $("statFeatured").textContent = String(featured);
-    $("statTotal").textContent = String(total);
+    applyStatsFromState(stats);
 
-    $("infoSlug").textContent = data.slug || "—";
+    $("infoSlug").textContent = data.slug || ACCESS_SLUG || "—";
     $("infoPhone").textContent = displayPhone(data.phone);
     $("infoWhatsapp").textContent = displayPhone(p.whatsapp || data.phone);
     $("infoAddress").textContent = p.address || "—";
     $("infoCategories").textContent = p.categories_text || "—";
 
-    $("btnCockpit").href = withSlug("./cockpit.html");
-    $("btnBoutique").href = withSlug("./boutique.html");
-    $("btnPublic").href = withSlug("./index.html");
-    $("btnPin").href = withSlug("./pin.html");
-    $("btnPin2").href = withSlug("./pin.html");
-    $("btnCockpit2").href = withSlug("./cockpit.html");
-    $("btnBoutique2").href = withSlug("./boutique.html");
-    $("linkSupport").href = withSlug("./boutique.html");
-    $("linkProducts").href = withSlug("./cockpit.html");
+    $("brandTitle").textContent = p.shop_name || "DIGIY PRO MARKET";
+    $("brandSub").textContent = data.slug
+      ? `Admin central • ${data.slug}`
+      : "Admin central vendeur";
 
+    document.title = p.shop_name
+      ? `${p.shop_name} — Admin central DIGIY PRO MARKET`
+      : "DIGIY PRO MARKET — Admin central";
+
+    updateLinks();
+
+    const active = Number(stats.products_active || 0);
     const notifs = [];
+
     if (data.is_blank) {
-      notifs.push({level:"warn",tag:"START",title:"Boutique vierge",text:"Complète les réglages boutique pour donner une vraie identité publique."});
+      notifs.push({
+        level:"warn",
+        tag:"START",
+        title:"Boutique vierge",
+        text:"Complète les réglages boutique pour donner une vraie identité publique."
+      });
     } else {
-      notifs.push({level:"ok",tag:"BOUTIQUE",title:"Boutique chargée",text:"La fiche vendeur est bien reliée au slug actif."});
+      notifs.push({
+        level:"ok",
+        tag:"BOUTIQUE",
+        title:"Boutique chargée",
+        text:"La fiche vendeur est bien reliée au slug actif."
+      });
     }
 
     if (!p.is_published) {
-      notifs.push({level:"warn",tag:"OFF",title:"Publication coupée",text:"La boutique n’est pas encore visible publiquement."});
+      notifs.push({
+        level:"warn",
+        tag:"OFF",
+        title:"Publication coupée",
+        text:"La boutique n’est pas encore visible publiquement."
+      });
     } else {
-      notifs.push({level:"ok",tag:"ON",title:"Publication active",text:"La boutique peut être vue publiquement."});
+      notifs.push({
+        level:"ok",
+        tag:"ON",
+        title:"Publication active",
+        text:"La boutique peut être vue publiquement."
+      });
     }
 
     if (active === 0) {
-      notifs.push({level:"info",tag:"PRODUITS",title:"Catalogue vide",text:"Aucun produit actif pour le moment."});
+      notifs.push({
+        level:"info",
+        tag:"PRODUITS",
+        title:"Catalogue vide",
+        text:"Aucun produit actif pour le moment."
+      });
     } else {
-      notifs.push({level:"ok",tag:"CATALOGUE",title:"Produits actifs",text:`${active} produit(s) actif(s) dans la boutique.`});
+      notifs.push({
+        level:"ok",
+        tag:"CATALOGUE",
+        title:"Produits actifs",
+        text:`${active} produit(s) actif(s) dans la boutique.`
+      });
     }
 
     setNotifs(notifs);
@@ -538,67 +687,127 @@
     const top = PRODUCTS.slice(0, 3).map(p => {
       const state = p.is_active ? "Actif" : "Inactif";
       const feat = p.is_featured ? " • En avant" : "";
-      return `<div style="padding:10px 0;border-bottom:1px solid var(--line)">
-        <b>${escapeHtml(p.title || "Produit")}</b>
-        <div class="muted" style="margin-top:4px;font-weight:750">
-          ${escapeHtml(p.category || "Sans catégorie")} • ${Number(p.price_fcfa || 0).toLocaleString("fr-FR")} FCFA • ${state}${feat}
+      return `
+        <div style="padding:10px 0;border-bottom:1px solid var(--line)">
+          <b>${escapeHtml(p.title)}</b>
+          <div class="muted" style="margin-top:4px;font-weight:750">
+            ${escapeHtml(p.category || "Sans catégorie")} • ${Number(p.price_fcfa || 0).toLocaleString("fr-FR")} FCFA • ${state}${feat}
+          </div>
         </div>
-      </div>`;
+      `;
     }).join("");
 
     $("productPreview").innerHTML = top;
   }
 
-  function escapeHtml(str){
-    return String(str || "")
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#039;");
-  }
-
-  async function loadData(){
-    const data = await rpc("digiy_market_get_cockpit_by_slug", { p_slug: ACCESS_SLUG });
-    if (!data?.ok) throw new Error(data?.reason || "market_cockpit_error");
-    applyLiveState(data);
-
-    const products = await rpc("digiy_market_list_products_by_slug", { p_slug: ACCESS_SLUG });
-    PRODUCTS = Array.isArray(products) ? products : [];
-    renderProductPreview();
-
-    sessionStorage.setItem("digiy_market_slug", ACCESS_SLUG);
-    localStorage.setItem("digiy_market_last_slug", ACCESS_SLUG);
-  }
-
-  async function init(){
-    const slug = resolveSlug();
-
-    if (!slug) {
-      applyBlockedState("Ajoute ?slug=market-... ou passe par la porte PIN.");
-      return;
+  async function makeClient(){
+    if (!window.supabase || !SUPABASE_URL || !SUPABASE_ANON_KEY){
+      throw new Error("supabase_config_missing");
     }
+    return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false }
+    });
+  }
 
-    ACCESS_SLUG = slug;
+  async function rpc(client, name, args){
+    const { data, error } = await client.rpc(name, args);
+    if (error) throw error;
+    return data;
+  }
+
+  function storeAccess(){
+    if (ACCESS_SLUG){
+      sessionStorage.setItem("digiy_market_slug", ACCESS_SLUG);
+      localStorage.setItem("digiy_market_last_slug", ACCESS_SLUG);
+    }
+    if (ACCESS_PHONE){
+      sessionStorage.setItem("digiy_market_phone", ACCESS_PHONE);
+      localStorage.setItem("digiy_market_last_phone", ACCESS_PHONE);
+    }
+  }
+
+  async function loadCockpit(client){
+    if (!ACCESS_SLUG) throw new Error("access_slug_missing");
+    const data = await rpc(client, "digiy_market_get_cockpit_by_slug", { p_slug: ACCESS_SLUG });
+    if (!data?.ok) return null;
+    return data;
+  }
+
+  async function loadProducts(client){
+    if (!ACCESS_SLUG) throw new Error("access_slug_missing");
+    const rows = await rpc(client, "digiy_market_list_products_by_slug", { p_slug: ACCESS_SLUG });
+    PRODUCTS = normalizeProducts(rows);
+    renderProductPreview();
+    applyStatsFromProducts();
+  }
+
+  async function boot(){
+    setBusy(true);
+    setMsgMain("⏳ Chargement admin central…", "warn");
 
     try{
       await waitGuardIfAny();
-      const st = window.DIGIY_GUARD?.state || {};
 
-      if (st?.preview || !st?.access_ok) {
+      ACCESS_SLUG = resolveSlug();
+      ACCESS_PHONE = resolvePhone();
+      updateLinks();
+
+      if (!ACCESS_SLUG){
+        applyBlockedState("Ajoute ?slug=market-... ou passe par la porte PIN.");
+        setMsgMain("⚠️ Aucun slug MARKET détecté.", "warn");
+        return;
+      }
+
+      const client = await makeClient();
+      const cockpit = await loadCockpit(client);
+
+      if (!cockpit){
         applyBlockedState("Slug détecté mais accès non ouvert.");
+        setMsgMain("⚠️ Slug détecté, mais accès réel non ouvert.", "warn");
         return;
       }
 
       ACCESS_OK = true;
-      await loadData();
+      ACCESS_SLUG = normSlug(cockpit.slug || ACCESS_SLUG);
+      ACCESS_PHONE = normPhone(cockpit.phone || ACCESS_PHONE);
+      storeAccess();
+
+      applyLiveState(cockpit);
+      setMsgMain(
+        cockpit.is_blank
+          ? "✅ Boutique vierge chargée. Tu peux continuer la pose."
+          : "✅ Admin central réel chargé.",
+        "ok"
+      );
+
+      try{
+        await loadProducts(client);
+        if (!PRODUCTS.length){
+          setMsgMain("✅ Admin chargé. Aucun produit pour l’instant.", "ok");
+        }
+      }catch(e){
+        console.error(e);
+        PRODUCTS = [];
+        renderProductPreview();
+        setMsgMain("⚠️ Admin chargé, mais impossible de lire les produits pour l’instant.", "warn");
+      }
+
     }catch(e){
       console.error(e);
       applyBlockedState("Erreur de chargement admin.");
+      setMsgMain(
+        String(e?.message || "") === "supabase_config_missing"
+          ? "❌ Configuration Supabase manquante ou invalide."
+          : "❌ Impossible de charger l’admin central.",
+        "bad"
+      );
+    }finally{
+      setBusy(false);
     }
   }
 
-  init();
+  $("btnReload").addEventListener("click", boot);
+  boot();
 })();
 </script>
 </body>
