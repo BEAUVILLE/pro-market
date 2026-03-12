@@ -14,13 +14,8 @@
 
   <script>
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-
-    /*
-      IMPORTANT :
-      Je n’ai pas la clé ANON complète visible dans ce fil.
-      Colle ici ta vraie clé publique ANON complète.
-    */
-    window.DIGIY_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+    window.DIGIY_SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+    window.DIGIY_SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON;
   </script>
 
   <style>
@@ -652,11 +647,14 @@
   <script>
     (function () {
       const SUPABASE_URL = window.DIGIY_SUPABASE_URL || "";
-      const SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON_KEY || "";
+      const SUPABASE_ANON_KEY =
+        window.DIGIY_SUPABASE_ANON_KEY ||
+        window.DIGIY_SUPABASE_ANON ||
+        "";
+
       const HAS_VALID_CONFIG =
         SUPABASE_URL.startsWith("https://") &&
         SUPABASE_ANON_KEY &&
-        !SUPABASE_ANON_KEY.includes("COLLE_ICI") &&
         SUPABASE_ANON_KEY.length > 80;
 
       const $ = (sel, root = document) => root.querySelector(sel);
@@ -712,6 +710,7 @@
 
       const STORAGE_KEYS = [
         "digiy_market_slug",
+        "digiy_market_last_slug",
         "digiy_slug",
         "DIGIY_MARKET_SLUG",
         "DIGIY_PRO_SLUG",
@@ -762,7 +761,8 @@
 
       function getSlugFromStorage() {
         for (const key of STORAGE_KEYS) {
-          const value = (localStorage.getItem(key) || "").trim();
+          const value =
+            (sessionStorage.getItem(key) || localStorage.getItem(key) || "").trim();
           if (value) return value;
         }
         return "";
@@ -771,6 +771,9 @@
       function rememberSlug(slug) {
         if (!slug) return;
         try {
+          sessionStorage.setItem("digiy_market_slug", slug);
+          sessionStorage.setItem("digiy_market_last_slug", slug);
+          localStorage.setItem("digiy_market_last_slug", slug);
           localStorage.setItem("digiy_market_slug", slug);
           localStorage.setItem("digiy_slug", slug);
         } catch (_) {}
@@ -1280,7 +1283,7 @@
         if (!HAS_VALID_CONFIG) {
           setLocked(
             "Configuration incomplète",
-            "L’URL Supabase est posée, mais la clé ANON complète doit être remise dans ce fichier avant usage."
+            "La configuration Supabase de cette page est incomplète."
           );
           return;
         }
