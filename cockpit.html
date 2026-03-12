@@ -3,16 +3,17 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>DIGIY MARKET PRO — Cockpit</title>
+  <title>DIGIY PRO MARKET — Cockpit vendeur</title>
   <meta name="theme-color" content="#07140f"/>
-  <meta name="description" content="Cockpit professionnel DIGIY MARKET : commandes, stats, lecture terrain."/>
+  <meta name="description" content="Cockpit vendeur DIGIY PRO MARKET : boutique, produits, publication, lecture terrain."/>
 
   <script>
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-    window.DIGIY_SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+    window.DIGIY_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+    window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js"></script>
+  <script src="./guard.js?v=market-cockpit-20260312-clean"></script>
 
   <style>
     :root{
@@ -362,7 +363,7 @@
       margin-top:12px;
     }
 
-    .order{
+    .product{
       background:var(--card2);
       border:1px solid var(--line);
       border-radius:18px;
@@ -371,9 +372,7 @@
       gap:14px;
     }
 
-    .order.preview{opacity:.96}
-
-    .order-top{
+    .product-top{
       display:flex;
       justify-content:space-between;
       gap:12px;
@@ -381,12 +380,12 @@
       align-items:flex-start;
     }
 
-    .order-main{
+    .product-main{
       display:grid;
       gap:6px;
     }
 
-    .order-name{
+    .product-name{
       font-weight:900;
       font-size:1.08rem;
     }
@@ -411,10 +410,9 @@
       white-space:nowrap;
     }
 
-    .badge.pending{background:rgba(245,158,11,.14); color:#ffd38a; border-color:rgba(245,158,11,.25)}
-    .badge.confirmed{background:rgba(34,197,94,.14); color:#9ef2ba; border-color:rgba(34,197,94,.25)}
-    .badge.cancelled{background:rgba(239,68,68,.14); color:#ffb0b0; border-color:rgba(239,68,68,.25)}
-    .badge.done{background:rgba(56,189,248,.14); color:#b7ecff; border-color:rgba(56,189,248,.25)}
+    .badge.active{background:rgba(34,197,94,.14); color:#9ef2ba; border-color:rgba(34,197,94,.25)}
+    .badge.inactive{background:rgba(239,68,68,.14); color:#ffb0b0; border-color:rgba(239,68,68,.25)}
+    .badge.featured{background:rgba(250,204,21,.14); color:#fff0a7; border-color:rgba(250,204,21,.25)}
 
     .note{
       border-left:3px solid rgba(250,204,21,.4);
@@ -424,7 +422,7 @@
       font-weight:800;
     }
 
-    .order-actions{
+    .product-actions{
       display:flex;
       gap:8px;
       flex-wrap:wrap;
@@ -447,11 +445,7 @@
     }
 
     .action-btn.wa{background:#103525}
-    .action-btn.preview{
-      background:rgba(255,255,255,.04);
-      color:var(--muted);
-      border-style:dashed;
-    }
+    .action-btn.ghost{background:rgba(255,255,255,.04); color:var(--muted)}
 
     .empty{
       padding:28px 18px;
@@ -477,8 +471,8 @@
     }
 
     @media(max-width:640px){
-      .top-actions,.filters,.order-actions{width:100%}
-      .top-actions > *, .order-actions > *{flex:1 1 auto}
+      .top-actions,.filters,.product-actions{width:100%}
+      .top-actions > *, .product-actions > *{flex:1 1 auto}
     }
   </style>
 </head>
@@ -488,8 +482,8 @@
       <div class="brand">
         <div class="brand-mark">🛍️</div>
         <div class="brand-copy">
-          <div class="eyebrow">DIGIY MARKET PRO</div>
-          <div class="brand-title">Cockpit commandes</div>
+          <div class="eyebrow">DIGIY PRO MARKET</div>
+          <div class="brand-title">Cockpit vendeur</div>
           <div class="brand-sub" id="topSub">Chargement du cockpit…</div>
         </div>
       </div>
@@ -504,19 +498,19 @@
     <section class="hero">
       <div class="hero-grid">
         <div class="hero-body">
-          <div class="mode" id="modeBadge">Mode aperçu</div>
+          <div class="mode" id="modeBadge">Mode protégé</div>
 
           <div>
-            <h1 id="shopName">Astou Market</h1>
+            <h1 id="shopName">Boutique DIGIY</h1>
             <div class="subtitle" id="shopSubtitle">
-              Lecture commandes, suivi terrain, vision simple de la boutique.
+              Coque visible du cockpit vendeur. Le contenu réel s’ouvre avec un slug MARKET valide.
             </div>
           </div>
 
           <div class="pills">
-            <div class="pill" id="pillCategory">🏷️ Boutique locale</div>
-            <div class="pill" id="pillCity">📍 Saly</div>
-            <div class="pill" id="pillHours">🕒 08h - 20h</div>
+            <div class="pill" id="pillCategory">🏷️ Catégories à définir</div>
+            <div class="pill" id="pillCity">📍 Ville à définir</div>
+            <div class="pill" id="pillPublish">🌍 Publication à définir</div>
           </div>
         </div>
 
@@ -527,7 +521,7 @@
           </div>
 
           <div class="mini">
-            <div class="k">Téléphone public</div>
+            <div class="k">Téléphone boutique</div>
             <div class="v" id="miniPhone">—</div>
           </div>
 
@@ -545,604 +539,449 @@
     </section>
 
     <section class="stats-grid">
-      <div class="stat"><div class="label">Total</div><div class="value" id="sTotal">0</div></div>
-      <div class="stat"><div class="label">Pending</div><div class="value" id="sPending">0</div></div>
-      <div class="stat"><div class="label">Confirmées</div><div class="value" id="sConfirmed">0</div></div>
-      <div class="stat"><div class="label">Done</div><div class="value" id="sDone">0</div></div>
-      <div class="stat"><div class="label">Annulées</div><div class="value" id="sCancelled">0</div></div>
+      <div class="stat"><div class="label">Total produits</div><div class="value" id="sTotal">0</div></div>
+      <div class="stat"><div class="label">Actifs</div><div class="value" id="sActive">0</div></div>
+      <div class="stat"><div class="label">Inactifs</div><div class="value" id="sInactive">0</div></div>
+      <div class="stat"><div class="label">En avant</div><div class="value" id="sFeatured">0</div></div>
+      <div class="stat"><div class="label">Publié</div><div class="value" id="sPublished">NON</div></div>
     </section>
 
     <section class="layout">
       <section class="card panel">
         <div class="panel-head">
           <div>
-            <h2>Commandes récentes</h2>
+            <h2>Produits de la boutique</h2>
             <div class="muted">
-              Lecture simple des commandes reçues. Les actions de changement de statut viendront en phase 2.
+              Lecture claire du catalogue vendeur. Pas de démo injectée, seulement les vrais produits liés au slug actif.
             </div>
           </div>
 
           <div class="filters" id="filters">
-            <button class="chip active" type="button" data-filter="all">Toutes</button>
-            <button class="chip" type="button" data-filter="pending">Pending</button>
-            <button class="chip" type="button" data-filter="confirmed">Confirmées</button>
-            <button class="chip" type="button" data-filter="done">Done</button>
-            <button class="chip" type="button" data-filter="cancelled">Annulées</button>
+            <button class="chip active" type="button" data-filter="all">Tous</button>
+            <button class="chip" type="button" data-filter="active">Actifs</button>
+            <button class="chip" type="button" data-filter="inactive">Inactifs</button>
+            <button class="chip" type="button" data-filter="featured">En avant</button>
           </div>
         </div>
 
-        <div class="list" id="orderList"></div>
-        <div class="empty" id="emptyState" style="display:none;">Aucune commande pour l’instant.</div>
+        <div class="list" id="productList"></div>
+        <div class="empty" id="emptyState" style="display:none;">Aucun produit pour l’instant.</div>
       </section>
 
       <section class="card panel">
         <h2>Lecture terrain</h2>
         <div class="muted" id="sideLead">
-          Le cockpit aide le commerçant à voir ce qui arrive sans tourner dans des écrans inutiles.
+          Le vendeur voit son outil même sans accès, mais sans données d’un autre commerçant.
         </div>
 
         <div class="list" style="margin-top:14px">
           <div class="mini">
             <div class="k">Boutique</div>
-            <div class="v" id="factShop">Astou Market</div>
+            <div class="v" id="factShop">Boutique DIGIY</div>
           </div>
 
           <div class="mini">
             <div class="k">Ville</div>
-            <div class="v" id="factCity">Saly</div>
-          </div>
-
-          <div class="mini">
-            <div class="k">Horaires</div>
-            <div class="v" id="factHours">08h - 20h</div>
+            <div class="v" id="factCity">À définir</div>
           </div>
 
           <div class="mini">
             <div class="k">Livraison</div>
-            <div class="v" id="factDelivery">Livraison locale selon zone</div>
+            <div class="v" id="factDelivery">À définir</div>
+          </div>
+
+          <div class="mini">
+            <div class="k">Paiement</div>
+            <div class="v" id="factPayment">À définir</div>
           </div>
         </div>
 
-        <div class="empty" id="previewBox" style="display:none;">
-          Mode aperçu actif. Entre avec un slug pour lire les vraies commandes de la boutique.
+        <div class="empty" id="previewBox" style="display:block;">
+          Aucun slug MARKET actif détecté. La coque reste visible, mais les données réelles restent protégées.
         </div>
       </section>
     </section>
 
     <div class="footer" id="footerText">
-      DIGIY MARKET PRO • Cockpit commandes
+      DIGIY PRO MARKET • Cockpit vendeur
     </div>
   </div>
 
   <script>
-    const SUPABASE_URL = window.DIGIY_SUPABASE_URL;
-    const SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON;
-    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    (function(){
+      "use strict";
 
-    const $ = (id) => document.getElementById(id);
+      const SUPABASE_URL = window.DIGIY_SUPABASE_URL;
+      const SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON;
+      const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false }
+      });
 
-    let ACTIVE_FILTER = "all";
-    let ALL_ORDERS = [];
-    let PROFILE = null;
-    let ACCESS_SLUG = "";
-    let ACCESS_PHONE = "";
-    let PROFILE_SLUG = "";
-    let IS_PREVIEW = true;
+      const $ = (id) => document.getElementById(id);
 
-    function esc(v){
-      return String(v ?? "")
-        .replaceAll("&","&amp;")
-        .replaceAll("<","&lt;")
-        .replaceAll(">","&gt;")
-        .replaceAll('"',"&quot;")
-        .replaceAll("'","&#039;");
-    }
+      let ACTIVE_FILTER = "all";
+      let ALL_PRODUCTS = [];
+      let PROFILE = null;
+      let ACCESS_SLUG = "";
+      let ACCESS_PHONE = "";
+      let ACCESS_OK = false;
 
-    function normalizePhone(v){
-      return String(v || "").replace(/[^\d]/g, "");
-    }
-
-    function formatPhone(v){
-      const p = normalizePhone(v);
-      return p || "—";
-    }
-
-    function fmtDateTime(v){
-      if(!v) return "—";
-      try{
-        return new Date(v).toLocaleString("fr-FR", {
-          year:"numeric",
-          month:"2-digit",
-          day:"2-digit",
-          hour:"2-digit",
-          minute:"2-digit"
-        });
-      }catch{
-        return String(v);
+      function esc(v){
+        return String(v ?? "")
+          .replaceAll("&","&amp;")
+          .replaceAll("<","&lt;")
+          .replaceAll(">","&gt;")
+          .replaceAll('"',"&quot;")
+          .replaceAll("'","&#039;");
       }
-    }
 
-    function normStatus(v){
-      const s = String(v || "pending").toLowerCase().trim();
-      if(["pending","confirmed","cancelled","done"].includes(s)) return s;
-      return "pending";
-    }
+      function normalizePhone(v){
+        return String(v || "").replace(/[^\d]/g, "");
+      }
 
-    function statusLabel(v){
-      const s = normStatus(v);
-      if(s === "pending") return "Pending";
-      if(s === "confirmed") return "Confirmée";
-      if(s === "cancelled") return "Annulée";
-      if(s === "done") return "Done";
-      return s;
-    }
+      function formatPhone(v){
+        const p = normalizePhone(v);
+        return p ? "+" + p : "—";
+      }
 
-    function waLink(phone, msg){
-      const p = normalizePhone(phone);
-      return p ? `https://wa.me/${p}?text=${encodeURIComponent(msg || "")}` : "#";
-    }
+      function money(v){
+        const n = Number(v || 0);
+        return Number.isFinite(n) ? n.toLocaleString("fr-FR") + " FCFA" : "—";
+      }
 
-    async function rpc(name, args){
-      const { data, error } = await sb.rpc(name, args);
-      if(error) throw error;
-      return data;
-    }
-
-    function resetStats(){
-      $("sTotal").textContent = "0";
-      $("sPending").textContent = "0";
-      $("sConfirmed").textContent = "0";
-      $("sDone").textContent = "0";
-      $("sCancelled").textContent = "0";
-    }
-
-    function resetView(){
-      $("orderList").innerHTML = "";
-      $("emptyState").style.display = "none";
-      ALL_ORDERS = [];
-      PROFILE = null;
-    }
-
-    function previewProfile(){
-      return {
-        slug: "",
-        business_name: "Astou Market",
-        category: "Cosmétiques / Produits naturels",
-        city: "Saly",
-        public_phone: "221771342889",
-        whatsapp: "221771342889",
-        address_text: "Saly centre",
-        description: "Boutique locale, produits utiles et bons.",
-        open_hours: "08h - 20h",
-        delivery_note: "Livraison locale selon zone."
-      };
-    }
-
-    function previewOrders(){
-      const now = new Date();
-      const addHours = (n) => new Date(now.getTime() - (n * 3600 * 1000)).toISOString();
-
-      return [
-        {
-          id: "preview-1",
-          status: "pending",
-          created_at: addHours(1),
-          customer_name: "Moussa Fall",
-          customer_phone: "221770000001",
-          item_name: "Huile de moringa",
-          quantity: 2,
-          unit_label: "flacons",
-          note: "Livraison demain matin",
-          delivery_mode: "delivery",
-          delivery_address: "Ngaparou",
-          city: "Saly"
-        },
-        {
-          id: "preview-2",
-          status: "confirmed",
-          created_at: addHours(3),
-          customer_name: "Awa Ndiaye",
-          customer_phone: "221770000002",
-          item_name: "Savon noir",
-          quantity: 3,
-          unit_label: "pièces",
-          note: "Je passe récupérer à 18h",
-          delivery_mode: "pickup",
-          delivery_address: null,
-          city: "Saly"
-        },
-        {
-          id: "preview-3",
-          status: "done",
-          created_at: addHours(8),
-          customer_name: "Cheikh Ba",
-          customer_phone: "221770000003",
-          item_name: "Crème karité",
-          quantity: 1,
-          unit_label: "pot",
-          note: "",
-          delivery_mode: "pickup",
-          delivery_address: null,
-          city: "Saly"
-        },
-        {
-          id: "preview-4",
-          status: "cancelled",
-          created_at: addHours(12),
-          customer_name: "Mariama Sarr",
-          customer_phone: "221770000004",
-          item_name: "Parfum local",
-          quantity: 1,
-          unit_label: "flacon",
-          note: "Client a reporté",
-          delivery_mode: "delivery",
-          delivery_address: "Somone",
-          city: "Saly"
+      function fmtDateTime(v){
+        if(!v) return "—";
+        try{
+          return new Date(v).toLocaleString("fr-FR", {
+            year:"numeric",
+            month:"2-digit",
+            day:"2-digit",
+            hour:"2-digit",
+            minute:"2-digit"
+          });
+        }catch{
+          return String(v);
         }
-      ];
-    }
-
-    function fallbackLiveProfile(){
-      return {
-        slug: PROFILE_SLUG || "",
-        business_name: "Boutique DIGIY",
-        category: "Boutique locale",
-        city: "Saly",
-        public_phone: ACCESS_PHONE || "—",
-        whatsapp: ACCESS_PHONE || "—",
-        address_text: "Adresse à confirmer",
-        description: "Boutique locale, produits utiles et bons.",
-        open_hours: "Horaires à confirmer",
-        delivery_note: "Livraison locale selon zone."
-      };
-    }
-
-    function applyProfile(profile, liveMode){
-      const p = profile || previewProfile();
-      const name = p.business_name || "Boutique DIGIY";
-      const category = p.category || "Boutique locale";
-      const city = p.city || "Terrain local";
-      const phone = formatPhone(p.public_phone);
-      const whatsapp = formatPhone(p.whatsapp || p.public_phone);
-      const address = p.address_text || "Adresse à confirmer";
-      const hours = p.open_hours || "Horaires à confirmer";
-      const delivery = p.delivery_note || "Livraison selon zone.";
-
-      $("shopName").textContent = name;
-      $("shopSubtitle").textContent = liveMode
-        ? "Lecture commandes, stats, et suivi de la boutique."
-        : "Aperçu pro du cockpit commandes avant chargement réel.";
-
-      $("pillCategory").textContent = `🏷️ ${category}`;
-      $("pillCity").textContent = `📍 ${city}`;
-      $("pillHours").textContent = `🕒 ${hours}`;
-
-      $("miniSlug").textContent = liveMode ? (ACCESS_SLUG || "—") : "Aperçu";
-      $("miniPhone").textContent = phone;
-      $("miniWhatsapp").textContent = whatsapp;
-      $("miniAddress").textContent = address;
-
-      $("factShop").textContent = name;
-      $("factCity").textContent = city;
-      $("factHours").textContent = hours;
-      $("factDelivery").textContent = delivery;
-
-      $("modeBadge").className = liveMode ? "mode live" : "mode";
-      $("modeBadge").textContent = liveMode ? "Mode vivant" : "Mode aperçu";
-
-      $("topSub").textContent = liveMode
-        ? `Cockpit chargé pour ${ACCESS_SLUG || "MARKET"}`
-        : "Aperçu élégant actif.";
-
-      $("previewBox").style.display = liveMode ? "none" : "block";
-      $("footerText").textContent = liveMode
-        ? `DIGIY MARKET PRO • ${name} • Cockpit vivant`
-        : "DIGIY MARKET PRO • Aperçu cockpit";
-
-      $("btnSettings").href = liveMode && ACCESS_SLUG
-        ? `./boutique.html?slug=${encodeURIComponent(ACCESS_SLUG)}`
-        : "./boutique.html";
-
-      $("btnPin").href = liveMode && ACCESS_SLUG
-        ? `./pin.html?slug=${encodeURIComponent(ACCESS_SLUG)}`
-        : "./pin.html";
-    }
-
-    function applyStats(data, preview = false){
-      if(preview){
-        $("sTotal").textContent = "4";
-        $("sPending").textContent = "1";
-        $("sConfirmed").textContent = "1";
-        $("sDone").textContent = "1";
-        $("sCancelled").textContent = "1";
-        return;
       }
 
-      $("sTotal").textContent = String(Number(data?.total || 0));
-      $("sPending").textContent = String(Number(data?.pending || 0));
-      $("sConfirmed").textContent = String(Number(data?.confirmed || 0));
-      $("sDone").textContent = String(Number(data?.done || 0));
-      $("sCancelled").textContent = String(Number(data?.cancelled || 0));
-    }
+      function withSlug(base){
+        const u = new URL(base, location.href);
+        if (ACCESS_SLUG) u.searchParams.set("slug", ACCESS_SLUG);
+        return u.pathname + u.search;
+      }
 
-    function normalizeOrders(payload){
-      let rows = [];
+      async function rpc(name, args){
+        const { data, error } = await sb.rpc(name, args);
+        if(error) throw error;
+        return data;
+      }
 
-      if(Array.isArray(payload)) rows = payload;
-      else if(Array.isArray(payload?.rows)) rows = payload.rows;
-      else if(Array.isArray(payload?.orders)) rows = payload.orders;
-      else if(Array.isArray(payload?.data)) rows = payload.data;
+      function resetStats(){
+        $("sTotal").textContent = "0";
+        $("sActive").textContent = "0";
+        $("sInactive").textContent = "0";
+        $("sFeatured").textContent = "0";
+        $("sPublished").textContent = "NON";
+      }
 
-      return rows.map((r) => ({
-        id: String(r?.id ?? r?.order_id ?? ""),
-        status: normStatus(r?.status),
-        created_at: r?.created_at || null,
-        customer_name: r?.customer_name || r?.client_name || r?.name || "Sans nom",
-        customer_phone: r?.customer_phone || r?.phone || "",
-        item_name: r?.item_name || r?.product_name || r?.request_name || "Demande",
-        quantity: r?.quantity ?? 1,
-        unit_label: r?.unit_label || "",
-        note: r?.note || r?.message || "",
-        delivery_mode: r?.delivery_mode || "pickup",
-        delivery_address: r?.delivery_address || "",
-        city: r?.city || ""
-      }));
-    }
+      function resetView(){
+        $("productList").innerHTML = "";
+        $("emptyState").style.display = "none";
+        ALL_PRODUCTS = [];
+        PROFILE = null;
+      }
 
-    function filterRows(rows){
-      if(ACTIVE_FILTER === "all") return rows;
-      return rows.filter(r => normStatus(r.status) === ACTIVE_FILTER);
-    }
+      function blockedProfile(){
+        return {
+          public_label: "DIGIY PRO MARKET",
+          slug: "",
+          phone: "",
+          access: "accès protégé",
+          is_blank: true,
+          profile: {
+            shop_name: "",
+            owner_name: "",
+            city: "",
+            zones: "",
+            address: "",
+            whatsapp: "",
+            photo_url: "",
+            cover_url: "",
+            description: "",
+            categories_text: "",
+            delivery_note: "",
+            payment_note: "",
+            priority: 100,
+            is_published: false,
+            is_active: true
+          },
+          stats: {
+            products_active: 0,
+            products_inactive: 0,
+            products_featured: 0
+          }
+        };
+      }
 
-    function previewActionsHtml(){
-      return `
-        <div class="order-actions">
-          <a class="action-btn preview" href="./pin.html">🔑 Entrer par PIN</a>
-          <a class="action-btn preview" href="./boutique.html">🛠️ Régler la boutique</a>
-        </div>
-      `;
-    }
+      function applyProfile(payload, liveMode){
+        const data = payload || blockedProfile();
+        const p = data.profile || {};
 
-    function liveActionsHtml(row){
-      const phone = normalizePhone(row.customer_phone);
-      const msg = `Bonjour ${row.customer_name || ""}, je vous contacte depuis DIGIY MARKET au sujet de votre commande : ${row.item_name || "commande"}.`;
+        PROFILE = data;
 
-      if(!phone){
+        const shopName = p.shop_name || "Boutique DIGIY";
+        const city = p.city || "Ville à définir";
+        const categories = p.categories_text || "Catégories à définir";
+        const publication = p.is_published ? "Publiée" : "Non publiée";
+        const address = p.address || "Adresse à définir";
+        const whatsapp = p.whatsapp || data.phone || "";
+        const delivery = p.delivery_note || "Livraison à définir";
+        const payment = p.payment_note || "Paiement à définir";
+
+        $("shopName").textContent = shopName;
+        $("shopSubtitle").textContent = liveMode
+          ? (data.is_blank
+              ? "Boutique personnelle vierge. Complète le profil et ajoute tes produits."
+              : "Cockpit vendeur personnel chargé avec les vraies données de la boutique.")
+          : "Coque visible du cockpit vendeur. Le contenu réel s’ouvre avec un slug MARKET valide.";
+
+        $("pillCategory").textContent = "🏷️ " + categories;
+        $("pillCity").textContent = "📍 " + city;
+        $("pillPublish").textContent = "🌍 " + publication;
+
+        $("miniSlug").textContent = liveMode ? (data.slug || "—") : "—";
+        $("miniPhone").textContent = formatPhone(data.phone);
+        $("miniWhatsapp").textContent = formatPhone(whatsapp);
+        $("miniAddress").textContent = address;
+
+        $("factShop").textContent = shopName;
+        $("factCity").textContent = city;
+        $("factDelivery").textContent = delivery;
+        $("factPayment").textContent = payment;
+
+        $("modeBadge").className = liveMode ? "mode live" : "mode";
+        $("modeBadge").textContent = liveMode ? "Mode vivant" : "Mode protégé";
+
+        $("topSub").textContent = liveMode
+          ? `Cockpit chargé pour ${data.slug || "MARKET"}`
+          : "Aucun accès ouvert pour l’instant.";
+
+        $("previewBox").style.display = liveMode ? "none" : "block";
+        $("footerText").textContent = liveMode
+          ? `DIGIY PRO MARKET • ${shopName} • Cockpit vivant`
+          : "DIGIY PRO MARKET • Cockpit protégé";
+
+        $("btnSettings").href = liveMode ? withSlug("./boutique.html") : "./boutique.html";
+        $("btnPin").href = liveMode ? withSlug("./pin.html") : "./pin.html";
+
+        applyStats(data.stats || {}, !!p.is_published, liveMode);
+      }
+
+      function applyStats(stats, isPublished, liveMode){
+        const active = Number(stats?.products_active || 0);
+        const inactive = Number(stats?.products_inactive || 0);
+        const featured = Number(stats?.products_featured || 0);
+        const total = active + inactive;
+
+        $("sTotal").textContent = String(total);
+        $("sActive").textContent = String(active);
+        $("sInactive").textContent = String(inactive);
+        $("sFeatured").textContent = String(featured);
+        $("sPublished").textContent = liveMode ? (isPublished ? "OUI" : "NON") : "NON";
+      }
+
+      function normalizeProducts(payload){
+        const rows = Array.isArray(payload) ? payload : [];
+        return rows.map((r) => ({
+          id: String(r?.id || ""),
+          title: r?.title || "Produit",
+          category: r?.category || "",
+          price_fcfa: Number(r?.price_fcfa || 0),
+          old_price_fcfa: r?.old_price_fcfa == null ? null : Number(r.old_price_fcfa),
+          unit_label: r?.unit_label || "",
+          photo_url: r?.photo_url || "",
+          description: r?.description || "",
+          is_active: !!r?.is_active,
+          is_featured: !!r?.is_featured,
+          product_position: Number(r?.product_position || 100),
+          created_at: r?.created_at || null,
+          updated_at: r?.updated_at || null
+        }));
+      }
+
+      function filterRows(rows){
+        if (ACTIVE_FILTER === "all") return rows;
+        if (ACTIVE_FILTER === "active") return rows.filter(r => r.is_active);
+        if (ACTIVE_FILTER === "inactive") return rows.filter(r => !r.is_active);
+        if (ACTIVE_FILTER === "featured") return rows.filter(r => r.is_featured);
+        return rows;
+      }
+
+      function liveActionsHtml(row){
+        const wa = PROFILE?.profile?.whatsapp || PROFILE?.phone || "";
+        const text = `Bonjour, je gère mon produit "${row.title}" dans DIGIY PRO MARKET.`;
         return `
-          <div class="order-actions">
-            <a class="action-btn preview" href="https://wa.me/221771342889?text=${encodeURIComponent("Salut DIGIY MARKET, le client n'a pas de téléphone sur cette commande.")}" target="_blank" rel="noopener">📩 Demander aide</a>
+          <div class="product-actions">
+            <a class="action-btn ghost" href="${withSlug("./boutique.html")}">🛠️ Réglages boutique</a>
+            <a class="action-btn ghost" href="${withSlug("./index.html")}">🏠 Vitrine MARKET</a>
+            <a class="action-btn wa" href="${wa ? "https://wa.me/" + encodeURIComponent(normalizePhone(wa)) + "?text=" + encodeURIComponent(text) : "#"}" target="_blank" rel="noopener">💬 WhatsApp boutique</a>
           </div>
         `;
       }
 
-      return `
-        <div class="order-actions">
-          <a class="action-btn wa" href="${waLink(phone, msg)}" target="_blank" rel="noopener">💬 WhatsApp client</a>
-        </div>
-      `;
-    }
-
-    function renderOrders(){
-      const list = $("orderList");
-      const empty = $("emptyState");
-      const rows = filterRows(ALL_ORDERS);
-
-      if(!rows.length){
-        list.innerHTML = "";
-        empty.style.display = "block";
-        empty.textContent = IS_PREVIEW
-          ? "Aperçu disponible, mais aucune ligne à afficher."
-          : "Aucune commande pour l’instant.";
-        return;
+      function blockedActionsHtml(){
+        return `
+          <div class="product-actions">
+            <a class="action-btn ghost" href="./pin.html">🔑 Entrer par PIN</a>
+            <a class="action-btn ghost" href="./boutique.html">🛠️ Préparer la boutique</a>
+          </div>
+        `;
       }
 
-      empty.style.display = "none";
+      function renderProducts(){
+        const list = $("productList");
+        const empty = $("emptyState");
+        const rows = filterRows(ALL_PRODUCTS);
 
-      list.innerHTML = rows.map((row) => {
-        const status = normStatus(row.status);
-        const customer = esc(row.customer_name);
-        const phone = esc(formatPhone(row.customer_phone));
-        const item = esc(row.item_name);
-        const qty = esc(row.quantity || "1");
-        const unit = esc(row.unit_label || "");
-        const created = esc(fmtDateTime(row.created_at));
-        const mode = row.delivery_mode === "delivery" ? "Livraison" : "Retrait";
-        const address = esc(row.delivery_address || "—");
-        const note = esc(row.note || "");
+        if(!rows.length){
+          list.innerHTML = "";
+          empty.style.display = "block";
+          empty.textContent = ACCESS_OK
+            ? "Aucun produit pour l’instant."
+            : "La coque est visible, mais aucun produit réel n’est chargé sans slug actif.";
+          return;
+        }
 
-        return `
-          <article class="order ${IS_PREVIEW ? "preview" : ""}">
-            <div class="order-top">
-              <div class="order-main">
-                <div class="order-name">${customer}</div>
-                <div class="meta">
-                  <span>🧾 ${item}</span>
-                  <span>📦 ${qty}${unit ? " " + unit : ""}</span>
-                  <span>📞 ${phone}</span>
-                  <span>🕓 ${created}</span>
+        empty.style.display = "none";
+
+        list.innerHTML = rows.map((row) => {
+          const badges = [];
+          badges.push(`<span class="badge ${row.is_active ? "active" : "inactive"}">${row.is_active ? "Actif" : "Inactif"}</span>`);
+          if (row.is_featured) badges.push(`<span class="badge featured">En avant</span>`);
+
+          return `
+            <article class="product">
+              <div class="product-top">
+                <div class="product-main">
+                  <div class="product-name">${esc(row.title)}</div>
+                  <div class="meta">
+                    ${row.category ? `<span>🏷️ ${esc(row.category)}</span>` : ""}
+                    <span>💰 ${esc(money(row.price_fcfa))}</span>
+                    ${row.old_price_fcfa != null ? `<span>🧾 Ancien prix: ${esc(money(row.old_price_fcfa))}</span>` : ""}
+                    ${row.unit_label ? `<span>📦 ${esc(row.unit_label)}</span>` : ""}
+                    <span>↕️ Position ${esc(row.product_position)}</span>
+                  </div>
+                </div>
+
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                  ${badges.join("")}
                 </div>
               </div>
 
-              <div class="badge ${status}">
-                ${esc(statusLabel(status))}
+              ${row.description ? `<div class="note">${esc(row.description)}</div>` : ""}
+
+              <div class="meta">
+                <span>🕓 Créé : ${esc(fmtDateTime(row.created_at))}</span>
+                <span>♻️ Mis à jour : ${esc(fmtDateTime(row.updated_at))}</span>
               </div>
-            </div>
 
-            <div class="meta">
-              <span>🚚 ${esc(mode)}</span>
-              <span>📍 ${address}</span>
-              ${row.city ? `<span>🌍 ${esc(row.city)}</span>` : ""}
-            </div>
-
-            ${note ? `<div class="note">“${note}”</div>` : ""}
-
-            ${IS_PREVIEW ? previewActionsHtml() : liveActionsHtml(row)}
-          </article>
-        `;
-      }).join("");
-    }
-
-    function initFilters(){
-      $("filters").querySelectorAll(".chip").forEach((chip) => {
-        chip.addEventListener("click", () => {
-          $("filters").querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
-          chip.classList.add("active");
-          ACTIVE_FILTER = chip.dataset.filter || "all";
-          renderOrders();
-        });
-      });
-    }
-
-    async function loadProfile(){
-      const phone = ACCESS_PHONE || window.DIGIY_GUARD?.state?.phone || "";
-      if(!phone) return fallbackLiveProfile();
-
-      const { data, error } = await sb
-        .from("digiy_market_public_profiles")
-        .select("slug,phone,display_name,category,city,whatsapp,bio")
-        .eq("phone", phone)
-        .maybeSingle();
-
-      if(error){
-        console.error("loadProfile error:", error);
-        return fallbackLiveProfile();
+              ${ACCESS_OK ? liveActionsHtml(row) : blockedActionsHtml()}
+            </article>
+          `;
+        }).join("");
       }
 
-      PROFILE = {
-        slug: data?.slug || "",
-        business_name: data?.display_name || "Boutique DIGIY",
-        category: data?.category || "Boutique locale",
-        city: data?.city || "Saly",
-        public_phone: data?.phone || phone,
-        whatsapp: data?.whatsapp || data?.phone || phone,
-        address_text: "Adresse à confirmer",
-        description: data?.bio || "Boutique locale, produits utiles et bons.",
-        open_hours: "Horaires à confirmer",
-        delivery_note: "Livraison locale selon zone."
-      };
+      function initFilters(){
+        $("filters").querySelectorAll(".chip").forEach((chip) => {
+          chip.addEventListener("click", () => {
+            $("filters").querySelectorAll(".chip").forEach(c => c.classList.remove("active"));
+            chip.classList.add("active");
+            ACTIVE_FILTER = chip.dataset.filter || "all";
+            renderProducts();
+          });
+        });
+      }
 
-      PROFILE_SLUG = PROFILE.slug || "";
-      return PROFILE;
-    }
+      async function loadCockpit(){
+        if (!ACCESS_SLUG) throw new Error("access_slug_missing");
+        const data = await rpc("digiy_market_get_cockpit_by_slug", { p_slug: ACCESS_SLUG });
+        if (!data?.ok) throw new Error(data?.reason || "market_cockpit_error");
+        PROFILE = data;
+        applyProfile(data, true);
+      }
 
-    async function loadStats(){
-      if(!ACCESS_SLUG) throw new Error("access_slug_missing");
+      async function loadProducts(){
+        if (!ACCESS_SLUG) throw new Error("access_slug_missing");
+        const data = await rpc("digiy_market_list_products_by_slug", { p_slug: ACCESS_SLUG });
+        ALL_PRODUCTS = normalizeProducts(data);
+        renderProducts();
+      }
 
-      const data = await rpc("market_stats_by_slug", { p_slug: ACCESS_SLUG });
-      if(!data?.ok) throw new Error(data?.error || "stats_error");
-      applyStats(data, false);
-    }
+      function showBlockedState(reasonText){
+        ACCESS_OK = false;
+        ACCESS_SLUG = "";
+        ACCESS_PHONE = "";
+        PROFILE = blockedProfile();
+        ALL_PRODUCTS = [];
+        applyProfile(PROFILE, false);
+        renderProducts();
+        if(reasonText) $("topSub").textContent = reasonText;
+      }
 
-    async function loadOrders(){
-      if(!ACCESS_SLUG) throw new Error("access_slug_missing");
-
-      const data = await rpc("market_list_recent_orders_by_slug", {
-        p_slug: ACCESS_SLUG,
-        p_limit: 100
-      });
-
-      if(!data?.ok && !Array.isArray(data?.rows)) throw new Error(data?.error || "orders_error");
-      ALL_ORDERS = normalizeOrders(data);
-      renderOrders();
-    }
-
-    function showPreview(reasonText){
-      IS_PREVIEW = true;
-      ACCESS_SLUG = "";
-      ACCESS_PHONE = "";
-      PROFILE_SLUG = "";
-      PROFILE = previewProfile();
-      ALL_ORDERS = previewOrders();
-      applyProfile(PROFILE, false);
-      applyStats(null, true);
-      renderOrders();
-      if(reasonText) $("topSub").textContent = reasonText;
-    }
-
-    async function boot(){
-      document.body.classList.add("loading");
-      resetView();
-      resetStats();
-
-      try{
-        await window.DIGIY_GUARD.ready;
-        const st = window.DIGIY_GUARD?.state || {};
-
-        if(st?.preview){
-          if(st.reason === "preview_no_identity"){
-            showPreview("Aucun slug détecté. Aperçu affiché.");
-          }else if(st.reason === "unknown_identity"){
-            showPreview("Slug inconnu. Aperçu affiché.");
-          }else if(st.reason === "guard_error"){
-            showPreview("Guard indisponible. Aperçu affiché.");
-          }else if(st.reason === "no_subscription"){
-            showPreview("Accès non actif. Aperçu affiché.");
-          }else{
-            showPreview("Accès indisponible. Aperçu affiché.");
+      async function waitGuardIfAny(){
+        try{
+          if (window.DIGIY_GUARD?.ready && typeof window.DIGIY_GUARD.ready.then === "function"){
+            await window.DIGIY_GUARD.ready;
           }
-          return;
+        }catch(e){
+          console.warn("guard ready warning:", e);
         }
+      }
 
-        if(st?.access_ok){
-          ACCESS_SLUG = st.slug || "";
+      async function boot(){
+        document.body.classList.add("loading");
+        resetView();
+        resetStats();
+
+        try{
+          await waitGuardIfAny();
+
+          const st = window.DIGIY_GUARD?.state || {};
+          const qs = new URLSearchParams(location.search);
+          const fromUrlSlug = (qs.get("slug") || "").trim();
+
+          ACCESS_SLUG = fromUrlSlug || st.slug || "";
           ACCESS_PHONE = st.phone || "";
 
-          if(!ACCESS_SLUG){
-            showPreview("Accès OK mais slug absent. Aperçu affiché.");
+          if (st?.preview || !ACCESS_SLUG || !st?.access_ok) {
+            if (!ACCESS_SLUG) {
+              showBlockedState("Aucun slug MARKET détecté. La coque reste visible.");
+            } else if (!st?.access_ok) {
+              showBlockedState("Slug détecté mais accès non ouvert. Le cockpit réel reste protégé.");
+            } else {
+              showBlockedState("Aperçu protégé actif.");
+            }
             return;
           }
 
-          IS_PREVIEW = false;
-
-          const profile = await loadProfile();
-          applyProfile(profile, true);
-
-          const results = await Promise.allSettled([
-            loadStats(),
-            loadOrders()
-          ]);
-
-          const statsFailed = results[0]?.status === "rejected";
-          const ordersFailed = results[1]?.status === "rejected";
-
-          if(statsFailed){
-            console.error("loadStats failed:", results[0].reason);
-          }
-
-          if(ordersFailed){
-            console.error("loadOrders failed:", results[1].reason);
-            ALL_ORDERS = [];
-            renderOrders();
-          }
+          ACCESS_OK = true;
+          await loadCockpit();
+          await loadProducts();
 
           sessionStorage.setItem("digiy_market_slug", ACCESS_SLUG);
-          sessionStorage.setItem("digiy_market_last_slug", ACCESS_SLUG);
           localStorage.setItem("digiy_market_last_slug", ACCESS_SLUG);
-
-          if(PROFILE_SLUG){
-            sessionStorage.setItem("digiy_market_profile_slug", PROFILE_SLUG);
-            localStorage.setItem("digiy_market_profile_slug", PROFILE_SLUG);
-          }
-
-          if(statsFailed || ordersFailed){
-            $("topSub").textContent = `Cockpit chargé partiellement pour ${ACCESS_SLUG}`;
-          }
-
-          return;
+        }catch(err){
+          console.error(err);
+          showBlockedState("Erreur de chargement du cockpit vendeur.");
+        }finally{
+          document.body.classList.remove("loading");
         }
-
-        showPreview("Accès indisponible. Aperçu affiché.");
-      }catch(err){
-        console.error(err);
-        showPreview("Erreur de chargement du cockpit. Aperçu affiché.");
-      }finally{
-        document.body.classList.remove("loading");
       }
-    }
 
-    $("btnReload").addEventListener("click", boot);
-    initFilters();
-    boot();
+      $("btnReload").addEventListener("click", boot);
+      initFilters();
+      boot();
+    })();
   </script>
 </body>
 </html>
