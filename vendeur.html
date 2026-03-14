@@ -2,238 +2,484 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <title>DIGIY MARKET — Fiche vendeur</title>
-<meta name="theme-color" content="#fdf6ec"/>
+<meta name="theme-color" content="#0d0a06"/>
 <meta name="description" content="Fiche publique DIGIY MARKET : boutique exemple ou fiche réelle en mode slug-first."/>
+<meta name="robots" content="index,follow"/>
 
 <script>
-  window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+  window.DIGIY_SUPABASE_URL      = "https://wesqmwjjtsefyjnluosj.supabase.co";
   window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
-  window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+  window.DIGIY_SUPABASE_ANON     = window.DIGIY_SUPABASE_ANON_KEY;
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;0,700;1,300;1,600&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet"/>
+
 <style>
-:root{
-  --bg:#fdf6ec;
-  --card:#fffdf9;
-  --ink:#1a1208;
-  --muted:#7a6a54;
-  --line:#e8d8be;
-  --gold:#c8860a;
-  --orange:#e86820;
-  --red:#c83830;
-  --green:#28885a;
-  --shadow:0 18px 52px rgba(26,18,8,.12);
-}
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-  font-family:'Nunito',sans-serif;
-  background:
-    radial-gradient(circle at top left, rgba(232,104,32,.06), transparent 28%),
-    radial-gradient(circle at top right, rgba(40,136,90,.05), transparent 22%),
-    var(--bg);
-  color:var(--ink)
-}
-a{color:inherit;text-decoration:none}
-img{max-width:100%;display:block}
-button{font:inherit}
-.wrap{width:min(1180px,calc(100% - 28px));margin:0 auto}
+/* ═══════════════════════════════════════════════
+   DIGIY MARKET — FICHE VENDEUR · DESIGN ROYAL
+═══════════════════════════════════════════════ */
+:root {
+  --ink:      #0d0a06;
+  --ink-2:    #1a1208;
+  --ink-3:    #241808;
+  --gold:     #c8860a;
+  --gold-lt:  #f4b840;
+  --amber:    #e86820;
+  --red:      #c83830;
+  --green:    #28885a;
+  --cream:    #fdf6ec;
+  --cream-2:  #f7e8d0;
+  --muted:    #8a7a64;
+  --line:     #2e2010;
+  --line-lt:  #3e2e1a;
 
-.topbar{
-  position:sticky;top:0;z-index:100;background:rgba(253,246,236,.93);
-  backdrop-filter:blur(16px);border-bottom:2px solid var(--line)
-}
-.topbar-inner{
-  min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap
-}
-.brand{
-  display:flex;align-items:center;gap:10px;
-  font-family:'Playfair Display',serif;font-weight:900;font-size:1.18rem
-}
-.brand-icon{
-  width:40px;height:40px;border-radius:11px;
-  background:linear-gradient(135deg,#e86820,#c83830);
-  display:grid;place-items:center;font-size:1.05rem;
-  box-shadow:0 5px 16px rgba(232,104,32,.3);
-  overflow:hidden;
-}
-.brand-icon img{width:100%;height:100%;object-fit:cover}
-.actions{display:flex;gap:8px;flex-wrap:wrap}
-.btn{
-  border:none;cursor:pointer;border-radius:999px;padding:11px 15px;font-weight:900;transition:.18s ease
-}
-.btn:hover{transform:translateY(-1px)}
-.btn-primary{background:var(--orange);color:#fff;box-shadow:0 10px 20px rgba(232,104,32,.22)}
-.btn-primary:hover{background:var(--red)}
-.btn-soft{background:#fff;border:1.5px solid var(--line);color:var(--ink)}
-.btn-soft:hover{background:#fff3df}
+  --g-dark:   linear-gradient(160deg,#0d0a06 0%,#1a1208 50%,#0f1a0a 100%);
+  --g-gold:   linear-gradient(135deg,#c8860a,#f4b840,#c8860a);
+  --g-fire:   linear-gradient(135deg,#e86820,#c83830);
 
-.page{padding:24px 0 44px}
-.hero{
-  display:grid;grid-template-columns:1.06fr .94fr;gap:18px;align-items:stretch
-}
-.card{
-  background:var(--card);border:1.5px solid var(--line);border-radius:28px;box-shadow:var(--shadow)
-}
-.cover-card{overflow:hidden}
-.cover-media{position:relative;aspect-ratio:16/10;background:#f4ece0}
-.cover-media img{width:100%;height:100%;object-fit:cover}
-.cover-badges{
-  position:absolute;left:16px;top:16px;display:flex;gap:8px;flex-wrap:wrap
-}
-.badge{
-  display:inline-flex;align-items:center;gap:6px;
-  padding:8px 11px;border-radius:999px;font-size:.74rem;font-weight:900;letter-spacing:.04em
-}
-.badge.example{background:rgba(255,255,255,.95);border:1px solid rgba(232,104,32,.2);color:var(--orange)}
-.badge.live{background:rgba(40,136,90,.92);color:#fff}
-.badge.cat{background:rgba(26,18,8,.82);color:#fff}
-.cover-foot{padding:18px 20px}
-.cover-foot h1{
-  font-family:'Playfair Display',serif;font-weight:900;font-size:clamp(1.9rem,4vw,3.2rem);
-  line-height:.95;margin-bottom:8px
-}
-.cover-foot p{color:var(--muted);line-height:1.7}
-
-.info-card{padding:18px}
-.kicker{
-  display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;
-  background:#fff;border:1.5px solid var(--line);font-size:.76rem;font-weight:900;color:var(--orange)
-}
-.info-lead{margin-top:12px;color:var(--muted);line-height:1.72}
-.info-grid{
-  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px
-}
-.mini{
-  background:#fff;border:1px solid var(--line);border-radius:18px;padding:12px
-}
-.mini-label{
-  font-size:.72rem;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px
-}
-.mini-value{font-weight:900;line-height:1.45}
-.cta-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
-.note{
-  margin-top:14px;padding:13px 14px;border-radius:18px;background:#fff8ed;border:1px solid #f6d7a3;
-  color:#8d5a00;font-size:.86rem;line-height:1.65
+  --shadow-card:  0 24px 64px rgba(0,0,0,.55), 0 0 0 1px rgba(200,134,10,.07);
+  --shadow-hover: 0 40px 100px rgba(0,0,0,.7),  0 0 0 1px rgba(200,134,10,.2);
+  --glow-gold:    0 0 60px rgba(200,134,10,.22), 0 0 120px rgba(200,134,10,.08);
 }
 
-.layout{
-  display:grid;grid-template-columns:1fr 330px;gap:18px;margin-top:18px
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0 }
+html { scroll-behavior: smooth }
+body {
+  font-family: "Nunito", sans-serif;
+  background: var(--g-dark);
+  color: var(--cream);
+  overflow-x: hidden;
+  min-height: 100vh;
 }
-.left-col,.right-col{display:grid;gap:18px}
-.section-card{padding:18px}
-.section-card h2{
-  font-family:'Playfair Display',serif;font-size:1.34rem;font-weight:900;margin-bottom:12px
+body::before {
+  content: "";
+  position: fixed; inset: 0; z-index: 0; pointer-events: none; opacity: .025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
-.section-card p{color:var(--muted);line-height:1.72}
-
-.gallery-main{
-  display:grid;grid-template-columns:1.12fr .88fr;gap:12px
+a { color: inherit; text-decoration: none }
+img { display: block; max-width: 100% }
+button { font: inherit; cursor: pointer }
+.wrap {
+  width: min(1300px, calc(100% - 32px));
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
-.hero-photo{
-  border-radius:24px;overflow:hidden;border:1px solid var(--line);background:#f4ece0
-}
-.hero-photo img{width:100%;height:100%;object-fit:cover;aspect-ratio:4/3}
-.thumb-grid{
-  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px
-}
-.thumb{
-  border-radius:20px;overflow:hidden;border:1px solid var(--line);background:#f4ece0
-}
-.thumb img{width:100%;aspect-ratio:1/1;object-fit:cover}
-.thumb small{
-  display:block;padding:8px 10px;background:#fff;font-weight:800;color:var(--muted)
-}
-
-.products{
-  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px
-}
-.product{
-  border:1px solid var(--line);border-radius:18px;background:#fff;padding:14px
-}
-.product h3{font-size:1rem;margin-bottom:6px}
-.product p{font-size:.88rem;line-height:1.6;margin-bottom:10px;color:var(--muted)}
-.price{
-  display:inline-flex;padding:6px 10px;border-radius:999px;background:#fef0d8;color:var(--gold);
-  border:1px solid #f8d8a0;font-weight:900;font-size:.78rem
+:focus-visible {
+  outline: 3px solid rgba(232,104,32,.35);
+  outline-offset: 2px;
+  border-radius: 12px;
 }
 
-.side-list{display:grid;gap:10px}
-.side-item{
-  border:1px solid var(--line);border-radius:18px;background:#fff;padding:13px
+/* ═══ TOPBAR ═══ */
+.topbar {
+  position: sticky; top: 0; z-index: 200;
+  background: rgba(13,10,6,.9);
+  backdrop-filter: blur(20px) saturate(1.4);
+  border-bottom: 1px solid var(--line-lt);
 }
-.side-item .label{
-  font-size:.72rem;color:var(--muted);font-weight:900;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px
+.topbar-inner {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  gap: 12px; min-height: 72px; flex-wrap: wrap;
 }
-.side-item .value{font-weight:900;line-height:1.5}
+.brand {
+  display: flex; align-items: center; gap: 12px;
+  font-family: "Playfair Display", serif; font-weight: 900; font-size: 1.15rem;
+}
+.brand-gem {
+  width: 44px; height: 44px; border-radius: 14px;
+  background: var(--g-fire);
+  display: grid; place-items: center;
+  font-size: 1.2rem; box-shadow: 0 6px 20px rgba(232,104,32,.35);
+  overflow: hidden; flex-shrink: 0;
+}
+.brand-gem img { width: 100%; height: 100%; object-fit: cover }
+.brand small {
+  display: block; font-family: "Nunito", sans-serif;
+  font-size: .7rem; font-weight: 800; color: var(--muted);
+  letter-spacing: .06em; text-transform: uppercase; margin-top: 2px;
+}
+.hdr-actions { display: flex; gap: 8px; flex-wrap: wrap }
+.btn {
+  border: none; cursor: pointer; border-radius: 999px;
+  padding: 11px 16px; font-weight: 900; font-size: .84rem;
+  transition: .2s ease; display: inline-flex; align-items: center; gap: 7px;
+}
+.btn:hover { transform: translateY(-2px) }
+.btn-gold {
+  background: linear-gradient(135deg,#c8860a,#f4b840); color: #0d0a06;
+  box-shadow: 0 8px 24px rgba(200,134,10,.3);
+}
+.btn-gold:hover { filter: brightness(1.1) }
+.btn-ghost {
+  background: rgba(255,255,255,.05);
+  border: 1px solid var(--line-lt); color: var(--cream);
+}
+.btn-ghost:hover { background: rgba(255,255,255,.1) }
+.btn-fire {
+  background: var(--g-fire); color: #fff;
+  box-shadow: 0 8px 24px rgba(232,104,32,.28);
+}
 
-.module-box{
-  padding:18px;border-radius:22px;
-  background:linear-gradient(135deg,#fff8ed,#fff1dd);
-  border:1.5px solid #f0d0a0
-}
-.module-box h3{
-  font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:8px
-}
-.module-box p{color:#7c5a12;line-height:1.65}
-.module-box .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+/* ═══ PAGE ═══ */
+.page { padding: 24px 0 72px }
 
-.map-box{
-  display:grid;gap:12px
+/* ═══ HERO COVER ═══ */
+.hero-cover-wrap {
+  position: relative; border-radius: 32px; overflow: hidden;
+  border: 1px solid rgba(200,134,10,.12);
+  box-shadow: var(--shadow-card);
+  min-height: 520px;
+  background: var(--ink-2);
+  transition: transform .22s ease;
 }
-.fake-map{
-  border:1px solid var(--line);border-radius:20px;overflow:hidden;background:#f4ece0
+.hero-cover-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform .6s cubic-bezier(.23,1,.32,1);
 }
-.fake-map img{width:100%;aspect-ratio:16/10;object-fit:cover}
-.map-actions{display:flex;gap:10px;flex-wrap:wrap}
+.hero-cover-wrap:hover .hero-cover-img { transform: scale(1.025) }
+.hero-gradient {
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(13,10,6,.1) 0%,
+    rgba(13,10,6,.18) 30%,
+    rgba(13,10,6,.7) 68%,
+    rgba(13,10,6,.96) 100%
+  );
+  z-index: 2;
+}
+.hero-top-chips {
+  position: absolute; left: 20px; top: 20px;
+  display: flex; gap: 8px; flex-wrap: wrap; z-index: 10;
+}
+.chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 12px; border-radius: 999px;
+  font-size: .68rem; font-weight: 900; letter-spacing: .05em;
+}
+.chip-royal {
+  background: linear-gradient(135deg,#c8860a,#f4b840); color: #0d0a06;
+  box-shadow: 0 4px 14px rgba(200,134,10,.4);
+}
+.chip-live {
+  background: rgba(40,136,90,.9); color: #fff;
+}
+.chip-live::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%;
+  background: #8ff7c5; animation: pulse-g 1.4s ease-in-out infinite;
+}
+@keyframes pulse-g { 0%,100%{opacity:1} 50%{opacity:.3} }
+.chip-example {
+  background: rgba(232,104,32,.85); color: #fff;
+}
+.chip-dark {
+  background: rgba(13,10,6,.78); border: 1px solid rgba(255,255,255,.12);
+  color: rgba(253,246,236,.84); backdrop-filter: blur(8px);
+}
 
-.trust-box{
-  background:#fff;
-  border:1px solid var(--line);
-  border-radius:20px;
-  padding:14px
+.hero-copy {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  z-index: 10; padding: 28px 32px 36px;
 }
-.trust-list{
-  display:grid;gap:10px
+.hero-kicker {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 7px 13px; border-radius: 999px;
+  background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15);
+  font-size: .72rem; font-weight: 900; margin-bottom: 14px;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--gold-lt);
 }
-.trust-item{
-  border:1px solid var(--line);
-  border-radius:16px;
-  padding:12px;
-  background:#fffdf9
+.hero-copy h1 {
+  font-family: "Cormorant Garamond", serif; font-weight: 600;
+  font-size: clamp(2.4rem, 5vw, 5rem); line-height: .88;
+  letter-spacing: -.02em; margin-bottom: 12px;
+  text-shadow: 0 6px 24px rgba(0,0,0,.3);
 }
-.trust-item strong{display:block;margin-bottom:4px}
-.trust-item span{color:var(--muted);font-size:.86rem;line-height:1.55}
+.hero-copy h1 em {
+  font-style: italic;
+  background: var(--g-gold);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-copy p {
+  max-width: 64ch; color: rgba(253,246,236,.72);
+  line-height: 1.7; font-size: .98rem;
+}
+.hero-meta-row {
+  display: flex; align-items: center; gap: 10px;
+  flex-wrap: wrap; margin-top: 16px;
+}
+.hero-pill {
+  padding: 6px 12px; border-radius: 999px;
+  background: rgba(200,134,10,.15); border: 1px solid rgba(200,134,10,.28);
+  color: var(--gold-lt); font-size: .74rem; font-weight: 900;
+}
+.hero-loc {
+  font-size: .76rem; font-weight: 800; color: rgba(253,246,236,.52);
+}
 
-.empty-box{text-align:center;padding:32px 20px}
-.empty-box h2{font-family:'Playfair Display',serif;font-size:1.7rem;margin-bottom:8px}
-.empty-box p{color:var(--muted);line-height:1.7}
+/* ═══ TWO-COL MAIN LAYOUT ═══ */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 18px; margin-top: 18px;
+}
+.col-left, .col-right { display: grid; gap: 18px; align-content: start }
 
-.float-cta{
-  position:fixed;right:14px;bottom:14px;z-index:120;
-  display:flex;flex-direction:column;gap:10px
+/* ═══ DARK CARD ═══ */
+.d-card {
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--line-lt);
+  border-radius: 28px;
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+  position: relative;
 }
-.float-btn{
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  min-width:220px;padding:13px 16px;border-radius:999px;color:#fff;font-weight:900;
-  box-shadow:0 16px 28px rgba(0,0,0,.18)
+.d-card-inner { padding: 24px }
+.d-card h2 {
+  font-family: "Cormorant Garamond", serif; font-weight: 600;
+  font-size: 1.6rem; letter-spacing: -.01em; margin-bottom: 10px;
 }
-.float-btn.wa{background:#0b8f59}
-.float-btn.module{background:linear-gradient(135deg,var(--orange),var(--red))}
+.d-card p { color: rgba(253,246,236,.62); line-height: 1.75; font-size: .92rem }
 
-@media(max-width:980px){
-  .hero,.layout,.gallery-main{grid-template-columns:1fr}
+/* gold top accent on card */
+.d-card.accented::before {
+  content: "";
+  position: absolute; top: 0; left: 24px; right: 24px; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: .4;
 }
-@media(max-width:620px){
-  .info-grid,.products,.thumb-grid{grid-template-columns:1fr}
-  .topbar-inner{padding:10px 0}
-  .float-cta{left:12px;right:12px}
-  .float-btn{min-width:0;width:100%}
+
+/* ═══ INFO GRID ═══ */
+.info-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr);
+  gap: 10px; margin-top: 14px;
+}
+.info-tile {
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--line-lt); border-radius: 18px; padding: 14px;
+}
+.info-tile-label {
+  font-size: .68rem; font-weight: 900; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--muted); margin-bottom: 4px;
+}
+.info-tile-value { font-weight: 900; line-height: 1.45; font-size: .92rem }
+
+/* ═══ CTA ROW ═══ */
+.cta-row {
+  display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px;
+}
+
+/* ═══ NOTE BOX ═══ */
+.note-box {
+  margin-top: 14px; padding: 14px 16px; border-radius: 18px;
+  background: rgba(200,134,10,.07); border: 1px solid rgba(200,134,10,.2);
+  color: rgba(244,184,64,.75); font-size: .84rem; line-height: 1.65;
+}
+
+/* ═══ EDITO STRIP ═══ */
+.edito-strip {
+  display: grid; grid-template-columns: repeat(3,1fr); gap: 12px;
+  margin-top: 18px;
+}
+.edito-tile {
+  background: rgba(255,255,255,.03); border: 1px solid var(--line-lt);
+  border-radius: 20px; padding: 18px;
+}
+.edito-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 5px 10px; border-radius: 999px;
+  background: rgba(200,134,10,.12); border: 1px solid rgba(200,134,10,.22);
+  color: var(--gold-lt); font-size: .66rem; font-weight: 900;
+  text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px;
+}
+.edito-tile h3 {
+  font-family: "Cormorant Garamond", serif; font-weight: 600;
+  font-size: 1.1rem; margin-bottom: 5px;
+}
+.edito-tile p { color: var(--muted); font-size: .84rem; line-height: 1.6 }
+
+/* ═══ GALLERY ═══ */
+.gallery-hero {
+  border-radius: 24px; overflow: hidden;
+  border: 1px solid var(--line-lt); position: relative;
+  background: var(--ink-2); margin-top: 14px;
+}
+.gallery-hero img {
+  width: 100%; aspect-ratio: 16/10; object-fit: cover;
+  display: block; transition: transform .5s cubic-bezier(.23,1,.32,1);
+}
+.gallery-hero:hover img { transform: scale(1.02) }
+
+.thumb-rail {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 10px; margin-top: 10px;
+}
+.thumb {
+  border-radius: 16px; overflow: hidden;
+  border: 1.5px solid var(--line-lt);
+  background: var(--ink-2); cursor: pointer;
+  transition: .2s ease;
+}
+.thumb:hover {
+  transform: translateY(-2px);
+  border-color: var(--gold);
+  box-shadow: 0 8px 20px rgba(0,0,0,.4);
+}
+.thumb.active {
+  border-color: var(--gold-lt);
+  box-shadow: 0 0 0 2px rgba(200,134,10,.25), 0 8px 20px rgba(0,0,0,.4);
+}
+.thumb img { width: 100%; aspect-ratio: 1/1; object-fit: cover }
+.thumb small {
+  display: block; padding: 7px 9px;
+  background: rgba(255,255,255,.03); border-top: 1px solid var(--line);
+  font-weight: 800; color: var(--muted); font-size: .7rem; line-height: 1.3;
+}
+
+/* ═══ PRODUCTS GRID ═══ */
+.products-grid {
+  display: grid; grid-template-columns: repeat(2,1fr);
+  gap: 12px; margin-top: 14px;
+}
+.product-tile {
+  border: 1px solid var(--line-lt); border-radius: 20px;
+  background: rgba(255,255,255,.03); padding: 16px;
+  transition: .2s ease;
+}
+.product-tile:hover {
+  border-color: rgba(200,134,10,.28);
+  background: rgba(200,134,10,.04);
+}
+.product-tile h3 { font-size: 1rem; margin-bottom: 6px; font-weight: 900 }
+.product-tile p {
+  font-size: .86rem; line-height: 1.6; color: var(--muted); margin-bottom: 12px;
+}
+.price-tag {
+  display: inline-flex; padding: 6px 11px; border-radius: 999px;
+  background: rgba(200,134,10,.15); border: 1px solid rgba(200,134,10,.28);
+  color: var(--gold-lt); font-weight: 900; font-size: .76rem;
+}
+
+/* ═══ MAP BOX ═══ */
+.map-frame {
+  border-radius: 22px; overflow: hidden;
+  border: 1px solid var(--line-lt); background: var(--ink-2);
+  margin-top: 14px;
+}
+.map-frame img { width: 100%; aspect-ratio: 16/10; object-fit: cover; display: block }
+.map-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px }
+
+/* ═══ SIDEBAR TILES ═══ */
+.side-list { display: grid; gap: 8px }
+.side-tile {
+  border: 1px solid var(--line-lt); border-radius: 16px;
+  background: rgba(255,255,255,.03); padding: 13px;
+}
+.side-tile-label {
+  font-size: .66rem; font-weight: 900; text-transform: uppercase;
+  letter-spacing: .05em; color: var(--muted); margin-bottom: 3px;
+}
+.side-tile-value { font-weight: 900; font-size: .9rem; line-height: 1.45 }
+
+/* ═══ MODULE BOX ═══ */
+.module-box {
+  background: linear-gradient(135deg, rgba(232,104,32,.1), rgba(200,56,48,.08));
+  border: 1px solid rgba(232,104,32,.25); border-radius: 24px; padding: 22px;
+  position: relative; overflow: hidden;
+}
+.module-box::before {
+  content: "";
+  position: absolute; top: -60px; right: -60px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(232,104,32,.12), transparent 70%);
+  pointer-events: none;
+}
+.module-box h3 {
+  font-family: "Cormorant Garamond", serif; font-weight: 600;
+  font-size: 1.3rem; margin-bottom: 8px;
+}
+.module-box p { color: rgba(253,246,236,.62); line-height: 1.7; font-size: .9rem }
+.module-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px }
+
+/* ═══ TRUST BOX ═══ */
+.trust-list { display: grid; gap: 8px; margin-top: 12px }
+.trust-item {
+  border: 1px solid var(--line-lt); border-radius: 16px;
+  background: rgba(255,255,255,.03); padding: 13px;
+}
+.trust-item strong { display: block; margin-bottom: 3px; font-weight: 900; font-size: .9rem }
+.trust-item span { color: var(--muted); font-size: .82rem; line-height: 1.55 }
+
+/* ═══ NEXT FEATURES ═══ */
+.feature-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px; border-radius: 14px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.02);
+  font-weight: 900; font-size: .86rem;
+  transition: .18s;
+}
+.feature-row:hover {
+  border-color: rgba(200,134,10,.28);
+  background: rgba(200,134,10,.04);
+}
+
+/* ═══ EMPTY STATE ═══ */
+.empty-state {
+  text-align: center; padding: 40px 24px;
+  border: 1px dashed var(--line-lt); border-radius: 24px;
+}
+.empty-state h2 {
+  font-family: "Cormorant Garamond", serif; font-weight: 600;
+  font-size: 1.5rem; margin-bottom: 10px;
+}
+.empty-state p { color: var(--muted); line-height: 1.7 }
+
+/* ═══ FLOAT CTA ═══ */
+.float-cta {
+  position: fixed; right: 16px; bottom: 16px;
+  z-index: 150; display: flex; flex-direction: column; gap: 10px;
+}
+.float-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  min-width: 210px; padding: 13px 18px; border-radius: 999px; color: #fff;
+  font-weight: 900; font-size: .88rem;
+  box-shadow: 0 16px 32px rgba(0,0,0,.35); transition: .2s;
+}
+.float-btn:hover { transform: translateY(-2px) }
+.float-btn.wa { background: #0b8f59 }
+.float-btn.module { background: var(--g-fire) }
+
+/* ═══ ENTRANCE ANIMATIONS ═══ */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(24px) }
+  to   { opacity: 1; transform: translateY(0) }
+}
+.anim { opacity: 0; animation: fadeUp .65s cubic-bezier(.23,1,.32,1) forwards }
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:1080px) { .layout { grid-template-columns: 1fr } }
+@media(max-width:860px)  {
+  .edito-strip { grid-template-columns: 1fr 1fr }
+  .thumb-rail { grid-template-columns: repeat(2,1fr) }
+}
+@media(max-width:600px)  {
+  .edito-strip, .info-grid, .products-grid { grid-template-columns: 1fr }
+  .hero-copy { padding: 20px 18px 24px }
+  .hero-cover-wrap { min-height: 420px }
+  .hero-copy h1 { font-size: clamp(1.9rem,8vw,2.8rem) }
+  .d-card-inner { padding: 18px }
+  .float-cta { left: 12px; right: 12px }
+  .float-btn { min-width: 0; width: 100% }
+  .topbar-inner { min-height: 60px }
 }
 </style>
 </head>
@@ -242,19 +488,21 @@ button{font:inherit}
 <header class="topbar">
   <div class="wrap topbar-inner">
     <a class="brand" href="index.html">
-      <span class="brand-icon" id="brandIcon">🛍️</span>
-      <span>DIGIY MARKET</span>
+      <span class="brand-gem" id="brandIcon">🛍️</span>
+      <span>DIGIY MARKET <small>Fiche vendeur</small></span>
     </a>
-    <div class="actions">
-      <a class="btn btn-soft" href="index.html">← Retour au marché</a>
-      <a class="btn btn-soft" id="topWaBtn" href="#" target="_blank" rel="noopener">💬 WhatsApp</a>
-      <a class="btn btn-primary" id="topModuleBtn" href="https://commencer-a-payer.digiylyfe.com/" target="_blank" rel="noopener">🔥 Je veux mon module</a>
+    <div class="hdr-actions">
+      <a class="btn btn-ghost" href="index.html">← Marché</a>
+      <a class="btn btn-ghost" id="topWaBtn" href="#" target="_blank" rel="noopener">💬 WhatsApp</a>
+      <a class="btn btn-fire" id="topModuleBtn" href="https://commencer-a-payer.digiylyfe.com/" target="_blank" rel="noopener">🔥 Mon module</a>
     </div>
   </div>
 </header>
 
 <main class="page">
-  <div class="wrap" id="app"></div>
+  <div class="wrap" id="app">
+    <!-- rendered by JS -->
+  </div>
 </main>
 
 <div class="float-cta" id="floatCtas" style="display:none">
@@ -263,18 +511,20 @@ button{font:inherit}
 </div>
 
 <script>
+/* ═══════════════════════════════════════
+   CONFIG & UTILITIES
+═══════════════════════════════════════ */
 const DEFAULT_CFG = {
   whatsapp: "221771342889",
-  proUrl: "https://commencer-a-payer.digiylyfe.com/",
-  logoUrl: ""
+  proUrl:   "https://commencer-a-payer.digiylyfe.com/",
+  logoUrl:  ""
 };
 
 function readCatalog(){
-  try{
+  try {
     const raw = localStorage.getItem("digiy_market_catalog_v5");
-    if(!raw) return null;
-    return JSON.parse(raw);
-  }catch(e){
+    return raw ? JSON.parse(raw) : null;
+  } catch(e) {
     return null;
   }
 }
@@ -292,72 +542,47 @@ function safe(str=""){
 }
 
 function normPhone(v){
-  const d = String(v || "").replace(/[^\d]/g, "");
+  const d = String(v || "").replace(/[^\d]/g,"");
   if (!d) return "";
   if (d.startsWith("221") && d.length === 12) return d;
   if (d.length === 9) return "221" + d;
   return d;
 }
 
-function parsePriceBase(price=""){
-  const firstPart = String(price).split(/[–-]/)[0] || "";
-  const digits = firstPart.replace(/[^\d]/g, "");
-  if(!digits) return null;
-  return parseInt(digits, 10);
+function formatPhone(v){
+  const p = normPhone(v);
+  if (!p) return "—";
+  if (p.length === 12 && p.startsWith("221")) {
+    return `+221 ${p.slice(3,5)} ${p.slice(5,8)} ${p.slice(8,10)} ${p.slice(10,12)}`;
+  }
+  return p;
 }
 
-function makePrice(base, n){
+function parsePriceBase(price=""){
+  const first = String(price).split(/[–-]/)[0] || "";
+  const digits = first.replace(/[^\d]/g,"");
+  return digits ? parseInt(digits,10) : null;
+}
+
+function makePrice(base,n){
   if(!base) return "Prix à définir";
-  const value = Math.round((base * n) / 1000) * 1000;
-  return `${value.toLocaleString("fr-FR").replace(/\s/g," ")} F`;
+  const v = Math.round((base*n)/1000)*1000;
+  return `${v.toLocaleString("fr-FR").replace(/\s/g," ")} F`;
 }
 
 function splitOffer(what=""){
-  return what.split(",").map(x => x.trim()).filter(Boolean).slice(0,4);
+  return what.split(",").map(x=>x.trim()).filter(Boolean).slice(0,4);
 }
 
-function makeSvgData(title, subtitle, icon, c1, c2){
-  const svg = `
-  <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
-    <defs>
-      <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="${c1}"/>
-        <stop offset="100%" stop-color="${c2}"/>
-      </linearGradient>
-      <filter id="f" x="-20%" y="-20%" width="140%" height="140%">
-        <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="rgba(0,0,0,.18)"/>
-      </filter>
-    </defs>
-    <rect width="1200" height="900" fill="url(#g)"/>
-    <circle cx="1030" cy="120" r="160" fill="rgba(255,255,255,.12)"/>
-    <circle cx="190" cy="760" r="180" fill="rgba(255,255,255,.12)"/>
-    <circle cx="860" cy="660" r="110" fill="rgba(255,255,255,.12)"/>
-    <text x="100" y="230" font-size="190" filter="url(#f)">${icon}</text>
-    <rect x="70" y="605" width="1060" height="180" rx="32" fill="rgba(255,255,255,.9)"/>
-    <text x="120" y="680" font-family="Arial, sans-serif" font-size="60" font-weight="700" fill="#1a1208">${title}</text>
-    <text x="120" y="740" font-family="Arial, sans-serif" font-size="30" fill="#6f624f">${subtitle}</text>
-  </svg>`;
-  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+function waLink(phone,text){
+  return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
 }
 
-function makeMapSvg(title, subtitle){
-  const svg = `
-  <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="750" viewBox="0 0 1200 750">
-    <rect width="1200" height="750" fill="#e9f1e7"/>
-    <path d="M0 160 C240 120 340 240 560 200 C740 170 870 70 1200 120" stroke="#c6d8c2" stroke-width="90" fill="none"/>
-    <path d="M-20 500 C180 430 360 560 620 510 C840 470 1000 310 1220 360" stroke="#d7cbb5" stroke-width="80" fill="none"/>
-    <path d="M200 0 L260 750" stroke="#fff" stroke-width="18" opacity=".7"/>
-    <path d="M760 0 L700 750" stroke="#fff" stroke-width="18" opacity=".7"/>
-    <circle cx="610" cy="360" r="34" fill="#e86820"/>
-    <path d="M610 410 C650 470 710 520 610 630 C510 520 570 470 610 410 Z" fill="#c83830"/>
-    <circle cx="610" cy="360" r="15" fill="#fff"/>
-    <rect x="70" y="540" width="1060" height="140" rx="28" fill="rgba(255,255,255,.92)"/>
-    <text x="110" y="605" font-family="Arial, sans-serif" font-size="46" font-weight="700" fill="#1a1208">${title}</text>
-    <text x="110" y="646" font-family="Arial, sans-serif" font-size="26" fill="#6f624f">${subtitle}</text>
-  </svg>`;
-  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+function mapsUrl(query){
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 }
 
+/* ─── SVG generators ─── */
 function palette(bg){
   const map = {
     "#c8deff":["#bdd8ff","#8cb7ff"],
@@ -372,96 +597,100 @@ function palette(bg){
   return map[bg] || ["#f4ead7","#d8bf96"];
 }
 
-function fallbackVendorImage(v){
+function makeSvgData(title,subtitle,icon,c1,c2){
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+    <defs>
+      <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/>
+      </linearGradient>
+      <filter id="f"><feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="rgba(0,0,0,.18)"/></filter>
+    </defs>
+    <rect width="1200" height="900" fill="url(#g)"/>
+    <circle cx="1030" cy="120" r="160" fill="rgba(255,255,255,.12)"/>
+    <circle cx="190"  cy="760" r="180" fill="rgba(255,255,255,.12)"/>
+    <text x="100" y="230" font-size="190" filter="url(#f)">${icon}</text>
+    <rect x="70" y="605" width="1060" height="180" rx="32" fill="rgba(255,255,255,.9)"/>
+    <text x="120" y="680" font-family="Arial" font-size="60" font-weight="700" fill="#1a1208">${title}</text>
+    <text x="120" y="740" font-family="Arial" font-size="30" fill="#6f624f">${subtitle}</text>
+  </svg>`;
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
+function makeMapSvg(title,subtitle){
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="750" viewBox="0 0 1200 750">
+    <rect width="1200" height="750" fill="#0e1a12"/>
+    <path d="M0 200 C300 140 500 280 700 220 C900 160 1050 80 1200 140" stroke="#1e3a22" stroke-width="100" fill="none"/>
+    <path d="M0 550 C250 480 480 600 720 540 C940 490 1100 350 1200 400" stroke="#162a1a" stroke-width="90" fill="none"/>
+    <path d="M220 0 L280 750" stroke="rgba(255,255,255,.04)" stroke-width="20"/>
+    <path d="M800 0 L740 750" stroke="rgba(255,255,255,.04)" stroke-width="20"/>
+    <circle cx="600" cy="360" r="28" fill="#e86820"/>
+    <path d="M600 395 Q640 455 600 570 Q560 455 600 395Z" fill="#c83830"/>
+    <circle cx="600" cy="360" r="12" fill="#fff"/>
+    <rect x="70" y="545" width="1060" height="140" rx="28" fill="rgba(13,10,6,.88)" stroke="rgba(200,134,10,.2)" stroke-width="1"/>
+    <text x="120" y="615" font-family="Arial" font-size="46" font-weight="700" fill="#fdf6ec">${title}</text>
+    <text x="120" y="655" font-family="Arial" font-size="26" fill="#8a7a64">${subtitle}</text>
+    <circle cx="200" cy="200" r="80" fill="rgba(40,136,90,.06)"/>
+    <circle cx="980" cy="480" r="120" fill="rgba(40,136,90,.05)"/>
+  </svg>`;
+  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
+function fallbackImg(v){
   const [c1,c2] = palette(v.bg || "#f4ead7");
   return makeSvgData(v.name, v.loc || v.city || "DIGIY MARKET", v.icon || "🛍️", c1, c2);
 }
 
 function buildGallery(v){
-  if(Array.isArray(v.images) && v.images.length){
-    return v.images.map((src, i) => ({
+  const rawImages = Array.isArray(v.images) ? v.images.filter(Boolean) : [];
+  if (rawImages.length) {
+    const out = rawImages.map((src,i)=>({
       src,
-      caption: i === 0 ? "Photo principale" : `Photo ${i + 1}`
+      caption: i === 0 ? "Image principale" : `Vue ${i+1}`
     }));
+    if (v.mapPreview) out.push({src:v.mapPreview, caption:"Repère carte"});
+    return out.slice(0,8);
   }
 
   const [c1,c2] = palette(v.bg || "#f4ead7");
   const items = [
-    {title:"Vitrine", sub:`${v.name} · accueil`, icon:v.icon || "🛍️"},
-    {title:"Ambiance", sub:v.loc || v.city || "terrain", icon:"✨"},
-    {title:"Lecture", sub:v.categoryLabel || "boutique", icon:v.categoryIcon || "🛍️"},
-    {title:"Repère", sub:"présence publique", icon:"📍"},
-    {title:"Style", sub:"présentation soignée", icon:"🌟"}
+    {title:"Signature", sub:v.name,                      icon:v.icon || "🛍️"},
+    {title:"Ambiance",  sub:v.loc || v.city || "terrain",icon:"✨"},
+    {title:"Style",     sub:v.categoryLabel || "boutique",icon:v.categoryIcon || "🛍️"},
+    {title:"Repère",    sub:"présence publique",         icon:"📍"},
+    {title:"Éditorial", sub:"vitrine DIGIY",             icon:v.isRoyal ? "♛" : "🌍"}
   ];
-
-  return items.map((item, i) => ({
-    src: makeSvgData(item.title, item.sub, item.icon, i % 2 ? c2 : c1, i % 2 ? c1 : c2),
+  return items.map((item,i)=>({
+    src: makeSvgData(item.title, item.sub, item.icon, i%2 ? c2 : c1, i%2 ? c1 : c2),
     caption: `${item.title} — visuel`
   }));
 }
 
 function buildExampleProducts(v){
-  const base = parsePriceBase(v.price);
+  const base  = parsePriceBase(v.price);
   const parts = splitOffer(v.what);
-  if(!parts.length){
-    return [
-      {title:"Produit exemple 1", desc:"À personnaliser plus tard.", price:"Prix à définir"},
-      {title:"Produit exemple 2", desc:"À personnaliser plus tard.", price:"Prix à définir"},
-      {title:"Produit exemple 3", desc:"À personnaliser plus tard.", price:"Prix à définir"},
-      {title:"Produit exemple 4", desc:"À personnaliser plus tard.", price:"Prix à définir"}
-    ];
-  }
-  return parts.map((part, i) => ({
-    title: part,
-    desc: `Exemple de mise en avant pour ${v.name}.`,
-    price: makePrice(base, 0.35 + (i * 0.18))
+  if(!parts.length) return [
+    {title:"Produit exemple 1", desc:"À personnaliser.", price:"Prix à définir"},
+    {title:"Produit exemple 2", desc:"À personnaliser.", price:"Prix à définir"},
+    {title:"Produit exemple 3", desc:"À personnaliser.", price:"Prix à définir"},
+    {title:"Produit exemple 4", desc:"À personnaliser.", price:"Prix à définir"}
+  ];
+  return parts.map((p,i)=>({
+    title:p,
+    desc:`Mise en avant pour ${v.name}.`,
+    price:makePrice(base,0.35+(i*0.18))
   }));
 }
 
 function buildRealPublicBlocks(v){
   const rows = [];
-
-  if (v.categoryLabel) {
-    rows.push({
-      title: "Catégorie",
-      desc: "Lecture publique visible sur la fiche.",
-      price: v.categoryLabel
-    });
-  }
-
-  if (v.city) {
-    rows.push({
-      title: "Ville",
-      desc: "Repère terrain du commerçant.",
-      price: v.city
-    });
-  }
-
-  if (v.delivery_note) {
-    rows.push({
-      title: "Livraison",
-      desc: "Information publique utile.",
-      price: v.delivery_note
-    });
-  }
-
-  if (v.payment_note) {
-    rows.push({
-      title: "Paiement",
-      desc: "Mode ou repère de paiement communiqué.",
-      price: v.payment_note
-    });
-  }
-
-  return rows.slice(0,4);
-}
-
-function waLink(phone, text){
-  return `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
-}
-
-function mapsSearchUrl(query){
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+  if (v.categoryLabel) rows.push({title:"Catégorie", desc:"Univers du commerçant.", price:v.categoryLabel});
+  if (v.address)       rows.push({title:"Adresse",   desc:"Repère public.",         price:v.address});
+  if (v.delivery_note) rows.push({title:"Livraison", desc:"Info publique utile.",    price:v.delivery_note});
+  if (v.payment_note)  rows.push({title:"Paiement",  desc:"Mode de paiement.",       price:v.payment_note});
+  if (v.owner_name)    rows.push({title:"Contact",   desc:"Nom public utile.",       price:v.owner_name});
+  if (v.phone)         rows.push({title:"Téléphone", desc:"Numéro public.",          price:formatPhone(v.phone)});
+  if (v.whatsapp)      rows.push({title:"WhatsApp",  desc:"Contact direct.",         price:formatPhone(v.whatsapp)});
+  return rows.slice(0,6);
 }
 
 function applyTopBrand(cfg){
@@ -471,26 +700,17 @@ function applyTopBrand(cfg){
 }
 
 function makeSupabaseClient(){
-  if (!window.supabase || !window.DIGIY_SUPABASE_URL || !(window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON)) {
-    return null;
-  }
-
+  if(!window.supabase || !window.DIGIY_SUPABASE_URL) return null;
   return window.supabase.createClient(
     window.DIGIY_SUPABASE_URL,
     window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON,
-    {
-      auth:{
-        persistSession:false,
-        autoRefreshToken:false,
-        detectSessionInUrl:false
-      }
-    }
+    { auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false } }
   );
 }
 
 async function loadPublicProfileBySlug(slug){
   const sb = makeSupabaseClient();
-  if (!sb || !slug) return null;
+  if(!sb || !slug) return null;
 
   const { data, error } = await sb
     .from("digiy_market_public_profiles")
@@ -498,28 +718,18 @@ async function loadPublicProfileBySlug(slug){
     .eq("slug", slug)
     .maybeSingle();
 
-  if (error) {
-    console.error("public profile load error:", error);
-    return null;
-  }
+  if(error || !data) return null;
 
-  if (!data) return null;
-
-  const cover =
-    data.cover_url ||
-    data.cover_image_url ||
-    data.photo_url ||
-    data.logo_url ||
-    "";
-
-  const photo =
-    data.photo_url ||
-    data.logo_url ||
-    data.cover_url ||
-    data.cover_image_url ||
-    "";
-
-  const images = [cover, photo].filter(Boolean).filter((v, i, arr) => arr.indexOf(v) === i);
+  const cover   = data.cover_url || data.cover_image_url || data.photo_url || data.logo_url || "";
+  const photo   = data.photo_url || data.logo_url || data.cover_url || data.cover_image_url || "";
+  const gallery = [
+    cover,
+    photo,
+    data.gallery_url_1,
+    data.gallery_url_2,
+    data.gallery_url_3,
+    data.gallery_url_4
+  ].filter(Boolean).filter((v,i,a)=>a.indexOf(v)===i);
 
   return {
     mode: "real",
@@ -535,313 +745,364 @@ async function loadPublicProfileBySlug(slug){
     price: "",
     live: data.is_published == null ? true : !!data.is_published,
     isExample: false,
+    isRoyal: false,
     description: data.bio || data.description || "",
     whatsapp: normPhone(data.whatsapp || data.phone || ""),
     phone: normPhone(data.phone || ""),
     delivery_note: data.delivery_note || "",
     payment_note: data.payment_note || "",
     owner_name: data.owner_name || "",
-    images,
+    images: gallery,
     coverImage: cover || photo || "",
     raw: data
   };
 }
 
+/* ═══════════════════════════════════════
+   RENDER
+═══════════════════════════════════════ */
 function renderVendor(v, cfg){
-  const app = document.getElementById("app");
-  const gallery = buildGallery(v);
-  const isExample = !!v.isExample;
-  const realPublicBlocks = !isExample ? buildRealPublicBlocks(v) : [];
-  const exampleProducts = isExample ? buildExampleProducts(v) : [];
-  const blocks = isExample ? exampleProducts : realPublicBlocks;
+  const app      = document.getElementById("app");
+  const mapsQ    = [v.name, v.address || "", v.city || "", v.loc || ""].filter(Boolean).join(" ");
+  const mapLink  = mapsUrl(mapsQ || v.name);
+  const mapImg   = makeMapSvg(v.name, v.loc || v.city || "Sénégal");
+  v.mapPreview   = mapImg;
+
+  const gallery  = buildGallery(v);
+  const isEx     = !!v.isExample;
+  const blocks   = isEx ? buildExampleProducts(v) : buildRealPublicBlocks(v);
+  const isRoyal  = !!v.isRoyal;
+  const heroCover = v.coverImage || gallery[0]?.src || fallbackImg(v);
 
   document.title = `${v.name} — DIGIY MARKET`;
 
-  const waGeneral = waLink(cfg.whatsapp, `Bonjour DIGIY 👋 Je veux une vitrine comme "${v.name}" sur DIGIY MARKET.`);
+  const waGeneral  = waLink(cfg.whatsapp, `Bonjour DIGIY 👋 Je veux une vitrine comme "${v.name}" sur DIGIY MARKET.`);
   const waBoutique = v.whatsapp ? waLink(v.whatsapp, `Bonjour 👋 Je vous contacte depuis votre fiche DIGIY MARKET.`) : "";
-  const waMain = isExample ? waGeneral : (waBoutique || waGeneral);
-  const waMainLabel = isExample ? "💬 WhatsApp DIGIY" : (waBoutique ? "💬 WhatsApp boutique" : "💬 WhatsApp DIGIY");
-
-  const mapsQuery = [v.name, v.address || "", v.city || "", v.loc || ""].filter(Boolean).join(" ");
-  const mapsUrl = mapsSearchUrl(mapsQuery || v.name);
-  const mapImg = makeMapSvg(v.name, v.loc || v.city || "Sénégal");
+  const waMain     = isEx ? waGeneral : (waBoutique || waGeneral);
+  const waLabel    = isEx ? "💬 WhatsApp DIGIY" : (waBoutique ? "💬 WhatsApp boutique" : "💬 WhatsApp DIGIY");
 
   document.getElementById("topWaBtn").href = waMain;
-  document.getElementById("topWaBtn").textContent = waMainLabel;
+  document.getElementById("topWaBtn").textContent = waLabel;
   document.getElementById("topModuleBtn").href = cfg.proUrl || DEFAULT_CFG.proUrl;
-
   document.getElementById("floatWaBtn").href = waMain;
-  document.getElementById("floatWaBtn").textContent = waMainLabel;
+  document.getElementById("floatWaBtn").textContent = waLabel;
   document.getElementById("floatModuleBtn").href = cfg.proUrl || DEFAULT_CFG.proUrl;
   document.getElementById("floatCtas").style.display = "flex";
-
   applyTopBrand(cfg);
 
-  const heroText = isExample
-    ? v.what
+  const heroText = isEx
+    ? (v.what || "Vitrine exemple DIGIY MARKET.")
     : (v.description || "Fiche publique DIGIY MARKET.");
 
-  const sideNote = isExample
-    ? `Tous les boutons contact renvoient vers ton WhatsApp DIGIY. Le bouton module renvoie vers ton entrée PRO officielle.`
-    : `Cette fiche publique lit le profil réel par slug. Le contact renvoie vers la boutique si le numéro public est disponible.`;
+  const sideNote = isEx
+    ? "Cette fiche exemple montre le niveau visuel possible pour une boutique DIGIY MARKET."
+    : "Cette fiche lit le profil réel par slug. Contact direct vers la boutique si numéro disponible.";
 
-  const sectionTitle = isExample ? "Produits / services mis en avant" : "Lecture publique";
-  const sectionLead = isExample
-    ? `Tu peux montrer ici les meilleurs produits, les prix d’appel, les services phares ou les spécialités du commerçant.`
-    : `Cette zone montre les repères publics visibles sans inventer un faux catalogue.`;
+  const sectionTitle = isEx ? "Produits & services mis en avant" : "Informations publiques";
+  const sectionLead  = isEx
+    ? "La vitrine DIGIY MARKET présente les produits phares avec style et clarté."
+    : "Repères publics visibles sans inventer un faux catalogue.";
 
-  const sectionContent = blocks.length
-    ? `
-      <div class="products" style="margin-top:14px">
-        ${blocks.map(p => `
-          <div class="product">
-            <h3>${safe(p.title)}</h3>
-            <p>${safe(p.desc)}</p>
-            <span class="price">${safe(p.price)}</span>
-          </div>
-        `).join("")}
-      </div>
-    `
-    : `
-      <div class="empty-box" style="margin-top:14px;border:1px dashed var(--line);border-radius:22px;background:#fff">
-        <h2 style="font-size:1.28rem">Catalogue public à brancher</h2>
-        <p>La fiche publique est bien visible, mais le catalogue détaillé n’est pas encore exposé ici.</p>
-      </div>
-    `;
+  const blocksHTML = blocks.length ? `
+    <div class="products-grid">
+      ${blocks.map(p=>`
+        <div class="product-tile">
+          <h3>${safe(p.title)}</h3>
+          <p>${safe(p.desc)}</p>
+          <span class="price-tag">${safe(p.price)}</span>
+        </div>
+      `).join("")}
+    </div>
+  ` : `
+    <div class="empty-state" style="margin-top:14px">
+      <h2>Infos publiques à compléter</h2>
+      <p>La fiche est visible, mais certains repères publics n'ont pas encore été posés.</p>
+    </div>
+  `;
 
   app.innerHTML = `
-    <section class="hero">
-      <article class="cover-card card">
-        <div class="cover-media">
-          <img src="${gallery[0]?.src || v.coverImage || fallbackVendorImage(v)}" alt="${safe(v.name)}">
-          <div class="cover-badges">
-            ${
-              isExample
-                ? `<span class="badge example">EXEMPLE DIGIY</span>`
-                : `<span class="badge live">BOUTIQUE PUBLIQUE</span>`
-            }
-            ${
-              isExample && v.live
-                ? `<span class="badge live">EXEMPLE VISIBLE</span>`
-                : ``
-            }
-            <span class="badge cat">${safe(v.categoryIcon || "🛍️")} ${safe(v.categoryLabel || "Boutique")}</span>
-          </div>
+    <div class="anim" style="animation-delay:.0s">
+      <div class="hero-cover-wrap" id="heroCoverWrap">
+        <img id="heroMainImage" class="hero-cover-img" src="${heroCover}" alt="${safe(v.name)}">
+        <div class="hero-gradient"></div>
+
+        <div class="hero-top-chips">
+          ${isRoyal ? `<span class="chip chip-royal">♛ ROYAL STAR</span>` : ""}
+          ${isEx ? `<span class="chip chip-example">EXEMPLE DIGIY</span>` : `<span class="chip chip-live">BOUTIQUE PUBLIQUE</span>`}
+          ${v.live ? `<span class="chip chip-live">VISIBLE</span>` : ""}
+          <span class="chip chip-dark">${safe(v.categoryIcon || "🛍️")} ${safe(v.categoryLabel || "Boutique")}</span>
         </div>
-        <div class="cover-foot">
+
+        <div class="hero-copy">
+          <div class="hero-kicker">${isEx ? "✦ ROYAL VITRINE" : "✦ PUBLIC DIGIY MARKET"}</div>
           <h1>${safe(v.name)}</h1>
           <p>${safe(heroText)}</p>
-        </div>
-      </article>
-
-      <aside class="info-card card">
-        <div class="kicker">
-          ${isExample ? "🧭 Vitrine exemple guidante" : "🌍 Fiche publique réelle"}
-        </div>
-        <p class="info-lead">
-          ${
-            isExample
-              ? `Cette fiche montre le niveau possible pour une boutique DIGIY MARKET : galerie, vitrine, contact WhatsApp, présence Maps et ouverture vers le module PRO.`
-              : `Cette fiche publique lit le profil réel du commerçant sur le rail slug-first, sans passer par une session PRO.`
-          }
-        </p>
-
-        <div class="info-grid">
-          <div class="mini">
-            <div class="mini-label">Catégorie</div>
-            <div class="mini-value">${safe(v.categoryLabel || "Boutique locale")}</div>
-          </div>
-          <div class="mini">
-            <div class="mini-label">Zone</div>
-            <div class="mini-value">${safe(v.loc || "Sénégal")}</div>
-          </div>
-          <div class="mini">
-            <div class="mini-label">Type</div>
-            <div class="mini-value">${isExample ? "Vitrine exemple DIGIY" : "Boutique publique réelle"}</div>
-          </div>
-          <div class="mini">
-            <div class="mini-label">Statut</div>
-            <div class="mini-value">${isExample ? (v.live ? "Exemple visible" : "Vitrine exemple") : "Lecture publique"}</div>
+          <div class="hero-meta-row">
+            <span class="hero-loc">📍 ${safe(v.loc || "Sénégal")}</span>
+            ${v.price ? `<span class="hero-pill">${safe(v.price)}</span>` : ""}
+            <span class="hero-pill">${safe(v.categoryLabel || "Boutique")}</span>
+            ${!isEx && v.whatsapp ? `<span class="hero-pill">${safe(formatPhone(v.whatsapp))}</span>` : ""}
           </div>
         </div>
+      </div>
+    </div>
 
-        <div class="cta-row">
-          <a class="btn btn-primary" href="${waMain}" target="_blank" rel="noopener">${waMainLabel}</a>
-          <a class="btn btn-primary" style="background:linear-gradient(135deg,var(--orange),var(--red))" href="${cfg.proUrl || DEFAULT_CFG.proUrl}" target="_blank" rel="noopener">🔥 Je veux mon module</a>
-          <a class="btn btn-soft" href="${mapsUrl}" target="_blank" rel="noopener">📍 Voir sur Maps</a>
-          <a class="btn btn-soft" href="index.html">← Retour au marché</a>
+    <div class="edito-strip anim" style="animation-delay:.1s">
+      <div class="edito-tile">
+        <div class="edito-tag">Signature</div>
+        <h3>${isEx ? "Présence éditoriale" : "Présence publique"}</h3>
+        <p>${isEx ? "Vitrine qui donne envie, inspire et convertit." : "Lecture propre, claire, séparée du cockpit vendeur."}</p>
+      </div>
+      <div class="edito-tile">
+        <div class="edito-tag">Univers</div>
+        <h3>${safe(v.categoryLabel || "Boutique locale")}</h3>
+        <p>${safe(v.what || "Présence locale visible et soignée.")}</p>
+      </div>
+      <div class="edito-tile">
+        <div class="edito-tag">Zone</div>
+        <h3>${safe(v.city || "Sénégal")}</h3>
+        <p>${safe(v.loc || "Repère terrain actif.")}</p>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="col-left">
+
+        <div class="d-card accented anim" style="animation-delay:.12s">
+          <div class="d-card-inner">
+            <h2>Repères de la boutique</h2>
+            <p>${isEx
+              ? "Une fiche exemple qui montre le niveau possible : galerie, contact direct, Maps, ouverture PRO."
+              : "Cette fiche publique lit le profil réel du commerçant via son slug — sans passer par la session PRO."
+            }</p>
+
+            <div class="info-grid">
+              <div class="info-tile">
+                <div class="info-tile-label">Catégorie</div>
+                <div class="info-tile-value">${safe(v.categoryLabel || "Boutique locale")}</div>
+              </div>
+              <div class="info-tile">
+                <div class="info-tile-label">Zone</div>
+                <div class="info-tile-value">${safe(v.loc || "Sénégal")}</div>
+              </div>
+              <div class="info-tile">
+                <div class="info-tile-label">Type</div>
+                <div class="info-tile-value">${isEx ? "Vitrine exemple DIGIY" : "Boutique publique réelle"}</div>
+              </div>
+              <div class="info-tile">
+                <div class="info-tile-label">Statut</div>
+                <div class="info-tile-value">${isEx ? (v.live ? "Exemple visible" : "Vitrine exemple") : "Lecture publique active"}</div>
+              </div>
+            </div>
+
+            <div class="cta-row">
+              <a class="btn btn-gold" href="${waMain}" target="_blank" rel="noopener">${waLabel}</a>
+              <a class="btn btn-fire" href="${cfg.proUrl || DEFAULT_CFG.proUrl}" target="_blank" rel="noopener">🔥 Je veux mon module</a>
+              <a class="btn btn-ghost" href="${mapLink}" target="_blank" rel="noopener">📍 Maps</a>
+              <a class="btn btn-ghost" href="index.html">← Marché</a>
+            </div>
+
+            <div class="note-box">${safe(sideNote)}</div>
+          </div>
         </div>
 
-        <div class="note">
-          ${safe(sideNote)}
-        </div>
-      </aside>
-    </section>
+        <div class="d-card anim" style="animation-delay:.16s">
+          <div class="d-card-inner">
+            <h2>${isEx ? "Galerie royale" : "Galerie publique"}</h2>
+            <p>${isEx
+              ? "Mini shooting éditorial : matière, lumière, ambiance, présence magazine."
+              : "Galerie publique autour de la boutique pour poser une présence claire."
+            }</p>
 
-    <section class="layout">
-      <div class="left-col">
-        <article class="section-card card">
-          <h2>${isExample ? "Belle galerie de présentation" : "Galerie publique"}</h2>
-          <p>
-            ${
-              isExample
-                ? `Cette galerie sert à montrer comment un commerçant peut exposer sa boutique, ses produits et son ambiance visuelle.`
-                : `Cette galerie sert à poser une présence publique claire autour de la boutique.`
-            }
-          </p>
+            <div class="gallery-hero">
+              <img id="galleryMainImage" src="${gallery[0]?.src || heroCover}" alt="${safe(gallery[0]?.caption || "Photo principale")}">
+            </div>
 
-          <div class="gallery-main" style="margin-top:14px">
-            <figure class="hero-photo">
-              <img src="${gallery[0]?.src || v.coverImage || fallbackVendorImage(v)}" alt="${safe(gallery[0]?.caption || "Photo principale")}">
-            </figure>
-
-            <div class="thumb-grid">
-              ${gallery.slice(1,5).map(g => `
-                <figure class="thumb">
+            <div class="thumb-rail" id="thumbRail">
+              ${gallery.slice(0,8).map((g,i)=>`
+                <figure class="thumb${i===0 ? " active" : ""}" data-src="${safe(g.src)}" data-caption="${safe(g.caption)}">
                   <img src="${g.src}" alt="${safe(g.caption)}">
                   <small>${safe(g.caption)}</small>
                 </figure>
               `).join("")}
             </div>
           </div>
-        </article>
+        </div>
 
-        <article class="section-card card">
-          <h2>${sectionTitle}</h2>
-          <p>${sectionLead}</p>
-          ${sectionContent}
-        </article>
+        <div class="d-card anim" style="animation-delay:.2s">
+          <div class="d-card-inner">
+            <h2>${sectionTitle}</h2>
+            <p>${sectionLead}</p>
+            ${blocksHTML}
+          </div>
+        </div>
 
-        <article class="section-card card">
-          <h2>Présence terrain & Maps</h2>
-          <p>
-            Ce bloc sert à montrer que la fiche peut aussi guider vers une présence locale,
-            avec une sortie simple vers Maps et le contact utile.
-          </p>
-
-          <div class="map-box" style="margin-top:14px">
-            <figure class="fake-map">
-              <img src="${mapImg}" alt="Carte de ${safe(v.name)}">
-            </figure>
+        <div class="d-card anim" style="animation-delay:.24s">
+          <div class="d-card-inner">
+            <h2>Présence terrain & Maps</h2>
+            <p>Repère local, accès direct Google Maps et contact utile.</p>
+            <div class="map-frame">
+              <img src="${mapImg}" alt="Carte ${safe(v.name)}">
+            </div>
             <div class="map-actions">
-              <a class="btn btn-soft" href="${mapsUrl}" target="_blank" rel="noopener">📍 Ouvrir sur Google Maps</a>
-              <a class="btn btn-primary" href="${waMain}" target="_blank" rel="noopener">${waMainLabel}</a>
+              <a class="btn btn-ghost" href="${mapLink}" target="_blank" rel="noopener">📍 Google Maps</a>
+              <a class="btn btn-gold" href="${waMain}" target="_blank" rel="noopener">${waLabel}</a>
             </div>
           </div>
-        </article>
+        </div>
 
-        <article class="section-card card">
-          <h2>${isExample ? "Pourquoi cette fiche frappe fort" : "Pourquoi cette fiche est propre"}</h2>
-          <p>
-            ${
-              isExample
-                ? `Parce qu’elle montre une présence complète : visuel, catégorie, zone, galerie, contact, Maps, et ouverture PRO.`
-                : `Parce qu’elle sépare bien le public du PRO : lecture publique par slug, sans mélanger la session vendeur.`
-            }
-          </p>
-        </article>
+        <div class="d-card anim" style="animation-delay:.28s">
+          <div class="d-card-inner">
+            <h2>${isEx ? "Pourquoi cette fiche frappe fort" : "Pourquoi cette fiche est propre"}</h2>
+            <p>${isEx
+              ? "Présence complète : visuel, catégorie, zone, galerie, contact, Maps, et ouverture PRO. Le visiteur ne repart pas les mains vides."
+              : "Lecture publique par slug, séparée de la session vendeur. Clean, rapide, ciblée."
+            }</p>
+          </div>
+        </div>
+
       </div>
 
-      <aside class="right-col">
-        <article class="section-card card">
-          <h2>Repères rapides</h2>
-          <div class="side-list">
-            <div class="side-item">
-              <div class="label">Nom</div>
-              <div class="value">${safe(v.name)}</div>
-            </div>
-            <div class="side-item">
-              <div class="label">Activité</div>
-              <div class="value">${safe(v.what || "Boutique locale")}</div>
-            </div>
-            <div class="side-item">
-              <div class="label">Ville / zone</div>
-              <div class="value">${safe(v.loc || "Sénégal")}</div>
-            </div>
-            <div class="side-item">
-              <div class="label">Univers</div>
-              <div class="value">${safe(v.categoryLabel || "Boutique locale")}</div>
-            </div>
-            <div class="side-item">
-              <div class="label">Slug</div>
-              <div class="value">${safe(v.slug || "—")}</div>
-            </div>
-            <div class="side-item">
-              <div class="label">Type</div>
-              <div class="value">${isExample ? "Vitrine exemple DIGIY" : "Boutique publique réelle"}</div>
+      <div class="col-right">
+
+        <div class="d-card accented anim" style="animation-delay:.14s">
+          <div class="d-card-inner">
+            <h2>Repères rapides</h2>
+            <div class="side-list">
+              <div class="side-tile"><div class="side-tile-label">Nom</div><div class="side-tile-value">${safe(v.name)}</div></div>
+              <div class="side-tile"><div class="side-tile-label">Activité</div><div class="side-tile-value">${safe(v.what || "Boutique locale")}</div></div>
+              <div class="side-tile"><div class="side-tile-label">Zone</div><div class="side-tile-value">${safe(v.loc || "Sénégal")}</div></div>
+              <div class="side-tile"><div class="side-tile-label">Univers</div><div class="side-tile-value">${safe(v.categoryLabel || "Boutique locale")}</div></div>
+              <div class="side-tile"><div class="side-tile-label">Slug</div><div class="side-tile-value">${safe(v.slug || "—")}</div></div>
+              <div class="side-tile"><div class="side-tile-label">Type</div><div class="side-tile-value">${isEx ? "Vitrine exemple DIGIY" : "Boutique publique réelle"}</div></div>
+              ${!isEx && v.address ? `<div class="side-tile"><div class="side-tile-label">Adresse</div><div class="side-tile-value">${safe(v.address)}</div></div>` : ""}
+              ${!isEx && v.phone ? `<div class="side-tile"><div class="side-tile-label">Téléphone</div><div class="side-tile-value">${safe(formatPhone(v.phone))}</div></div>` : ""}
+              ${!isEx && v.whatsapp ? `<div class="side-tile"><div class="side-tile-label">WhatsApp</div><div class="side-tile-value">${safe(formatPhone(v.whatsapp))}</div></div>` : ""}
             </div>
           </div>
-        </article>
+        </div>
 
-        <article class="module-box">
+        <div class="module-box anim" style="animation-delay:.18s">
           <h3>🔥 Je veux mon module</h3>
-          <p>
-            Cette fiche sert aussi de porte d’entrée commerciale. La vitrine vue ici peut devenir la tienne.
-          </p>
-          <div class="row">
-            <a class="btn btn-primary" href="${cfg.proUrl || DEFAULT_CFG.proUrl}" target="_blank" rel="noopener">Je veux mon module</a>
-            <a class="btn btn-soft" href="${waGeneral}" target="_blank" rel="noopener">WhatsApp DIGIY</a>
+          <p>Cette vitrine peut devenir la tienne. Abonnement fixe, 0% de commission, présence magazine.</p>
+          <div class="module-row">
+            <a class="btn btn-fire" href="${cfg.proUrl || DEFAULT_CFG.proUrl}" target="_blank" rel="noopener">Mon module</a>
+            <a class="btn btn-ghost" href="${waGeneral}" target="_blank" rel="noopener">WhatsApp DIGIY</a>
           </div>
-        </article>
+        </div>
 
-        <article class="trust-box">
-          <h2 style="font-family:'Playfair Display',serif;font-size:1.2rem;margin-bottom:10px;">Ils nous font confiance</h2>
-          <div class="trust-list">
-            <div class="trust-item">
-              <strong>Vendeurs terrain</strong>
-              <span>Présence simple, forte, visible et humaine.</span>
-            </div>
-            <div class="trust-item">
-              <strong>Beauté & service</strong>
-              <span>Coiffure, onglerie, soin, tout peut vivre ici.</span>
-            </div>
-            <div class="trust-item">
-              <strong>Commerçants du quotidien</strong>
-              <span>De la maison au textile, chacun peut respirer.</span>
+        <div class="d-card anim" style="animation-delay:.22s">
+          <div class="d-card-inner">
+            <h2>Ils nous font confiance</h2>
+            <div class="trust-list">
+              <div class="trust-item"><strong>Vendeurs terrain</strong><span>Présence simple, forte, visible et humaine.</span></div>
+              <div class="trust-item"><strong>Beauté & service</strong><span>Coiffure, onglerie, soin — tout peut vivre ici.</span></div>
+              <div class="trust-item"><strong>Commerce du quotidien</strong><span>Du textile à l'alimentaire, chaque boutique respire.</span></div>
             </div>
           </div>
-        </article>
+        </div>
 
-        <article class="section-card card">
-          <h2>Ce que tu peux brancher ensuite</h2>
-          <div class="side-list">
-            <div class="side-item"><div class="value">📸 Galerie réelle du commerçant</div></div>
-            <div class="side-item"><div class="value">📍 Lien Google Maps réel</div></div>
-            <div class="side-item"><div class="value">💬 WhatsApp direct commerçant</div></div>
-            <div class="side-item"><div class="value">📞 Appel téléphone</div></div>
-            <div class="side-item"><div class="value">💳 DIGIY PAY</div></div>
-            <div class="side-item"><div class="value">🏪 Passage vers MARKET PRO</div></div>
+        <div class="d-card anim" style="animation-delay:.26s">
+          <div class="d-card-inner">
+            <h2>Ce que tu peux brancher</h2>
+            <div class="side-list" style="gap:6px;margin-top:12px">
+              ${[
+                "📸 Galerie réelle du commerçant",
+                "📍 Google Maps réel",
+                "💬 WhatsApp direct",
+                "📞 Téléphone",
+                "💳 DIGIY PAY",
+                "🏪 MARKET PRO complet"
+              ].map(f=>`<div class="feature-row">${f}</div>`).join("")}
+            </div>
           </div>
-        </article>
-      </aside>
-    </section>
-  `;
-}
+        </div>
 
-function renderMissing(){
-  document.getElementById("app").innerHTML = `
-    <div class="empty-box card">
-      <h2>Fiche introuvable</h2>
-      <p>Ouvre une fiche exemple depuis <strong>index.html?v=...</strong> ou charge une vraie fiche avec <strong>?slug=...</strong>.</p>
-      <div style="margin-top:16px">
-        <a class="btn btn-primary" href="index.html">Retour au marché</a>
       </div>
     </div>
   `;
+
+  const mainImg = document.getElementById("galleryMainImage");
+  const heroImg = document.getElementById("heroMainImage");
+  const thumbs  = Array.from(document.querySelectorAll("#thumbRail .thumb"));
+
+  thumbs.forEach(thumb=>{
+    thumb.addEventListener("click", ()=>{
+      thumbs.forEach(t=>t.classList.remove("active"));
+      thumb.classList.add("active");
+      const src = thumb.getAttribute("data-src");
+      if (src && mainImg) mainImg.src = src;
+      if (src && heroImg) heroImg.src = src;
+    });
+  });
+
+  const io = new IntersectionObserver(entries=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        entry.target.style.animationPlayState = "running";
+        io.unobserve(entry.target);
+      }
+    });
+  },{threshold:.06});
+
+  document.querySelectorAll(".anim").forEach(el=>{
+    el.style.animationPlayState = "paused";
+    io.observe(el);
+  });
+
+  const supportsHover = window.matchMedia("(hover:hover) and (pointer:fine)").matches;
+  const heroWrap = document.getElementById("heroCoverWrap");
+
+  if (supportsHover && heroWrap) {
+    heroWrap.addEventListener("mousemove", e=>{
+      const r = heroWrap.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      heroWrap.style.transform = `perspective(1200px) rotateY(${x*2.5}deg) rotateX(${-y*1.5}deg)`;
+    });
+    heroWrap.addEventListener("mouseleave", ()=>{
+      heroWrap.style.transform = "";
+    });
+  }
 }
 
-(async function boot(){
-  const catalog = readCatalog();
-  const slug = String(getParam("slug") || "").trim().toLowerCase();
-  const exampleSlug = String(getParam("v") || "").trim();
+/* ═══════════════════════════════════════
+   MISSING STATE
+═══════════════════════════════════════ */
+function renderMissing(){
+  document.getElementById("app").innerHTML = `
+    <div class="d-card" style="max-width:560px;margin:80px auto 0">
+      <div class="d-card-inner" style="text-align:center;padding:48px 32px">
+        <div style="font-size:3rem;margin-bottom:16px">🏗️</div>
+        <h2 style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:2rem;margin-bottom:10px">Fiche introuvable</h2>
+        <p style="color:var(--muted);margin-bottom:24px">
+          Ouvre une fiche depuis <strong style="color:var(--cream)">index.html</strong> ou charge une vraie boutique avec <strong style="color:var(--cream)">?slug=...</strong>
+        </p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <a class="btn btn-fire" href="index.html">← Retour au marché</a>
+          <a class="btn btn-ghost" href="${DEFAULT_CFG.proUrl}" target="_blank" rel="noopener">🔥 Je veux mon module</a>
+        </div>
+      </div>
+    </div>
+  `;
+  document.getElementById("floatCtas").style.display = "none";
+}
 
-  const cfg = (catalog && catalog.config) ? { ...DEFAULT_CFG, ...catalog.config } : DEFAULT_CFG;
+/* ═══════════════════════════════════════
+   BOOT
+═══════════════════════════════════════ */
+(async function boot(){
+  const catalog     = readCatalog();
+  const slug        = String(getParam("slug") || "").trim().toLowerCase();
+  const exampleSlug = String(getParam("v") || "").trim();
+  const cfg         = (catalog && catalog.config) ? { ...DEFAULT_CFG, ...catalog.config } : DEFAULT_CFG;
+
   applyTopBrand(cfg);
 
   if (slug) {
-    const publicVendor = await loadPublicProfileBySlug(slug);
-    if (publicVendor) {
-      renderVendor(publicVendor, cfg);
+    const pub = await loadPublicProfileBySlug(slug);
+    if (pub) {
+      renderVendor(pub, cfg);
       return;
     }
   }
@@ -857,5 +1118,7 @@ function renderMissing(){
   renderMissing();
 })();
 </script>
+</body>
+</html>
 </body>
 </html>
