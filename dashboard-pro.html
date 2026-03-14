@@ -9,12 +9,13 @@
 
   <script>
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-    window.DIGIY_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+    window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
     window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+    window.DIGIY_MODULE = "MARKET";
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-admin-20260312-v4"></script>
+  <script src="./guard.js?v=market-admin-20260314-v5"></script>
 
   <style>
     :root{
@@ -247,8 +248,11 @@
       <div class="right">
         <div class="pill" id="pillStatus">Statut : <b>…</b></div>
         <button class="btn" id="btnReload" type="button">🔄 Recharger</button>
+        <a class="btn" id="btnCockpitTop" href="./cockpit.html">📊 Cockpit</a>
+        <a class="btn" id="btnBoutiqueTop" href="./boutique.html">🛠️ Boutique</a>
         <a class="btn" id="btnProductsTop" href="./produits.html">📦 Produits</a>
-        <a class="btn" id="btnPin" href="./pin.html">🔑 PIN</a>
+        <a class="btn gold" id="btnPin" href="./pin.html">🔑 PIN</a>
+        <a class="btn warn" id="btnPublicTop" href="./fiche.html">🌍 Fiche</a>
       </div>
     </div>
 
@@ -322,6 +326,7 @@
           <a class="btn" id="btnCockpit2" href="./cockpit.html">📊 Cockpit vendeur</a>
           <a class="btn" id="btnBoutique2" href="./boutique.html">🛠️ Réglages</a>
           <a class="btn" id="btnProduits2" href="./produits.html">📦 Catalogue</a>
+          <a class="btn warn" id="btnPublic2" href="./fiche.html">🌍 Fiche</a>
         </div>
       </div>
 
@@ -338,6 +343,7 @@
           <a class="smallLink" href="./boutique.html" id="linkSupport">Réglages boutique</a>
           <a class="smallLink" href="./cockpit.html" id="linkCockpit">Cockpit vendeur</a>
           <a class="smallLink" href="./produits.html" id="linkProducts">Produits</a>
+          <a class="smallLink" href="./fiche.html" id="linkPublic">Fiche publique</a>
         </div>
       </div>
 
@@ -422,7 +428,7 @@
     const total = Number(stats?.total_products ?? stats?.products_total ?? 0) || 0;
     const active = Number(stats?.active_products ?? stats?.products_active ?? 0) || 0;
     const published = Number(stats?.published_products ?? stats?.products_published ?? 0) || 0;
-    const inactive = Math.max(total - active, 0);
+    const inactive = Number(stats?.inactive_products ?? stats?.products_inactive ?? Math.max(total - active, 0)) || 0;
     return { total, active, inactive, published };
   }
 
@@ -477,6 +483,11 @@
   }
 
   function resolvePhone(){
+    const qs = new URLSearchParams(location.search);
+
+    const fromQuery = normPhone(qs.get("phone"));
+    if (fromQuery) return fromQuery;
+
     const fromGuard = normPhone(window.DIGIY_GUARD?.state?.phone);
     if (fromGuard) return fromGuard;
 
@@ -492,17 +503,27 @@
   function updateLinks(){
     $("btnPin").href = ACCESS_SLUG ? withSlug("./pin.html") : "./pin.html";
     $("btnPin2").href = ACCESS_SLUG ? withSlug("./pin.html") : "./pin.html";
+
+    $("btnCockpitTop").href = ACCESS_SLUG ? withSlug("./cockpit.html") : "./cockpit.html";
     $("btnCockpit").href = ACCESS_SLUG ? withSlug("./cockpit.html") : "./cockpit.html";
     $("btnCockpit2").href = ACCESS_SLUG ? withSlug("./cockpit.html") : "./cockpit.html";
+
+    $("btnBoutiqueTop").href = ACCESS_SLUG ? withSlug("./boutique.html") : "./boutique.html";
     $("btnBoutique").href = ACCESS_SLUG ? withSlug("./boutique.html") : "./boutique.html";
     $("btnBoutique2").href = ACCESS_SLUG ? withSlug("./boutique.html") : "./boutique.html";
+
     $("btnProduits").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
     $("btnProduits2").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
     $("btnProductsTop").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
+
+    $("btnPublicTop").href = ACCESS_SLUG ? withSlug("./fiche.html") : "./fiche.html";
     $("btnPublic").href = ACCESS_SLUG ? withSlug("./fiche.html") : "./fiche.html";
+    $("btnPublic2").href = ACCESS_SLUG ? withSlug("./fiche.html") : "./fiche.html";
+
     $("linkSupport").href = ACCESS_SLUG ? withSlug("./boutique.html") : "./boutique.html";
     $("linkCockpit").href = ACCESS_SLUG ? withSlug("./cockpit.html") : "./cockpit.html";
     $("linkProducts").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
+    $("linkPublic").href = ACCESS_SLUG ? withSlug("./fiche.html") : "./fiche.html";
   }
 
   function setNotifs(items){
@@ -606,7 +627,6 @@
     );
 
     document.title = "DIGIY PRO MARKET — Admin central";
-
     updateLinks();
 
     setNotifs([
@@ -624,11 +644,11 @@
     const stats = normalizeStats(data.stats || {});
     CURRENT = data;
     ACCESS_PHONE = normPhone(data.phone || ACCESS_PHONE);
-
-    const resolvedSlug = getResolvedSlug(data);
-    if (resolvedSlug) ACCESS_SLUG = resolvedSlug;
+    ACCESS_SLUG = getResolvedSlug(data) || ACCESS_SLUG;
 
     const shopName = getShopName(p);
+
+    updateLinks();
 
     $("dot").className = "statusDot ok";
     $("statusLine").textContent = "Accès actif";
@@ -642,22 +662,20 @@
 
     applyStatsFromState(stats);
 
-    $("infoSlug").textContent = resolvedSlug || "—";
+    $("infoSlug").textContent = ACCESS_SLUG || "—";
     $("infoPhone").textContent = displayPhone(data.phone || ACCESS_PHONE);
     $("infoWhatsapp").textContent = displayPhone(p.whatsapp || data.phone || ACCESS_PHONE);
     $("infoAddress").textContent = toText(p.address, "—");
     $("infoCategories").textContent = toText(p.categories_text, "—");
 
     $("brandTitle").textContent = shopName;
-    $("brandSub").textContent = resolvedSlug
-      ? `Admin central • ${resolvedSlug}`
+    $("brandSub").textContent = ACCESS_SLUG
+      ? `Admin central • ${ACCESS_SLUG}`
       : "Admin central vendeur";
 
     document.title = shopName
       ? `${shopName} — Admin central DIGIY PRO MARKET`
       : "DIGIY PRO MARKET — Admin central";
-
-    updateLinks();
 
     const active = Number(stats.active || 0);
     const notifs = [];
@@ -791,6 +809,7 @@
 
       ACCESS_SLUG = resolveSlug();
       ACCESS_PHONE = resolvePhone();
+      storeAccess();
       updateLinks();
 
       if (!ACCESS_SLUG){
@@ -849,6 +868,7 @@
   }
 
   $("btnReload").addEventListener("click", boot);
+  updateLinks();
   boot();
 })();
 </script>
