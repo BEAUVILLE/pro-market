@@ -15,7 +15,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-admin-20260314-v5"></script>
+  <script src="./guard.js?v=market-admin-20260314-v6"></script>
 
   <style>
     :root{
@@ -231,6 +231,11 @@
     .msg.ok{color:#86efac}
     .msg.bad{color:#fca5a5}
     .msg.warn{color:#fde68a}
+
+    .loading{
+      opacity:.72;
+      pointer-events:none;
+    }
   </style>
 </head>
 <body>
@@ -252,7 +257,7 @@
         <a class="btn" id="btnBoutiqueTop" href="./boutique.html">🛠️ Boutique</a>
         <a class="btn" id="btnProductsTop" href="./produits.html">📦 Produits</a>
         <a class="btn gold" id="btnPin" href="./pin.html">🔑 PIN</a>
-        <a class="btn warn" id="btnPublicTop" href="./fiche.html">🌍 Fiche</a>
+        <a class="btn warn" id="btnPublicTop" href="./index.html">🌍 Vitrine</a>
       </div>
     </div>
 
@@ -303,7 +308,7 @@
           <a class="btn primary" id="btnCockpit" href="./cockpit.html">📊 Cockpit</a>
           <a class="btn" id="btnBoutique" href="./boutique.html">🛠️ Boutique</a>
           <a class="btn" id="btnProduits" href="./produits.html">📦 Produits</a>
-          <a class="btn gold" id="btnPublic" href="./fiche.html">🌍 Fiche publique</a>
+          <a class="btn gold" id="btnPublic" href="./index.html">🌍 Vitrine</a>
         </div>
       </div>
 
@@ -326,7 +331,7 @@
           <a class="btn" id="btnCockpit2" href="./cockpit.html">📊 Cockpit vendeur</a>
           <a class="btn" id="btnBoutique2" href="./boutique.html">🛠️ Réglages</a>
           <a class="btn" id="btnProduits2" href="./produits.html">📦 Catalogue</a>
-          <a class="btn warn" id="btnPublic2" href="./fiche.html">🌍 Fiche</a>
+          <a class="btn warn" id="btnPublic2" href="./index.html">🌍 Vitrine</a>
         </div>
       </div>
 
@@ -343,7 +348,7 @@
           <a class="smallLink" href="./boutique.html" id="linkSupport">Réglages boutique</a>
           <a class="smallLink" href="./cockpit.html" id="linkCockpit">Cockpit vendeur</a>
           <a class="smallLink" href="./produits.html" id="linkProducts">Produits</a>
-          <a class="smallLink" href="./fiche.html" id="linkPublic">Fiche publique</a>
+          <a class="smallLink" href="./index.html" id="linkPublic">Vitrine publique</a>
         </div>
       </div>
 
@@ -361,9 +366,11 @@
   let ACCESS_SLUG = "";
   let ACCESS_PHONE = "";
   let ACCESS_OK = false;
+  let ACCESS_GRANTED = false;
   let CURRENT = null;
   let PRODUCTS = [];
   let BUSY = false;
+  let SB_CLIENT = null;
 
   function normSlug(v){
     return String(v || "").trim().toLowerCase();
@@ -432,8 +439,15 @@
     return { total, active, inactive, published };
   }
 
+  function isTruthyLike(v){
+    if (v === true || v === 1) return true;
+    const s = String(v == null ? "" : v).trim().toLowerCase();
+    return s === "true" || s === "1" || s === "yes" || s === "ok";
+  }
+
   function setBusy(isBusy){
     BUSY = !!isBusy;
+    document.body.classList.toggle("loading", BUSY);
     $("btnReload").disabled = BUSY;
   }
 
@@ -483,11 +497,6 @@
   }
 
   function resolvePhone(){
-    const qs = new URLSearchParams(location.search);
-
-    const fromQuery = normPhone(qs.get("phone"));
-    if (fromQuery) return fromQuery;
-
     const fromGuard = normPhone(window.DIGIY_GUARD?.state?.phone);
     if (fromGuard) return fromGuard;
 
@@ -498,6 +507,61 @@
     if (marketLocal) return marketLocal;
 
     return "";
+  }
+
+  function resolveAccessGranted(){
+    const st = window.DIGIY_GUARD?.state || {};
+
+    const directFlags = [
+      st.access_ok,
+      st.accessOk,
+      st.has_access,
+      st.hasAccess,
+      st.access,
+      st.pin_access,
+      st.pinAccess,
+      st.allowed,
+      st.is_allowed,
+      st.isAllowed,
+      st.ok
+    ];
+
+    if (directFlags.some(isTruthyLike)) return true;
+
+    const sessionFlags = [
+      sessionStorage.getItem("digiy_market_pin_access"),
+      sessionStorage.getItem("digiy_market_access_ok"),
+      sessionStorage.getItem("digiy_market_has_access"),
+      sessionStorage.getItem("digiy_market_access"),
+      localStorage.getItem("digiy_market_pin_access"),
+      localStorage.getItem("digiy_market_access_ok"),
+      localStorage.getItem("digiy_market_has_access"),
+      localStorage.getItem("digiy_market_access")
+    ];
+
+    if (sessionFlags.some(isTruthyLike)) return true;
+
+    const untilValues = [
+      sessionStorage.getItem("digiy_market_pin_access_until"),
+      sessionStorage.getItem("digiy_market_access_until"),
+      localStorage.getItem("digiy_market_pin_access_until"),
+      localStorage.getItem("digiy_market_access_until"),
+      st.pin_access_until,
+      st.access_until,
+      st.expires_at
+    ];
+
+    for (const raw of untilValues){
+      if (!raw) continue;
+
+      const n = Number(raw);
+      if (Number.isFinite(n) && n > Date.now()) return true;
+
+      const d = Date.parse(String(raw));
+      if (Number.isFinite(d) && d > Date.now()) return true;
+    }
+
+    return false;
   }
 
   function updateLinks(){
@@ -516,14 +580,14 @@
     $("btnProduits2").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
     $("btnProductsTop").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
 
-    $("btnPublicTop").href = ACCESS_SLUG ? withSlug("./fiche.html") : "./fiche.html";
-    $("btnPublic").href = ACCESS_SLUG ? withSlug("./fiche.html") : "./fiche.html";
-    $("btnPublic2").href = ACCESS_SLUG ? withSlug("./fiche.html") : "./fiche.html";
+    $("btnPublicTop").href = ACCESS_SLUG ? withSlug("./index.html") : "./index.html";
+    $("btnPublic").href = ACCESS_SLUG ? withSlug("./index.html") : "./index.html";
+    $("btnPublic2").href = ACCESS_SLUG ? withSlug("./index.html") : "./index.html";
 
     $("linkSupport").href = ACCESS_SLUG ? withSlug("./boutique.html") : "./boutique.html";
     $("linkCockpit").href = ACCESS_SLUG ? withSlug("./cockpit.html") : "./cockpit.html";
     $("linkProducts").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
-    $("linkPublic").href = ACCESS_SLUG ? withSlug("./fiche.html") : "./fiche.html";
+    $("linkPublic").href = ACCESS_SLUG ? withSlug("./index.html") : "./index.html";
   }
 
   function setNotifs(items){
@@ -617,12 +681,12 @@
 
     $("brandTitle").textContent = "DIGIY PRO MARKET";
     $("brandSub").textContent = ACCESS_SLUG
-      ? "Slug détecté • données protégées"
+      ? "Slug détecté • session protégée"
       : "Admin central vendeur";
 
     resetProductPreview(
       ACCESS_SLUG
-        ? "Slug détecté, mais aucun produit réel n’est exposé tant que l’accès n’est pas ouvert."
+        ? "Slug détecté, mais aucun produit réel n’est exposé tant que le PIN n’a pas ouvert la session."
         : "Aucun produit visible sans accès ouvert."
     );
 
@@ -634,7 +698,7 @@
         level:"warn",
         tag:"ACCÈS",
         title:"Coque admin visible",
-        text:"L’admin existe, mais les données réelles restent protégées tant que le slug MARKET n’est pas ouvert."
+        text:"L’admin existe, mais les données réelles restent protégées tant que la session vendeur n’est pas ouverte."
       }
     ]);
   }
@@ -653,8 +717,8 @@
     $("dot").className = "statusDot ok";
     $("statusLine").textContent = "Accès actif";
     $("expiryLine").textContent = data.is_blank
-      ? "Boutique vierge prête à remplir."
-      : "Boutique réelle chargée.";
+      ? "PIN OK • boutique vierge prête à remplir."
+      : "PIN OK • boutique réelle chargée.";
     $("pillStatus").innerHTML = 'Statut : <b>Actif</b>';
 
     $("shopName").textContent = shopName;
@@ -733,7 +797,7 @@
 
   function renderProductPreview(){
     if (!ACCESS_OK) {
-      resetProductPreview("Aucun produit visible sans accès ouvert.");
+      resetProductPreview("Aucun produit visible sans session PIN ouverte.");
       return;
     }
 
@@ -760,12 +824,17 @@
   }
 
   async function makeClient(){
+    if (SB_CLIENT) return SB_CLIENT;
+
     if (!window.supabase || !SUPABASE_URL || !SUPABASE_ANON_KEY){
       throw new Error("supabase_config_missing");
     }
-    return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+
+    SB_CLIENT = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false }
     });
+
+    return SB_CLIENT;
   }
 
   async function rpc(client, name, args){
@@ -809,6 +878,8 @@
 
       ACCESS_SLUG = resolveSlug();
       ACCESS_PHONE = resolvePhone();
+      ACCESS_GRANTED = resolveAccessGranted();
+
       storeAccess();
       updateLinks();
 
@@ -818,11 +889,17 @@
         return;
       }
 
+      if (!ACCESS_GRANTED){
+        applyBlockedState("Session protégée non ouverte. Passe par PIN pour ouvrir le vrai dashboard.");
+        setMsgMain("⚠️ Session protégée non ouverte. Passe par PIN.", "warn");
+        return;
+      }
+
       const client = await makeClient();
       const cockpit = await loadCockpit(client);
 
       if (!cockpit){
-        applyBlockedState("Slug détecté mais accès non ouvert.");
+        applyBlockedState("Slug détecté mais accès réel non ouvert.");
         setMsgMain("⚠️ Slug détecté, mais accès réel non ouvert.", "warn");
         return;
       }
