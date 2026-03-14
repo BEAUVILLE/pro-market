@@ -418,7 +418,7 @@
       <div class="right">
         <div class="pill" id="pillStatus">Statut : <b>…</b></div>
         <button class="btn" id="btnReloadTop" type="button">🔄 Recharger</button>
-        <a class="btn" id="btnDashboardTop" href="./dashboard-pro.html">🧭 Dashboard</a>
+        <a class="btn" id="btnDashboardTop" href="./dashboard.html">🧭 Dashboard</a>
         <a class="btn" id="btnPin" href="./pin.html">🔑 PIN</a>
       </div>
     </div>
@@ -728,11 +728,11 @@
 
   function updateLinks(){
     $("btnPin").href = ACCESS_SLUG ? withSlug("./pin.html") : "./pin.html";
-    $("btnDashboardTop").href = ACCESS_SLUG ? withSlug("./dashboard-pro.html") : "./dashboard-pro.html";
+    $("btnDashboardTop").href = ACCESS_SLUG ? withSlug("./dashboard.html") : "./dashboard.html";
     $("btnCockpit").href = ACCESS_SLUG ? withSlug("./cockpit.html") : "./cockpit.html";
     $("btnBoutique").href = ACCESS_SLUG ? withSlug("./boutique.html") : "./boutique.html";
     $("btnPublic").href = ACCESS_SLUG ? withSlug("./index.html") : "./index.html";
-    $("linkDashboard").href = ACCESS_SLUG ? withSlug("./dashboard-pro.html") : "./dashboard-pro.html";
+    $("linkDashboard").href = ACCESS_SLUG ? withSlug("./dashboard.html") : "./dashboard.html";
     $("linkCockpit").href = ACCESS_SLUG ? withSlug("./cockpit.html") : "./cockpit.html";
     $("linkBoutique").href = ACCESS_SLUG ? withSlug("./boutique.html") : "./boutique.html";
     $("linkPublic").href = ACCESS_SLUG ? withSlug("./index.html") : "./index.html";
