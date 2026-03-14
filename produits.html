@@ -11,10 +11,11 @@
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
     window.DIGIY_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
     window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+    window.DIGIY_MODULE = "MARKET";
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-produits-20260312-v5"></script>
+  <script src="./guard.js?v=market-produits-20260314-v6"></script>
 
   <style>
     :root{
@@ -469,7 +470,7 @@
           <button class="btn warn" id="btnPublish" type="button">🌍 Publier</button>
           <a class="btn primary" id="btnCockpit" href="./cockpit.html">📊 Cockpit</a>
           <a class="btn" id="btnBoutique" href="./boutique.html">🛠️ Boutique</a>
-          <a class="btn gold" id="btnPublic" href="./fiche.html">🌍 Fiche publique</a>
+          <a class="btn gold" id="btnPublic" href="./index.html">🌍 Vitrine</a>
         </div>
       </div>
 
@@ -576,6 +577,7 @@
             <a class="smallLink" href="./dashboard-pro.html" id="linkDashboard">Admin central</a>
             <a class="smallLink" href="./cockpit.html" id="linkCockpit">Cockpit vendeur</a>
             <a class="smallLink" href="./boutique.html" id="linkBoutique">Réglages boutique</a>
+            <a class="smallLink" href="./index.html" id="linkPublic">Vitrine publique</a>
           </div>
         </div>
 
@@ -601,6 +603,7 @@
   let ACCESS_SLUG = "";
   let ACCESS_PHONE = "";
   let ACCESS_OK = false;
+  let ACCESS_GRANTED = false;
   let CURRENT = null;
   let PRODUCTS = [];
   let ACTIVE_FILTER = "all";
@@ -685,6 +688,12 @@
     return { total, active, inactive, published };
   }
 
+  function isTruthyLike(v){
+    if (v === true || v === 1) return true;
+    const s = String(v == null ? "" : v).trim().toLowerCase();
+    return s === "true" || s === "1" || s === "yes" || s === "ok";
+  }
+
   function setMsgMain(txt, type){
     const el = $("msgMain");
     el.textContent = txt;
@@ -722,10 +731,11 @@
     $("btnDashboardTop").href = ACCESS_SLUG ? withSlug("./dashboard-pro.html") : "./dashboard-pro.html";
     $("btnCockpit").href = ACCESS_SLUG ? withSlug("./cockpit.html") : "./cockpit.html";
     $("btnBoutique").href = ACCESS_SLUG ? withSlug("./boutique.html") : "./boutique.html";
-    $("btnPublic").href = ACCESS_SLUG ? withSlug("./fiche.html") : "./fiche.html";
+    $("btnPublic").href = ACCESS_SLUG ? withSlug("./index.html") : "./index.html";
     $("linkDashboard").href = ACCESS_SLUG ? withSlug("./dashboard-pro.html") : "./dashboard-pro.html";
     $("linkCockpit").href = ACCESS_SLUG ? withSlug("./cockpit.html") : "./cockpit.html";
     $("linkBoutique").href = ACCESS_SLUG ? withSlug("./boutique.html") : "./boutique.html";
+    $("linkPublic").href = ACCESS_SLUG ? withSlug("./index.html") : "./index.html";
   }
 
   function resolveSlug(){
@@ -757,6 +767,66 @@
     if (marketLocal) return marketLocal;
 
     return "";
+  }
+
+  function resolveAccessGranted(){
+    const st = window.DIGIY_GUARD?.state || {};
+
+    const directFlags = [
+      st.access_ok,
+      st.accessOk,
+      st.has_access,
+      st.hasAccess,
+      st.access,
+      st.pin_access,
+      st.pinAccess,
+      st.allowed,
+      st.is_allowed,
+      st.isAllowed,
+      st.ok
+    ];
+
+    if (directFlags.some(isTruthyLike)) return true;
+
+    const sessionFlags = [
+      sessionStorage.getItem("digiy_market_pin_access"),
+      sessionStorage.getItem("digiy_market_access_ok"),
+      sessionStorage.getItem("digiy_market_has_access"),
+      sessionStorage.getItem("digiy_market_access"),
+      localStorage.getItem("digiy_market_pin_access"),
+      localStorage.getItem("digiy_market_access_ok"),
+      localStorage.getItem("digiy_market_has_access"),
+      localStorage.getItem("digiy_market_access")
+    ];
+
+    if (sessionFlags.some(isTruthyLike)) return true;
+
+    const untilValues = [
+      sessionStorage.getItem("digiy_market_pin_access_until"),
+      sessionStorage.getItem("digiy_market_access_until"),
+      localStorage.getItem("digiy_market_pin_access_until"),
+      localStorage.getItem("digiy_market_access_until"),
+      st.pin_access_until,
+      st.access_until,
+      st.expires_at
+    ];
+
+    for (const raw of untilValues){
+      if (!raw) continue;
+      const n = Number(raw);
+      if (Number.isFinite(n) && n > Date.now()) return true;
+
+      const d = Date.parse(String(raw));
+      if (Number.isFinite(d) && d > Date.now()) return true;
+    }
+
+    return false;
+  }
+
+  function resolveAccessReason(){
+    if (!ACCESS_SLUG) return "Ajoute ?slug=market-... ou passe par la porte PIN.";
+    if (!ACCESS_GRANTED) return "Passe par PIN pour ouvrir la vraie vue vendeur.";
+    return "Slug détecté mais accès non ouvert.";
   }
 
   function rememberAccess(){
@@ -828,7 +898,7 @@
 
     $("dot").className = "statusDot bad";
     $("statusLine").textContent = "Accès protégé";
-    $("expiryLine").textContent = reason || "Aucun slug MARKET actif.";
+    $("expiryLine").textContent = reason || resolveAccessReason();
     $("pillStatus").innerHTML = 'Statut : <b>Bloqué</b>';
     $("brandTitle").textContent = "DIGIY PRO MARKET";
     $("brandSub").textContent = ACCESS_SLUG
@@ -858,7 +928,7 @@
     $("productList").innerHTML = "";
     $("emptyState").style.display = "block";
     $("emptyState").textContent = ACCESS_SLUG
-      ? "Slug détecté, mais aucun produit réel n’est exposé tant que l’accès n’est pas ouvert."
+      ? "Slug détecté, mais les vraies données MARKET restent verrouillées tant que le PIN n’a pas ouvert la session."
       : "Aucun produit visible sans accès ouvert.";
 
     setNotifs([
@@ -866,7 +936,7 @@
         level:"warn",
         tag:"ACCÈS",
         title:"Coque produits visible",
-        text:"La page existe, mais les données réelles restent protégées tant que le slug MARKET n’est pas ouvert."
+        text:"La page existe, mais le catalogue réel reste protégé tant que l’accès vendeur n’est pas confirmé."
       }
     ]);
   }
@@ -885,8 +955,8 @@
     $("dot").className = "statusDot ok";
     $("statusLine").textContent = "Accès actif";
     $("expiryLine").textContent = data.is_blank
-      ? "Boutique vierge prête à remplir."
-      : "Boutique réelle chargée.";
+      ? "PIN OK • boutique vierge prête à remplir."
+      : "PIN OK • boutique réelle chargée.";
     $("pillStatus").innerHTML = 'Statut : <b>Actif</b>';
     $("brandTitle").textContent = shopName;
     $("brandSub").textContent = resolvedSlug
@@ -995,7 +1065,7 @@
     if (!ACCESS_OK) {
       box.innerHTML = "";
       $("emptyState").style.display = "block";
-      $("emptyState").textContent = "Aucun produit visible sans accès ouvert.";
+      $("emptyState").textContent = "Aucun produit visible sans session PIN ouverte.";
       return;
     }
 
@@ -1152,7 +1222,7 @@
         persistSession:false,
         autoRefreshToken:false,
         detectSessionInUrl:false,
-        storageKey:"digiy-market-produits-v5"
+        storageKey:"digiy-market-produits-v6"
       }
     });
     return SB_CLIENT;
@@ -1229,8 +1299,8 @@
     };
 
     const { data, error } = await client.rpc("digiy_market_upsert_product_by_slug", {
-      p_payload: payload,
-      p_slug: ACCESS_SLUG
+      p_slug: ACCESS_SLUG,
+      p_payload: payload
     });
 
     if (error) throw error;
@@ -1336,6 +1406,7 @@
 
       ACCESS_SLUG = resolveSlug();
       ACCESS_PHONE = resolvePhone();
+      ACCESS_GRANTED = resolveAccessGranted();
       updateLinks();
 
       if (!ACCESS_SLUG){
@@ -1344,11 +1415,17 @@
         return;
       }
 
+      if (!ACCESS_GRANTED){
+        applyBlockedState("Passe par PIN pour ouvrir la vraie vue vendeur.");
+        setMsgMain("⚠️ Session protégée non ouverte. Passe par PIN.", "warn");
+        return;
+      }
+
       const client = await makeClient();
       const cockpit = await loadCockpit(client);
 
       if (!cockpit){
-        applyBlockedState("Slug détecté mais accès non ouvert.");
+        applyBlockedState("Slug détecté mais accès réel non ouvert.");
         setMsgMain("⚠️ Slug détecté, mais accès réel non ouvert.", "warn");
         return;
       }
