@@ -9,12 +9,13 @@
 
   <script>
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-    window.DIGIY_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+    window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
     window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+    window.DIGIY_MODULE = "MARKET";
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-boutique-20260312-v4"></script>
+  <script src="./guard.js?v=market-boutique-20260314-v5"></script>
 
   <style>
     :root{
@@ -772,6 +773,14 @@
         return u.pathname + u.search;
       }
 
+      function setNavLinks(){
+        $("btnDashboard").href = ACCESS_SLUG ? withSlug("./dashboard-pro.html") : "./dashboard-pro.html";
+        $("btnCockpit").href = ACCESS_SLUG ? withSlug("./cockpit.html") : "./cockpit.html";
+        $("btnProducts").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
+        $("btnPin").href = ACCESS_SLUG ? withSlug("./pin.html") : "./pin.html";
+        $("btnPublic").href = ACCESS_SLUG ? withSlug("./fiche.html") : "./fiche.html";
+      }
+
       function setMsgProfile(txt, type){
         const el = $("msgProfile");
         el.textContent = txt;
@@ -835,6 +844,23 @@
         }
       }
 
+      function resolvePhone(){
+        const qs = new URLSearchParams(location.search);
+        const fromQuery = normPhone(qs.get("phone"));
+        if (fromQuery) return fromQuery;
+
+        const fromGuard = normPhone(window.DIGIY_GUARD?.state?.phone);
+        if (fromGuard) return fromGuard;
+
+        const marketSession = normPhone(sessionStorage.getItem("digiy_market_phone"));
+        if (marketSession) return marketSession;
+
+        const marketLocal = normPhone(localStorage.getItem("digiy_market_last_phone"));
+        if (marketLocal) return marketLocal;
+
+        return "";
+      }
+
       function resolveSlug(){
         const qs = new URLSearchParams(location.search);
         const fromQuery = normSlug(qs.get("slug"));
@@ -852,12 +878,24 @@
         return "";
       }
 
-      function blockedCockpit(){
+      function rememberAccess(){
+        if (ACCESS_SLUG) {
+          sessionStorage.setItem("digiy_market_slug", ACCESS_SLUG);
+          localStorage.setItem("digiy_market_last_slug", ACCESS_SLUG);
+        }
+        if (ACCESS_PHONE) {
+          sessionStorage.setItem("digiy_market_phone", ACCESS_PHONE);
+          localStorage.setItem("digiy_market_last_phone", ACCESS_PHONE);
+        }
+      }
+
+      function blockedCockpit(reason){
         return {
           ok: false,
-          slug: "",
-          workspace_slug: "",
-          phone: "",
+          reason: reason || "",
+          slug: ACCESS_SLUG || "",
+          workspace_slug: ACCESS_SLUG || "",
+          phone: ACCESS_PHONE || "",
           public_label: "DIGIY PRO MARKET",
           is_blank: false,
           profile: {
@@ -883,6 +921,7 @@
           stats: {
             total_products: 0,
             active_products: 0,
+            inactive_products: 0,
             published_products: 0
           }
         };
@@ -1015,6 +1054,10 @@
         CURRENT_PUBLISHED = !!p.is_published;
         CURRENT_PRIORITY = Number(p.priority || payload.priority || 100) || 100;
         ACCESS_PHONE = normPhone(payload.phone || ACCESS_PHONE);
+        ACCESS_SLUG = normSlug(payload.slug || payload.workspace_slug || ACCESS_SLUG);
+
+        rememberAccess();
+        setNavLinks();
 
         const shop = getShopName(p);
         const owner = toText(p.owner_name, "");
@@ -1024,13 +1067,15 @@
         const whatsapp = p.whatsapp || payload.phone || "";
         const delivery = toText(p.delivery_note, "Livraison à définir");
         const payment = toText(p.payment_note, "Paiement à définir");
-        const resolvedSlug = payload.slug || payload.workspace_slug || ACCESS_SLUG || "";
+        const resolvedSlug = ACCESS_SLUG || "—";
 
         const subtitle = liveMode
           ? (payload.is_blank
               ? "Boutique personnelle vierge. Tu peux maintenant la remplir proprement."
               : "Boutique réelle chargée. Tu peux ajuster ton identité, ton contact et ta publication.")
-          : "Coque protégée visible. Le contenu réel s’ouvre avec un slug MARKET valide.";
+          : (ACCESS_SLUG
+              ? `Slug détecté (${ACCESS_SLUG}) mais accès non ouvert.`
+              : "Coque protégée visible. Le contenu réel s’ouvre avec un slug MARKET valide.");
 
         $("shopNameHero").textContent = shop;
         $("shopSubtitle").textContent = subtitle;
@@ -1039,8 +1084,8 @@
         $("pillCity").textContent = "📍 " + city;
         $("pillPublish").textContent = "🌍 " + (p.is_published ? "Publiée" : "Non publiée");
 
-        $("miniSlug").textContent = liveMode ? (resolvedSlug || "—") : "—";
-        $("miniPhone").textContent = formatPhone(payload.phone);
+        $("miniSlug").textContent = ACCESS_SLUG || "—";
+        $("miniPhone").textContent = formatPhone(payload.phone || ACCESS_PHONE);
         $("miniWhatsapp").textContent = formatPhone(whatsapp);
         $("miniAddress").textContent = address;
 
@@ -1053,19 +1098,17 @@
         $("modeBadge").textContent = liveMode ? "Mode vivant" : "Mode protégé";
 
         $("topSub").textContent = liveMode
-          ? `Réglages chargés pour ${resolvedSlug || "MARKET"}`
-          : "Aucun accès ouvert pour l’instant.";
+          ? `Réglages chargés pour ${resolvedSlug}`
+          : (ACCESS_SLUG ? `Slug détecté : ${ACCESS_SLUG}` : "Aucun accès ouvert pour l’instant.");
 
         $("previewBox").style.display = liveMode ? "none" : "block";
+        $("previewBox").textContent = ACCESS_SLUG
+          ? `Slug ${ACCESS_SLUG} détecté. La coque reste visible, mais la vraie boutique reste protégée tant que l’accès n’est pas ouvert.`
+          : "Aucun slug MARKET actif détecté. La coque reste visible, mais la vraie boutique reste protégée.";
+
         $("footerText").textContent = liveMode
           ? `DIGIY PRO MARKET • ${shop} • Réglages vivants`
           : "DIGIY PRO MARKET • Réglages protégés";
-
-        $("btnDashboard").href = liveMode ? withSlug("./dashboard-pro.html") : "./dashboard-pro.html";
-        $("btnCockpit").href = liveMode ? withSlug("./cockpit.html") : "./cockpit.html";
-        $("btnProducts").href = liveMode ? withSlug("./produits.html") : "./produits.html";
-        $("btnPin").href = liveMode ? withSlug("./pin.html") : "./pin.html";
-        $("btnPublic").href = liveMode ? withSlug("./fiche.html") : "./fiche.html";
 
         document.title = liveMode
           ? `${shop} — Réglages boutique DIGIY PRO MARKET`
@@ -1076,8 +1119,8 @@
         $("ownerName").value = owner;
         $("city").value = p.city || "";
         $("categoriesText").value = p.categories_text || "";
-        $("linkedPhone").value = formatPhone(payload.phone);
-        $("whatsapp").value = p.whatsapp || normPhone(payload.phone || "");
+        $("linkedPhone").value = formatPhone(payload.phone || ACCESS_PHONE);
+        $("whatsapp").value = p.whatsapp || normPhone(payload.phone || ACCESS_PHONE || "");
         $("zones").value = p.zones || "";
         $("address").value = p.address || "";
         $("deliveryNote").value = p.delivery_note || "";
@@ -1125,39 +1168,45 @@
         return data || { ok:false, reason:"empty_response" };
       }
 
+      async function persistDraft(publishedState){
+        const draft = getDraft();
+
+        const { data, error } = await sb.rpc("digiy_market_save_profile", {
+          p_slug: ACCESS_SLUG,
+          p_shop_name: draft.shop_name,
+          p_owner_name: draft.owner_name,
+          p_city: draft.city,
+          p_zones: draft.zones,
+          p_address: draft.address,
+          p_whatsapp: draft.whatsapp,
+          p_photo_url: draft.photo_url,
+          p_cover_url: draft.cover_url,
+          p_description: draft.description,
+          p_categories_text: draft.categories_text,
+          p_delivery_note: draft.delivery_note,
+          p_payment_note: draft.payment_note,
+          p_priority: CURRENT_PRIORITY,
+          p_is_published: !!publishedState,
+          p_is_active: true
+        });
+
+        if (error) throw error;
+        if (!data?.ok) throw new Error(data?.reason || data?.error || "market_save_profile_error");
+
+        return data;
+      }
+
       async function saveProfile(){
         if (!ACCESS_OK || !ACCESS_SLUG){
           setMsgProfile("⚠️ Accès non ouvert pour enregistrer la vraie boutique.", "bad");
           return;
         }
 
-        const draft = getDraft();
-
         try{
           setBusy(true);
           setMsgProfile("⏳ Enregistrement de la boutique…", "warn");
 
-          const { data, error } = await sb.rpc("digiy_market_save_profile", {
-            p_slug: ACCESS_SLUG,
-            p_shop_name: draft.shop_name,
-            p_owner_name: draft.owner_name,
-            p_city: draft.city,
-            p_zones: draft.zones,
-            p_address: draft.address,
-            p_whatsapp: draft.whatsapp,
-            p_photo_url: draft.photo_url,
-            p_cover_url: draft.cover_url,
-            p_description: draft.description,
-            p_categories_text: draft.categories_text,
-            p_delivery_note: draft.delivery_note,
-            p_payment_note: draft.payment_note,
-            p_priority: CURRENT_PRIORITY,
-            p_is_published: CURRENT_PUBLISHED,
-            p_is_active: true
-          });
-
-          if (error) throw error;
-          if (!data?.ok) throw new Error(data?.reason || data?.error || "market_save_profile_error");
+          await persistDraft(CURRENT_PUBLISHED);
 
           setMsgProfile("✅ Boutique enregistrée.", "ok");
           await loadLiveCockpit();
@@ -1188,6 +1237,8 @@
           setBusy(true);
           setMsgPublish("⏳ Mise à jour publication…", "warn");
 
+          await persistDraft(!!nextState);
+
           const { data, error } = await sb.rpc("digiy_market_set_publish_by_slug", {
             p_slug: ACCESS_SLUG,
             p_is_published: !!nextState
@@ -1212,7 +1263,7 @@
 
         if (!data?.ok){
           ACCESS_OK = false;
-          applyCockpit(blockedCockpit(), false);
+          applyCockpit(blockedCockpit(data?.reason || "not_ok"), false);
           setFormDisabled(true);
           setMsgProfile("⚠️ Slug détecté mais accès non ouvert. Boutique réelle protégée.", "warn");
           setMsgPublish("Accès non ouvert.", "warn");
@@ -1220,17 +1271,10 @@
         }
 
         ACCESS_OK = true;
-        ACCESS_PHONE = normPhone(data.phone || "");
+        ACCESS_PHONE = normPhone(data.phone || ACCESS_PHONE);
         ACCESS_SLUG = normSlug(data.slug || data.workspace_slug || ACCESS_SLUG);
 
-        sessionStorage.setItem("digiy_market_slug", ACCESS_SLUG);
-        localStorage.setItem("digiy_market_last_slug", ACCESS_SLUG);
-
-        if (ACCESS_PHONE) {
-          sessionStorage.setItem("digiy_market_phone", ACCESS_PHONE);
-          localStorage.setItem("digiy_market_last_phone", ACCESS_PHONE);
-        }
-
+        rememberAccess();
         applyCockpit(data, true);
         setFormDisabled(false);
       }
@@ -1240,11 +1284,14 @@
           setBusy(true);
           await waitGuardIfAny();
 
+          ACCESS_PHONE = resolvePhone();
           ACCESS_SLUG = resolveSlug();
+          rememberAccess();
+          setNavLinks();
 
           if (!ACCESS_SLUG){
             ACCESS_OK = false;
-            applyCockpit(blockedCockpit(), false);
+            applyCockpit(blockedCockpit("missing_slug"), false);
             setFormDisabled(true);
             setMsgProfile("Aucun slug MARKET détecté. La coque reste visible.", "warn");
             setMsgPublish("Aucun slug MARKET détecté.", "warn");
@@ -1265,7 +1312,7 @@
         }catch(e){
           console.error(e);
           ACCESS_OK = false;
-          applyCockpit(blockedCockpit(), false);
+          applyCockpit(blockedCockpit("boot_error"), false);
           setFormDisabled(true);
           setMsgProfile("❌ Impossible de charger la vraie boutique. Coque protégée affichée.", "bad");
           setMsgPublish("Erreur de chargement.", "bad");
@@ -1286,6 +1333,7 @@
       $("btnUnpublish").addEventListener("click", () => setPublishState(false));
 
       refreshInteractivity();
+      setNavLinks();
       boot();
     })();
   </script>
