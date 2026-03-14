@@ -5,24 +5,34 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <title>DIGIY MARKET PRO — Entrée</title>
   <meta name="theme-color" content="#07140f"/>
-  <meta name="description" content="Entrée DIGIY MARKET PRO : PIN, cockpit et réglages boutique."/>
+  <meta name="description" content="Entrée DIGIY MARKET PRO : PIN, dashboard, cockpit, boutique et produits sur un seul rail."/>
 
   <style>
     :root{
       --bg:#07140f;
+      --bg2:#05100c;
       --card:#10241b;
+      --card2:#0d1d16;
       --line:rgba(255,255,255,.10);
+      --line-strong:rgba(255,255,255,.16);
       --text:#ecfff4;
       --muted:rgba(236,255,244,.72);
       --primary:#22c55e;
       --primary2:#16a34a;
       --gold:#facc15;
+      --gold-ink:#3b2f00;
+      --danger:#ef4444;
+      --warn:#f59e0b;
+      --info:#60a5fa;
       --shadow:0 20px 60px rgba(0,0,0,.38);
+      --shadow-soft:0 10px 26px rgba(0,0,0,.24);
       --r:24px;
-      --max:980px;
+      --r2:20px;
+      --max:1120px;
     }
 
     *{box-sizing:border-box}
+
     html,body{
       margin:0;
       padding:0;
@@ -30,7 +40,7 @@
       background:
         radial-gradient(900px 520px at 10% -10%, rgba(34,197,94,.14), transparent 60%),
         radial-gradient(900px 520px at 110% 0%, rgba(250,204,21,.10), transparent 55%),
-        linear-gradient(180deg, #07140f, #05100c 55%, #040b08 100%);
+        linear-gradient(180deg, var(--bg), var(--bg2) 55%, #040b08 100%);
       color:var(--text);
       font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
     }
@@ -57,7 +67,6 @@
       border:1px solid rgba(250,204,21,.32);
       background:linear-gradient(135deg, rgba(250,204,21,.96), rgba(34,197,94,.92));
       color:#041b12;
-      text-decoration:none;
       font-weight:1000;
       font-size:14px;
       line-height:1;
@@ -76,9 +85,15 @@
       transform:translateY(0);
     }
 
-    .card{
+    .wrap{
       width:100%;
       max-width:var(--max);
+      display:grid;
+      gap:16px;
+    }
+
+    .card{
+      width:100%;
       border:1px solid var(--line);
       border-radius:var(--r);
       background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.018));
@@ -86,16 +101,10 @@
       overflow:hidden;
     }
 
-    .hero{
-      display:grid;
-      grid-template-columns:1fr;
-      gap:0;
-    }
-
     .body{
       padding:28px;
       display:grid;
-      gap:18px;
+      gap:22px;
     }
 
     .badge{
@@ -122,8 +131,8 @@
 
     h1{
       margin:0;
-      font-size:clamp(30px,4vw,44px);
-      line-height:1.04;
+      font-size:clamp(30px,4vw,48px);
+      line-height:1.03;
       letter-spacing:-.02em;
     }
 
@@ -131,8 +140,60 @@
       color:var(--muted);
       font-size:16px;
       font-weight:800;
-      line-height:1.55;
-      max-width:760px;
+      line-height:1.58;
+      max-width:820px;
+    }
+
+    .hero-top{
+      display:grid;
+      gap:14px;
+    }
+
+    .hero-actions{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .btn{
+      min-height:48px;
+      padding:12px 16px;
+      border-radius:14px;
+      font-weight:950;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      cursor:pointer;
+      transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+      text-decoration:none;
+      box-shadow:var(--shadow-soft);
+    }
+
+    .btn:hover{
+      transform:translateY(-1px);
+      border-color:var(--line-strong);
+    }
+
+    .btn.primary{
+      background:linear-gradient(135deg,var(--primary),var(--primary2));
+      color:#041b12;
+      border-color:transparent;
+    }
+
+    .btn.gold{
+      background:rgba(250,204,21,.12);
+      color:var(--gold);
+      border-color:rgba(250,204,21,.22);
+    }
+
+    .btn.info{
+      background:rgba(96,165,250,.12);
+      color:#bfdbfe;
+      border-color:rgba(96,165,250,.22);
     }
 
     .pills{
@@ -154,14 +215,16 @@
       font-weight:900;
     }
 
-    .grid{
+    .status-grid{
       display:grid;
       gap:14px;
-      grid-template-columns:1fr 1fr;
+      grid-template-columns:1.15fr .85fr;
     }
 
-    @media(max-width:820px){
-      .grid{grid-template-columns:1fr}
+    @media(max-width:880px){
+      .status-grid{
+        grid-template-columns:1fr;
+      }
     }
 
     .box{
@@ -176,56 +239,20 @@
     .box h2{
       margin:0;
       font-size:20px;
+      line-height:1.2;
     }
 
     .muted{
       color:var(--muted);
       font-size:14px;
       font-weight:800;
-      line-height:1.5;
+      line-height:1.55;
     }
 
     .mono{
       font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
       word-break:break-all;
-    }
-
-    .actions{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:4px;
-    }
-
-    .btn{
-      min-height:48px;
-      padding:12px 16px;
-      border-radius:14px;
-      font-weight:950;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.06);
-      color:var(--text);
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:8px;
-      cursor:pointer;
-      transition:.18s ease;
-      text-decoration:none;
-    }
-
-    .btn:hover{transform:translateY(-1px)}
-
-    .btn.primary{
-      background:linear-gradient(135deg,var(--primary),var(--primary2));
-      color:#041b12;
-      border-color:transparent;
-    }
-
-    .btn.gold{
-      background:rgba(250,204,21,.12);
-      color:var(--gold);
-      border-color:rgba(250,204,21,.22);
+      font-size:13px;
     }
 
     .status{
@@ -250,6 +277,127 @@
       background:rgba(250,204,21,.08);
     }
 
+    .status.info{
+      color:#bfdbfe;
+      border-color:rgba(96,165,250,.22);
+      background:rgba(96,165,250,.08);
+    }
+
+    .status.danger{
+      color:#fecaca;
+      border-color:rgba(239,68,68,.22);
+      background:rgba(239,68,68,.08);
+    }
+
+    .reading{
+      display:grid;
+      gap:10px;
+    }
+
+    .reading-row{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      padding:11px 12px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.03);
+      font-size:13px;
+      font-weight:900;
+    }
+
+    .reading-row .k{
+      color:var(--muted);
+    }
+
+    .reading-row .v{
+      color:var(--text);
+      word-break:break-word;
+      text-align:right;
+    }
+
+    .nav-grid{
+      display:grid;
+      gap:14px;
+      grid-template-columns:repeat(2, minmax(0,1fr));
+    }
+
+    @media(max-width:760px){
+      .nav-grid{
+        grid-template-columns:1fr;
+      }
+    }
+
+    .nav-card{
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:20px;
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(0,0,0,.16));
+      padding:18px;
+      display:grid;
+      gap:12px;
+      transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+      box-shadow:var(--shadow-soft);
+    }
+
+    .nav-card:hover{
+      transform:translateY(-2px);
+      border-color:rgba(255,255,255,.18);
+    }
+
+    .nav-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .nav-icon{
+      width:44px;
+      height:44px;
+      border-radius:14px;
+      display:grid;
+      place-items:center;
+      font-size:21px;
+      background:rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.10);
+      flex:0 0 auto;
+    }
+
+    .nav-title{
+      margin:0;
+      font-size:18px;
+      line-height:1.2;
+    }
+
+    .nav-text{
+      color:var(--muted);
+      font-size:14px;
+      font-weight:800;
+      line-height:1.55;
+    }
+
+    .nav-tag{
+      display:inline-flex;
+      align-items:center;
+      width:max-content;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.04);
+      color:var(--muted);
+      font-size:11px;
+      font-weight:950;
+      letter-spacing:.02em;
+      text-transform:uppercase;
+    }
+
+    .section-title{
+      margin:0;
+      font-size:18px;
+      letter-spacing:-.01em;
+    }
+
     .footer{
       text-align:center;
       color:var(--muted);
@@ -269,6 +417,14 @@
       .body{
         padding:22px 18px 18px;
       }
+
+      h1{
+        font-size:clamp(28px, 8vw, 40px);
+      }
+
+      .subtitle{
+        font-size:15px;
+      }
     }
   </style>
 </head>
@@ -277,119 +433,331 @@
     ↩️ Retour site
   </a>
 
-  <div class="card">
-    <div class="body">
-      <div class="badge"><span class="dot"></span> DIGIY MARKET PRO</div>
+  <div class="wrap">
+    <div class="card">
+      <div class="body">
+        <div class="badge"><span class="dot"></span> DIGIY MARKET PRO</div>
 
-      <div>
-        <h1>Entrée propre du cockpit vendeur</h1>
-        <div class="subtitle">
-          Ici, on garde une seule porte claire pour MARKET PRO. Pas de doublon, pas de détour :
-          PIN, cockpit et réglages boutique sur le même rail.
-        </div>
-      </div>
-
-      <div class="pills">
-        <div class="pill">🔑 Entrée PIN</div>
-        <div class="pill">📊 Cockpit commandes</div>
-        <div class="pill">🛠️ Réglages boutique</div>
-        <div class="pill" id="pillSlug">🧭 Route libre</div>
-      </div>
-
-      <div class="grid">
-        <div class="box">
-          <h2>Aller vite</h2>
-          <div class="muted">
-            Si ton slug MARKET est déjà connu, tu peux ouvrir directement ton cockpit ou tes réglages.
+        <div class="hero-top">
+          <div>
+            <h1>Hall d’entrée vendeur propre</h1>
+            <div class="subtitle">
+              Une seule porte claire pour MARKET PRO. On garde le même rail partout :
+              <b>PIN</b>, <b>dashboard</b>, <b>cockpit</b>, <b>boutique</b> et <b>produits</b>.
+              Ici, on ne joue pas à cache-cache avec le vendeur : on l’oriente proprement vers la bonne porte.
+            </div>
           </div>
 
-          <div class="status warn" id="statusBox">Lecture du rail en cours...</div>
-
-          <div class="muted">
-            Slug actif :
-            <div class="mono" id="slugText">—</div>
-          </div>
-
-          <div class="actions">
-            <a class="btn primary" id="btnCockpit" href="./cockpit.html">📊 Ouvrir le cockpit</a>
-            <a class="btn gold" id="btnBoutique" href="./boutique.html">🛠️ Réglages boutique</a>
-            <a class="btn" id="btnPin" href="./pin.html">🔑 Entrer par PIN</a>
+          <div class="hero-actions">
+            <a class="btn primary" id="heroDashboard" href="./dashboard-pro.html">📊 Ouvrir le dashboard</a>
+            <a class="btn gold" id="heroPin" href="./pin.html">🔑 Entrer par PIN</a>
+            <a class="btn info" id="heroCockpit" href="./cockpit.html">🧭 Aller au cockpit</a>
           </div>
         </div>
 
-        <div class="box">
-          <h2>Cap DIGIY</h2>
-          <div class="muted">
-            <b>index.html</b> devient le hall d’entrée.<br/>
-            <b>pin.html</b> ouvre l’accès.<br/>
-            <b>cockpit.html</b> pilote les commandes.<br/>
-            <b>boutique.html</b> règle la fiche publique.
+        <div class="pills">
+          <div class="pill">🔑 Entrée PIN</div>
+          <div class="pill">📊 Dashboard central</div>
+          <div class="pill">🧭 Cockpit vendeur</div>
+          <div class="pill">🛠️ Réglages boutique</div>
+          <div class="pill">🛒 Catalogue produits</div>
+          <div class="pill" id="pillSlug">🧭 Route libre</div>
+        </div>
+
+        <div class="status-grid">
+          <div class="box">
+            <h2>Rail actif</h2>
+            <div class="status warn" id="statusBox">Lecture du rail en cours...</div>
+
+            <div class="reading">
+              <div class="reading-row">
+                <span class="k">Slug actif</span>
+                <span class="v mono" id="slugText">—</span>
+              </div>
+              <div class="reading-row">
+                <span class="k">Téléphone lié</span>
+                <span class="v" id="phoneText">—</span>
+              </div>
+              <div class="reading-row">
+                <span class="k">Session vendeur</span>
+                <span class="v" id="sessionText">—</span>
+              </div>
+            </div>
+
+            <div class="muted" id="statusHint">
+              Si ton slug MARKET est déjà connu, tu peux ouvrir directement ton espace vendeur.
+            </div>
           </div>
 
-          <div class="muted">
-            Donc ton ancien index “fiche Saly / essai 7 jours” ne doit plus porter le rail actif.
+          <div class="box">
+            <h2>Cap DIGIY</h2>
+            <div class="muted">
+              <b>index.html</b> = hall d’entrée PRO.<br/>
+              <b>pin.html</b> = porte d’accès.<br/>
+              <b>dashboard-pro.html</b> = centre admin.<br/>
+              <b>cockpit.html</b> = cockpit vendeur.<br/>
+              <b>boutique.html</b> = réglages boutique.<br/>
+              <b>produits.html</b> = gestion catalogue.
+            </div>
+            <div class="status info">
+              Ce fichier est un <b>hall PRO</b>, pas une fiche publique client.
+            </div>
           </div>
         </div>
-      </div>
-    </div>
 
-    <div class="footer">
-      DIGIY MARKET PRO • entrée propre • même rail • slug-only ♾️
+        <h2 class="section-title">Navigation cousue</h2>
+
+        <div class="nav-grid">
+          <a class="nav-card" id="navPin" href="./pin.html">
+            <div class="nav-head">
+              <div>
+                <div class="nav-tag">Entrée</div>
+                <h3 class="nav-title">PIN vendeur</h3>
+              </div>
+              <div class="nav-icon">🔑</div>
+            </div>
+            <div class="nav-text">
+              Porte propre pour ouvrir la session et charger le slug réel sans bricolage.
+            </div>
+          </a>
+
+          <a class="nav-card" id="navDashboard" href="./dashboard-pro.html">
+            <div class="nav-head">
+              <div>
+                <div class="nav-tag">Central</div>
+                <h3 class="nav-title">Dashboard PRO</h3>
+              </div>
+              <div class="nav-icon">📊</div>
+            </div>
+            <div class="nav-text">
+              Point de pilotage global du vendeur : accès, repères, navigation principale du module.
+            </div>
+          </a>
+
+          <a class="nav-card" id="navCockpit" href="./cockpit.html">
+            <div class="nav-head">
+              <div>
+                <div class="nav-tag">Métier</div>
+                <h3 class="nav-title">Cockpit vendeur</h3>
+              </div>
+              <div class="nav-icon">🧭</div>
+            </div>
+            <div class="nav-text">
+              Vue de travail du commerçant avec ses vraies données si la session est bien ouverte.
+            </div>
+          </a>
+
+          <a class="nav-card" id="navProduits" href="./produits.html">
+            <div class="nav-head">
+              <div>
+                <div class="nav-tag">Catalogue</div>
+                <h3 class="nav-title">Produits</h3>
+              </div>
+              <div class="nav-icon">🛒</div>
+            </div>
+            <div class="nav-text">
+              Ajouter, modifier, publier ou désactiver les produits du catalogue MARKET.
+            </div>
+          </a>
+
+          <a class="nav-card" id="navBoutique" href="./boutique.html">
+            <div class="nav-head">
+              <div>
+                <div class="nav-tag">Réglages</div>
+                <h3 class="nav-title">Boutique</h3>
+              </div>
+              <div class="nav-icon">🛠️</div>
+            </div>
+            <div class="nav-text">
+              Régler l’identité publique, le contact, la publication et la lecture terrain.
+            </div>
+          </a>
+
+          <a class="nav-card" href="https://digiylyfe.com/">
+            <div class="nav-head">
+              <div>
+                <div class="nav-tag">Retour</div>
+                <h3 class="nav-title">Site DIGIYLYFE</h3>
+              </div>
+              <div class="nav-icon">🏠</div>
+            </div>
+            <div class="nav-text">
+              Sortie claire vers le site principal, sans laisser le vendeur enfermé dans une page isolée.
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <div class="footer">
+        DIGIY MARKET PRO • hall propre • navigation cousue • même rail • slug-first ♾️
+      </div>
     </div>
   </div>
 
   <script>
-    const qs = new URLSearchParams(location.search);
+    (function(){
+      "use strict";
 
-    const hintedSlug = String(qs.get("slug") || "").trim();
-    const rememberedSlug =
-      sessionStorage.getItem("digiy_market_slug") ||
-      sessionStorage.getItem("digiy_market_last_slug") ||
-      localStorage.getItem("digiy_market_last_slug") ||
-      "";
+      const qs = new URLSearchParams(location.search);
+      const $ = (id) => document.getElementById(id);
 
-    const activeSlug = hintedSlug || rememberedSlug || "";
+      function normSlug(v){
+        return String(v || "").trim().toLowerCase();
+      }
 
-    const $ = (id) => document.getElementById(id);
+      function normPhone(v){
+        const d = String(v || "").replace(/[^\d]/g, "");
+        if (!d) return "";
+        if (d.startsWith("221") && d.length === 12) return d;
+        if (d.length === 9) return "221" + d;
+        return d;
+      }
 
-    function cockpitUrl(slug){
-      return slug
-        ? `./cockpit.html?slug=${encodeURIComponent(slug)}`
-        : "./cockpit.html";
-    }
+      function displayPhone(v){
+        const d = normPhone(v);
+        return d ? "+" + d : "—";
+      }
 
-    function boutiqueUrl(slug){
-      return slug
-        ? `./boutique.html?slug=${encodeURIComponent(slug)}`
-        : "./boutique.html";
-    }
+      function isTruthyLike(v){
+        if (v === true || v === 1) return true;
+        const s = String(v == null ? "" : v).trim().toLowerCase();
+        return s === "true" || s === "1" || s === "yes" || s === "ok";
+      }
 
-    function pinUrl(slug){
-      return slug
-        ? `./pin.html?slug=${encodeURIComponent(slug)}`
-        : "./pin.html";
-    }
+      const hintedSlug = normSlug(qs.get("slug"));
+      const hintedPhone = normPhone(qs.get("phone"));
 
-    function setStatus(msg, tone){
-      const box = $("statusBox");
-      box.className = "status" + (tone ? " " + tone : "");
-      box.textContent = msg;
-    }
+      const rememberedSlug =
+        normSlug(sessionStorage.getItem("digiy_market_slug")) ||
+        normSlug(sessionStorage.getItem("digiy_market_last_slug")) ||
+        normSlug(localStorage.getItem("digiy_market_last_slug")) ||
+        "";
 
-    $("slugText").textContent = activeSlug || "Aucun slug mémorisé";
-    $("btnCockpit").href = cockpitUrl(activeSlug);
-    $("btnBoutique").href = boutiqueUrl(activeSlug);
-    $("btnPin").href = pinUrl(activeSlug);
+      const rememberedPhone =
+        normPhone(sessionStorage.getItem("digiy_market_phone")) ||
+        normPhone(localStorage.getItem("digiy_market_last_phone")) ||
+        "";
 
-    $("pillSlug").textContent = activeSlug
-      ? `🧭 Slug guidé : ${activeSlug}`
-      : "🧭 Route libre";
+      const activeSlug = hintedSlug || rememberedSlug || "";
+      const activePhone = hintedPhone || rememberedPhone || "";
 
-    if(activeSlug){
-      setStatus("Slug MARKET détecté. Tu peux ouvrir directement le cockpit.", "ok");
-    } else {
-      setStatus("Aucun slug trouvé. Passe par le PIN pour entrer proprement.", "warn");
-    }
+      const sessionFlags = [
+        sessionStorage.getItem("digiy_market_pin_access"),
+        sessionStorage.getItem("digiy_market_access_ok"),
+        sessionStorage.getItem("digiy_market_has_access"),
+        sessionStorage.getItem("digiy_market_access"),
+        localStorage.getItem("digiy_market_pin_access"),
+        localStorage.getItem("digiy_market_access_ok"),
+        localStorage.getItem("digiy_market_has_access"),
+        localStorage.getItem("digiy_market_access")
+      ];
+
+      let sessionOpen = sessionFlags.some(isTruthyLike);
+
+      const untilValues = [
+        sessionStorage.getItem("digiy_market_pin_access_until"),
+        sessionStorage.getItem("digiy_market_access_until"),
+        localStorage.getItem("digiy_market_pin_access_until"),
+        localStorage.getItem("digiy_market_access_until")
+      ];
+
+      if (!sessionOpen){
+        for (const raw of untilValues){
+          if (!raw) continue;
+
+          const n = Number(raw);
+          if (Number.isFinite(n) && n > Date.now()){
+            sessionOpen = true;
+            break;
+          }
+
+          const d = Date.parse(String(raw));
+          if (Number.isFinite(d) && d > Date.now()){
+            sessionOpen = true;
+            break;
+          }
+        }
+      }
+
+      if (hintedSlug) {
+        try {
+          sessionStorage.setItem("digiy_market_slug", hintedSlug);
+          sessionStorage.setItem("digiy_market_last_slug", hintedSlug);
+          localStorage.setItem("digiy_market_last_slug", hintedSlug);
+        } catch (_) {}
+      }
+
+      if (hintedPhone) {
+        try {
+          sessionStorage.setItem("digiy_market_phone", hintedPhone);
+          localStorage.setItem("digiy_market_last_phone", hintedPhone);
+        } catch (_) {}
+      }
+
+      function withSlug(path){
+        const u = new URL(path, location.href);
+        if (activeSlug) u.searchParams.set("slug", activeSlug);
+        return u.pathname + u.search;
+      }
+
+      function setHref(id, path){
+        const el = $(id);
+        if (el) el.href = withSlug(path);
+      }
+
+      function setStatus(msg, tone){
+        const box = $("statusBox");
+        if (!box) return;
+        box.className = "status" + (tone ? " " + tone : "");
+        box.textContent = msg;
+      }
+
+      const slugText = $("slugText");
+      const phoneText = $("phoneText");
+      const sessionText = $("sessionText");
+      const pillSlug = $("pillSlug");
+      const statusHint = $("statusHint");
+
+      if (slugText) slugText.textContent = activeSlug || "Aucun slug mémorisé";
+      if (phoneText) phoneText.textContent = displayPhone(activePhone);
+      if (sessionText) sessionText.textContent = sessionOpen ? "Ouverte" : "Non ouverte";
+
+      if (pillSlug) {
+        pillSlug.textContent = activeSlug
+          ? `🧭 Slug guidé : ${activeSlug}`
+          : "🧭 Route libre";
+      }
+
+      setHref("heroDashboard", "./dashboard-pro.html");
+      setHref("heroPin", "./pin.html");
+      setHref("heroCockpit", "./cockpit.html");
+
+      setHref("navPin", "./pin.html");
+      setHref("navDashboard", "./dashboard-pro.html");
+      setHref("navCockpit", "./cockpit.html");
+      setHref("navProduits", "./produits.html");
+      setHref("navBoutique", "./boutique.html");
+
+      if (activeSlug && sessionOpen) {
+        setStatus("Slug MARKET détecté et session vendeur ouverte. Tu peux entrer directement dans l’espace pro.", "ok");
+        if (statusHint) {
+          statusHint.textContent =
+            "Le slug est propagé automatiquement et la session PIN semble déjà ouverte.";
+        }
+      } else if (activeSlug && !sessionOpen) {
+        setStatus("Slug MARKET détecté, mais session vendeur non ouverte. Passe par PIN pour ouvrir proprement l’accès.", "warn");
+        if (statusHint) {
+          statusHint.textContent =
+            "Le slug est bien repéré, mais le bon réflexe reste pin.html pour ouvrir la vraie session vendeur.";
+        }
+      } else {
+        setStatus("Aucun slug trouvé. Passe par le PIN pour entrer proprement.", "warn");
+        if (statusHint) {
+          statusHint.textContent =
+            "Sans slug mémorisé, le bon réflexe reste pin.html pour ouvrir la vraie session vendeur.";
+        }
+      }
+    })();
   </script>
 </body>
 </html>
