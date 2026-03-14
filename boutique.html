@@ -15,7 +15,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-boutique-20260314-v5"></script>
+  <script src="./guard.js?v=market-boutique-20260314-v6"></script>
 
   <style>
     :root{
@@ -494,7 +494,7 @@
         <a class="btn" id="btnCockpit" href="./cockpit.html">📊 Cockpit</a>
         <a class="btn" id="btnProducts" href="./produits.html">📦 Produits</a>
         <a class="btn gold" id="btnPin" href="./pin.html">🔑 Entrer par PIN</a>
-        <a class="btn" id="btnPublic" href="./fiche.html">🌍 Voir la fiche publique</a>
+        <a class="btn" id="btnPublic" href="./index.html">🌍 Voir la vitrine</a>
       </div>
     </section>
 
@@ -506,7 +506,7 @@
           <div>
             <h1 id="shopNameHero">Boutique DIGIY</h1>
             <div class="subtitle" id="shopSubtitle">
-              Coque visible de la boutique. Le contenu réel s’ouvre avec un slug MARKET valide.
+              Coque visible de la boutique. Le contenu réel s’ouvre avec une session PIN MARKET valide.
             </div>
           </div>
 
@@ -726,6 +726,7 @@
       let ACCESS_SLUG = "";
       let ACCESS_PHONE = "";
       let ACCESS_OK = false;
+      let ACCESS_GRANTED = false;
       let CURRENT_COCKPIT = null;
       let CURRENT_PUBLISHED = false;
       let CURRENT_PRIORITY = 100;
@@ -773,12 +774,18 @@
         return u.pathname + u.search;
       }
 
+      function isTruthyLike(v){
+        if (v === true || v === 1) return true;
+        const s = String(v == null ? "" : v).trim().toLowerCase();
+        return s === "true" || s === "1" || s === "yes" || s === "ok";
+      }
+
       function setNavLinks(){
         $("btnDashboard").href = ACCESS_SLUG ? withSlug("./dashboard-pro.html") : "./dashboard-pro.html";
         $("btnCockpit").href = ACCESS_SLUG ? withSlug("./cockpit.html") : "./cockpit.html";
         $("btnProducts").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
         $("btnPin").href = ACCESS_SLUG ? withSlug("./pin.html") : "./pin.html";
-        $("btnPublic").href = ACCESS_SLUG ? withSlug("./fiche.html") : "./fiche.html";
+        $("btnPublic").href = ACCESS_SLUG ? withSlug("./index.html") : "./index.html";
       }
 
       function setMsgProfile(txt, type){
@@ -845,10 +852,6 @@
       }
 
       function resolvePhone(){
-        const qs = new URLSearchParams(location.search);
-        const fromQuery = normPhone(qs.get("phone"));
-        if (fromQuery) return fromQuery;
-
         const fromGuard = normPhone(window.DIGIY_GUARD?.state?.phone);
         if (fromGuard) return fromGuard;
 
@@ -876,6 +879,61 @@
         if (marketLocal) return marketLocal;
 
         return "";
+      }
+
+      function resolveAccessGranted(){
+        const st = window.DIGIY_GUARD?.state || {};
+
+        const directFlags = [
+          st.access_ok,
+          st.accessOk,
+          st.has_access,
+          st.hasAccess,
+          st.access,
+          st.pin_access,
+          st.pinAccess,
+          st.allowed,
+          st.is_allowed,
+          st.isAllowed,
+          st.ok
+        ];
+
+        if (directFlags.some(isTruthyLike)) return true;
+
+        const sessionFlags = [
+          sessionStorage.getItem("digiy_market_pin_access"),
+          sessionStorage.getItem("digiy_market_access_ok"),
+          sessionStorage.getItem("digiy_market_has_access"),
+          sessionStorage.getItem("digiy_market_access"),
+          localStorage.getItem("digiy_market_pin_access"),
+          localStorage.getItem("digiy_market_access_ok"),
+          localStorage.getItem("digiy_market_has_access"),
+          localStorage.getItem("digiy_market_access")
+        ];
+
+        if (sessionFlags.some(isTruthyLike)) return true;
+
+        const untilValues = [
+          sessionStorage.getItem("digiy_market_pin_access_until"),
+          sessionStorage.getItem("digiy_market_access_until"),
+          localStorage.getItem("digiy_market_pin_access_until"),
+          localStorage.getItem("digiy_market_access_until"),
+          st.pin_access_until,
+          st.access_until,
+          st.expires_at
+        ];
+
+        for (const raw of untilValues){
+          if (!raw) continue;
+
+          const n = Number(raw);
+          if (Number.isFinite(n) && n > Date.now()) return true;
+
+          const d = Date.parse(String(raw));
+          if (Number.isFinite(d) && d > Date.now()) return true;
+        }
+
+        return false;
       }
 
       function rememberAccess(){
@@ -1022,7 +1080,7 @@
         const total = Number(stats?.total_products ?? stats?.products_total ?? 0) || 0;
         const active = Number(stats?.active_products ?? stats?.products_active ?? 0) || 0;
         const inactive = Number(stats?.inactive_products ?? stats?.products_inactive ?? Math.max(total - active, 0)) || 0;
-        const published = Number(stats?.published_products ?? stats?.products_published ?? stats?.products_featured ?? 0) || 0;
+        const published = Number(stats?.published_products ?? stats?.products_published ?? 0) || 0;
 
         return { total, active, inactive, published };
       }
@@ -1074,8 +1132,8 @@
               ? "Boutique personnelle vierge. Tu peux maintenant la remplir proprement."
               : "Boutique réelle chargée. Tu peux ajuster ton identité, ton contact et ta publication.")
           : (ACCESS_SLUG
-              ? `Slug détecté (${ACCESS_SLUG}) mais accès non ouvert.`
-              : "Coque protégée visible. Le contenu réel s’ouvre avec un slug MARKET valide.");
+              ? `Slug détecté (${ACCESS_SLUG}) mais la session PIN n’est pas ouverte.`
+              : "Coque protégée visible. Le contenu réel s’ouvre avec une session PIN MARKET valide.");
 
         $("shopNameHero").textContent = shop;
         $("shopSubtitle").textContent = subtitle;
@@ -1099,11 +1157,11 @@
 
         $("topSub").textContent = liveMode
           ? `Réglages chargés pour ${resolvedSlug}`
-          : (ACCESS_SLUG ? `Slug détecté : ${ACCESS_SLUG}` : "Aucun accès ouvert pour l’instant.");
+          : (ACCESS_SLUG ? `Slug détecté : ${ACCESS_SLUG} • session protégée` : "Aucun accès ouvert pour l’instant.");
 
         $("previewBox").style.display = liveMode ? "none" : "block";
         $("previewBox").textContent = ACCESS_SLUG
-          ? `Slug ${ACCESS_SLUG} détecté. La coque reste visible, mais la vraie boutique reste protégée tant que l’accès n’est pas ouvert.`
+          ? `Slug ${ACCESS_SLUG} détecté. La coque reste visible, mais la vraie boutique reste verrouillée tant que le PIN n’a pas ouvert la session.`
           : "Aucun slug MARKET actif détecté. La coque reste visible, mais la vraie boutique reste protégée.";
 
         $("footerText").textContent = liveMode
@@ -1286,6 +1344,8 @@
 
           ACCESS_PHONE = resolvePhone();
           ACCESS_SLUG = resolveSlug();
+          ACCESS_GRANTED = resolveAccessGranted();
+
           rememberAccess();
           setNavLinks();
 
@@ -1295,6 +1355,15 @@
             setFormDisabled(true);
             setMsgProfile("Aucun slug MARKET détecté. La coque reste visible.", "warn");
             setMsgPublish("Aucun slug MARKET détecté.", "warn");
+            return;
+          }
+
+          if (!ACCESS_GRANTED){
+            ACCESS_OK = false;
+            applyCockpit(blockedCockpit("access_not_open"), false);
+            setFormDisabled(true);
+            setMsgProfile("⚠️ Session protégée non ouverte. Passe par PIN pour ouvrir les vrais réglages.", "warn");
+            setMsgPublish("Session protégée non ouverte.", "warn");
             return;
           }
 
