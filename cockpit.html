@@ -9,12 +9,13 @@
 
   <script>
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-    window.DIGIY_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+    window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
     window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+    window.DIGIY_MODULE = "MARKET";
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-cockpit-20260312-v4"></script>
+  <script src="./guard.js?v=market-cockpit-20260314-v5"></script>
 
   <style>
     :root{
@@ -750,6 +751,11 @@
       }
 
       function resolvePhone(){
+        const qs = new URLSearchParams(location.search);
+
+        const fromQuery = normalizePhone(qs.get("phone"));
+        if (fromQuery) return fromQuery;
+
         const fromGuard = normalizePhone(window.DIGIY_GUARD?.state?.phone);
         if (fromGuard) return fromGuard;
 
@@ -791,7 +797,7 @@
           phone: phone || "",
           public_label: "DIGIY PRO MARKET",
           access: "accès protégé",
-          is_blank: true,
+          is_blank: false,
           profile: {
             shop_name: "",
             business_name: "",
@@ -815,6 +821,7 @@
           stats: {
             total_products: 0,
             active_products: 0,
+            inactive_products: 0,
             published_products: 0
           }
         };
@@ -824,7 +831,7 @@
         const total = Number(stats?.total_products ?? stats?.products_total ?? 0) || 0;
         const active = Number(stats?.active_products ?? stats?.products_active ?? 0) || 0;
         const published = Number(stats?.published_products ?? stats?.products_published ?? 0) || 0;
-        const inactive = Math.max(total - active, 0);
+        const inactive = Number(stats?.inactive_products ?? stats?.products_inactive ?? Math.max(total - active, 0)) || 0;
         return { total, active, inactive, published };
       }
 
@@ -849,6 +856,17 @@
         $("btnProducts").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
         $("btnPin").href = ACCESS_SLUG ? withSlug("./pin.html") : "./pin.html";
         $("btnPublic").href = ACCESS_SLUG ? withSlug("./fiche.html") : "./fiche.html";
+      }
+
+      function storeAccess(){
+        if (ACCESS_SLUG){
+          sessionStorage.setItem("digiy_market_slug", ACCESS_SLUG);
+          localStorage.setItem("digiy_market_last_slug", ACCESS_SLUG);
+        }
+        if (ACCESS_PHONE){
+          sessionStorage.setItem("digiy_market_phone", ACCESS_PHONE);
+          localStorage.setItem("digiy_market_last_phone", ACCESS_PHONE);
+        }
       }
 
       function applyStats(){
@@ -884,6 +902,9 @@
         const resolvedSlug = getResolvedSlug(data);
         if (resolvedSlug) ACCESS_SLUG = resolvedSlug;
 
+        storeAccess();
+        updateNavLinks();
+
         const shopName = getShopName(p);
         const city = toText(p.city, "Ville à définir");
         const categories = toText(p.categories_text, "Catégories à définir");
@@ -899,14 +920,14 @@
               ? "Boutique personnelle vierge. Complète le profil et ajoute tes produits."
               : "Cockpit vendeur personnel chargé avec les vraies données de la boutique.")
           : (ACCESS_SLUG
-              ? "Slug détecté, mais accès non ouvert. La coque reste visible sans exposer d’autres données."
+              ? `Slug détecté (${ACCESS_SLUG}), mais accès non ouvert.`
               : "Coque visible du cockpit vendeur. Le contenu réel s’ouvre avec un slug MARKET valide.");
 
         $("pillCategory").textContent = "🏷️ " + categories;
         $("pillCity").textContent = "📍 " + city;
         $("pillPublish").textContent = "🌍 " + publication;
 
-        $("miniSlug").textContent = liveMode ? (resolvedSlug || "—") : (ACCESS_SLUG || "—");
+        $("miniSlug").textContent = ACCESS_SLUG || "—";
         $("miniPhone").textContent = formatPhone(data.phone || ACCESS_PHONE);
         $("miniWhatsapp").textContent = formatPhone(whatsapp);
         $("miniAddress").textContent = address;
@@ -920,12 +941,16 @@
         $("modeBadge").textContent = liveMode ? "Mode vivant" : "Mode protégé";
 
         $("topSub").textContent = liveMode
-          ? `Cockpit chargé pour ${resolvedSlug || "MARKET"}`
+          ? `Cockpit chargé pour ${ACCESS_SLUG || "MARKET"}`
           : (ACCESS_SLUG
               ? `Slug détecté : ${ACCESS_SLUG} • accès protégé`
               : "Aucun accès ouvert pour l’instant.");
 
         $("previewBox").style.display = liveMode ? "none" : "block";
+        $("previewBox").textContent = ACCESS_SLUG
+          ? `Slug ${ACCESS_SLUG} détecté. La coque reste visible, mais les données réelles restent protégées tant que l’accès n’est pas ouvert.`
+          : "Aucun slug MARKET actif détecté. La coque reste visible, mais les données réelles restent protégées.";
+
         $("footerText").textContent = liveMode
           ? `DIGIY PRO MARKET • ${shopName} • Cockpit vivant`
           : "DIGIY PRO MARKET • Cockpit protégé";
@@ -940,7 +965,6 @@
           ? `${shopName} — Cockpit vendeur DIGIY PRO MARKET`
           : "DIGIY PRO MARKET — Cockpit vendeur";
 
-        updateNavLinks();
         applyStats();
       }
 
@@ -1110,17 +1134,6 @@
         ALL_PRODUCTS = normalizeProducts(data);
       }
 
-      function storeAccess(){
-        if (ACCESS_SLUG){
-          sessionStorage.setItem("digiy_market_slug", ACCESS_SLUG);
-          localStorage.setItem("digiy_market_last_slug", ACCESS_SLUG);
-        }
-        if (ACCESS_PHONE){
-          sessionStorage.setItem("digiy_market_phone", ACCESS_PHONE);
-          localStorage.setItem("digiy_market_last_phone", ACCESS_PHONE);
-        }
-      }
-
       function showBlockedState(reasonText){
         ACCESS_OK = false;
         PROFILE = blockedProfile(ACCESS_SLUG, ACCESS_PHONE);
@@ -1128,7 +1141,6 @@
         applyProfile(PROFILE, false);
         renderProducts();
         setMsgMain(reasonText || "Accès protégé.", "warn");
-        if (reasonText) $("topSub").textContent = reasonText;
       }
 
       async function boot(){
@@ -1141,7 +1153,7 @@
 
           ACCESS_SLUG = resolveSlug();
           ACCESS_PHONE = resolvePhone();
-
+          storeAccess();
           updateNavLinks();
 
           if (!ACCESS_SLUG){
@@ -1203,6 +1215,7 @@
 
       $("btnReload").addEventListener("click", boot);
       initFilters();
+      updateNavLinks();
       boot();
     })();
   </script>
