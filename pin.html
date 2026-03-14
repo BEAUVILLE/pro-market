@@ -9,7 +9,9 @@
 
   <script>
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-    window.DIGIY_SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+    window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
+    window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+    window.DIGIY_MODULE = "MARKET";
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -417,6 +419,7 @@
           <button class="btn primary" id="btnLogin" type="button">🔑 Ouvrir mon cockpit</button>
           <a class="btn gold" id="btnSupport" href="#" target="_blank" rel="noopener">💬 Support WhatsApp</a>
           <a class="btn" id="btnCockpit" href="./cockpit.html">📊 Voir le cockpit</a>
+          <a class="btn" id="btnDashboard" href="./dashboard-pro.html">🧭 Dashboard</a>
         </div>
 
         <div id="statusBox" class="statusbox">Prêt.</div>
@@ -446,12 +449,17 @@
 
           <div class="fact">
             <div class="k">Boutique publique</div>
-            <div class="v"><a id="btnPublicView" href="./../DIGIY MARKET/boutique.html">Voir la fiche publique</a></div>
+            <div class="v"><a id="btnPublicView" href="./fiche.html">Voir la fiche publique</a></div>
+          </div>
+
+          <div class="fact">
+            <div class="k">Navigation PRO</div>
+            <div class="v" id="proNavText">cockpit / dashboard / boutique / produits</div>
           </div>
         </div>
 
         <div class="statusbox warn" style="margin-top:16px">
-          Le contrôle officiel passe par la RPC <strong style="margin-left:6px">market_pin_login</strong>.
+          Le contrôle officiel passe par <strong style="margin-left:6px">public.digiy_verify_pin</strong>.
         </div>
       </section>
     </section>
@@ -463,26 +471,33 @@
 
   <script>
     const SUPABASE_URL = window.DIGIY_SUPABASE_URL;
-    const SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON;
-    const SUPPORT_WA = "221771342889";
+    const SUPABASE_ANON_KEY =
+      window.DIGIY_SUPABASE_ANON_KEY ||
+      window.DIGIY_SUPABASE_ANON;
 
-    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const SUPPORT_WA = "221771342889";
+    const MODULE_CODE = "MARKET";
+
+    const $ = (id) => document.getElementById(id);
+
+    let sb = null;
 
     const qs = new URLSearchParams(location.search);
     const hintedSlug = String(qs.get("slug") || "").trim();
 
     const rememberedSlug =
       sessionStorage.getItem("digiy_market_slug") ||
-      sessionStorage.getItem("digiy_market_last_slug") ||
       localStorage.getItem("digiy_market_last_slug") ||
       "";
 
     const routeSlug = hintedSlug || rememberedSlug || "";
 
-    const $ = (id) => document.getElementById(id);
-
     function normalizePhone(v){
-      return String(v || "").replace(/[^\d]/g, "");
+      const digits = String(v || "").replace(/[^\d]/g, "");
+      if (!digits) return "";
+      if (digits.startsWith("221") && digits.length === 12) return digits;
+      if (digits.length === 9) return "221" + digits;
+      return digits;
     }
 
     function normalizePin(v){
@@ -501,16 +516,54 @@
       $("pin").disabled = isBusy;
     }
 
+    function makeMarketSlug(phone){
+      const p = normalizePhone(phone);
+      return p ? `market-${p}` : "";
+    }
+
     function cockpitUrl(slug){
       return slug
         ? `./cockpit.html?slug=${encodeURIComponent(slug)}`
         : "./cockpit.html";
     }
 
+    function dashboardUrl(slug){
+      return slug
+        ? `./dashboard-pro.html?slug=${encodeURIComponent(slug)}`
+        : "./dashboard-pro.html";
+    }
+
+    function boutiqueUrl(slug){
+      return slug
+        ? `./boutique.html?slug=${encodeURIComponent(slug)}`
+        : "./boutique.html";
+    }
+
+    function produitsUrl(slug){
+      return slug
+        ? `./produits.html?slug=${encodeURIComponent(slug)}`
+        : "./produits.html";
+    }
+
     function publicShopUrl(slug){
       return slug
-        ? `./../DIGIY MARKET/boutique.html?slug=${encodeURIComponent(slug)}`
-        : "./../DIGIY MARKET/boutique.html";
+        ? `./fiche.html?slug=${encodeURIComponent(slug)}`
+        : "./fiche.html";
+    }
+
+    function chooseTargetSlug(phone, rpcData){
+      const rpcSlug = String(
+        rpcData?.slug ||
+        rpcData?.subscription_slug ||
+        rpcData?.access_slug ||
+        ""
+      ).trim();
+
+      if (rpcSlug) return rpcSlug;
+
+      const canonical = makeMarketSlug(phone);
+      if (routeSlug && routeSlug.endsWith(phone)) return routeSlug;
+      return canonical;
     }
 
     function buildSupportUrl(){
@@ -528,21 +581,29 @@
       return `https://wa.me/${SUPPORT_WA}?text=${encodeURIComponent(msg)}`;
     }
 
-    async function callMarketPinLogin(phone, pin){
+    async function callVerifyPin(phone, pin){
       const tries = [
-        { p_phone: phone, p_pin: pin },
-        { phone: phone, pin: pin }
+        {
+          p_phone: phone,
+          p_module: MODULE_CODE,
+          p_pin: pin
+        },
+        {
+          phone: phone,
+          module: MODULE_CODE,
+          pin: pin
+        }
       ];
 
       let lastError = null;
 
-      for(const args of tries){
-        const { data, error } = await sb.rpc("market_pin_login", args);
-        if(!error) return data;
+      for (const args of tries){
+        const { data, error } = await sb.rpc("digiy_verify_pin", args);
+        if (!error) return data;
         lastError = error;
       }
 
-      throw lastError || new Error("RPC market_pin_login indisponible");
+      throw lastError || new Error("RPC digiy_verify_pin indisponible");
     }
 
     async function login(){
@@ -563,7 +624,7 @@
       setStatus("Vérification du PIN...");
 
       try{
-        const data = await callMarketPinLogin(phone, pin);
+        const data = await callVerifyPin(phone, pin);
 
         if(!data?.ok){
           const err = data?.error || data?.message || "PIN invalide ou accès refusé.";
@@ -571,24 +632,20 @@
           return;
         }
 
-        const targetSlug = String(
-          data?.slug ||
-          data?.subscription_slug ||
-          data?.access_slug ||
-          routeSlug ||
-          ""
-        ).trim();
+        const targetSlug = chooseTargetSlug(phone, data);
 
         if(!targetSlug){
-          setStatus("PIN reconnu, mais aucun slug MARKET n’a été retourné.", "warn");
+          setStatus("PIN reconnu, mais aucun slug MARKET n’a été déterminé.", "warn");
           return;
         }
 
         localStorage.setItem("digiy_last_phone", phone);
         localStorage.setItem("digiy_market_phone", phone);
+        localStorage.setItem("digiy_market_last_phone", phone);
         localStorage.setItem("digiy_market_last_slug", targetSlug);
 
         sessionStorage.setItem("digiy_market_phone", phone);
+        sessionStorage.setItem("digiy_market_last_phone", phone);
         sessionStorage.setItem("digiy_market_slug", targetSlug);
         sessionStorage.setItem("digiy_market_last_slug", targetSlug);
 
@@ -596,10 +653,10 @@
 
         setTimeout(() => {
           location.href = cockpitUrl(targetSlug);
-        }, 350);
+        }, 300);
       }catch(e){
         console.error(e);
-        setStatus("Erreur de vérification PIN. Vérifie la RPC market_pin_login ou contacte le support.", "err");
+        setStatus("Erreur de vérification PIN. Vérifie public.digiy_verify_pin ou contacte le support.", "err");
       }finally{
         setBusy(false);
       }
@@ -614,12 +671,17 @@
       if(lastPhone) $("phone").value = lastPhone;
 
       $("btnCockpit").href = cockpitUrl(routeSlug);
+      $("btnDashboard").href = dashboardUrl(routeSlug);
       $("btnPublicView").href = publicShopUrl(routeSlug);
       $("btnSupport").href = buildSupportUrl();
 
       $("destText").textContent = routeSlug
         ? `cockpit.html?slug=${routeSlug}`
-        : "cockpit.html?slug=...";
+        : "cockpit.html?slug=market-221xxxxxxxxx";
+
+      $("proNavText").textContent = routeSlug
+        ? `dashboard-pro.html?slug=${routeSlug} / boutique.html?slug=${routeSlug} / produits.html?slug=${routeSlug}`
+        : "dashboard-pro.html / boutique.html / produits.html";
 
       $("pillSlug").textContent = routeSlug
         ? `🧭 Slug guidé : ${routeSlug}`
@@ -655,6 +717,9 @@
       setStatus("Erreur : bibliothèque Supabase non chargée.", "err");
       $("btnLogin").disabled = true;
     }else{
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false }
+      });
       initUi();
     }
   </script>
