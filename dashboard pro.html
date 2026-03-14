@@ -15,7 +15,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-admin-20260314-v6"></script>
+  <script src="./guard.js?v=market-admin-20260314-v7"></script>
 
   <style>
     :root{
@@ -33,7 +33,7 @@
       --shadow:0 16px 40px rgba(0,0,0,.32);
       --radius:22px;
       --pad:16px;
-      --max:1080px;
+      --max:1120px;
     }
 
     *{box-sizing:border-box}
@@ -112,6 +112,12 @@
       background:rgba(245,158,11,.12);
       border-color:rgba(245,158,11,.24);
       color:#ffe2b0;
+    }
+
+    .btn.info{
+      background:rgba(99,102,241,.12);
+      border-color:rgba(99,102,241,.24);
+      color:#dfe2ff;
     }
 
     .btn:disabled{opacity:.55;cursor:not-allowed}
@@ -253,11 +259,13 @@
       <div class="right">
         <div class="pill" id="pillStatus">Statut : <b>…</b></div>
         <button class="btn" id="btnReload" type="button">🔄 Recharger</button>
+
+        <a class="btn info" id="btnHallTop" href="./index.html">🏠 Hall</a>
         <a class="btn" id="btnCockpitTop" href="./cockpit.html">📊 Cockpit</a>
         <a class="btn" id="btnBoutiqueTop" href="./boutique.html">🛠️ Boutique</a>
         <a class="btn" id="btnProductsTop" href="./produits.html">📦 Produits</a>
         <a class="btn gold" id="btnPin" href="./pin.html">🔑 PIN</a>
-        <a class="btn warn" id="btnPublicTop" href="./index.html">🌍 Vitrine</a>
+        <a class="btn warn" id="btnPublicTop" href="./fiche.html">🌍 Fiche publique</a>
       </div>
     </div>
 
@@ -305,10 +313,11 @@
         </div>
 
         <div class="footer">
+          <a class="btn info" id="btnHall" href="./index.html">🏠 Hall</a>
           <a class="btn primary" id="btnCockpit" href="./cockpit.html">📊 Cockpit</a>
           <a class="btn" id="btnBoutique" href="./boutique.html">🛠️ Boutique</a>
           <a class="btn" id="btnProduits" href="./produits.html">📦 Produits</a>
-          <a class="btn gold" id="btnPublic" href="./index.html">🌍 Vitrine</a>
+          <a class="btn gold" id="btnPublic" href="./fiche.html">🌍 Fiche publique</a>
         </div>
       </div>
 
@@ -327,11 +336,12 @@
 
         <h3>Navigation</h3>
         <div class="footer" style="justify-content:flex-start">
+          <a class="btn info" id="btnHall2" href="./index.html">🏠 Hall</a>
           <a class="btn" id="btnPin2" href="./pin.html">🔑 Porte PIN</a>
           <a class="btn" id="btnCockpit2" href="./cockpit.html">📊 Cockpit vendeur</a>
           <a class="btn" id="btnBoutique2" href="./boutique.html">🛠️ Réglages</a>
           <a class="btn" id="btnProduits2" href="./produits.html">📦 Catalogue</a>
-          <a class="btn warn" id="btnPublic2" href="./index.html">🌍 Vitrine</a>
+          <a class="btn warn" id="btnPublic2" href="./fiche.html">🌍 Fiche publique</a>
         </div>
       </div>
 
@@ -345,10 +355,11 @@
         <div id="productPreview" class="empty">Chargement…</div>
 
         <div class="footer">
+          <a class="smallLink" href="./index.html" id="linkHall">Hall</a>
           <a class="smallLink" href="./boutique.html" id="linkSupport">Réglages boutique</a>
           <a class="smallLink" href="./cockpit.html" id="linkCockpit">Cockpit vendeur</a>
           <a class="smallLink" href="./produits.html" id="linkProducts">Produits</a>
-          <a class="smallLink" href="./index.html" id="linkPublic">Vitrine publique</a>
+          <a class="smallLink" href="./fiche.html" id="linkPublic">Fiche publique</a>
         </div>
       </div>
 
@@ -389,10 +400,42 @@
     return d ? "+" + d : "—";
   }
 
-  function withSlug(base){
+  function buildPath(base, opts){
+    const o = opts || {};
+    const includeSlug = o.slug !== false;
+    const includePhone = !!o.phone;
+
     const u = new URL(base, location.href);
-    if (ACCESS_SLUG) u.searchParams.set("slug", ACCESS_SLUG);
+
+    if (includeSlug && ACCESS_SLUG) u.searchParams.set("slug", ACCESS_SLUG);
+    if (includePhone && ACCESS_PHONE) u.searchParams.set("phone", ACCESS_PHONE);
+
     return u.pathname + u.search;
+  }
+
+  function pinPath(){
+    return buildPath("./pin.html", { slug:true, phone:true });
+  }
+
+  function cockpitPath(){
+    return buildPath("./cockpit.html", { slug:true, phone:true });
+  }
+
+  function boutiquePath(){
+    return buildPath("./boutique.html", { slug:true, phone:true });
+  }
+
+  function produitsPath(){
+    return buildPath("./produits.html", { slug:true, phone:true });
+  }
+
+  function hallPath(){
+    return buildPath("./index.html", { slug:true, phone:true });
+  }
+
+  function fichePath(){
+    if (ACCESS_SLUG) return buildPath("./fiche.html", { slug:true, phone:false });
+    return "./index.html";
   }
 
   function escapeHtml(str){
@@ -497,7 +540,15 @@
   }
 
   function resolvePhone(){
-    const fromGuard = normPhone(window.DIGIY_GUARD?.state?.phone);
+    const qs = new URLSearchParams(location.search);
+
+    const fromQuery = normPhone(qs.get("phone"));
+    if (fromQuery) return fromQuery;
+
+    const fromGuard = normPhone(
+      window.DIGIY_GUARD?.state?.phone ||
+      window.DIGIY_GUARD?.state?.identity?.phone
+    );
     if (fromGuard) return fromGuard;
 
     const marketSession = normPhone(sessionStorage.getItem("digiy_market_phone"));
@@ -565,36 +616,41 @@
   }
 
   function updateLinks(){
-    $("btnPin").href = ACCESS_SLUG ? withSlug("./pin.html") : "./pin.html";
-    $("btnPin2").href = ACCESS_SLUG ? withSlug("./pin.html") : "./pin.html";
+    $("btnHallTop").href = hallPath();
+    $("btnHall").href = hallPath();
+    $("btnHall2").href = hallPath();
+    $("linkHall").href = hallPath();
 
-    $("btnCockpitTop").href = ACCESS_SLUG ? withSlug("./cockpit.html") : "./cockpit.html";
-    $("btnCockpit").href = ACCESS_SLUG ? withSlug("./cockpit.html") : "./cockpit.html";
-    $("btnCockpit2").href = ACCESS_SLUG ? withSlug("./cockpit.html") : "./cockpit.html";
+    $("btnPin").href = pinPath();
+    $("btnPin2").href = pinPath();
 
-    $("btnBoutiqueTop").href = ACCESS_SLUG ? withSlug("./boutique.html") : "./boutique.html";
-    $("btnBoutique").href = ACCESS_SLUG ? withSlug("./boutique.html") : "./boutique.html";
-    $("btnBoutique2").href = ACCESS_SLUG ? withSlug("./boutique.html") : "./boutique.html";
+    $("btnCockpitTop").href = cockpitPath();
+    $("btnCockpit").href = cockpitPath();
+    $("btnCockpit2").href = cockpitPath();
 
-    $("btnProduits").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
-    $("btnProduits2").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
-    $("btnProductsTop").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
+    $("btnBoutiqueTop").href = boutiquePath();
+    $("btnBoutique").href = boutiquePath();
+    $("btnBoutique2").href = boutiquePath();
 
-    $("btnPublicTop").href = ACCESS_SLUG ? withSlug("./index.html") : "./index.html";
-    $("btnPublic").href = ACCESS_SLUG ? withSlug("./index.html") : "./index.html";
-    $("btnPublic2").href = ACCESS_SLUG ? withSlug("./index.html") : "./index.html";
+    $("btnProduits").href = produitsPath();
+    $("btnProduits2").href = produitsPath();
+    $("btnProductsTop").href = produitsPath();
 
-    $("linkSupport").href = ACCESS_SLUG ? withSlug("./boutique.html") : "./boutique.html";
-    $("linkCockpit").href = ACCESS_SLUG ? withSlug("./cockpit.html") : "./cockpit.html";
-    $("linkProducts").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
-    $("linkPublic").href = ACCESS_SLUG ? withSlug("./index.html") : "./index.html";
+    $("btnPublicTop").href = fichePath();
+    $("btnPublic").href = fichePath();
+    $("btnPublic2").href = fichePath();
+
+    $("linkSupport").href = boutiquePath();
+    $("linkCockpit").href = cockpitPath();
+    $("linkProducts").href = produitsPath();
+    $("linkPublic").href = fichePath();
   }
 
   function setNotifs(items){
     const box = $("notifList");
     box.innerHTML = "";
 
-    if(!items.length){
+    if (!items.length){
       box.innerHTML = '<div class="notif"><div><b>Rien à signaler</b><div class="muted" style="font-weight:750;margin-top:2px">Tout roule.</div></div><div class="tag ok">OK</div></div>';
       return;
     }
@@ -699,6 +755,12 @@
         tag:"ACCÈS",
         title:"Coque admin visible",
         text:"L’admin existe, mais les données réelles restent protégées tant que la session vendeur n’est pas ouverte."
+      },
+      {
+        level:"info",
+        tag:"PORTE",
+        title:"Entrée recommandée",
+        text:"Passe par la porte PIN avec le téléphone pour ouvrir proprement le cockpit et l’admin."
       }
     ]);
   }
@@ -765,14 +827,14 @@
         level:"warn",
         tag:"OFF",
         title:"Publication coupée",
-        text:"La boutique n’est pas encore visible publiquement."
+        text:"La fiche publique n’est pas encore visible tant que la publication n’est pas activée."
       });
     } else {
       notifs.push({
         level:"ok",
         tag:"ON",
         title:"Publication active",
-        text:"La boutique peut être vue publiquement."
+        text:"La fiche publique peut être vue avec le slug actif."
       });
     }
 
@@ -791,6 +853,13 @@
         text:`${active} produit(s) actif(s) dans la boutique.`
       });
     }
+
+    notifs.push({
+      level:"info",
+      tag:"NAV",
+      title:"Navigation recousue",
+      text:"Hall, PIN, cockpit, boutique, produits et fiche publique gardent maintenant le slug actif."
+    });
 
     setNotifs(notifs);
   }
@@ -945,6 +1014,12 @@
   }
 
   $("btnReload").addEventListener("click", boot);
+  updateLinks();
+  boot();
+})();
+</script>
+</body>
+</html>
   updateLinks();
   boot();
 })();
