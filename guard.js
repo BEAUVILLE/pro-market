@@ -17,8 +17,8 @@
 
   const ALLOW_PREVIEW_WITHOUT_IDENTITY = false;
 
-  const SESSION_KEY = `DIGIY_${MODULE_CODE}_SESSION`;
-  const ACCESS_KEY = `DIGIY_${MODULE_CODE}_ACCESS`;
+  const SESSION_KEY = `DIGIY_${DIGIY_MARKET}_SESSION`;
+  const ACCESS_KEY = `DIGIY_${DIGIY_MARKETCODE}_ACCESS`;
   const MODULE_PREFIX = "digiy_market";
 
  const state = {
