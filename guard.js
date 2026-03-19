@@ -8,20 +8,22 @@
 (() => {
   "use strict";
 
-  const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-  const SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
+  const SUPABASE_URL =
+    String(window.DIGIY_SUPABASE_URL || "https://wesqmwjjtsefyjnluosj.supabase.co").trim();
+  const SUPABASE_ANON_KEY =
+    String(window.DIGIY_SUPABASE_ANON || window.DIGIY_SUPABASE_ANON_KEY || "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3").trim();
 
-  const MODULE_CODE = "MARKET";
+  const MODULE_CODE = "PAY";
   const LOGIN_URL = window.DIGIY_LOGIN_URL || "./pin.html";
   const PAY_URL = "https://commencer-a-payer.digiylyfe.com/";
 
   const ALLOW_PREVIEW_WITHOUT_IDENTITY = false;
 
-  const SESSION_KEY = `DIGIY_${DIGIY_MARKET}_SESSION`;
-  const ACCESS_KEY = `DIGIY_${DIGIY_MARKETCODE}_ACCESS`;
-  const MODULE_PREFIX = "digiy_market";
+  const SESSION_KEY = `DIGIY_${MODULE_MARKET}_SESSION`;
+  const ACCESS_KEY = `DIGIY_${MODULE_MARKET}_ACCESS`;
+  const MODULE_PREFIX = "digiy_pay";
 
- const state = {
+  const state = {
     preview: false,
     access_ok: false,
     reason: "booting",
