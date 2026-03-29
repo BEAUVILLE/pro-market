@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>DIGIY MARKET — Ticket</title>
+  <title>Je vends — Ticket</title>
   <meta name="theme-color" content="#0b1020" />
 
   <style>
@@ -39,7 +39,9 @@
     td.r, th.r{text-align:right}
     .tot td{border-bottom:none;font-weight:900}
     .actions{
-      display:flex; gap:10px; margin-top:12px;
+      display:flex;
+      gap:10px;
+      margin-top:12px;
     }
     button{
       flex:1;
@@ -60,7 +62,17 @@
       color:#fff;
       border-color:#ef4444;
     }
-    .error{margin-top:10px;color:#ef4444;font-size:12px;min-height:1.2em}
+    button:disabled{
+      opacity:.55;
+      cursor:not-allowed;
+    }
+    .error{
+      margin-top:10px;
+      color:#ef4444;
+      font-size:12px;
+      min-height:1.2em;
+      white-space:pre-line;
+    }
     @media print{
       body{background:#fff;padding:0}
       .wrap{border:none;border-radius:0;max-width:none}
@@ -73,7 +85,7 @@
   <div class="wrap">
     <div class="row">
       <div>
-        <div class="h1" id="storeName">DIGIY MARKET</div>
+        <div class="h1" id="storeName">Ma boutique</div>
         <div class="small" id="storeSlug">—</div>
       </div>
       <div style="text-align:right">
@@ -107,9 +119,9 @@
 
     <table>
       <tbody>
-        <tr><td class="small">Sous-total</td><td class="r" id="subTotal">0</td></tr>
-        <tr><td class="small">TVA</td><td class="r" id="taxTotal">0</td></tr>
-        <tr class="tot"><td>TOTAL</td><td class="r" id="grandTotal">0</td></tr>
+        <tr><td class="small">Sous-total</td><td class="r" id="subTotal">0 FCFA</td></tr>
+        <tr><td class="small">TVA</td><td class="r" id="taxTotal">0 FCFA</td></tr>
+        <tr class="tot"><td>TOTAL</td><td class="r" id="grandTotal">0 FCFA</td></tr>
       </tbody>
     </table>
 
@@ -120,78 +132,121 @@
 
     <div class="actions">
       <button class="primary" id="btnPrint">🧾 Imprimer</button>
-      <button class="danger" id="btnVoid">⛔ Annuler</button>
+      <button class="danger" id="btnVoid">⛔ Annuler la vente</button>
     </div>
 
     <div class="error" id="errorBox"></div>
   </div>
 
-  <!-- Supabase JS (obligatoire) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
   (function(){
-    // ✅ mets tes variables (ou charge guard.js si tu préfères)
+    "use strict";
+
     const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const $ = (id)=>document.getElementById(id);
-    const err = (m)=>{$("errorBox").textContent = m || ""};
+    const btnPrint = $("btnPrint");
+    const btnVoid = $("btnVoid");
+
+    function err(m){
+      $("errorBox").textContent = m || "";
+    }
 
     function qp(k){
       try{return new URLSearchParams(location.search).get(k) || ""}catch(_){return ""}
     }
 
-   // =============================
-// CONTEXTE SÉCURISÉ (AIGLE MODE)
-// =============================
-
-// sale_id : URL > session (si stocké) > localStorage
-const saleId = (
-  qp("sale_id") ||
-  window.DIGIY_GUARD?.getSession?.()?.sale_id ||
-  localStorage.getItem("DIGIY_LAST_SALE_ID") ||
-  ""
-).trim();
-
-// slug : URL > guard > localStorage
-const slug = (
-  qp("slug") ||
-  window.DIGIY_GUARD?.getSlug?.() ||
-  localStorage.getItem("DIGIY_SLUG") ||
-  ""
-).trim();
-
-// owner_id : guard session > localStorage
-const ownerId = (
-  window.DIGIY_GUARD?.getSession?.()?.owner_id ||
-  localStorage.getItem("DIGIY_PRO_ID") ||
-  ""
-).trim();
-
-console.log("CTX READY 🦅", { saleId, slug, ownerId });
-
-if(!saleId){
-  console.warn("⚠️ sale_id manquant — ticket non annulable");
-}
-
     function money(x){
-      const n = Number(x||0);
-      return n.toFixed(0) + " FCFA";
+      const n = Number(x || 0);
+      return `${n.toFixed(0)} FCFA`;
+    }
+
+    function shortId(id){
+      const s = String(id || "").trim();
+      if (!s) return "—";
+      return s.length > 10 ? `${s.slice(0,8)}…` : s;
+    }
+
+    const saleId = (
+      qp("sale_id") ||
+      qp("id") ||
+      window.DIGIY_GUARD?.getSession?.()?.sale_id ||
+      localStorage.getItem("DIGIY_LAST_SALE_ID") ||
+      ""
+    ).trim();
+
+    const slug = (
+      qp("slug") ||
+      window.DIGIY_GUARD?.getSlug?.() ||
+      localStorage.getItem("DIGIY_SLUG") ||
+      ""
+    ).trim();
+
+    const ownerId = (
+      window.DIGIY_GUARD?.getSession?.()?.owner_id ||
+      localStorage.getItem("DIGIY_PRO_ID") ||
+      ""
+    ).trim();
+
+    async function loadProductNames(ids){
+      const uniq = [...new Set((ids || []).filter(Boolean))];
+      if (!uniq.length) return new Map();
+
+      const tries = [
+        { select: "id,title", pick: (p) => p.title },
+        { select: "id,product_name", pick: (p) => p.product_name },
+        { select: "id,name", pick: (p) => p.name }
+      ];
+
+      for (const t of tries){
+        const { data, error } = await sb
+          .from("market_products")
+          .select(t.select)
+          .in("id", uniq);
+
+        if (!error && Array.isArray(data)) {
+          const map = new Map();
+          data.forEach((p) => {
+            map.set(p.id, t.pick(p) || "Article");
+          });
+          return map;
+        }
+      }
+
+      return new Map();
     }
 
     async function loadTicket(){
       err("");
 
-      // 1) ticket header + lines
+      if (!saleId) {
+        $("saleIdShort").textContent = "—";
+        $("saleStatus").textContent = "Statut : introuvable";
+        $("saleDate").textContent = "Référence manquante";
+        $("lines").innerHTML = "";
+        $("payments").textContent = "—";
+        btnVoid.disabled = true;
+        err("Ticket introuvable : référence de vente manquante.");
+        return;
+      }
+
+      $("saleIdShort").textContent = shortId(saleId);
+
       const { data: sale, error: e1 } = await sb
         .from("market_sales")
         .select("id,created_at,status,subtotal,tax_total,total,store_id")
         .eq("id", saleId)
         .maybeSingle();
 
-      if(e1 || !sale){ err("Ticket introuvable"); return; }
+      if (e1 || !sale) {
+        btnVoid.disabled = true;
+        err("Ticket introuvable.");
+        return;
+      }
 
       const { data: store } = await sb
         .from("market_stores")
@@ -199,10 +254,13 @@ if(!saleId){
         .eq("id", sale.store_id)
         .maybeSingle();
 
-      $("storeName").textContent = store?.store_name || "DIGIY MARKET";
-      $("storeSlug").textContent = "slug: " + (store?.slug || slug || "—");
+      const storeLabel = store?.store_name || "Ma boutique";
+      const storeRef = store?.slug || slug || "—";
+
+      $("storeName").textContent = storeLabel;
+      $("storeSlug").textContent = `Référence boutique : ${storeRef}`;
       $("saleDate").textContent = new Date(sale.created_at).toLocaleString();
-      $("saleStatus").textContent = "status: " + sale.status;
+      $("saleStatus").textContent = `Statut : ${sale.status || "—"}`;
 
       $("subTotal").textContent = money(sale.subtotal);
       $("taxTotal").textContent = money(sale.tax_total);
@@ -213,23 +271,20 @@ if(!saleId){
         .select("qty,unit_price,line_total,product_id")
         .eq("sale_id", saleId);
 
-      if(e2){ err(e2.message); return; }
+      if (e2) {
+        err(e2.message || "Impossible de lire les lignes du ticket.");
+        return;
+      }
 
-      // fetch product names
-      const ids = (lines||[]).map(l=>l.product_id);
-      const { data: prods } = await sb
-        .from("market_products")
-        .select("id,name")
-        .in("id", ids);
-
-      const map = new Map((prods||[]).map(p=>[p.id, p.name]));
+      const ids = (lines || []).map(l => l.product_id);
+      const nameMap = await loadProductNames(ids);
 
       const tbody = $("lines");
       tbody.innerHTML = "";
-      (lines||[]).forEach(l=>{
+      (lines || []).forEach(l => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td>${(map.get(l.product_id) || "Article")}</td>
+          <td>${nameMap.get(l.product_id) || "Article"}</td>
           <td class="r">${l.qty}</td>
           <td class="r">${money(l.unit_price)}</td>
           <td class="r">${money(l.line_total)}</td>
@@ -237,46 +292,74 @@ if(!saleId){
         tbody.appendChild(tr);
       });
 
-      // 2) payments
       const { data: pays } = await sb
         .from("market_sale_payments")
         .select("method,amount,reference")
         .eq("sale_id", saleId)
         .order("created_at", { ascending: true });
 
-      if(!pays || pays.length === 0){
+      if (!pays || pays.length === 0) {
         $("payments").textContent = "—";
       } else {
-        $("payments").innerHTML = pays.map(p=>{
+        $("payments").innerHTML = pays.map(p => {
           const ref = p.reference ? ` (${p.reference})` : "";
           return `• ${p.method}: ${money(p.amount)}${ref}`;
         }).join("<br/>");
       }
+
+      const statusText = String(sale.status || "").toLowerCase();
+      const alreadyClosed = ["void", "voided", "cancelled", "canceled"].includes(statusText);
+      btnVoid.disabled = alreadyClosed || !saleId || !slug || !ownerId;
     }
 
     async function voidTicket(){
-      if(!slug){ err("slug manquant (ajoute ?slug=...)"); return; }
-      if(!ownerId){ err("owner_id introuvable (session)"); return; }
+      err("");
 
-      const ok = confirm("Annuler ce ticket ? (stock revient)");
-      if(!ok) return;
+      if (!saleId) {
+        err("Référence de vente manquante.");
+        return;
+      }
+
+      if (!slug) {
+        err("Référence boutique manquante.");
+        return;
+      }
+
+      if (!ownerId) {
+        err("Session vendeur introuvable.");
+        return;
+      }
+
+      const ok = confirm("Annuler cette vente ?\n\nLe stock sera remis.");
+      if (!ok) return;
+
+      btnVoid.disabled = true;
 
       const { data, error } = await sb.rpc("market_void_sale_by_slug", {
         p_slug: slug,
         p_owner_id: ownerId,
         p_sale_id: saleId,
-        p_note: "void via ticket.html"
+        p_note: "annulation via ticket.html"
       });
 
-      if(error){ err(error.message); return; }
-      if(!data?.ok){ err(data?.reason || "VOID refusé"); return; }
+      if (error) {
+        btnVoid.disabled = false;
+        err(error.message || "Impossible d’annuler cette vente.");
+        return;
+      }
+
+      if (!data?.ok) {
+        btnVoid.disabled = false;
+        err(data?.reason || "Annulation refusée.");
+        return;
+      }
 
       await loadTicket();
-      alert("Ticket annulé ✅");
+      alert("Vente annulée ✅");
     }
 
-    $("btnPrint").addEventListener("click", ()=>window.print());
-    $("btnVoid").addEventListener("click", voidTicket);
+    btnPrint.addEventListener("click", () => window.print());
+    btnVoid.addEventListener("click", voidTicket);
 
     loadTicket();
   })();
