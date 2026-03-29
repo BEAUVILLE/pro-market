@@ -19,7 +19,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-cockpit-20260329-human-v1"></script>
+  <script src="./guard.js?v=market-cockpit-20260329-human-v2"></script>
 
   <style>
     :root{
@@ -522,7 +522,7 @@
         <a class="btn" id="btnSettings" href="./boutique.html">🛠️ Ma boutique</a>
         <a class="btn" id="btnProducts" href="./produits.html">📦 Mes produits</a>
         <a class="btn gold" id="btnPin" href="./pin.html">🔑 Entrer avec mon code</a>
-        <a class="btn" id="btnPublic" href="./index.html">🌍 Voir ma vitrine</a>
+        <a class="btn" id="btnPublic" href="./fiche.html">🌍 Voir ma fiche</a>
       </div>
     </section>
 
@@ -724,15 +724,25 @@
         return toText(profile?.shop_name, toText(profile?.business_name, "Ma boutique"));
       }
 
-      function buildSafeUrl(base){
+      function buildSafeUrl(base, options){
+        const opts = options || {};
+        const includeSlug = opts.slug !== false;
+        const includePhone = !!opts.phone;
+
         try{
           const u = new URL(String(base || "./"), location.href);
-          if (ACCESS_SLUG) u.searchParams.set("slug", ACCESS_SLUG);
-          if (ACCESS_PHONE) u.searchParams.set("phone", ACCESS_PHONE);
+          if (includeSlug && ACCESS_SLUG) u.searchParams.set("slug", ACCESS_SLUG);
+          if (includePhone && ACCESS_PHONE) u.searchParams.set("phone", ACCESS_PHONE);
           return u.pathname + u.search;
         }catch{
           return String(base || "./");
         }
+      }
+
+      function publicFicheUrl(){
+        return ACCESS_SLUG
+          ? buildSafeUrl("./fiche.html", { slug:true, phone:false })
+          : "./index.html";
       }
 
       function isTruthyLike(v){
@@ -776,7 +786,10 @@
         const fromQuery = normalizePhone(qs.get("phone"));
         if (fromQuery) return fromQuery;
 
-        const fromGuard = normalizePhone(window.DIGIY_GUARD?.state?.phone);
+        const fromGuard = normalizePhone(
+          window.DIGIY_GUARD?.state?.phone ||
+          window.DIGIY_GUARD?.state?.identity?.phone
+        );
         if (fromGuard) return fromGuard;
 
         const marketSession = normalizePhone(sessionStorage.getItem("digiy_market_phone"));
@@ -926,11 +939,23 @@
       }
 
       function updateNavLinks(){
-        $("btnDashboard").href = ACCESS_SLUG ? buildSafeUrl("./dashboard-pro.html") : "./dashboard-pro.html";
-        $("btnSettings").href = ACCESS_SLUG ? buildSafeUrl("./boutique.html") : "./boutique.html";
-        $("btnProducts").href = ACCESS_SLUG ? buildSafeUrl("./produits.html") : "./produits.html";
-        $("btnPin").href = ACCESS_SLUG ? buildSafeUrl("./pin.html") : "./pin.html";
-        $("btnPublic").href = ACCESS_SLUG ? buildSafeUrl("./index.html") : "./index.html";
+        $("btnDashboard").href = ACCESS_SLUG
+          ? buildSafeUrl("./dashboard-pro.html", { slug:true, phone:true })
+          : "./dashboard-pro.html";
+
+        $("btnSettings").href = ACCESS_SLUG
+          ? buildSafeUrl("./boutique.html", { slug:true, phone:true })
+          : "./boutique.html";
+
+        $("btnProducts").href = ACCESS_SLUG
+          ? buildSafeUrl("./produits.html", { slug:true, phone:true })
+          : "./produits.html";
+
+        $("btnPin").href = ACCESS_SLUG
+          ? buildSafeUrl("./pin.html", { slug:true, phone:true })
+          : "./pin.html";
+
+        $("btnPublic").href = publicFicheUrl();
       }
 
       function storeAccess(){
@@ -1094,9 +1119,9 @@
 
         return `
           <div class="product-actions">
-            <a class="action-btn ghost" href="${buildSafeUrl("./produits.html")}">📦 Mes produits</a>
-            <a class="action-btn ghost" href="${buildSafeUrl("./boutique.html")}">🛠️ Ma boutique</a>
-            <a class="action-btn ghost" href="${buildSafeUrl("./index.html")}">🌍 Voir ma vitrine</a>
+            <a class="action-btn ghost" href="${buildSafeUrl("./produits.html", { slug:true, phone:true })}">📦 Mes produits</a>
+            <a class="action-btn ghost" href="${buildSafeUrl("./boutique.html", { slug:true, phone:true })}">🛠️ Ma boutique</a>
+            <a class="action-btn ghost" href="${publicFicheUrl()}">🌍 Voir ma fiche</a>
             ${waBtn}
           </div>
         `;
@@ -1105,8 +1130,8 @@
       function blockedActionsHtml(){
         return `
           <div class="product-actions">
-            <a class="action-btn ghost" href="${buildSafeUrl("./pin.html")}">🔑 Ouvrir avec mon code</a>
-            <a class="action-btn ghost" href="${buildSafeUrl("./boutique.html")}">🛠️ Préparer ma boutique</a>
+            <a class="action-btn ghost" href="${buildSafeUrl("./pin.html", { slug:true, phone:true })}">🔑 Ouvrir avec mon code</a>
+            <a class="action-btn ghost" href="${buildSafeUrl("./boutique.html", { slug:true, phone:true })}">🛠️ Préparer ma boutique</a>
           </div>
         `;
       }
