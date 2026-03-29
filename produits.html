@@ -3,9 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>DIGIY PRO MARKET — Produits</title>
+  <title>Je vends — Mes produits</title>
   <meta name="theme-color" content="#07140f" />
-  <meta name="description" content="Gestion catalogue DIGIY PRO MARKET : lecture, ajout, modification, désactivation, publication." />
+  <meta name="description" content="Je vends — gérer mes produits, ma boutique et ma visibilité simplement." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
   <script>
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
@@ -15,7 +19,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-produits-20260314-v6"></script>
+  <script src="./guard.js?v=market-produits-20260329-human-v1"></script>
 
   <style>
     :root{
@@ -41,7 +45,7 @@
 
     body{
       margin:0;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      font-family:Outfit,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       background:
         radial-gradient(1200px 700px at 20% -20%, rgba(99,102,241,.18), transparent 70%),
         radial-gradient(900px 600px at 100% 0%, rgba(34,197,94,.12), transparent 55%),
@@ -410,23 +414,23 @@
       <div class="brand">
         <div class="badge">📦</div>
         <div>
-          <div id="brandTitle">DIGIY PRO MARKET</div>
-          <small id="brandSub">Gestion catalogue vendeur</small>
+          <div id="brandTitle">Mes produits</div>
+          <small id="brandSub">Ce que je vends</small>
         </div>
       </div>
 
       <div class="right">
-        <div class="pill" id="pillStatus">Statut : <b>…</b></div>
+        <div class="pill" id="pillStatus">Accès : <b>…</b></div>
         <button class="btn" id="btnReloadTop" type="button">🔄 Recharger</button>
-        <a class="btn" id="btnDashboardTop" href="./dashboard.html">🧭 Dashboard</a>
-        <a class="btn" id="btnPin" href="./pin.html">🔑 PIN</a>
+        <a class="btn" id="btnDashboardTop" href="./dashboard.html">📈 Mon activité</a>
+        <a class="btn" id="btnPin" href="./pin.html">🔑 Mon accès</a>
       </div>
     </div>
 
     <div class="grid">
 
       <div class="card">
-        <h3>Accès & boutique</h3>
+        <h3>Mon espace</h3>
 
         <div class="row">
           <div class="statusDot" id="dot"></div>
@@ -440,24 +444,24 @@
 
         <div class="hr"></div>
 
-        <div class="heroTitle" id="shopName">Boutique DIGIY</div>
+        <div class="heroTitle" id="shopName">Ma boutique</div>
         <div class="mini" id="metaLine">
           <span>Ville : —</span>
           <span>•</span>
-          <span>Publication : —</span>
+          <span>Vitrine : —</span>
         </div>
 
         <div class="statGrid">
           <div class="stat">
-            <div class="k">Produits actifs</div>
+            <div class="k">Produits visibles</div>
             <div class="v" id="statActive">0</div>
           </div>
           <div class="stat">
-            <div class="k">Produits inactifs</div>
+            <div class="k">Produits masqués</div>
             <div class="v" id="statInactive">0</div>
           </div>
           <div class="stat">
-            <div class="k">Produits publiés</div>
+            <div class="k">En ligne</div>
             <div class="v" id="statPublishedProducts">0</div>
           </div>
           <div class="stat">
@@ -467,32 +471,31 @@
         </div>
 
         <div class="footer">
-          <button class="btn warn" id="btnPublish" type="button">🌍 Publier</button>
-          <a class="btn primary" id="btnCockpit" href="./cockpit.html">📊 Cockpit</a>
-          <a class="btn" id="btnBoutique" href="./boutique.html">🛠️ Boutique</a>
-          <a class="btn gold" id="btnPublic" href="./index.html">🌍 Vitrine</a>
+          <button class="btn warn" id="btnPublish" type="button">🌍 Mettre en ligne</button>
+          <a class="btn primary" id="btnCockpit" href="./cockpit.html">🧭 Ma gestion</a>
+          <a class="btn" id="btnBoutique" href="./boutique.html">🛠️ Ma boutique</a>
+          <a class="btn gold" id="btnPublic" href="./fiche.html">🌍 Ma fiche</a>
         </div>
       </div>
 
       <div class="card">
-        <h3>Lecture rapide</h3>
+        <h3>Ajouter ou corriger un produit</h3>
 
         <div class="infoBox">
-          <div class="infoRow"><span class="muted">Slug</span><span id="infoSlug">—</span></div>
+          <div class="infoRow"><span class="muted">Identifiant</span><span id="infoSlug">—</span></div>
           <div class="infoRow"><span class="muted">Téléphone</span><span id="infoPhone">—</span></div>
           <div class="infoRow"><span class="muted">WhatsApp</span><span id="infoWhatsapp">—</span></div>
           <div class="infoRow"><span class="muted">Adresse</span><span id="infoAddress">—</span></div>
-          <div class="infoRow"><span class="muted">Catégories</span><span id="infoCategories">—</span></div>
+          <div class="infoRow"><span class="muted">Activité</span><span id="infoCategories">—</span></div>
         </div>
 
         <div class="hr"></div>
 
-        <h3>Produit</h3>
         <form id="productForm" class="formGrid" autocomplete="off">
           <input type="hidden" id="productId" />
 
           <div class="field">
-            <label for="title">Nom du produit</label>
+            <label for="title">Nom visible</label>
             <input class="input" id="title" type="text" placeholder="Ex : robe, parfum, téléphone, sac..." />
           </div>
 
@@ -502,14 +505,14 @@
               <input class="input" id="category" type="text" placeholder="Ex : Mode, Beauté, Maison..." />
             </div>
             <div class="field">
-              <label for="unitLabel">Unité / format</label>
+              <label for="unitLabel">Format / quantité</label>
               <input class="input" id="unitLabel" type="text" placeholder="Ex : pièce, lot, 250 ml..." />
             </div>
           </div>
 
           <div class="cols3">
             <div class="field">
-              <label for="priceFcfa">Prix FCFA</label>
+              <label for="priceFcfa">Prix</label>
               <input class="input" id="priceFcfa" type="number" min="0" step="1" placeholder="5000" />
             </div>
             <div class="field">
@@ -517,34 +520,34 @@
               <input class="input" id="oldPriceFcfa" type="number" min="0" step="1" placeholder="7000" />
             </div>
             <div class="field">
-              <label for="position">Position</label>
+              <label for="position">Ordre d’affichage</label>
               <input class="input" id="position" type="number" min="0" step="1" placeholder="100" />
             </div>
           </div>
 
           <div class="field">
-            <label for="photoUrl">Photo URL</label>
+            <label for="photoUrl">Photo (lien)</label>
             <input class="input" id="photoUrl" type="url" placeholder="https://..." />
           </div>
 
           <div class="field">
-            <label for="description">Description</label>
+            <label for="description">Petit texte</label>
             <textarea class="textarea" id="description" placeholder="Décris le produit simplement, clairement, terrain."></textarea>
           </div>
 
           <label class="check">
             <input id="isActive" type="checkbox" checked />
-            <span>Produit actif</span>
+            <span>Afficher ce produit</span>
           </label>
 
           <label class="check">
             <input id="isFeatured" type="checkbox" />
-            <span>Produit en avant</span>
+            <span>Mettre ce produit en avant</span>
           </label>
 
           <div class="footer" style="justify-content:flex-start">
-            <button class="btn primary" id="btnSave" type="submit">💾 Enregistrer</button>
-            <button class="btn" id="btnReset" type="button">🧹 Vider</button>
+            <button class="btn primary" id="btnSave" type="submit">💾 Enregistrer ce produit</button>
+            <button class="btn" id="btnReset" type="button">🧹 Vider le formulaire</button>
           </div>
         </form>
       </div>
@@ -552,32 +555,32 @@
       <div class="card" style="grid-column:1/-1">
         <div class="row" style="justify-content:space-between;align-items:flex-end">
           <div>
-            <h3>Catalogue</h3>
+            <h3>Mes produits</h3>
             <div class="muted" style="font-weight:800">
-              Lecture réelle du catalogue vendeur, alignée sur le cockpit et le dashboard.
+              Ici, on lit seulement les vrais produits reliés à ta boutique.
             </div>
           </div>
 
           <div class="toolbar">
-            <input class="input search" id="searchInput" type="search" placeholder="Rechercher un produit..." />
+            <input class="input search" id="searchInput" type="search" placeholder="Rechercher dans mes produits..." />
           </div>
         </div>
 
         <div class="toolbar">
           <div class="chips" id="filters">
             <button class="chip active" type="button" data-filter="all">Tous</button>
-            <button class="chip" type="button" data-filter="active">Actifs</button>
-            <button class="chip" type="button" data-filter="inactive">Inactifs</button>
+            <button class="chip" type="button" data-filter="active">Visibles</button>
+            <button class="chip" type="button" data-filter="inactive">Masqués</button>
             <button class="chip" type="button" data-filter="featured">En avant</button>
-            <button class="chip" type="button" data-filter="published">Publiés</button>
+            <button class="chip" type="button" data-filter="published">En ligne</button>
           </div>
 
           <div class="footer" style="margin-top:0">
             <button class="btn" id="btnReload" type="button">🔄 Recharger</button>
-            <a class="smallLink" href="./dashboard.html" id="linkDashboard">Admin central</a>
-            <a class="smallLink" href="./cockpit.html" id="linkCockpit">Cockpit vendeur</a>
-            <a class="smallLink" href="./boutique.html" id="linkBoutique">Réglages boutique</a>
-            <a class="smallLink" href="./index.html" id="linkPublic">Vitrine publique</a>
+            <a class="smallLink" href="./dashboard.html" id="linkDashboard">Mon activité</a>
+            <a class="smallLink" href="./cockpit.html" id="linkCockpit">Ma gestion</a>
+            <a class="smallLink" href="./boutique.html" id="linkBoutique">Ma boutique</a>
+            <a class="smallLink" href="./fiche.html" id="linkPublic">Ma fiche</a>
           </div>
         </div>
 
@@ -652,10 +655,21 @@
     return Number.isFinite(n) ? n.toLocaleString("fr-FR") + " FCFA" : "—";
   }
 
-  function withSlug(base){
+  function buildPath(base, opts){
+    const o = opts || {};
+    const includeSlug = o.slug !== false;
+    const includePhone = !!o.phone;
+
     const u = new URL(base, location.href);
-    if (ACCESS_SLUG) u.searchParams.set("slug", ACCESS_SLUG);
+    if (includeSlug && ACCESS_SLUG) u.searchParams.set("slug", ACCESS_SLUG);
+    if (includePhone && ACCESS_PHONE) u.searchParams.set("phone", ACCESS_PHONE);
     return u.pathname + u.search;
+  }
+
+  function publicPath(){
+    return ACCESS_SLUG
+      ? buildPath("./fiche.html", { slug:true, phone:false })
+      : "./index.html";
   }
 
   function getResolvedSlug(payload){
@@ -669,7 +683,7 @@
   }
 
   function getShopName(profile){
-    return toText(profile?.shop_name, toText(profile?.business_name, "Boutique DIGIY"));
+    return toText(profile?.shop_name, toText(profile?.business_name, "Ma boutique"));
   }
 
   function extractProductRows(payload){
@@ -723,19 +737,19 @@
 
   function updatePublishButton(){
     const published = !!CURRENT?.profile?.is_published;
-    $("btnPublish").textContent = published ? "🙈 Couper publication" : "🌍 Publier";
+    $("btnPublish").textContent = published ? "🙈 Couper la vitrine" : "🌍 Mettre en ligne";
   }
 
   function updateLinks(){
-    $("btnPin").href = ACCESS_SLUG ? withSlug("./pin.html") : "./pin.html";
-    $("btnDashboardTop").href = ACCESS_SLUG ? withSlug("./dashboard.html") : "./dashboard.html";
-    $("btnCockpit").href = ACCESS_SLUG ? withSlug("./cockpit.html") : "./cockpit.html";
-    $("btnBoutique").href = ACCESS_SLUG ? withSlug("./boutique.html") : "./boutique.html";
-    $("btnPublic").href = ACCESS_SLUG ? withSlug("./index.html") : "./index.html";
-    $("linkDashboard").href = ACCESS_SLUG ? withSlug("./dashboard.html") : "./dashboard.html";
-    $("linkCockpit").href = ACCESS_SLUG ? withSlug("./cockpit.html") : "./cockpit.html";
-    $("linkBoutique").href = ACCESS_SLUG ? withSlug("./boutique.html") : "./boutique.html";
-    $("linkPublic").href = ACCESS_SLUG ? withSlug("./index.html") : "./index.html";
+    $("btnPin").href = ACCESS_SLUG ? buildPath("./pin.html", { slug:true, phone:true }) : "./pin.html";
+    $("btnDashboardTop").href = ACCESS_SLUG ? buildPath("./dashboard.html", { slug:true, phone:true }) : "./dashboard.html";
+    $("btnCockpit").href = ACCESS_SLUG ? buildPath("./cockpit.html", { slug:true, phone:true }) : "./cockpit.html";
+    $("btnBoutique").href = ACCESS_SLUG ? buildPath("./boutique.html", { slug:true, phone:true }) : "./boutique.html";
+    $("btnPublic").href = publicPath();
+    $("linkDashboard").href = ACCESS_SLUG ? buildPath("./dashboard.html", { slug:true, phone:true }) : "./dashboard.html";
+    $("linkCockpit").href = ACCESS_SLUG ? buildPath("./cockpit.html", { slug:true, phone:true }) : "./cockpit.html";
+    $("linkBoutique").href = ACCESS_SLUG ? buildPath("./boutique.html", { slug:true, phone:true }) : "./boutique.html";
+    $("linkPublic").href = publicPath();
   }
 
   function resolveSlug(){
@@ -757,7 +771,15 @@
   }
 
   function resolvePhone(){
-    const fromGuard = normPhone(window.DIGIY_GUARD?.state?.phone);
+    const qs = new URLSearchParams(location.search);
+
+    const fromQuery = normPhone(qs.get("phone"));
+    if (fromQuery) return fromQuery;
+
+    const fromGuard = normPhone(
+      window.DIGIY_GUARD?.state?.phone ||
+      window.DIGIY_GUARD?.state?.identity?.phone
+    );
     if (fromGuard) return fromGuard;
 
     const marketSession = normPhone(sessionStorage.getItem("digiy_market_phone"));
@@ -824,9 +846,9 @@
   }
 
   function resolveAccessReason(){
-    if (!ACCESS_SLUG) return "Ajoute ?slug=market-... ou passe par la porte PIN.";
-    if (!ACCESS_GRANTED) return "Passe par PIN pour ouvrir la vraie vue vendeur.";
-    return "Slug détecté mais accès non ouvert.";
+    if (!ACCESS_SLUG) return "Ajoute ?slug=market-... ou passe par ton accès sécurisé.";
+    if (!ACCESS_GRANTED) return "Passe par ton code pour ouvrir la vraie vue vendeur.";
+    return "Identifiant détecté mais accès non ouvert.";
   }
 
   function rememberAccess(){
@@ -899,13 +921,13 @@
     $("dot").className = "statusDot bad";
     $("statusLine").textContent = "Accès protégé";
     $("expiryLine").textContent = reason || resolveAccessReason();
-    $("pillStatus").innerHTML = 'Statut : <b>Bloqué</b>';
-    $("brandTitle").textContent = "DIGIY PRO MARKET";
+    $("pillStatus").innerHTML = 'Accès : <b>Bloqué</b>';
+    $("brandTitle").textContent = "Mes produits";
     $("brandSub").textContent = ACCESS_SLUG
-      ? "Slug détecté • données protégées"
-      : "Gestion catalogue vendeur";
-    $("shopName").textContent = "Boutique DIGIY";
-    $("metaLine").innerHTML = '<span>Ville : —</span><span>•</span><span>Publication : —</span>';
+      ? "Identifiant détecté • données protégées"
+      : "Ce que je vends";
+    $("shopName").textContent = "Ma boutique";
+    $("metaLine").innerHTML = '<span>Ville : —</span><span>•</span><span>Vitrine : —</span>';
 
     $("statActive").textContent = "0";
     $("statInactive").textContent = "0";
@@ -918,7 +940,7 @@
     $("infoAddress").textContent = "—";
     $("infoCategories").textContent = "—";
 
-    document.title = "DIGIY PRO MARKET — Produits";
+    document.title = "Je vends — Mes produits";
 
     updateLinks();
     updatePublishButton();
@@ -928,15 +950,15 @@
     $("productList").innerHTML = "";
     $("emptyState").style.display = "block";
     $("emptyState").textContent = ACCESS_SLUG
-      ? "Slug détecté, mais les vraies données MARKET restent verrouillées tant que le PIN n’a pas ouvert la session."
+      ? "Identifiant détecté, mais tes vraies données restent verrouillées tant que l’accès n’a pas été ouvert."
       : "Aucun produit visible sans accès ouvert.";
 
     setNotifs([
       {
         level:"warn",
         tag:"ACCÈS",
-        title:"Coque produits visible",
-        text:"La page existe, mais le catalogue réel reste protégé tant que l’accès vendeur n’est pas confirmé."
+        title:"Espace protégé",
+        text:"La page est là, mais les produits réels restent protégés tant que l’accès vendeur n’est pas confirmé."
       }
     ]);
   }
@@ -955,16 +977,16 @@
     $("dot").className = "statusDot ok";
     $("statusLine").textContent = "Accès actif";
     $("expiryLine").textContent = data.is_blank
-      ? "PIN OK • boutique vierge prête à remplir."
-      : "PIN OK • boutique réelle chargée.";
-    $("pillStatus").innerHTML = 'Statut : <b>Actif</b>';
-    $("brandTitle").textContent = shopName;
+      ? "Code validé • boutique prête à être remplie."
+      : "Code validé • boutique réelle chargée.";
+    $("pillStatus").innerHTML = 'Accès : <b>Ouvert</b>';
+    $("brandTitle").textContent = "Mes produits";
     $("brandSub").textContent = resolvedSlug
-      ? `Gestion catalogue • ${resolvedSlug}`
-      : "Gestion catalogue vendeur active";
+      ? `Identifiant : ${resolvedSlug}`
+      : "Ce que je vends";
 
     $("shopName").textContent = shopName;
-    $("metaLine").innerHTML = `<span>Ville : ${esc(toText(p.city, "—"))}</span><span>•</span><span>Publication : ${p.is_published ? "Oui" : "Non"}</span>`;
+    $("metaLine").innerHTML = `<span>Ville : ${esc(toText(p.city, "—"))}</span><span>•</span><span>Vitrine : ${p.is_published ? "En ligne" : "Hors ligne"}</span>`;
 
     $("statActive").textContent = String(stats.active);
     $("statInactive").textContent = String(stats.inactive);
@@ -978,8 +1000,8 @@
     $("infoCategories").textContent = toText(p.categories_text, "—");
 
     document.title = shopName
-      ? `${shopName} — Produits DIGIY PRO MARKET`
-      : "DIGIY PRO MARKET — Produits";
+      ? `${shopName} — Mes produits`
+      : "Je vends — Mes produits";
 
     updateLinks();
     updatePublishButton();
@@ -987,15 +1009,15 @@
 
     const notifs = [];
     if (data.is_blank) {
-      notifs.push({level:"warn",tag:"START",title:"Boutique vierge",text:"Complète les réglages boutique et pose tes premiers produits."});
+      notifs.push({level:"warn",tag:"START",title:"Boutique prête à remplir",text:"Complète ta boutique et pose tes premiers produits."});
     } else {
-      notifs.push({level:"ok",tag:"BOUTIQUE",title:"Boutique chargée",text:"Le catalogue est bien relié au slug actif."});
+      notifs.push({level:"ok",tag:"BOUTIQUE",title:"Boutique chargée",text:"Tes produits sont bien reliés au bon identifiant."});
     }
 
     if (!p.is_published) {
-      notifs.push({level:"warn",tag:"OFF",title:"Publication coupée",text:"La boutique n’est pas encore visible publiquement."});
+      notifs.push({level:"warn",tag:"OFF",title:"Vitrine coupée",text:"Ta boutique n’est pas encore visible publiquement."});
     } else {
-      notifs.push({level:"ok",tag:"ON",title:"Publication active",text:"La boutique peut être vue publiquement."});
+      notifs.push({level:"ok",tag:"ON",title:"Vitrine en ligne",text:"Ta boutique peut être vue publiquement."});
     }
 
     setNotifs(notifs);
@@ -1065,7 +1087,7 @@
     if (!ACCESS_OK) {
       box.innerHTML = "";
       $("emptyState").style.display = "block";
-      $("emptyState").textContent = "Aucun produit visible sans session PIN ouverte.";
+      $("emptyState").textContent = "Aucun produit visible sans accès ouvert.";
       return;
     }
 
@@ -1073,7 +1095,7 @@
       box.innerHTML = "";
       $("emptyState").style.display = "block";
       $("emptyState").textContent = PRODUCTS.length
-        ? "Aucun produit ne correspond au filtre."
+        ? "Aucun produit dans cette vue."
         : "Aucun produit pour l’instant.";
       return;
     }
@@ -1082,12 +1104,12 @@
 
     box.innerHTML = rows.map(p => {
       const tags = [];
-      tags.push(`<span class="tag ${p.is_active ? "ok" : "danger"}">${p.is_active ? "Actif" : "Inactif"}</span>`);
-      if (p.is_published) tags.push('<span class="tag info">Publié</span>');
+      tags.push(`<span class="tag ${p.is_active ? "ok" : "danger"}">${p.is_active ? "Visible" : "Masqué"}</span>`);
+      if (p.is_published) tags.push('<span class="tag info">En ligne</span>');
       if (p.is_featured) tags.push('<span class="tag warn">En avant</span>');
       if (p.category) tags.push(`<span class="tag info">${esc(p.category)}</span>`);
 
-      const disableLabel = p.is_active ? "🚫 Désactiver" : "🗃️ Déjà inactif";
+      const disableLabel = p.is_active ? "🙈 Masquer" : "🗃️ Déjà masqué";
 
       return `
         <article class="product">
@@ -1098,9 +1120,9 @@
                 <span>${esc(p.category || "Sans catégorie")}</span>
                 <span>•</span>
                 <span>${esc(money(p.price_fcfa))}</span>
-                ${p.old_price_fcfa != null ? `<span>• Ancien : ${esc(money(p.old_price_fcfa))}</span>` : ""}
+                ${p.old_price_fcfa != null ? `<span>• Avant : ${esc(money(p.old_price_fcfa))}</span>` : ""}
                 ${p.unit_label ? `<span>• ${esc(p.unit_label)}</span>` : ""}
-                <span>• Position ${esc(String(p.product_position || 100))}</span>
+                <span>• Ordre ${esc(String(p.product_position || 100))}</span>
               </div>
             </div>
 
@@ -1110,7 +1132,7 @@
           ${p.description ? `<div class="desc">${esc(p.description)}</div>` : ""}
 
           <div class="productActions">
-            <button class="btn primary jsEdit" data-id="${esc(p.id)}" type="button">✏️ Modifier</button>
+            <button class="btn primary jsEdit" data-id="${esc(p.id)}" type="button">✏️ Corriger</button>
             <button class="btn danger jsDisable" data-id="${esc(p.id)}" type="button" ${p.is_active ? "" : "disabled"}>${disableLabel}</button>
           </div>
         </article>
@@ -1133,7 +1155,7 @@
         const item = PRODUCTS.find(p => String(p.id) === String(id));
         if (!item || !item.is_active) return;
 
-        const ok = confirm(`Désactiver ce produit ?\n\n${item.title}`);
+        const ok = confirm(`Masquer ce produit ?\n\n${item.title}`);
         if (!ok) return;
 
         btn.disabled = true;
@@ -1141,10 +1163,10 @@
           await disableProduct(id);
           resetForm(false);
           await loadProductsAndRefreshNotifs();
-          setMsgMain("✅ Produit désactivé.", "ok");
+          setMsgMain("✅ Produit masqué.", "ok");
         }catch(e){
           console.error(e);
-          setMsgMain("❌ La désactivation du produit a échoué.", "bad");
+          setMsgMain("❌ Impossible de masquer ce produit.", "bad");
         }finally{
           btn.disabled = false;
         }
@@ -1164,7 +1186,7 @@
     $("description").value = p.description || "";
     $("isActive").checked = !!p.is_active;
     $("isFeatured").checked = !!p.is_featured;
-    $("btnSave").textContent = "💾 Enregistrer les modifications";
+    $("btnSave").textContent = "💾 Enregistrer les changements";
   }
 
   function resetForm(keepMessage){
@@ -1179,7 +1201,7 @@
     $("description").value = "";
     $("isActive").checked = true;
     $("isFeatured").checked = false;
-    $("btnSave").textContent = "💾 Enregistrer";
+    $("btnSave").textContent = "💾 Enregistrer ce produit";
     if (!keepMessage && ACCESS_OK) {
       setMsgMain("Prêt.", "");
     }
@@ -1204,10 +1226,10 @@
   function getPublishIssues(){
     const p = CURRENT?.profile || {};
     const issues = [];
-    if (!String(p.shop_name || p.business_name || "").trim()) issues.push("nom boutique manquant");
+    if (!String(p.shop_name || p.business_name || "").trim()) issues.push("nom de boutique manquant");
     if (!(String(p.whatsapp || "").trim() || normPhone(CURRENT?.phone || ""))) issues.push("contact utile manquant");
     if (!(String(p.city || "").trim() || String(p.address || "").trim())) issues.push("ville ou adresse manquante");
-    if (!(String(p.categories_text || "").trim() || String(p.description || "").trim())) issues.push("lecture boutique incomplète");
+    if (!(String(p.categories_text || "").trim() || String(p.description || "").trim())) issues.push("présentation boutique incomplète");
     return issues;
   }
 
@@ -1253,21 +1275,21 @@
     const active = PRODUCTS.filter(p => p.is_active).length;
 
     if (CURRENT?.is_blank) {
-      notifs.push({level:"warn",tag:"START",title:"Boutique vierge",text:"Complète les réglages boutique et pose tes premiers produits."});
+      notifs.push({level:"warn",tag:"START",title:"Boutique prête à remplir",text:"Complète ta boutique et pose tes premiers produits."});
     } else {
-      notifs.push({level:"ok",tag:"BOUTIQUE",title:"Boutique chargée",text:"Le catalogue est bien relié au slug actif."});
+      notifs.push({level:"ok",tag:"BOUTIQUE",title:"Boutique chargée",text:"Tes produits sont bien reliés au bon identifiant."});
     }
 
     if (!published) {
-      notifs.push({level:"warn",tag:"OFF",title:"Publication coupée",text:"La boutique n’est pas encore visible publiquement."});
+      notifs.push({level:"warn",tag:"OFF",title:"Vitrine coupée",text:"Ta boutique n’est pas encore visible publiquement."});
     } else {
-      notifs.push({level:"ok",tag:"ON",title:"Publication active",text:"La boutique peut être vue publiquement."});
+      notifs.push({level:"ok",tag:"ON",title:"Vitrine en ligne",text:"Ta boutique peut être vue publiquement."});
     }
 
     if (active === 0) {
-      notifs.push({level:"info",tag:"VIDE",title:"Catalogue vide",text:"Aucun produit actif pour le moment."});
+      notifs.push({level:"info",tag:"VIDE",title:"Rien à montrer pour l’instant",text:"Aucun produit visible pour le moment."});
     } else {
-      notifs.push({level:"ok",tag:"CATALOGUE",title:"Produits actifs",text:`${active} produit(s) actif(s) dans la boutique.`});
+      notifs.push({level:"ok",tag:"PRODUITS",title:"Produits visibles",text:`${active} produit(s) visible(s) dans la boutique.`});
     }
 
     setNotifs(notifs);
@@ -1328,7 +1350,7 @@
     if (next){
       const issues = getPublishIssues();
       if (issues.length){
-        setMsgMain("⚠️ Publication bloquée : " + issues.join(" • "), "warn");
+        setMsgMain("⚠️ Mise en ligne bloquée : " + issues.join(" • "), "warn");
         return;
       }
     }
@@ -1355,10 +1377,10 @@
       applyStatsFromProducts();
       refreshNotifsFromState();
 
-      setMsgMain(next ? "✅ Boutique publiée." : "✅ Publication coupée.", "ok");
+      setMsgMain(next ? "✅ Boutique mise en ligne." : "✅ Vitrine coupée.", "ok");
     }catch(e){
       console.error(e);
-      setMsgMain("❌ Le changement de publication a échoué.", "bad");
+      setMsgMain("❌ Le changement de visibilité a échoué.", "bad");
     }finally{
       $("btnPublish").disabled = false;
     }
@@ -1384,14 +1406,14 @@
       await saveProduct(product);
       resetForm(true);
       await loadProductsAndRefreshNotifs();
-      setMsgMain("✅ Produit enregistré sur le catalogue réel.", "ok");
+      setMsgMain("✅ Produit enregistré.", "ok");
     }catch(e){
       console.error(e);
       setMsgMain("❌ Le produit n’a pas pu être enregistré.", "bad");
     }finally{
       IS_SAVING = false;
       $("btnSave").disabled = false;
-      $("btnSave").textContent = "💾 Enregistrer";
+      $("btnSave").textContent = "💾 Enregistrer ce produit";
     }
   }
 
@@ -1399,7 +1421,7 @@
     resetForm(true);
     clearCatalogue();
     setBusy(true);
-    setMsgMain("⏳ Chargement catalogue…", "warn");
+    setMsgMain("⏳ Chargement des produits…", "warn");
 
     try{
       await waitGuardIfAny();
@@ -1410,14 +1432,14 @@
       updateLinks();
 
       if (!ACCESS_SLUG){
-        applyBlockedState("Ajoute ?slug=market-... ou passe par la porte PIN.");
-        setMsgMain("⚠️ Aucun slug MARKET détecté.", "warn");
+        applyBlockedState("Ajoute ton identifiant ou passe par ton accès sécurisé.");
+        setMsgMain("⚠️ Aucun identifiant détecté.", "warn");
         return;
       }
 
       if (!ACCESS_GRANTED){
-        applyBlockedState("Passe par PIN pour ouvrir la vraie vue vendeur.");
-        setMsgMain("⚠️ Session protégée non ouverte. Passe par PIN.", "warn");
+        applyBlockedState("Passe par ton code pour ouvrir tes vraies données.");
+        setMsgMain("⚠️ Accès non ouvert. Passe par ton code.", "warn");
         return;
       }
 
@@ -1425,8 +1447,8 @@
       const cockpit = await loadCockpit(client);
 
       if (!cockpit){
-        applyBlockedState("Slug détecté mais accès réel non ouvert.");
-        setMsgMain("⚠️ Slug détecté, mais accès réel non ouvert.", "warn");
+        applyBlockedState("Identifiant détecté mais accès réel non ouvert.");
+        setMsgMain("⚠️ Identifiant détecté, mais accès réel non ouvert.", "warn");
         return;
       }
 
@@ -1445,9 +1467,9 @@
         refreshNotifsFromState();
 
         if (!PRODUCTS.length){
-          setMsgMain("✅ Catalogue chargé. Aucun produit pour l’instant.", "ok");
+          setMsgMain("✅ Boutique chargée. Aucun produit pour l’instant.", "ok");
         } else {
-          setMsgMain("✅ Catalogue réel chargé.", "ok");
+          setMsgMain("✅ Produits chargés.", "ok");
         }
       }catch(e){
         console.error(e);
@@ -1455,16 +1477,16 @@
         renderProducts();
         applyStatsFromProducts();
         refreshNotifsFromState();
-        setMsgMain("⚠️ Boutique chargée, mais lecture produits impossible pour l’instant.", "warn");
+        setMsgMain("⚠️ Boutique chargée, mais impossible de lire les produits pour l’instant.", "warn");
       }
 
     }catch(e){
       console.error(e);
-      applyBlockedState("Erreur de chargement catalogue.");
+      applyBlockedState("Erreur de chargement.");
       setMsgMain(
         String(e?.message || "") === "supabase_config_missing"
           ? "❌ Configuration Supabase manquante ou invalide."
-          : "❌ Impossible de charger le catalogue.",
+          : "❌ Impossible de charger les produits.",
         "bad"
       );
     }finally{
