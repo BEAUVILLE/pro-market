@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="fr">
 <head>
@@ -5,7 +6,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>Je vends — Mon activité</title>
   <meta name="theme-color" content="#07140f" />
-  <meta name="description" content="Espace vendeur DIGIY MARKET : accès, boutique, publication, produits et navigation." />
+  <meta name="description" content="Je vends — vue d’ensemble du vendeur : accès, boutique, visibilité, produits et navigation." />
 
   <script>
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
@@ -15,7 +16,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-admin-20260314-v8"></script>
+  <script src="./guard.js?v=market-admin-20260314-v9"></script>
 
   <style>
     :root{
@@ -256,27 +257,27 @@
         <div class="badge">🛍️</div>
         <div>
           <div id="brandTitle">Je vends</div>
-          <small id="brandSub">Mon activité vendeur</small>
+          <small id="brandSub">Vue d’ensemble vendeur</small>
         </div>
       </div>
 
       <div class="right">
-        <div class="pill" id="pillStatus">Statut : <b>…</b></div>
+        <div class="pill" id="pillStatus">Accès : <b>…</b></div>
         <button class="btn" id="btnReload" type="button">🔄 Recharger</button>
 
-        <a class="btn info" id="btnHallTop" href="./index.html">🏠 Accueil</a>
-        <a class="btn" id="btnCockpitTop" href="./cockpit.html">📊 Mon activité</a>
+        <a class="btn info" id="btnHallTop" href="./index.html">🏠 Entrée</a>
+        <a class="btn" id="btnCockpitTop" href="./cockpit.html">🧭 Ma gestion</a>
         <a class="btn" id="btnBoutiqueTop" href="./boutique.html">🛠️ Ma boutique</a>
         <a class="btn" id="btnProductsTop" href="./produits.html">📦 Mes produits</a>
-        <a class="btn gold" id="btnPin" href="./pin.html">🔑 Mon accès</a>
-        <a class="btn warn" id="btnPublicTop" href="./fiche.html">🌍 Ma vitrine</a>
+        <a class="btn gold" id="btnPin" href="./pin.html">🔑 Mon code</a>
+        <a class="btn warn" id="btnPublicTop" href="./fiche.html">🌍 Ma fiche</a>
       </div>
     </div>
 
     <div class="grid">
 
       <div class="card">
-        <h3>Accès & boutique</h3>
+        <h3>Vue d’ensemble</h3>
 
         <div class="row">
           <div class="statusDot" id="dot"></div>
@@ -290,24 +291,24 @@
 
         <div class="hr"></div>
 
-        <div class="heroTitle" id="shopName">Boutique DIGIY</div>
+        <div class="heroTitle" id="shopName">Ma boutique</div>
         <div class="mini" id="metaLine">
           <span>Ville : —</span>
           <span>•</span>
-          <span>Publication : —</span>
+          <span>Vitrine : —</span>
         </div>
 
         <div class="statGrid">
           <div class="stat">
-            <div class="k">Produits actifs</div>
+            <div class="k">Produits visibles</div>
             <div class="v" id="statActive">0</div>
           </div>
           <div class="stat">
-            <div class="k">Produits inactifs</div>
+            <div class="k">Produits masqués</div>
             <div class="v" id="statInactive">0</div>
           </div>
           <div class="stat">
-            <div class="k">Produits publiés</div>
+            <div class="k">En ligne</div>
             <div class="v" id="statPublishedProducts">0</div>
           </div>
           <div class="stat">
@@ -317,53 +318,53 @@
         </div>
 
         <div class="footer">
-          <a class="btn info" id="btnHall" href="./index.html">🏠 Accueil</a>
-          <a class="btn primary" id="btnCockpit" href="./cockpit.html">📊 Mon activité</a>
+          <a class="btn info" id="btnHall" href="./index.html">🏠 Entrée</a>
+          <a class="btn primary" id="btnCockpit" href="./cockpit.html">🧭 Ma gestion</a>
           <a class="btn" id="btnBoutique" href="./boutique.html">🛠️ Ma boutique</a>
           <a class="btn" id="btnProduits" href="./produits.html">📦 Mes produits</a>
-          <a class="btn gold" id="btnPublic" href="./fiche.html">🌍 Ma vitrine</a>
+          <a class="btn gold" id="btnPublic" href="./fiche.html">🌍 Ma fiche</a>
         </div>
       </div>
 
       <div class="card">
-        <h3>Lecture rapide</h3>
+        <h3>En deux secondes</h3>
 
         <div class="infoBox">
           <div class="infoRow"><span class="muted">Identifiant</span><span id="infoSlug">—</span></div>
           <div class="infoRow"><span class="muted">Téléphone</span><span id="infoPhone">—</span></div>
           <div class="infoRow"><span class="muted">WhatsApp</span><span id="infoWhatsapp">—</span></div>
           <div class="infoRow"><span class="muted">Adresse</span><span id="infoAddress">—</span></div>
-          <div class="infoRow"><span class="muted">Catégories</span><span id="infoCategories">—</span></div>
+          <div class="infoRow"><span class="muted">Activité</span><span id="infoCategories">—</span></div>
         </div>
 
         <div class="hr"></div>
 
-        <h3>Navigation</h3>
+        <h3>Où aller</h3>
         <div class="footer" style="justify-content:flex-start">
-          <a class="btn info" id="btnHall2" href="./index.html">🏠 Accueil</a>
-          <a class="btn" id="btnPin2" href="./pin.html">🔑 Mon accès</a>
-          <a class="btn" id="btnCockpit2" href="./cockpit.html">📊 Mon activité</a>
+          <a class="btn info" id="btnHall2" href="./index.html">🏠 Entrée</a>
+          <a class="btn" id="btnPin2" href="./pin.html">🔑 Mon code</a>
+          <a class="btn" id="btnCockpit2" href="./cockpit.html">🧭 Ma gestion</a>
           <a class="btn" id="btnBoutique2" href="./boutique.html">🛠️ Réglages</a>
           <a class="btn" id="btnProduits2" href="./produits.html">📦 Catalogue</a>
-          <a class="btn warn" id="btnPublic2" href="./fiche.html">🌍 Ma vitrine</a>
+          <a class="btn warn" id="btnPublic2" href="./fiche.html">🌍 Ma fiche</a>
         </div>
       </div>
 
       <div class="card" style="grid-column:1/-1">
-        <h3>Notifications</h3>
+        <h3>À surveiller</h3>
         <div class="notifList" id="notifList"></div>
 
         <div class="hr"></div>
 
-        <h3>Échantillon produits</h3>
+        <h3>Ce qui se voit d’abord</h3>
         <div id="productPreview" class="empty">Chargement…</div>
 
         <div class="footer">
-          <a class="smallLink" href="./index.html" id="linkHall">Accueil</a>
-          <a class="smallLink" href="./boutique.html" id="linkSupport">Réglages boutique</a>
-          <a class="smallLink" href="./cockpit.html" id="linkCockpit">Mon activité</a>
+          <a class="smallLink" href="./index.html" id="linkHall">Entrée</a>
+          <a class="smallLink" href="./boutique.html" id="linkSupport">Ma boutique</a>
+          <a class="smallLink" href="./cockpit.html" id="linkCockpit">Ma gestion</a>
           <a class="smallLink" href="./produits.html" id="linkProducts">Mes produits</a>
-          <a class="smallLink" href="./fiche.html" id="linkPublic">Ma vitrine</a>
+          <a class="smallLink" href="./fiche.html" id="linkPublic">Ma fiche</a>
         </div>
       </div>
 
@@ -467,7 +468,7 @@
   }
 
   function getShopName(profile){
-    return toText(profile?.shop_name, toText(profile?.business_name, "Boutique DIGIY"));
+    return toText(profile?.shop_name, toText(profile?.business_name, "Ma boutique"));
   }
 
   function extractProductRows(payload){
@@ -724,9 +725,9 @@
     $("dot").className = "statusDot bad";
     $("statusLine").textContent = "Accès protégé";
     $("expiryLine").textContent = reason || "Aucun accès actif.";
-    $("pillStatus").innerHTML = 'Statut : <b>Bloqué</b>';
-    $("shopName").textContent = "Boutique DIGIY";
-    $("metaLine").innerHTML = '<span>Ville : —</span><span>•</span><span>Publication : —</span>';
+    $("pillStatus").innerHTML = 'Accès : <b>Bloqué</b>';
+    $("shopName").textContent = "Ma boutique";
+    $("metaLine").innerHTML = '<span>Ville : —</span><span>•</span><span>Vitrine : —</span>';
 
     $("statActive").textContent = "0";
     $("statInactive").textContent = "0";
@@ -741,8 +742,8 @@
 
     $("brandTitle").textContent = "Je vends";
     $("brandSub").textContent = ACCESS_SLUG
-      ? "Identifiant détecté • session protégée"
-      : "Mon activité vendeur";
+      ? "Identifiant détecté • accès protégé"
+      : "Vue d’ensemble vendeur";
 
     resetProductPreview(
       ACCESS_SLUG
@@ -758,13 +759,13 @@
         level:"warn",
         tag:"ACCÈS",
         title:"Espace protégé",
-        text:"Les données réelles restent protégées tant que la session vendeur n’est pas ouverte."
+        text:"Les vraies données restent protégées tant que ton accès vendeur n’est pas ouvert."
       },
       {
         level:"info",
         tag:"PORTE",
-        title:"Entrée recommandée",
-        text:"Passe par la porte PIN avec le téléphone pour ouvrir proprement l’activité."
+        title:"Bon réflexe",
+        text:"Passe par ton code avec le téléphone pour ouvrir proprement ton activité."
       }
     ]);
   }
@@ -783,12 +784,12 @@
     $("dot").className = "statusDot ok";
     $("statusLine").textContent = "Accès actif";
     $("expiryLine").textContent = data.is_blank
-      ? "PIN OK • boutique vierge prête à remplir."
-      : "PIN OK • boutique réelle chargée.";
-    $("pillStatus").innerHTML = 'Statut : <b>Actif</b>';
+      ? "Code validé • boutique prête à être remplie."
+      : "Code validé • activité réelle chargée.";
+    $("pillStatus").innerHTML = 'Accès : <b>Ouvert</b>';
 
     $("shopName").textContent = shopName;
-    $("metaLine").innerHTML = `<span>Ville : ${escapeHtml(toText(p.city, "—"))}</span><span>•</span><span>Publication : ${p.is_published ? "Oui" : "Non"}</span>`;
+    $("metaLine").innerHTML = `<span>Ville : ${escapeHtml(toText(p.city, "—"))}</span><span>•</span><span>Vitrine : ${p.is_published ? "En ligne" : "Hors ligne"}</span>`;
 
     applyStatsFromState(stats);
 
@@ -801,7 +802,7 @@
     $("brandTitle").textContent = shopName || "Je vends";
     $("brandSub").textContent = ACCESS_SLUG
       ? `Mon activité • ${ACCESS_SLUG}`
-      : "Mon activité vendeur";
+      : "Vue d’ensemble vendeur";
 
     document.title = shopName
       ? `${shopName} — Mon activité`
@@ -814,15 +815,15 @@
       notifs.push({
         level:"warn",
         tag:"START",
-        title:"Boutique vierge",
-        text:"Complète les réglages boutique pour donner une vraie identité publique."
+        title:"Boutique prête à remplir",
+        text:"Complète ta boutique pour poser une vraie identité publique."
       });
     } else {
       notifs.push({
         level:"ok",
         tag:"BOUTIQUE",
         title:"Boutique chargée",
-        text:"La fiche vendeur est bien reliée à l’identifiant actif."
+        text:"Ta fiche vendeur est bien reliée à l’identifiant actif."
       });
     }
 
@@ -830,15 +831,15 @@
       notifs.push({
         level:"warn",
         tag:"OFF",
-        title:"Publication coupée",
-        text:"La vitrine publique n’est pas encore visible tant que la publication n’est pas activée."
+        title:"Vitrine coupée",
+        text:"Ta fiche publique n’est pas encore visible tant que la publication n’est pas activée."
       });
     } else {
       notifs.push({
         level:"ok",
         tag:"ON",
-        title:"Publication active",
-        text:"La vitrine publique peut être vue avec l’identifiant actif."
+        title:"Vitrine en ligne",
+        text:"Ta fiche publique peut être vue avec l’identifiant actif."
       });
     }
 
@@ -846,23 +847,23 @@
       notifs.push({
         level:"info",
         tag:"PRODUITS",
-        title:"Catalogue vide",
-        text:"Aucun produit actif pour le moment."
+        title:"Rien à montrer pour l’instant",
+        text:"Aucun produit visible pour le moment."
       });
     } else {
       notifs.push({
         level:"ok",
-        tag:"CATALOGUE",
-        title:"Produits actifs",
-        text:`${active} produit(s) actif(s) dans la boutique.`
+        tag:"PRODUITS",
+        title:"Produits visibles",
+        text:`${active} produit(s) visible(s) dans la boutique.`
       });
     }
 
     notifs.push({
       level:"info",
       tag:"NAV",
-      title:"Navigation recousue",
-      text:"Accueil, accès, activité, boutique, produits et vitrine gardent maintenant l’identifiant actif."
+      title:"Chemin recousu",
+      text:"Entrée, accès, activité, boutique, produits et fiche gardent maintenant l’identifiant actif."
     });
 
     setNotifs(notifs);
@@ -880,8 +881,8 @@
     }
 
     const top = PRODUCTS.slice(0, 3).map(p => {
-      const state = p.is_active ? "Actif" : "Inactif";
-      const published = p.is_published ? " • Publié" : "";
+      const state = p.is_active ? "Visible" : "Masqué";
+      const published = p.is_published ? " • En ligne" : "";
       const feat = p.is_featured ? " • En avant" : "";
       return `
         <div style="padding:10px 0;border-bottom:1px solid var(--line)">
@@ -957,14 +958,14 @@
       updateLinks();
 
       if (!ACCESS_SLUG){
-        applyBlockedState("Ajoute ?slug=market-... ou passe par la porte PIN.");
+        applyBlockedState("Ajoute ?slug=market-... ou passe par ton code.");
         setMsgMain("⚠️ Aucun identifiant MARKET détecté.", "warn");
         return;
       }
 
       if (!ACCESS_GRANTED){
-        applyBlockedState("Session protégée non ouverte. Passe par PIN pour ouvrir ton activité.");
-        setMsgMain("⚠️ Session protégée non ouverte. Passe par PIN.", "warn");
+        applyBlockedState("Accès non ouvert. Passe par ton code pour entrer dans ton activité.");
+        setMsgMain("⚠️ Accès non ouvert. Passe par ton code.", "warn");
         return;
       }
 
@@ -985,7 +986,7 @@
       applyLiveState(cockpit);
       setMsgMain(
         cockpit.is_blank
-          ? "✅ Boutique vierge chargée. Tu peux continuer la pose."
+          ? "✅ Boutique prête. Tu peux continuer la pose."
           : "✅ Activité réelle chargée.",
         "ok"
       );
@@ -993,7 +994,7 @@
       try{
         await loadProducts(client);
         if (!PRODUCTS.length){
-          setMsgMain("✅ Activité chargée. Aucun produit pour l’instant.", "ok");
+          setMsgMain("✅ Activité chargée. Rien à montrer pour l’instant.", "ok");
         }
       }catch(e){
         console.error(e);
