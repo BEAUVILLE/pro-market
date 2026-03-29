@@ -1,7 +1,8 @@
 // guard.js — DIGIY MARKET PRO
-// Doctrine : PIN une seule fois -> session locale fraîche -> navigation interne directe
+// Doctrine : code une seule fois -> session locale fraîche -> navigation interne directe
 // Rail d'accès/session = slug + phone
 // Rail métier = owner_id / product_id / order_id
+
 (() => {
   "use strict";
 
@@ -28,11 +29,22 @@
     STORAGE: {
       SESSION_KEYS: [
         "DIGIY_MARKET_PIN_SESSION",
+        "DIGIY_MARKET_SESSION",
         "DIGIY_PIN_SESSION",
         "DIGIY_ACCESS",
         "DIGIY_SESSION_MARKET",
         "digiy_market_session"
       ],
+
+      PLAIN_FLAG_KEYS: {
+        PIN_ACCESS: "digiy_market_pin_access",
+        ACCESS_OK: "digiy_market_access_ok",
+        HAS_ACCESS: "digiy_market_has_access",
+        ACCESS: "digiy_market_access",
+        PIN_ACCESS_UNTIL: "digiy_market_pin_access_until",
+        ACCESS_UNTIL: "digiy_market_access_until"
+      },
+
       SLUG_KEY: "digiy_market_slug",
       PHONE_KEY: "digiy_market_phone",
       LAST_SLUG_KEY: "digiy_market_last_slug"
@@ -105,6 +117,11 @@
     const n = Number(ts || 0);
     if (!n) return false;
     return (nowMs() - n) <= CFG.SESSION_MAX_AGE_MS;
+  }
+
+  function isFuture(ts) {
+    const n = Number(ts || 0);
+    return Number.isFinite(n) && n > nowMs();
   }
 
   function hidePage() {
@@ -208,8 +225,27 @@
     }
   }
 
+  function savePlainFlag(key, value) {
+    try { localStorage.setItem(key, value); } catch (_) {}
+    try { sessionStorage.setItem(key, value); } catch (_) {}
+  }
+
+  function readPlainFlag(key) {
+    try {
+      const raw = sessionStorage.getItem(key) || localStorage.getItem(key) || "";
+      return String(raw).trim();
+    } catch (_) {
+      return "";
+    }
+  }
+
   function clearSessionsOnly() {
     for (const key of CFG.STORAGE.SESSION_KEYS) {
+      try { localStorage.removeItem(key); } catch (_) {}
+      try { sessionStorage.removeItem(key); } catch (_) {}
+    }
+
+    for (const key of Object.values(CFG.STORAGE.PLAIN_FLAG_KEYS)) {
       try { localStorage.removeItem(key); } catch (_) {}
       try { sessionStorage.removeItem(key); } catch (_) {}
     }
@@ -247,7 +283,8 @@
         !!parsed.access ||
         !!parsed.access_ok ||
         !!parsed.ok ||
-        !!parsed.has_access;
+        !!parsed.has_access ||
+        !!parsed.pin_access;
 
       const verifiedAt =
         Number(
@@ -283,6 +320,44 @@
       };
     }
 
+    const fallbackSlug = normSlug(
+      sessionStorage.getItem(CFG.STORAGE.SLUG_KEY) ||
+      localStorage.getItem(CFG.STORAGE.SLUG_KEY) ||
+      localStorage.getItem(CFG.STORAGE.LAST_SLUG_KEY) ||
+      ""
+    );
+
+    const fallbackPhone = normPhone(
+      sessionStorage.getItem(CFG.STORAGE.PHONE_KEY) ||
+      localStorage.getItem(CFG.STORAGE.PHONE_KEY) ||
+      ""
+    );
+
+    const accessFlag =
+      readPlainFlag(CFG.STORAGE.PLAIN_FLAG_KEYS.PIN_ACCESS).toLowerCase() === "true" ||
+      readPlainFlag(CFG.STORAGE.PLAIN_FLAG_KEYS.ACCESS_OK).toLowerCase() === "true" ||
+      readPlainFlag(CFG.STORAGE.PLAIN_FLAG_KEYS.HAS_ACCESS).toLowerCase() === "true" ||
+      readPlainFlag(CFG.STORAGE.PLAIN_FLAG_KEYS.ACCESS).toLowerCase() === "true";
+
+    const accessUntil = Number(
+      readPlainFlag(CFG.STORAGE.PLAIN_FLAG_KEYS.ACCESS_UNTIL) ||
+      readPlainFlag(CFG.STORAGE.PLAIN_FLAG_KEYS.PIN_ACCESS_UNTIL) ||
+      0
+    );
+
+    if (accessFlag && isFuture(accessUntil) && (fallbackSlug || fallbackPhone)) {
+      return {
+        key: "plain_flags",
+        slug: fallbackSlug,
+        phone: fallbackPhone,
+        owner_id: null,
+        module: MODULE,
+        access: true,
+        verified_at: Math.max(accessUntil - CFG.SESSION_MAX_AGE_MS, 0),
+        validated_at: null
+      };
+    }
+
     return null;
   }
 
@@ -292,15 +367,24 @@
       payload.validated_at ||
       (verifiedAtMs ? new Date(verifiedAtMs).toISOString() : nowIso());
 
+    const expiresAtMs = verifiedAtMs + CFG.SESSION_MAX_AGE_MS;
+
     const session = {
       slug: normSlug(payload.slug || state.slug || ""),
       phone: normPhone(payload.phone || state.phone || ""),
       owner_id: payload.owner_id || state.owner_id || null,
       module: MODULE,
+
       access: !!payload.access,
       access_ok: !!payload.access,
+      ok: !!payload.access,
+      has_access: !!payload.access,
+      pin_access: !!payload.access,
+
       verified_at: verifiedAtMs,
       validated_at: validatedAtIso,
+      access_until: expiresAtMs,
+      pin_access_until: expiresAtMs,
       ts: nowMs()
     };
 
@@ -311,6 +395,13 @@
 
     saveSlugOnly(session.slug);
     savePhoneOnly(session.phone);
+
+    savePlainFlag(CFG.STORAGE.PLAIN_FLAG_KEYS.PIN_ACCESS, String(!!session.access));
+    savePlainFlag(CFG.STORAGE.PLAIN_FLAG_KEYS.ACCESS_OK, String(!!session.access));
+    savePlainFlag(CFG.STORAGE.PLAIN_FLAG_KEYS.HAS_ACCESS, String(!!session.access));
+    savePlainFlag(CFG.STORAGE.PLAIN_FLAG_KEYS.ACCESS, String(!!session.access));
+    savePlainFlag(CFG.STORAGE.PLAIN_FLAG_KEYS.PIN_ACCESS_UNTIL, String(session.pin_access_until));
+    savePlainFlag(CFG.STORAGE.PLAIN_FLAG_KEYS.ACCESS_UNTIL, String(session.access_until));
 
     try {
       window.DIGIY_ACCESS = Object.assign({}, window.DIGIY_ACCESS || {}, session);
@@ -515,25 +606,25 @@
     if (typeof raw === "string") {
       const txt = raw.trim();
       if (txt.startsWith("(") && txt.endsWith(")")) {
-        const tupleHead = txt.match(/^\(([^,]+),([^,]+),([^,]+),?(.*)\)$/);
-        if (tupleHead) {
-          const okToken = String(tupleHead[1] || "").trim().replace(/^"|"$/g, "");
-          const modToken = String(tupleHead[2] || "").trim().replace(/^"|"$/g, "");
-          const phoneToken = String(tupleHead[3] || "").trim().replace(/^"|"$/g, "");
+        const inside = txt.slice(1, -1);
+        const parts = inside.match(/(".*?"|[^,]+)/g) || [];
+        const okToken = String(parts[0] || "").trim().replace(/^"|"$/g, "");
+        const modToken = String(parts[1] || "").trim().replace(/^"|"$/g, "");
+        const phoneToken = String(parts[2] || "").trim().replace(/^"|"$/g, "");
+        const ownerToken = String(parts[4] || "").trim().replace(/^"|"$/g, "");
 
-          const okLike =
-            okToken === "t" ||
-            okToken === "true" ||
-            okToken === "1";
+        const okLike =
+          okToken === "t" ||
+          okToken === "true" ||
+          okToken === "1";
 
-          if (okLike) {
-            return {
-              ok: true,
-              module: upper(modToken || MODULE),
-              phone: normPhone(phoneToken || fallbackPhone || ""),
-              owner_id: null
-            };
-          }
+        if (okLike) {
+          return {
+            ok: true,
+            module: upper(modToken || MODULE),
+            phone: normPhone(phoneToken || fallbackPhone || ""),
+            owner_id: ownerToken || null
+          };
         }
       }
     }
@@ -607,8 +698,8 @@
     const s = normSlug(slug);
     const p = normPin(pin);
 
-    if (!s) return { ok: false, error: "Slug manquant." };
-    if (!p) return { ok: false, error: "PIN manquant." };
+    if (!s) return { ok: false, error: "Identifiant manquant." };
+    if (!p) return { ok: false, error: "Code manquant." };
 
     let phone = normPhone(state.phone || readSavedPhone() || "");
 
@@ -618,12 +709,12 @@
     }
 
     if (!phone) {
-      return { ok: false, error: "Slug inconnu (phone non résolu)." };
+      return { ok: false, error: "Téléphone introuvable pour cet identifiant." };
     }
 
     const auth = await attemptPinLoginRPCs(s, p, phone);
     if (!auth?.ok) {
-      return { ok: false, error: "PIN invalide." };
+      return { ok: false, error: "Code invalide." };
     }
 
     const finalPhone = normPhone(auth.phone || phone);
@@ -680,6 +771,8 @@
     state.error = null;
     state.verified_at = null;
     state.validated_at = null;
+    state.pin_url = "";
+    state.pay_url = "";
 
     showPage();
     goPin({});
@@ -759,13 +852,33 @@
       state.access_ok = false;
       state.preview = true;
       state.ready_flag = true;
-      state.error = "Slug absent.";
+      state.error = "Identifiant absent.";
       showPage();
       goPin({ slug, phone });
       return { ...state };
     }
 
-    const freshSession = !!verifiedAt && isRecent(verifiedAt);
+    let freshSession = !!verifiedAt && isRecent(verifiedAt);
+
+    if (!freshSession) {
+      const plainUntil = Number(
+        readPlainFlag(CFG.STORAGE.PLAIN_FLAG_KEYS.ACCESS_UNTIL) ||
+        readPlainFlag(CFG.STORAGE.PLAIN_FLAG_KEYS.PIN_ACCESS_UNTIL) ||
+        0
+      );
+
+      const plainAccess =
+        readPlainFlag(CFG.STORAGE.PLAIN_FLAG_KEYS.PIN_ACCESS).toLowerCase() === "true" ||
+        readPlainFlag(CFG.STORAGE.PLAIN_FLAG_KEYS.ACCESS_OK).toLowerCase() === "true" ||
+        readPlainFlag(CFG.STORAGE.PLAIN_FLAG_KEYS.HAS_ACCESS).toLowerCase() === "true" ||
+        readPlainFlag(CFG.STORAGE.PLAIN_FLAG_KEYS.ACCESS).toLowerCase() === "true";
+
+      if (plainAccess && isFuture(plainUntil)) {
+        verifiedAt = Math.max(plainUntil - CFG.SESSION_MAX_AGE_MS, nowMs());
+        validatedAt = validatedAt || nowIso();
+        freshSession = true;
+      }
+    }
 
     if (!freshSession) {
       clearSessionsOnly();
@@ -776,7 +889,7 @@
       state.access_ok = false;
       state.preview = true;
       state.ready_flag = true;
-      state.error = "Session PIN absente ou expirée.";
+      state.error = "Session absente ou expirée.";
       showPage();
       goPin({ slug, phone });
       return { ...state };
@@ -902,6 +1015,8 @@
       state.owner_id = null;
       state.verified_at = null;
       state.validated_at = null;
+      state.pin_url = "";
+      state.pay_url = "";
     },
 
     loginWithPin,
