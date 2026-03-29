@@ -3,9 +3,13 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>DIGIY PRO MARKET — Cockpit vendeur</title>
+  <title>DIGIY — Ma boutique</title>
   <meta name="theme-color" content="#07140f"/>
-  <meta name="description" content="Cockpit vendeur DIGIY PRO MARKET : boutique, produits, publication, lecture terrain."/>
+  <meta name="description" content="DIGIY — Espace vendeur : boutique, produits, visibilité et lecture terrain."/>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 
   <script>
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
@@ -15,7 +19,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-cockpit-20260314-v6"></script>
+  <script src="./guard.js?v=market-cockpit-20260329-human-v1"></script>
 
   <style>
     :root{
@@ -37,6 +41,7 @@
     }
 
     *{box-sizing:border-box}
+
     html,body{
       margin:0;
       padding:0;
@@ -46,10 +51,10 @@
         radial-gradient(900px 520px at 110% 0%, rgba(250,204,21,.10), transparent 55%),
         linear-gradient(180deg, #07140f, #05100c 55%, #040b08 100%);
       color:var(--text);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      font-family:Outfit,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
     }
 
-    body{ padding:16px; }
+    body{padding:16px}
     a{color:inherit;text-decoration:none}
 
     .wrap{
@@ -142,6 +147,7 @@
       cursor:pointer;
       transition:.18s ease;
       box-shadow:var(--shadow);
+      font-family:inherit;
     }
 
     .btn:hover{transform:translateY(-1px)}
@@ -357,6 +363,7 @@
       cursor:pointer;
       font-weight:800;
       font-size:13px;
+      font-family:inherit;
     }
 
     .chip.active{
@@ -451,6 +458,7 @@
       justify-content:center;
       gap:8px;
       text-decoration:none;
+      font-family:inherit;
     }
 
     .action-btn.wa{background:#103525}
@@ -502,49 +510,49 @@
       <div class="brand">
         <div class="brand-mark">🛍️</div>
         <div class="brand-copy">
-          <div class="eyebrow">DIGIY PRO MARKET</div>
-          <div class="brand-title">Cockpit vendeur</div>
-          <div class="brand-sub" id="topSub">Chargement du cockpit…</div>
+          <div class="eyebrow">DIGIY</div>
+          <div class="brand-title">Ma boutique</div>
+          <div class="brand-sub" id="topSub">Chargement de ton espace…</div>
         </div>
       </div>
 
       <div class="top-actions">
         <button class="btn ghost" id="btnReload" type="button">🔄 Recharger</button>
-        <a class="btn info" id="btnDashboard" href="./dashboard.html">🧭 Dashboard</a>
-        <a class="btn" id="btnSettings" href="./boutique.html">🛠️ Réglages boutique</a>
-        <a class="btn" id="btnProducts" href="./produits.html">📦 Produits</a>
-        <a class="btn gold" id="btnPin" href="./pin.html">🔑 Entrer par PIN</a>
-        <a class="btn" id="btnPublic" href="./index.html">🌍 Voir la vitrine</a>
+        <a class="btn info" id="btnDashboard" href="./dashboard-pro.html">📈 Mon activité</a>
+        <a class="btn" id="btnSettings" href="./boutique.html">🛠️ Ma boutique</a>
+        <a class="btn" id="btnProducts" href="./produits.html">📦 Mes produits</a>
+        <a class="btn gold" id="btnPin" href="./pin.html">🔑 Entrer avec mon code</a>
+        <a class="btn" id="btnPublic" href="./index.html">🌍 Voir ma vitrine</a>
       </div>
     </section>
 
     <section class="hero">
       <div class="hero-grid">
         <div class="hero-body">
-          <div class="mode" id="modeBadge">Mode protégé</div>
+          <div class="mode" id="modeBadge">Accès sécurisé</div>
 
           <div>
-            <h1 id="shopName">Boutique DIGIY</h1>
+            <h1 id="shopName">Ma boutique</h1>
             <div class="subtitle" id="shopSubtitle">
-              Coque visible du cockpit vendeur. Le contenu réel s’ouvre avec une session PIN MARKET valide.
+              Ton espace reste visible, mais tes vraies données s’ouvrent seulement après validation de ton code.
             </div>
           </div>
 
           <div class="pills">
-            <div class="pill" id="pillCategory">🏷️ Catégories à définir</div>
+            <div class="pill" id="pillCategory">🏷️ Activité à définir</div>
             <div class="pill" id="pillCity">📍 Ville à définir</div>
-            <div class="pill" id="pillPublish">🌍 Publication à définir</div>
+            <div class="pill" id="pillPublish">🌍 Visibilité à définir</div>
           </div>
         </div>
 
         <div class="hero-side">
           <div class="mini">
-            <div class="k">Slug</div>
+            <div class="k">Identifiant</div>
             <div class="v" id="miniSlug">—</div>
           </div>
 
           <div class="mini">
-            <div class="k">Téléphone boutique</div>
+            <div class="k">Téléphone de contact</div>
             <div class="v" id="miniPhone">—</div>
           </div>
 
@@ -563,27 +571,27 @@
 
     <section class="stats-grid">
       <div class="stat"><div class="label">Total produits</div><div class="value" id="sTotal">0</div></div>
-      <div class="stat"><div class="label">Actifs</div><div class="value" id="sActive">0</div></div>
-      <div class="stat"><div class="label">Inactifs</div><div class="value" id="sInactive">0</div></div>
-      <div class="stat"><div class="label">Produits publiés</div><div class="value" id="sPublishedCount">0</div></div>
-      <div class="stat"><div class="label">Boutique publiée</div><div class="value" id="sPublishedState">NON</div></div>
+      <div class="stat"><div class="label">Disponibles</div><div class="value" id="sActive">0</div></div>
+      <div class="stat"><div class="label">Masqués</div><div class="value" id="sInactive">0</div></div>
+      <div class="stat"><div class="label">En ligne</div><div class="value" id="sPublishedCount">0</div></div>
+      <div class="stat"><div class="label">Vitrine en ligne</div><div class="value" id="sPublishedState">NON</div></div>
     </section>
 
     <section class="layout">
       <section class="card panel">
         <div class="panel-head">
           <div>
-            <h2>Produits de la boutique</h2>
+            <h2>Mes produits</h2>
             <div class="muted">
-              Lecture claire du catalogue vendeur. Pas de démo injectée, seulement les vrais produits liés au slug actif.
+              Lecture claire de ton catalogue. Ici, seulement les vrais produits liés à ta boutique.
             </div>
           </div>
 
           <div class="filters" id="filters">
             <button class="chip active" type="button" data-filter="all">Tous</button>
-            <button class="chip" type="button" data-filter="active">Actifs</button>
-            <button class="chip" type="button" data-filter="inactive">Inactifs</button>
-            <button class="chip" type="button" data-filter="published">Publiés</button>
+            <button class="chip" type="button" data-filter="active">Disponibles</button>
+            <button class="chip" type="button" data-filter="inactive">Masqués</button>
+            <button class="chip" type="button" data-filter="published">En ligne</button>
           </div>
         </div>
 
@@ -592,9 +600,9 @@
       </section>
 
       <section class="card panel">
-        <h2>Lecture terrain</h2>
+        <h2>Vue d’ensemble</h2>
         <div class="muted" id="sideLead">
-          Le vendeur voit son outil même sans accès, mais sans données d’un autre commerçant.
+          Ton espace reste visible même sans ouverture complète, mais sans exposer les données d’un autre commerçant.
         </div>
 
         <div class="msg" id="msgMain">Prêt.</div>
@@ -602,7 +610,7 @@
         <div class="list" style="margin-top:14px">
           <div class="mini">
             <div class="k">Boutique</div>
-            <div class="v" id="factShop">Boutique DIGIY</div>
+            <div class="v" id="factShop">Ma boutique</div>
           </div>
 
           <div class="mini">
@@ -622,13 +630,13 @@
         </div>
 
         <div class="empty" id="previewBox" style="display:block;">
-          Aucun slug MARKET actif détecté. La coque reste visible, mais les données réelles restent protégées.
+          Aucun identifiant détecté pour l’instant. La coque reste visible, mais tes vraies données restent protégées.
         </div>
       </section>
     </section>
 
     <div class="footer" id="footerText">
-      DIGIY PRO MARKET • Cockpit vendeur
+      DIGIY • Ma boutique
     </div>
   </div>
 
@@ -713,13 +721,18 @@
       }
 
       function getShopName(profile){
-        return toText(profile?.shop_name, toText(profile?.business_name, "Boutique DIGIY"));
+        return toText(profile?.shop_name, toText(profile?.business_name, "Ma boutique"));
       }
 
-      function withSlug(base){
-        const u = new URL(base, location.href);
-        if (ACCESS_SLUG) u.searchParams.set("slug", ACCESS_SLUG);
-        return u.pathname + u.search;
+      function buildSafeUrl(base){
+        try{
+          const u = new URL(String(base || "./"), location.href);
+          if (ACCESS_SLUG) u.searchParams.set("slug", ACCESS_SLUG);
+          if (ACCESS_PHONE) u.searchParams.set("phone", ACCESS_PHONE);
+          return u.pathname + u.search;
+        }catch{
+          return String(base || "./");
+        }
       }
 
       function isTruthyLike(v){
@@ -759,6 +772,10 @@
       }
 
       function resolvePhone(){
+        const qs = new URLSearchParams(location.search);
+        const fromQuery = normalizePhone(qs.get("phone"));
+        if (fromQuery) return fromQuery;
+
         const fromGuard = normalizePhone(window.DIGIY_GUARD?.state?.phone);
         if (fromGuard) return fromGuard;
 
@@ -831,14 +848,14 @@
           const guard = window.DIGIY_GUARD;
           if (!guard) return;
 
-          if (guard.ready && typeof guard.ready.then === "function") {
+          if (guard.ready && typeof guard.ready.then === "function"){
             await guard.ready;
             return;
           }
 
-          if (typeof guard.ready === "function") {
+          if (typeof guard.ready === "function"){
             const maybePromise = guard.ready();
-            if (maybePromise && typeof maybePromise.then === "function") {
+            if (maybePromise && typeof maybePromise.then === "function"){
               await maybePromise;
             }
           }
@@ -909,11 +926,11 @@
       }
 
       function updateNavLinks(){
-        $("btnDashboard").href = ACCESS_SLUG ? withSlug("./dashboard.html") : "./dashboard.html";
-        $("btnSettings").href = ACCESS_SLUG ? withSlug("./boutique.html") : "./boutique.html";
-        $("btnProducts").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
-        $("btnPin").href = ACCESS_SLUG ? withSlug("./pin.html") : "./pin.html";
-        $("btnPublic").href = ACCESS_SLUG ? withSlug("./index.html") : "./index.html";
+        $("btnDashboard").href = ACCESS_SLUG ? buildSafeUrl("./dashboard-pro.html") : "./dashboard-pro.html";
+        $("btnSettings").href = ACCESS_SLUG ? buildSafeUrl("./boutique.html") : "./boutique.html";
+        $("btnProducts").href = ACCESS_SLUG ? buildSafeUrl("./produits.html") : "./produits.html";
+        $("btnPin").href = ACCESS_SLUG ? buildSafeUrl("./pin.html") : "./pin.html";
+        $("btnPublic").href = ACCESS_SLUG ? buildSafeUrl("./index.html") : "./index.html";
       }
 
       function storeAccess(){
@@ -965,8 +982,8 @@
 
         const shopName = getShopName(p);
         const city = toText(p.city, "Ville à définir");
-        const categories = toText(p.categories_text, "Catégories à définir");
-        const publication = p.is_published ? "Publiée" : "Non publiée";
+        const categories = toText(p.categories_text, "Activité à définir");
+        const publication = p.is_published ? "Vitrine en ligne" : "Vitrine non publiée";
         const address = toText(p.address, "Adresse à définir");
         const whatsapp = p.whatsapp || data.phone || "";
         const delivery = toText(p.delivery_note, "Livraison à définir");
@@ -975,11 +992,11 @@
         $("shopName").textContent = shopName;
         $("shopSubtitle").textContent = liveMode
           ? (data.is_blank
-              ? "Boutique personnelle vierge. Complète le profil et ajoute tes produits."
-              : "Cockpit vendeur personnel chargé avec les vraies données de la boutique.")
+              ? "Ta boutique est prête à être remplie. Il ne reste qu’à poser tes premiers produits."
+              : "Ton espace est ouvert avec les vraies données de ta boutique.")
           : (ACCESS_SLUG
-              ? `Slug détecté (${ACCESS_SLUG}), mais la session PIN n’est pas ouverte.`
-              : "Coque visible du cockpit vendeur. Le contenu réel s’ouvre avec une session PIN MARKET valide.");
+              ? `Ton identifiant est bien repéré (${ACCESS_SLUG}), mais ton espace n’est pas encore ouvert avec le code.`
+              : "Ton espace reste visible, mais tes vraies données s’ouvrent seulement après validation de ton code.");
 
         $("pillCategory").textContent = "🏷️ " + categories;
         $("pillCity").textContent = "📍 " + city;
@@ -996,32 +1013,32 @@
         $("factPayment").textContent = payment;
 
         $("modeBadge").className = liveMode ? "mode live" : "mode";
-        $("modeBadge").textContent = liveMode ? "Mode vivant" : "Mode protégé";
+        $("modeBadge").textContent = liveMode ? "Accès ouvert" : "Accès sécurisé";
 
         $("topSub").textContent = liveMode
-          ? `Cockpit chargé pour ${ACCESS_SLUG || "MARKET"}`
+          ? `Espace ouvert pour ${shopName}`
           : (ACCESS_SLUG
-              ? `Slug détecté : ${ACCESS_SLUG} • session protégée`
+              ? `Identifiant détecté : ${ACCESS_SLUG}`
               : "Aucun accès ouvert pour l’instant.");
 
         $("previewBox").style.display = liveMode ? "none" : "block";
         $("previewBox").textContent = ACCESS_SLUG
-          ? `Slug ${ACCESS_SLUG} détecté. La coque reste visible, mais les données réelles restent verrouillées tant que le PIN n’a pas ouvert la session.`
-          : "Aucun slug MARKET actif détecté. La coque reste visible, mais les données réelles restent protégées.";
+          ? `L’identifiant ${ACCESS_SLUG} a bien été reconnu. La coque reste visible, mais les vraies données restent verrouillées tant que le code n’a pas ouvert la session.`
+          : "Aucun identifiant détecté pour l’instant. La coque reste visible, mais tes vraies données restent protégées.";
 
         $("footerText").textContent = liveMode
-          ? `DIGIY PRO MARKET • ${shopName} • Cockpit vivant`
-          : "DIGIY PRO MARKET • Cockpit protégé";
+          ? `DIGIY • ${shopName} • Espace ouvert`
+          : "DIGIY • Ma boutique • Accès sécurisé";
 
         $("sideLead").textContent = liveMode
-          ? "Lecture directe de la boutique active. Ici, seuls les vrais produits du slug MARKET chargé apparaissent."
+          ? "Lecture directe de la boutique active. Ici, seuls les vrais produits liés à ton espace apparaissent."
           : (ACCESS_SLUG
-              ? "Le slug est bien détecté, mais l’accès vendeur réel n’est pas ouvert. La coque reste visible sans exposer de données."
-              : "Le vendeur voit son outil même sans accès, mais sans données d’un autre commerçant.");
+              ? "Ton identifiant est bien repéré, mais l’accès complet n’est pas encore ouvert. La coque reste visible sans exposer les données."
+              : "Ton espace reste visible même sans ouverture complète, mais sans exposer les données d’un autre commerçant.");
 
         document.title = liveMode
-          ? `${shopName} — Cockpit vendeur DIGIY PRO MARKET`
-          : "DIGIY PRO MARKET — Cockpit vendeur";
+          ? `${shopName} — Ma boutique DIGIY`
+          : "DIGIY — Ma boutique";
 
         applyStats();
       }
@@ -1070,16 +1087,16 @@
       function liveActionsHtml(row){
         const wa = PROFILE?.profile?.whatsapp || PROFILE?.phone || "";
         const waPhone = normalizePhone(wa);
-        const text = `Bonjour, je gère mon produit "${row.title}" dans DIGIY PRO MARKET.`;
+        const text = `Bonjour, je gère mon produit "${row.title}" depuis ma boutique DIGIY.`;
         const waBtn = waPhone
           ? `<a class="action-btn wa" href="https://wa.me/${encodeURIComponent(waPhone)}?text=${encodeURIComponent(text)}" target="_blank" rel="noopener">💬 WhatsApp boutique</a>`
           : "";
 
         return `
           <div class="product-actions">
-            <a class="action-btn ghost" href="${withSlug("./produits.html")}">📦 Gérer les produits</a>
-            <a class="action-btn ghost" href="${withSlug("./boutique.html")}">🛠️ Réglages boutique</a>
-            <a class="action-btn ghost" href="${withSlug("./index.html")}">🌍 Voir la vitrine</a>
+            <a class="action-btn ghost" href="${buildSafeUrl("./produits.html")}">📦 Mes produits</a>
+            <a class="action-btn ghost" href="${buildSafeUrl("./boutique.html")}">🛠️ Ma boutique</a>
+            <a class="action-btn ghost" href="${buildSafeUrl("./index.html")}">🌍 Voir ma vitrine</a>
             ${waBtn}
           </div>
         `;
@@ -1088,8 +1105,8 @@
       function blockedActionsHtml(){
         return `
           <div class="product-actions">
-            <a class="action-btn ghost" href="${withSlug("./pin.html")}">🔑 Entrer par PIN</a>
-            <a class="action-btn ghost" href="${withSlug("./boutique.html")}">🛠️ Préparer la boutique</a>
+            <a class="action-btn ghost" href="${buildSafeUrl("./pin.html")}">🔑 Ouvrir avec mon code</a>
+            <a class="action-btn ghost" href="${buildSafeUrl("./boutique.html")}">🛠️ Préparer ma boutique</a>
           </div>
         `;
       }
@@ -1106,9 +1123,9 @@
           if (!ALL_PRODUCTS.length){
             empty.textContent = ACCESS_OK
               ? "Aucun produit pour l’instant."
-              : "La coque est visible, mais aucun produit réel n’est chargé sans session PIN ouverte.";
+              : "Ton espace est visible, mais les vrais produits ne s’affichent qu’après ouverture de session.";
           } else {
-            empty.textContent = "Aucun produit dans ce filtre.";
+            empty.textContent = "Aucun produit dans cette vue.";
           }
           return;
         }
@@ -1117,9 +1134,9 @@
 
         list.innerHTML = filtered.map((row) => {
           const badges = [];
-          badges.push(`<span class="badge ${row.is_active ? "active" : "inactive"}">${row.is_active ? "Actif" : "Inactif"}</span>`);
-          if (row.is_published) badges.push(`<span class="badge published">Publié</span>`);
-          if (row.is_featured) badges.push(`<span class="badge featured">En avant</span>`);
+          badges.push(`<span class="badge ${row.is_active ? "active" : "inactive"}">${row.is_active ? "Visible" : "Masqué"}</span>`);
+          if (row.is_published) badges.push(`<span class="badge published">En ligne</span>`);
+          if (row.is_featured) badges.push(`<span class="badge featured">Mis en avant</span>`);
 
           return `
             <article class="product">
@@ -1129,7 +1146,7 @@
                   <div class="meta">
                     ${row.category ? `<span>🏷️ ${esc(row.category)}</span>` : ""}
                     <span>💰 ${esc(money(row.price_fcfa))}</span>
-                    ${row.old_price_fcfa != null ? `<span>🧾 Ancien prix : ${esc(money(row.old_price_fcfa))}</span>` : ""}
+                    ${row.old_price_fcfa != null ? `<span>🧾 Avant : ${esc(money(row.old_price_fcfa))}</span>` : ""}
                     ${row.unit_label ? `<span>📦 ${esc(row.unit_label)}</span>` : ""}
                     <span>↕️ Position ${esc(row.product_position)}</span>
                   </div>
@@ -1203,7 +1220,7 @@
         ALL_PRODUCTS = [];
         applyProfile(PROFILE, false);
         renderProducts();
-        setMsgMain(reasonText || "Accès protégé.", "warn");
+        setMsgMain(reasonText || "Accès sécurisé.", "warn");
       }
 
       async function boot(){
@@ -1222,12 +1239,12 @@
           updateNavLinks();
 
           if (!ACCESS_SLUG){
-            showBlockedState("Aucun slug MARKET détecté. La coque reste visible.");
+            showBlockedState("Aucun identifiant détecté. La coque reste visible.");
             return;
           }
 
           if (!ACCESS_GRANTED){
-            showBlockedState("Session protégée non ouverte. Passe par PIN pour ouvrir le vrai cockpit.");
+            showBlockedState("Ton espace n’est pas encore ouvert. Entre avec ton code pour accéder à tes vraies données.");
             return;
           }
 
@@ -1235,7 +1252,7 @@
           const cockpit = await loadCockpit(client);
 
           if (!cockpit){
-            showBlockedState("Slug détecté mais accès réel non ouvert. Le cockpit vivant reste protégé.");
+            showBlockedState("Identifiant reconnu, mais accès complet non ouvert pour l’instant.");
             return;
           }
 
@@ -1247,8 +1264,8 @@
           applyProfile(cockpit, true);
           setMsgMain(
             cockpit.is_blank
-              ? "✅ Boutique vierge chargée. Tu peux maintenant poser les premiers produits."
-              : "✅ Cockpit vendeur réel chargé.",
+              ? "✅ Boutique ouverte. Tu peux maintenant poser tes premiers produits."
+              : "✅ Ta boutique est bien chargée.",
             "ok"
           );
 
@@ -1260,7 +1277,7 @@
             if (!ALL_PRODUCTS.length){
               setMsgMain(
                 cockpit.is_blank
-                  ? "✅ Boutique chargée. Il reste à poser les premiers produits."
+                  ? "✅ Boutique prête. Il reste à ajouter les premiers produits."
                   : "✅ Boutique chargée. Aucun produit pour l’instant.",
                 "ok"
               );
@@ -1270,11 +1287,11 @@
             ALL_PRODUCTS = [];
             renderProducts();
             applyStats();
-            setMsgMain("⚠️ Boutique chargée, mais impossible de lire les produits pour l’instant.", "warn");
+            setMsgMain("⚠️ La boutique est ouverte, mais les produits ne peuvent pas être lus pour l’instant.", "warn");
           }
         }catch(err){
           console.error(err);
-          showBlockedState("Erreur de chargement du cockpit vendeur.");
+          showBlockedState("Erreur pendant le chargement de ton espace.");
           if (String(err?.message || "") === "supabase_config_missing"){
             setMsgMain("❌ Configuration Supabase manquante ou invalide.", "bad");
           }
