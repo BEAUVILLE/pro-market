@@ -1,0 +1,1593 @@
+
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>Ma boutique — Ma gestion</title>
+  <meta name="theme-color" content="#07140f"/>
+  <meta name="description" content="Pilotage de ta boutique DIGIY MARKET : identité, contact, visibilité publique et lecture terrain."/>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+
+  <script>
+    window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
+    window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+    window.DIGIY_MODULE = "MARKET";
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./guard.js?v=market-cockpit-20260329-v7"></script>
+
+  <style>
+    :root{
+      --bg:#07140f;
+      --card:#10241b;
+      --card2:#0d2018;
+      --line:rgba(255,255,255,.10);
+      --text:#ecfff4;
+      --muted:rgba(236,255,244,.72);
+      --primary:#22c55e;
+      --primary2:#16a34a;
+      --gold:#facc15;
+      --warn:#f59e0b;
+      --bad:#ef4444;
+      --info:#60a5fa;
+      --shadow:0 20px 60px rgba(0,0,0,.38);
+      --r:24px;
+      --max:1180px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;
+      padding:0;
+      min-height:100%;
+      background:
+        radial-gradient(900px 520px at 10% -10%, rgba(34,197,94,.14), transparent 60%),
+        radial-gradient(900px 520px at 110% 0%, rgba(250,204,21,.10), transparent 55%),
+        linear-gradient(180deg, #07140f, #05100c 55%, #040b08 100%);
+      color:var(--text);
+      font-family:"Outfit", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+
+    body{padding:16px}
+    a{color:inherit;text-decoration:none}
+    button,input,textarea{font:inherit}
+
+    .wrap{
+      max-width:var(--max);
+      margin:auto;
+      display:grid;
+      gap:14px;
+    }
+
+    .card,.hero{
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.018));
+      box-shadow:var(--shadow);
+    }
+
+    .topbar{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      padding:16px 18px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
+    }
+
+    .brand-mark{
+      width:48px;
+      height:48px;
+      border-radius:16px;
+      display:grid;
+      place-items:center;
+      background:linear-gradient(135deg, rgba(34,197,94,.18), rgba(250,204,21,.14));
+      border:1px solid rgba(255,255,255,.10);
+      font-size:22px;
+      flex:0 0 auto;
+    }
+
+    .brand-copy{min-width:0}
+
+    .eyebrow{
+      font-size:12px;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color:var(--gold);
+      font-weight:950;
+      margin-bottom:3px;
+    }
+
+    .brand-title{
+      font-size:clamp(18px,2vw,22px);
+      font-weight:950;
+      line-height:1.1;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .brand-sub{
+      color:var(--muted);
+      font-size:13px;
+      font-weight:800;
+      margin-top:4px;
+    }
+
+    .top-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .btn{
+      min-height:46px;
+      padding:11px 15px;
+      border-radius:14px;
+      font-weight:950;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      cursor:pointer;
+      transition:.18s ease;
+      box-shadow:var(--shadow);
+    }
+
+    .btn:hover{transform:translateY(-1px)}
+    .btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+    .btn.primary{
+      background:linear-gradient(135deg, var(--primary), var(--primary2));
+      color:#041b12;
+      border-color:transparent;
+    }
+    .btn.gold{
+      background:rgba(250,204,21,.12);
+      color:var(--gold);
+      border-color:rgba(250,204,21,.22);
+    }
+    .btn.warn{
+      background:rgba(245,158,11,.12);
+      color:#fde68a;
+      border-color:rgba(245,158,11,.24);
+    }
+    .btn.info{
+      background:rgba(96,165,250,.12);
+      color:#bfdbfe;
+      border-color:rgba(96,165,250,.20);
+    }
+    .btn.ghost{
+      background:rgba(255,255,255,.04);
+      color:var(--muted);
+    }
+
+    .hero{overflow:hidden}
+
+    .hero-grid{
+      display:grid;
+      grid-template-columns:1.08fr .92fr;
+      min-height:320px;
+    }
+
+    @media(max-width:980px){
+      .hero-grid{grid-template-columns:1fr}
+    }
+
+    .hero-body{
+      padding:24px;
+      display:grid;
+      gap:16px;
+      align-content:start;
+    }
+
+    .hero-side{
+      padding:24px;
+      border-left:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      display:grid;
+      gap:12px;
+      align-content:start;
+    }
+
+    @media(max-width:980px){
+      .hero-side{
+        border-left:none;
+        border-top:1px solid var(--line);
+      }
+    }
+
+    .mode{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:9px 13px;
+      border-radius:999px;
+      border:1px solid rgba(250,204,21,.24);
+      background:rgba(250,204,21,.10);
+      color:#fff1a8;
+      font-size:12px;
+      font-weight:950;
+      width:max-content;
+    }
+
+    .mode.live{
+      border-color:rgba(34,197,94,.24);
+      background:rgba(34,197,94,.10);
+      color:#bbf7d0;
+    }
+
+    h1{
+      margin:0;
+      font-size:clamp(28px,4vw,42px);
+      line-height:1.05;
+      letter-spacing:-.02em;
+    }
+
+    .subtitle{
+      color:var(--muted);
+      font-size:16px;
+      font-weight:800;
+      line-height:1.55;
+    }
+
+    .pills{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:9px 12px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.18);
+      color:var(--muted);
+      font-size:12px;
+      font-weight:900;
+    }
+
+    .mini{
+      padding:14px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.16);
+    }
+
+    .mini .k{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:800;
+      margin-bottom:6px;
+    }
+
+    .mini .v{
+      font-size:15px;
+      font-weight:900;
+      line-height:1.5;
+      word-break:break-word;
+    }
+
+    .layout{
+      display:grid;
+      gap:14px;
+    }
+
+    @media(min-width:980px){
+      .layout{grid-template-columns:1.08fr .92fr}
+    }
+
+    .panel{padding:18px}
+
+    .panel h2{
+      margin:0 0 8px;
+      font-size:22px;
+    }
+
+    .muted{
+      color:var(--muted);
+      font-size:14px;
+      font-weight:800;
+      line-height:1.55;
+    }
+
+    .grid2{
+      display:grid;
+      gap:12px;
+    }
+
+    @media(min-width:760px){
+      .grid2{grid-template-columns:1fr 1fr}
+    }
+
+    .field{
+      display:grid;
+      gap:6px;
+    }
+
+    .label{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.02em;
+    }
+
+    .in, textarea{
+      width:100%;
+      padding:13px 14px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(0,0,0,.12);
+      color:var(--text);
+      font-size:15px;
+      font-weight:900;
+      outline:none;
+      font-family:inherit;
+    }
+
+    .in:focus, textarea:focus{
+      border-color:rgba(34,197,94,.40);
+      box-shadow:0 0 0 3px rgba(34,197,94,.10);
+    }
+
+    .in:disabled, textarea:disabled{
+      opacity:.68;
+      cursor:not-allowed;
+    }
+
+    textarea{
+      min-height:104px;
+      resize:vertical;
+    }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+
+    .msg{
+      margin-top:12px;
+      font-weight:900;
+      line-height:1.5;
+    }
+
+    .msg.ok{color:#86efac}
+    .msg.bad{color:#fca5a5}
+    .msg.warn{color:#fde68a}
+
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:12px;
+      margin-top:14px;
+    }
+
+    @media(max-width:820px){
+      .stats{grid-template-columns:repeat(2,1fr)}
+    }
+
+    .stat{
+      padding:14px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.16);
+    }
+
+    .stat .k{
+      font-size:12px;
+      color:var(--muted);
+      font-weight:800;
+      margin-bottom:6px;
+    }
+
+    .stat .v{
+      font-size:24px;
+      font-weight:1000;
+      line-height:1;
+    }
+
+    .stateRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      padding:14px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.16);
+      margin-top:14px;
+    }
+
+    .stateText{
+      font-weight:900;
+      line-height:1.5;
+    }
+
+    .reading{
+      display:grid;
+      gap:12px;
+      margin-top:12px;
+    }
+
+    .empty{
+      padding:20px 16px;
+      color:var(--muted);
+      text-align:center;
+      font-weight:800;
+      border:1px dashed rgba(255,255,255,.10);
+      border-radius:18px;
+      margin-top:12px;
+      line-height:1.6;
+    }
+
+    .preview{
+      border-radius:20px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.18);
+    }
+
+    .preview .photo{
+      height:220px;
+      background:rgba(0,0,0,.22);
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+
+    .preview img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .preview .body{
+      padding:14px;
+      display:grid;
+      gap:8px;
+    }
+
+    .preview .name{
+      font-size:20px;
+      font-weight:1000;
+      line-height:1.15;
+      color:var(--gold);
+    }
+
+    .preview .meta{
+      color:var(--muted);
+      font-size:13px;
+      font-weight:900;
+      line-height:1.5;
+    }
+
+    .preview .bio{
+      color:rgba(236,255,244,.92);
+      font-size:14px;
+      font-weight:850;
+      line-height:1.5;
+    }
+
+    .chips{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .chip{
+      font-size:12px;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      color:rgba(236,255,244,.9);
+      background:rgba(0,0,0,.10);
+      white-space:nowrap;
+      font-weight:900;
+    }
+
+    .chip.ok{
+      border-color:rgba(34,197,94,.35);
+      color:#bfffe0;
+    }
+
+    .chip.gold{
+      border-color:rgba(250,204,21,.35);
+      color:#fff6c8;
+    }
+
+    .footer{
+      text-align:center;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      padding:6px 0 2px;
+    }
+
+    .loading{
+      opacity:.72;
+      pointer-events:none;
+    }
+
+    .checklist{
+      margin-top:14px;
+      padding:14px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.16);
+      display:grid;
+      gap:8px;
+    }
+
+    .checkitem{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      color:var(--muted);
+      font-size:14px;
+      font-weight:900;
+      line-height:1.45;
+    }
+
+    .checkitem.ok{color:#bbf7d0}
+    .checkitem.bad{color:#fde68a}
+
+    @media(max-width:640px){
+      .top-actions,.actions{width:100%}
+      .top-actions > *, .actions > *{flex:1 1 auto}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="card topbar">
+      <div class="brand">
+        <div class="brand-mark">🛍️</div>
+        <div class="brand-copy">
+          <div class="eyebrow">JE VENDS</div>
+          <div class="brand-title">Ma gestion</div>
+          <div class="brand-sub" id="topSub">Préparation de ton espace vendeur…</div>
+        </div>
+      </div>
+
+      <div class="top-actions">
+        <button class="btn ghost" id="btnReload" type="button">🔄 Recharger</button>
+        <a class="btn info" id="btnDashboard" href="./dashboard-pro.html">🏠 Mon activité</a>
+        <a class="btn" id="btnSettings" href="./boutique.html">🛍️ Ma boutique</a>
+        <a class="btn" id="btnProducts" href="./produits.html">📦 Mes produits</a>
+        <a class="btn gold" id="btnPin" href="./pin.html">🔑 Ouvrir mon accès</a>
+        <a class="btn" id="btnPublic" href="./index.html">🌍 Voir ma vitrine</a>
+      </div>
+    </section>
+
+    <section class="hero">
+      <div class="hero-grid">
+        <div class="hero-body">
+          <div class="mode" id="modeBadge">Accès protégé</div>
+
+          <div>
+            <h1 id="heroTitle">Ma boutique</h1>
+            <div class="subtitle" id="heroSubtitle">
+              Ici tu pilotes ta présence : nom, contact, ville, visibilité et lecture publique.
+            </div>
+          </div>
+
+          <div class="pills">
+            <div class="pill" id="pillCategory">🏷️ Ce que je vends</div>
+            <div class="pill" id="pillCity">📍 Ma zone</div>
+            <div class="pill" id="pillPublish">🌍 Hors ligne</div>
+          </div>
+
+          <div class="stats">
+            <div class="stat">
+              <div class="k">Produits au total</div>
+              <div class="v" id="statTotal">0</div>
+            </div>
+            <div class="stat">
+              <div class="k">Produits actifs</div>
+              <div class="v" id="statActive">0</div>
+            </div>
+            <div class="stat">
+              <div class="k">Produits en pause</div>
+              <div class="v" id="statInactive">0</div>
+            </div>
+            <div class="stat">
+              <div class="k">Produits visibles</div>
+              <div class="v" id="statPublished">0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-side">
+          <div class="mini">
+            <div class="k">Identifiant boutique</div>
+            <div class="v" id="miniSlug">—</div>
+          </div>
+
+          <div class="mini">
+            <div class="k">Téléphone lié</div>
+            <div class="v" id="miniPhone">—</div>
+          </div>
+
+          <div class="mini">
+            <div class="k">WhatsApp</div>
+            <div class="v" id="miniWhatsapp">—</div>
+          </div>
+
+          <div class="mini">
+            <div class="k">Adresse / repère</div>
+            <div class="v" id="miniAddress">—</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="layout">
+      <section class="card panel">
+        <h2>Mes informations</h2>
+        <div class="muted">
+          Garde ça simple et terrain. En deux secondes, un client doit comprendre qui tu es, ce que tu vends et comment te joindre.
+        </div>
+
+        <div class="grid2" style="margin-top:14px">
+          <div class="field">
+            <div class="label">Nom de la boutique</div>
+            <input class="in" id="shopName" placeholder="Ex : Astou Market"/>
+          </div>
+          <div class="field">
+            <div class="label">Nom du responsable</div>
+            <input class="in" id="ownerName" placeholder="Ex : Astou"/>
+          </div>
+        </div>
+
+        <div class="grid2" style="margin-top:12px">
+          <div class="field">
+            <div class="label">Ville</div>
+            <input class="in" id="city" placeholder="Ex : Saly"/>
+          </div>
+          <div class="field">
+            <div class="label">Ce que tu vends</div>
+            <input class="in" id="categoriesText" placeholder="Ex : Cosmétiques / Produits naturels"/>
+          </div>
+        </div>
+
+        <div class="grid2" style="margin-top:12px">
+          <div class="field">
+            <div class="label">Téléphone lié</div>
+            <input class="in" id="linkedPhone" readonly/>
+          </div>
+          <div class="field">
+            <div class="label">WhatsApp</div>
+            <input class="in" id="whatsapp" placeholder="Ex : 221771342889"/>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:12px">
+          <div class="label">Zones servies / quartier</div>
+          <input class="in" id="zones" placeholder="Ex : Saly centre, Ngaparou"/>
+        </div>
+
+        <div class="field" style="margin-top:12px">
+          <div class="label">Adresse / repère</div>
+          <input class="in" id="address" placeholder="Ex : Saly centre"/>
+        </div>
+
+        <div class="grid2" style="margin-top:12px">
+          <div class="field">
+            <div class="label">Livraison / info utile</div>
+            <input class="in" id="deliveryNote" placeholder="Ex : Livraison locale selon zone"/>
+          </div>
+          <div class="field">
+            <div class="label">Paiement / info utile</div>
+            <input class="in" id="paymentNote" placeholder="Ex : Wave / espèces"/>
+          </div>
+        </div>
+
+        <div class="field" style="margin-top:12px">
+          <div class="label">Présentation</div>
+          <textarea id="description" placeholder="Ex : Boutique locale, produits utiles, propres et faciles à commander."></textarea>
+        </div>
+
+        <div class="grid2" style="margin-top:12px">
+          <div class="field">
+            <div class="label">Image de couverture</div>
+            <input class="in" id="coverUrl" placeholder="https://..."/>
+          </div>
+          <div class="field">
+            <div class="label">Logo ou photo</div>
+            <input class="in" id="photoUrl" placeholder="https://..."/>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn primary" id="btnSave" type="button">💾 Enregistrer</button>
+          <button class="btn" id="btnPublish" type="button">🌍 Mettre en ligne</button>
+          <button class="btn warn" id="btnUnpublish" type="button">🙈 Retirer du public</button>
+        </div>
+
+        <div class="actions">
+          <button class="btn info" id="btnSubscription" type="button">💳 Gérer mon abonnement</button>
+          <button class="btn" id="btnSupport" type="button">💬 Support WhatsApp</button>
+        </div>
+
+        <div class="msg" id="msgBox">Prêt.</div>
+
+        <div class="checklist" id="readinessBox">
+          <div class="checkitem bad" id="checkName">• Le nom de la boutique manque</div>
+          <div class="checkitem bad" id="checkContact">• Le contact manque</div>
+          <div class="checkitem bad" id="checkPlace">• La ville ou l’adresse manque</div>
+          <div class="checkitem bad" id="checkContent">• Il faut dire clairement ce que tu vends</div>
+        </div>
+      </section>
+
+      <section class="card panel">
+        <h2>Lecture publique</h2>
+        <div class="muted" id="sideLead">
+          Voilà comment ta boutique peut se lire côté client.
+        </div>
+
+        <div class="stateRow">
+          <div class="stateText" id="publishState">Chargement…</div>
+          <div class="actions" style="margin-top:0">
+            <button class="btn" id="btnOpenPublic" type="button">🌍 Ouvrir ma vitrine</button>
+            <button class="btn" id="btnCopyLink" type="button">🔗 Copier mon lien</button>
+          </div>
+        </div>
+
+        <div class="preview" style="margin-top:14px">
+          <div class="photo">
+            <img id="previewImg" alt="Aperçu boutique" src="" />
+          </div>
+          <div class="body">
+            <div class="name" id="previewName">Ma boutique</div>
+            <div class="meta" id="previewMeta">📍 Ville à définir • 🏷️ Ce que je vends</div>
+            <div class="bio" id="previewBio">Ajoute une présentation simple pour rassurer le client.</div>
+            <div class="chips">
+              <span class="chip gold" id="previewBadge">🛍️ Boutique locale</span>
+              <span class="chip ok" id="previewWhats">💬 Contact direct</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="reading">
+          <div class="mini">
+            <div class="k">Boutique</div>
+            <div class="v" id="factShop">Ma boutique</div>
+          </div>
+
+          <div class="mini">
+            <div class="k">Ville</div>
+            <div class="v" id="factCity">À définir</div>
+          </div>
+
+          <div class="mini">
+            <div class="k">Livraison</div>
+            <div class="v" id="factDelivery">À définir</div>
+          </div>
+
+          <div class="mini">
+            <div class="k">Paiement</div>
+            <div class="v" id="factPayment">À définir</div>
+          </div>
+
+          <div class="mini">
+            <div class="k">Mon lien</div>
+            <div class="v" id="factLink">—</div>
+          </div>
+        </div>
+
+        <div class="empty" id="emptyBox">
+          Aucun accès boutique détecté pour le moment. La coque reste visible, mais les vraies données restent protégées.
+        </div>
+      </section>
+    </section>
+
+    <div class="footer" id="footerText">
+      DIGIY MARKET • Ma gestion
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      "use strict";
+
+      const SUPPORT_WA = "221771342889";
+      const SUBSCRIPTION_URL = "https://commencer-a-payer.digiylyfe.com/";
+      const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1528690873152-4cbd29d2c9c8?auto=format&fit=crop&w=1200&q=80";
+
+      const SUPABASE_URL = window.DIGIY_SUPABASE_URL;
+      const SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON;
+
+      if (!window.supabase || !SUPABASE_URL || !SUPABASE_ANON_KEY) {
+        console.error("Supabase client/config manquant.");
+        return;
+      }
+
+      const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false }
+      });
+
+      const $ = (id) => document.getElementById(id);
+
+      const EDITABLE_IDS = [
+        "shopName","ownerName","city","categoriesText","whatsapp","zones","address",
+        "deliveryNote","paymentNote","description","coverUrl","photoUrl"
+      ];
+
+      let ACCESS_SLUG = "";
+      let ACCESS_PHONE = "";
+      let ACCESS_OK = false;
+      let ACCESS_GRANTED = false;
+      let CURRENT_COCKPIT = null;
+      let CURRENT_PUBLISHED = false;
+      let CURRENT_PRIORITY = 100;
+      let UI_BUSY = false;
+      let UI_FORM_LOCKED = true;
+
+      function normSlug(v){
+        return String(v || "").trim().toLowerCase();
+      }
+
+      function normPhone(v){
+        const d = String(v || "").replace(/[^\d]/g, "");
+        if (!d) return "";
+        if (d.startsWith("221") && d.length === 12) return d;
+        if (d.length === 9) return "221" + d;
+        return d;
+      }
+
+      function formatPhone(v){
+        const p = normPhone(v);
+        return p ? "+" + p : "—";
+      }
+
+      function toText(v, fallback){
+        const s = String(v || "").trim();
+        return s || (fallback || "");
+      }
+
+      function getShopName(profile){
+        return toText(profile?.shop_name, toText(profile?.business_name, "Ma boutique"));
+      }
+
+      function getCoverUrl(profile){
+        return toText(profile?.cover_url, toText(profile?.cover_image_url, ""));
+      }
+
+      function getPhotoUrl(profile){
+        return toText(profile?.photo_url, toText(profile?.logo_url, ""));
+      }
+
+      function buildSafeUrl(base){
+        try{
+          return new URL(base, location.href);
+        }catch(_){
+          return new URL("./", location.href);
+        }
+      }
+
+      function withSlug(base){
+        const u = buildSafeUrl(base);
+        if (ACCESS_SLUG) u.searchParams.set("slug", ACCESS_SLUG);
+        return u.pathname + u.search;
+      }
+
+      function getPublicLink(){
+        if (!ACCESS_SLUG) return "";
+        const u = buildSafeUrl("./index.html");
+        u.searchParams.set("slug", ACCESS_SLUG);
+        return u.href;
+      }
+
+      function getSubscriptionLink(){
+        const u = new URL(SUBSCRIPTION_URL);
+        u.searchParams.set("module", "MARKET");
+        if (ACCESS_PHONE) u.searchParams.set("phone", ACCESS_PHONE);
+        if (ACCESS_SLUG) u.searchParams.set("pslug", ACCESS_SLUG);
+        return u.toString();
+      }
+
+      function isTruthyLike(v){
+        if (v === true || v === 1) return true;
+        const s = String(v == null ? "" : v).trim().toLowerCase();
+        return s === "true" || s === "1" || s === "yes" || s === "ok";
+      }
+
+      function setNavLinks(){
+        $("btnDashboard").href = ACCESS_SLUG ? withSlug("./dashboard-pro.html") : "./dashboard-pro.html";
+        $("btnSettings").href = ACCESS_SLUG ? withSlug("./boutique.html") : "./boutique.html";
+        $("btnProducts").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
+        $("btnPin").href = ACCESS_SLUG ? withSlug("./pin.html") : "./pin.html";
+        $("btnPublic").href = ACCESS_SLUG ? withSlug("./index.html") : "./index.html";
+      }
+
+      function setPinButtonVisibility(){
+        $("btnPin").style.display = ACCESS_GRANTED ? "none" : "";
+      }
+
+      function setMsg(text, type){
+        const el = $("msgBox");
+        el.textContent = text;
+        el.className = "msg " + (type || "");
+      }
+
+      function refreshInteractivity(){
+        EDITABLE_IDS.forEach(id => {
+          const el = $(id);
+          if (el) el.disabled = UI_BUSY || UI_FORM_LOCKED;
+        });
+
+        [
+          "btnSave","btnPublish","btnUnpublish","btnReload",
+          "btnOpenPublic","btnCopyLink","btnSubscription","btnSupport"
+        ].forEach(id => {
+          const el = $(id);
+          if (el) el.disabled = UI_BUSY || (UI_FORM_LOCKED && ["btnSave","btnPublish","btnUnpublish"].includes(id));
+        });
+      }
+
+      function setBusy(isBusy){
+        UI_BUSY = !!isBusy;
+        document.body.classList.toggle("loading", UI_BUSY);
+        refreshInteractivity();
+      }
+
+      function setFormDisabled(disabled){
+        UI_FORM_LOCKED = !!disabled;
+        refreshInteractivity();
+      }
+
+      async function waitGuardIfAny(){
+        try{
+          const guard = window.DIGIY_GUARD;
+          if (!guard) return;
+
+          if (guard.ready && typeof guard.ready.then === "function") {
+            await guard.ready;
+            return;
+          }
+
+          if (typeof guard.ready === "function") {
+            const maybePromise = guard.ready();
+            if (maybePromise && typeof maybePromise.then === "function") {
+              await maybePromise;
+            }
+          }
+        }catch(e){
+          console.warn("guard ready warning:", e);
+        }
+      }
+
+      function resolvePhone(){
+        const fromGuard = normPhone(window.DIGIY_GUARD?.state?.phone);
+        if (fromGuard) return fromGuard;
+
+        const marketSession = normPhone(sessionStorage.getItem("digiy_market_phone"));
+        if (marketSession) return marketSession;
+
+        const marketLocal = normPhone(localStorage.getItem("digiy_market_last_phone"));
+        if (marketLocal) return marketLocal;
+
+        return "";
+      }
+
+      function resolveSlug(){
+        const qs = new URLSearchParams(location.search);
+        const fromQuery = normSlug(qs.get("slug"));
+        if (fromQuery) return fromQuery;
+
+        const fromGuard = normSlug(window.DIGIY_GUARD?.state?.slug);
+        if (fromGuard) return fromGuard;
+
+        const marketSession = normSlug(sessionStorage.getItem("digiy_market_slug"));
+        if (marketSession) return marketSession;
+
+        const marketLocal = normSlug(localStorage.getItem("digiy_market_last_slug"));
+        if (marketLocal) return marketLocal;
+
+        return "";
+      }
+
+      function resolveAccessGranted(){
+        const st = window.DIGIY_GUARD?.state || {};
+
+        const directFlags = [
+          st.access_ok,
+          st.accessOk,
+          st.has_access,
+          st.hasAccess,
+          st.access,
+          st.pin_access,
+          st.pinAccess,
+          st.allowed,
+          st.is_allowed,
+          st.isAllowed,
+          st.ok
+        ];
+
+        if (directFlags.some(isTruthyLike)) return true;
+
+        const sessionFlags = [
+          sessionStorage.getItem("digiy_market_pin_access"),
+          sessionStorage.getItem("digiy_market_access_ok"),
+          sessionStorage.getItem("digiy_market_has_access"),
+          sessionStorage.getItem("digiy_market_access"),
+          localStorage.getItem("digiy_market_pin_access"),
+          localStorage.getItem("digiy_market_access_ok"),
+          localStorage.getItem("digiy_market_has_access"),
+          localStorage.getItem("digiy_market_access")
+        ];
+
+        if (sessionFlags.some(isTruthyLike)) return true;
+
+        const untilValues = [
+          sessionStorage.getItem("digiy_market_pin_access_until"),
+          sessionStorage.getItem("digiy_market_access_until"),
+          localStorage.getItem("digiy_market_pin_access_until"),
+          localStorage.getItem("digiy_market_access_until"),
+          st.pin_access_until,
+          st.access_until,
+          st.expires_at
+        ];
+
+        for (const raw of untilValues){
+          if (!raw) continue;
+
+          const n = Number(raw);
+          if (Number.isFinite(n) && n > Date.now()) return true;
+
+          const d = Date.parse(String(raw));
+          if (Number.isFinite(d) && d > Date.now()) return true;
+        }
+
+        return false;
+      }
+
+      function rememberAccess(){
+        if (ACCESS_SLUG) {
+          sessionStorage.setItem("digiy_market_slug", ACCESS_SLUG);
+          localStorage.setItem("digiy_market_last_slug", ACCESS_SLUG);
+        }
+        if (ACCESS_PHONE) {
+          sessionStorage.setItem("digiy_market_phone", ACCESS_PHONE);
+          localStorage.setItem("digiy_market_last_phone", ACCESS_PHONE);
+        }
+      }
+
+      function blockedCockpit(reason){
+        return {
+          ok: false,
+          reason: reason || "",
+          slug: ACCESS_SLUG || "",
+          workspace_slug: ACCESS_SLUG || "",
+          phone: ACCESS_PHONE || "",
+          public_label: "DIGIY MARKET",
+          is_blank: false,
+          profile: {
+            shop_name: "",
+            business_name: "",
+            owner_name: "",
+            city: "",
+            zones: "",
+            address: "",
+            whatsapp: "",
+            photo_url: "",
+            logo_url: "",
+            cover_url: "",
+            cover_image_url: "",
+            description: "",
+            categories_text: "",
+            delivery_note: "",
+            payment_note: "",
+            is_published: false,
+            is_active: true,
+            priority: 100
+          },
+          stats: {
+            total_products: 0,
+            active_products: 0,
+            inactive_products: 0,
+            published_products: 0
+          }
+        };
+      }
+
+      function resetForm(){
+        $("shopName").value = "";
+        $("ownerName").value = "";
+        $("city").value = "";
+        $("categoriesText").value = "";
+        $("linkedPhone").value = "";
+        $("whatsapp").value = "";
+        $("zones").value = "";
+        $("address").value = "";
+        $("deliveryNote").value = "";
+        $("paymentNote").value = "";
+        $("description").value = "";
+        $("coverUrl").value = "";
+        $("photoUrl").value = "";
+      }
+
+      function getDraft(){
+        return {
+          shop_name: $("shopName").value.trim(),
+          owner_name: $("ownerName").value.trim(),
+          city: $("city").value.trim(),
+          categories_text: $("categoriesText").value.trim(),
+          linked_phone: normPhone(ACCESS_PHONE),
+          whatsapp: normPhone($("whatsapp").value.trim()) || normPhone(ACCESS_PHONE),
+          zones: $("zones").value.trim(),
+          address: $("address").value.trim(),
+          delivery_note: $("deliveryNote").value.trim(),
+          payment_note: $("paymentNote").value.trim(),
+          description: $("description").value.trim(),
+          cover_url: $("coverUrl").value.trim(),
+          photo_url: $("photoUrl").value.trim()
+        };
+      }
+
+      function getPublishIssues(draft){
+        const d = draft || getDraft();
+        const issues = [];
+
+        if (!d.shop_name) issues.push("Le nom de la boutique manque");
+        if (!(d.whatsapp || d.linked_phone)) issues.push("Le contact manque");
+        if (!(d.city || d.address)) issues.push("La ville ou l’adresse manque");
+        if (!(d.categories_text || d.description)) issues.push("Il faut dire clairement ce que tu vends");
+
+        return issues;
+      }
+
+      function renderReadiness(draft){
+        const d = draft || getDraft();
+
+        const checks = [
+          {
+            id:"checkName",
+            ok:!!d.shop_name,
+            okText:"• Le nom de la boutique est prêt",
+            badText:"• Le nom de la boutique manque"
+          },
+          {
+            id:"checkContact",
+            ok:!!(d.whatsapp || d.linked_phone),
+            okText:"• Le contact est prêt",
+            badText:"• Le contact manque"
+          },
+          {
+            id:"checkPlace",
+            ok:!!(d.city || d.address),
+            okText:"• La zone est prête",
+            badText:"• La ville ou l’adresse manque"
+          },
+          {
+            id:"checkContent",
+            ok:!!(d.categories_text || d.description),
+            okText:"• On comprend bien ce que tu vends",
+            badText:"• Il faut dire clairement ce que tu vends"
+          }
+        ];
+
+        checks.forEach(item => {
+          const el = $(item.id);
+          el.className = "checkitem " + (item.ok ? "ok" : "bad");
+          el.textContent = item.ok ? item.okText : item.badText;
+        });
+
+        const issues = getPublishIssues(d);
+        $("sideLead").textContent = issues.length === 0
+          ? "Ta fiche est lisible. Elle peut sortir au public."
+          : "Avant la mise en ligne, complète les points ci-dessous pour que le client comprenne tout de suite.";
+
+        return issues;
+      }
+
+      function normalizeStats(stats){
+        const total = Number(stats?.total_products ?? stats?.products_total ?? 0) || 0;
+        const active = Number(stats?.active_products ?? stats?.products_active ?? 0) || 0;
+        const inactive = Number(stats?.inactive_products ?? stats?.products_inactive ?? Math.max(total - active, 0)) || 0;
+        const published = Number(stats?.published_products ?? stats?.products_published ?? 0) || 0;
+        return { total, active, inactive, published };
+      }
+
+      function applyStats(stats){
+        const s = normalizeStats(stats || {});
+        $("statTotal").textContent = String(s.total);
+        $("statActive").textContent = String(s.active);
+        $("statInactive").textContent = String(s.inactive);
+        $("statPublished").textContent = String(s.published);
+      }
+
+      function renderPublishState(){
+        const issues = renderReadiness();
+        const status = CURRENT_PUBLISHED
+          ? "En ligne • visible publiquement"
+          : "Hors ligne • encore en préparation";
+
+        $("publishState").textContent = issues.length === 0
+          ? status
+          : `${status} • fiche encore à compléter`;
+      }
+
+      function ensurePreviewImage(src){
+        const clean = String(src || "").trim();
+        $("previewImg").src = clean || DEFAULT_IMAGE;
+      }
+
+      function applyCockpit(data, liveMode){
+        const payload = data || blockedCockpit();
+        const p = payload.profile || {};
+
+        CURRENT_COCKPIT = payload;
+        CURRENT_PUBLISHED = !!p.is_published;
+        CURRENT_PRIORITY = Number(p.priority || payload.priority || 100) || 100;
+        ACCESS_PHONE = normPhone(payload.phone || ACCESS_PHONE);
+        ACCESS_SLUG = normSlug(payload.slug || payload.workspace_slug || ACCESS_SLUG);
+
+        rememberAccess();
+        setNavLinks();
+        setPinButtonVisibility();
+
+        const shop = getShopName(p);
+        const city = toText(p.city, "Ville à définir");
+        const categories = toText(p.categories_text, "Ce que je vends");
+        const address = toText(p.address, "Adresse à définir");
+        const whatsapp = p.whatsapp || payload.phone || "";
+        const delivery = toText(p.delivery_note, "À définir");
+        const payment = toText(p.payment_note, "À définir");
+        const desc = toText(p.description, "Ajoute une présentation simple pour rassurer le client.");
+        const heroText = liveMode
+          ? (payload.is_blank
+              ? "Ta boutique est prête à être remplie."
+              : "Ta vraie boutique est chargée. Tu peux la piloter ici.")
+          : (ACCESS_SLUG
+              ? "Ton accès est bien repéré, mais il n’est pas encore ouvert."
+              : "Ouvre ton accès pour piloter ta vraie boutique.");
+
+        $("heroTitle").textContent = shop;
+        $("heroSubtitle").textContent = heroText;
+
+        $("pillCategory").textContent = "🏷️ " + categories;
+        $("pillCity").textContent = "📍 " + city;
+        $("pillPublish").textContent = "🌍 " + (p.is_published ? "En ligne" : "Hors ligne");
+
+        $("miniSlug").textContent = ACCESS_SLUG || "—";
+        $("miniPhone").textContent = formatPhone(payload.phone || ACCESS_PHONE);
+        $("miniWhatsapp").textContent = formatPhone(whatsapp);
+        $("miniAddress").textContent = address;
+
+        $("factShop").textContent = shop;
+        $("factCity").textContent = city;
+        $("factDelivery").textContent = delivery;
+        $("factPayment").textContent = payment;
+        $("factLink").textContent = getPublicLink() || "—";
+
+        $("previewName").textContent = shop;
+        $("previewMeta").textContent = `📍 ${city} • 🏷️ ${categories}`;
+        $("previewBio").textContent = desc;
+        $("previewBadge").textContent = "🛍️ Boutique locale";
+        $("previewWhats").textContent = whatsapp ? `💬 ${formatPhone(whatsapp)}` : "💬 Contact direct";
+        ensurePreviewImage(getCoverUrl(p) || getPhotoUrl(p));
+
+        $("modeBadge").className = liveMode ? "mode live" : "mode";
+        $("modeBadge").textContent = liveMode ? "Accès ouvert" : "Accès protégé";
+
+        $("topSub").textContent = liveMode
+          ? "Tes données sont bien chargées"
+          : (ACCESS_SLUG ? "Identifiant repéré, accès fermé pour l’instant" : "Aucun accès ouvert pour le moment");
+
+        $("emptyBox").style.display = liveMode ? "none" : "block";
+        $("emptyBox").textContent = ACCESS_SLUG
+          ? "Ton identifiant est repéré. Ouvre ton accès avec ton PIN pour piloter la vraie boutique."
+          : "Aucun accès boutique détecté pour le moment. La coque reste visible, mais les vraies données restent protégées.";
+
+        $("footerText").textContent = liveMode ? `DIGIY MARKET • ${shop}` : "DIGIY MARKET • Ma gestion";
+        document.title = liveMode ? `${shop} — Ma gestion` : "Ma boutique — Ma gestion";
+
+        resetForm();
+        $("shopName").value = p.shop_name || p.business_name || "";
+        $("ownerName").value = p.owner_name || "";
+        $("city").value = p.city || "";
+        $("categoriesText").value = p.categories_text || "";
+        $("linkedPhone").value = formatPhone(payload.phone || ACCESS_PHONE);
+        $("whatsapp").value = p.whatsapp || normPhone(payload.phone || ACCESS_PHONE || "");
+        $("zones").value = p.zones || "";
+        $("address").value = p.address || "";
+        $("deliveryNote").value = p.delivery_note || "";
+        $("paymentNote").value = p.payment_note || "";
+        $("description").value = p.description || "";
+        $("coverUrl").value = getCoverUrl(p);
+        $("photoUrl").value = getPhotoUrl(p);
+
+        renderPublishState();
+        applyStats(payload.stats || {});
+      }
+
+      function syncPreviewFromInputs(){
+        const draft = getDraft();
+        const shop = draft.shop_name || "Ma boutique";
+        const city = draft.city || "Ville à définir";
+        const categories = draft.categories_text || "Ce que je vends";
+        const delivery = draft.delivery_note || "À définir";
+        const payment = draft.payment_note || "À définir";
+        const address = draft.address || "Adresse à définir";
+        const whats = draft.whatsapp;
+
+        $("heroTitle").textContent = shop;
+        $("pillCategory").textContent = "🏷️ " + categories;
+        $("pillCity").textContent = "📍 " + city;
+        $("pillPublish").textContent = "🌍 " + (CURRENT_PUBLISHED ? "En ligne" : "Hors ligne");
+
+        $("miniWhatsapp").textContent = formatPhone(whats);
+        $("miniAddress").textContent = address;
+
+        $("factShop").textContent = shop;
+        $("factCity").textContent = city;
+        $("factDelivery").textContent = delivery;
+        $("factPayment").textContent = payment;
+        $("factLink").textContent = getPublicLink() || "—";
+
+        $("previewName").textContent = shop;
+        $("previewMeta").textContent = `📍 ${city} • 🏷️ ${categories}`;
+        $("previewBio").textContent = draft.description || "Ajoute une présentation simple pour rassurer le client.";
+        $("previewWhats").textContent = whats ? `💬 ${formatPhone(whats)}` : "💬 Contact direct";
+        ensurePreviewImage(draft.cover_url || draft.photo_url);
+
+        renderPublishState();
+      }
+
+      async function fetchCockpit(){
+        if (!ACCESS_SLUG) return { ok:false, reason:"missing_slug" };
+
+        const { data, error } = await sb.rpc("digiy_market_get_cockpit_by_slug", {
+          p_slug: ACCESS_SLUG
+        });
+
+        if (error) throw error;
+        return data || { ok:false, reason:"empty_response" };
+      }
+
+      async function persistDraft(publishedState){
+        const draft = getDraft();
+
+        const { data, error } = await sb.rpc("digiy_market_save_profile", {
+          p_slug: ACCESS_SLUG,
+          p_shop_name: draft.shop_name,
+          p_owner_name: draft.owner_name,
+          p_city: draft.city,
+          p_zones: draft.zones,
+          p_address: draft.address,
+          p_whatsapp: draft.whatsapp,
+          p_photo_url: draft.photo_url,
+          p_cover_url: draft.cover_url,
+          p_description: draft.description,
+          p_categories_text: draft.categories_text,
+          p_delivery_note: draft.delivery_note,
+          p_payment_note: draft.payment_note,
+          p_priority: CURRENT_PRIORITY,
+          p_is_published: !!publishedState,
+          p_is_active: true
+        });
+
+        if (error) throw error;
+        if (!data?.ok) throw new Error(data?.reason || data?.error || "market_save_profile_error");
+
+        return data;
+      }
+
+      async function saveProfile(){
+        if (!ACCESS_OK || !ACCESS_SLUG){
+          setMsg("⚠️ Ouvre d’abord ton accès pour enregistrer la vraie boutique.", "bad");
+          return;
+        }
+
+        try{
+          setBusy(true);
+          setMsg("⏳ Enregistrement en cours…", "warn");
+          await persistDraft(CURRENT_PUBLISHED);
+          setMsg("✅ Tes changements sont enregistrés.", "ok");
+          await loadLiveCockpit();
+        }catch(e){
+          console.error(e);
+          setMsg("❌ Impossible d’enregistrer pour le moment.", "bad");
+        }finally{
+          setBusy(false);
+        }
+      }
+
+      async function setPublishState(nextState){
+        if (!ACCESS_OK || !ACCESS_SLUG){
+          setMsg("⚠️ Ouvre d’abord ton accès pour changer la visibilité.", "bad");
+          return;
+        }
+
+        const draft = getDraft();
+        const issues = getPublishIssues(draft);
+
+        if (nextState && issues.length){
+          setMsg("⚠️ Mise en ligne bloquée : " + issues.join(" • "), "warn");
+          renderReadiness(draft);
+          return;
+        }
+
+        try{
+          setBusy(true);
+          setMsg("⏳ Mise à jour en cours…", "warn");
+
+          await persistDraft(!!nextState);
+
+          const { data, error } = await sb.rpc("digiy_market_set_publish_by_slug", {
+            p_slug: ACCESS_SLUG,
+            p_is_published: !!nextState
+          });
+
+          if (error) throw error;
+          if (!data?.ok) throw new Error(data?.reason || data?.error || "market_publish_error");
+
+          CURRENT_PUBLISHED = !!nextState;
+          setMsg(nextState ? "✅ Ta boutique est maintenant en ligne." : "✅ Ta boutique a été retirée du public.", "ok");
+          await loadLiveCockpit();
+        }catch(e){
+          console.error(e);
+          setMsg("❌ Impossible de changer la visibilité pour le moment.", "bad");
+        }finally{
+          setBusy(false);
+        }
+      }
+
+      async function loadLiveCockpit(){
+        const data = await fetchCockpit();
+
+        if (!data?.ok){
+          ACCESS_OK = false;
+          applyCockpit(blockedCockpit(data?.reason || "not_ok"), false);
+          setFormDisabled(true);
+          setMsg("⚠️ L’identifiant est repéré, mais l’accès n’est pas ouvert.", "warn");
+          return;
+        }
+
+        ACCESS_OK = true;
+        ACCESS_PHONE = normPhone(data.phone || ACCESS_PHONE);
+        ACCESS_SLUG = normSlug(data.slug || data.workspace_slug || ACCESS_SLUG);
+
+        rememberAccess();
+        applyCockpit(data, true);
+        setFormDisabled(false);
+      }
+
+      function openSubscription(){
+        location.href = getSubscriptionLink();
+      }
+
+      function openSupport(){
+        const lines = [
+          "Salut DIGIY MARKET.",
+          "",
+          ACCESS_PHONE ? "Téléphone : +" + ACCESS_PHONE : "",
+          ACCESS_SLUG ? "Identifiant boutique : " + ACCESS_SLUG : "",
+          "Je veux de l'aide sur ma boutique MARKET."
+        ].filter(Boolean).join("\n");
+
+        location.href = "https://wa.me/" + SUPPORT_WA + "?text=" + encodeURIComponent(lines);
+      }
+
+      function openPublic(){
+        const link = getPublicLink();
+        if (!link) {
+          setMsg("⚠️ Aucun identifiant boutique détecté.", "warn");
+          return;
+        }
+        window.open(link, "_blank", "noopener");
+      }
+
+      async function copyPublicLink(){
+        const link = getPublicLink();
+        if (!link) {
+          setMsg("⚠️ Aucun identifiant boutique détecté.", "warn");
+          return;
+        }
+
+        try{
+          await navigator.clipboard.writeText(link);
+          setMsg("✅ Lien copié.", "ok");
+        }catch(_){
+          setMsg("⚠️ Copie impossible sur ce navigateur.", "warn");
+        }
+      }
+
+      async function boot(){
+        try{
+          setBusy(true);
+          await waitGuardIfAny();
+
+          ACCESS_PHONE = resolvePhone();
+          ACCESS_SLUG = resolveSlug();
+          ACCESS_GRANTED = resolveAccessGranted();
+
+          rememberAccess();
+          setNavLinks();
+          setPinButtonVisibility();
+
+          if (!ACCESS_SLUG){
+            ACCESS_OK = false;
+            applyCockpit(blockedCockpit("missing_slug"), false);
+            setFormDisabled(true);
+            setMsg("Aucun identifiant boutique détecté. La coque reste visible.", "warn");
+            return;
+          }
+
+          if (!ACCESS_GRANTED){
+            ACCESS_OK = false;
+            applyCockpit(blockedCockpit("access_not_open"), false);
+            setFormDisabled(true);
+            setMsg("⚠️ Accès non ouvert. Passe par ton PIN pour piloter la vraie boutique.", "warn");
+            return;
+          }
+
+          await loadLiveCockpit();
+
+          if (ACCESS_OK){
+            setMsg(
+              CURRENT_COCKPIT?.is_blank
+                ? "✅ Boutique prête à être remplie."
+                : "✅ Ta boutique réelle est bien chargée.",
+              "ok"
+            );
+          }
+        }catch(e){
+          console.error(e);
+          ACCESS_OK = false;
+          applyCockpit(blockedCockpit("boot_error"), false);
+          setFormDisabled(true);
+          setMsg("❌ Impossible de charger la vraie boutique pour le moment.", "bad");
+        }finally{
+          setBusy(false);
+        }
+      }
+
+      EDITABLE_IDS.forEach(id => {
+        const el = $(id);
+        if (el) el.addEventListener("input", syncPreviewFromInputs);
+      });
+
+      $("previewImg").addEventListener("error", () => {
+        $("previewImg").src = DEFAULT_IMAGE;
+      });
+
+      $("btnSave").addEventListener("click", saveProfile);
+      $("btnPublish").addEventListener("click", () => setPublishState(true));
+      $("btnUnpublish").addEventListener("click", () => setPublishState(false));
+      $("btnReload").addEventListener("click", boot);
+      $("btnSubscription").addEventListener("click", openSubscription);
+      $("btnSupport").addEventListener("click", openSupport);
+      $("btnOpenPublic").addEventListener("click", openPublic);
+      $("btnCopyLink").addEventListener("click", copyPublicLink);
+
+      refreshInteractivity();
+      setNavLinks();
+      setPinButtonVisibility();
+      ensurePreviewImage("");
+      boot();
+    })();
+  </script>
+</body>
+</html>
