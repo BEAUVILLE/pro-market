@@ -3,9 +3,13 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>DIGIY PRO MARKET — Réglages boutique</title>
+  <title>Ma boutique — Réglages</title>
   <meta name="theme-color" content="#07140f"/>
-  <meta name="description" content="Réglages boutique DIGIY PRO MARKET : identité, contact, publication, lecture terrain."/>
+  <meta name="description" content="Réglages de ta boutique DIGIY MARKET : identité, contact, visibilité publique et lecture terrain."/>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800;900&display=swap" rel="stylesheet">
 
   <script>
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
@@ -15,7 +19,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-boutique-20260314-v6"></script>
+  <script src="./guard.js?v=market-boutique-20260329-v7"></script>
 
   <style>
     :root{
@@ -37,6 +41,7 @@
     }
 
     *{box-sizing:border-box}
+
     html,body{
       margin:0;
       padding:0;
@@ -46,10 +51,10 @@
         radial-gradient(900px 520px at 110% 0%, rgba(250,204,21,.10), transparent 55%),
         linear-gradient(180deg, #07140f, #05100c 55%, #040b08 100%);
       color:var(--text);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      font-family:"Outfit", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
     }
 
-    body{ padding:16px; }
+    body{padding:16px}
     a{color:inherit;text-decoration:none}
 
     .wrap{
@@ -142,29 +147,35 @@
       cursor:pointer;
       transition:.18s ease;
       box-shadow:var(--shadow);
+      font-family:inherit;
     }
 
     .btn:hover{transform:translateY(-1px)}
     .btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+
     .btn.primary{
       background:linear-gradient(135deg, var(--primary), var(--primary2));
       color:#041b12;
       border-color:transparent;
     }
+
     .btn.gold{
       background:rgba(250,204,21,.12);
       color:var(--gold);
       border-color:rgba(250,204,21,.22);
     }
+
     .btn.warn{
       background:rgba(245,158,11,.12);
       color:#fde68a;
       border-color:rgba(245,158,11,.24);
     }
+
     .btn.ghost{
       background:rgba(255,255,255,.04);
       color:var(--muted);
     }
+
     .btn.info{
       background:rgba(96,165,250,.12);
       color:#bfdbfe;
@@ -290,6 +301,7 @@
     }
 
     .panel{padding:18px}
+
     .panel h2{
       margin:0 0 8px;
       font-size:22px;
@@ -333,6 +345,7 @@
       font-size:15px;
       font-weight:900;
       outline:none;
+      font-family:inherit;
     }
 
     .in:focus, textarea:focus{
@@ -348,7 +361,6 @@
     textarea{
       min-height:104px;
       resize:vertical;
-      font-family:inherit;
     }
 
     .actions{
@@ -482,44 +494,44 @@
       <div class="brand">
         <div class="brand-mark">🛍️</div>
         <div class="brand-copy">
-          <div class="eyebrow">DIGIY PRO MARKET</div>
-          <div class="brand-title">Réglages boutique</div>
-          <div class="brand-sub" id="topSub">Chargement de la boutique…</div>
+          <div class="eyebrow">JE VENDS</div>
+          <div class="brand-title">Ma boutique</div>
+          <div class="brand-sub" id="topSub">Préparation de ton espace boutique…</div>
         </div>
       </div>
 
       <div class="top-actions">
         <button class="btn ghost" id="btnReload" type="button">🔄 Recharger</button>
-        <a class="btn info" id="btnDashboard" href="./dashboard.html">🧭 Dashboard</a>
-        <a class="btn" id="btnCockpit" href="./cockpit.html">📊 Cockpit</a>
-        <a class="btn" id="btnProducts" href="./produits.html">📦 Produits</a>
-        <a class="btn gold" id="btnPin" href="./pin.html">🔑 Entrer par PIN</a>
-        <a class="btn" id="btnPublic" href="./index.html">🌍 Voir la vitrine</a>
+        <a class="btn info" id="btnDashboard" href="./dashboard-pro.html">🏠 Mon activité</a>
+        <a class="btn" id="btnCockpit" href="./cockpit.html">🧭 Ma gestion</a>
+        <a class="btn" id="btnProducts" href="./produits.html">📦 Mes produits</a>
+        <a class="btn gold" id="btnPin" href="./pin.html">🔑 Ouvrir mon accès</a>
+        <a class="btn" id="btnPublic" href="./index.html">🌍 Voir ma vitrine</a>
       </div>
     </section>
 
     <section class="hero">
       <div class="hero-grid">
         <div class="hero-body">
-          <div class="mode" id="modeBadge">Mode protégé</div>
+          <div class="mode" id="modeBadge">Accès protégé</div>
 
           <div>
-            <h1 id="shopNameHero">Boutique DIGIY</h1>
+            <h1 id="shopNameHero">Ma boutique</h1>
             <div class="subtitle" id="shopSubtitle">
-              Coque visible de la boutique. Le contenu réel s’ouvre avec une session PIN MARKET valide.
+              Ici tu règles ce que les clients vont voir. Nom, contact, quartier, livraison, présentation.
             </div>
           </div>
 
           <div class="pills">
-            <div class="pill" id="pillCategories">🏷️ Catégories à définir</div>
-            <div class="pill" id="pillCity">📍 Ville à définir</div>
-            <div class="pill" id="pillPublish">🌍 Non publiée</div>
+            <div class="pill" id="pillCategories">🏷️ Ce que je vends</div>
+            <div class="pill" id="pillCity">📍 Ma zone</div>
+            <div class="pill" id="pillPublish">🌍 Hors ligne</div>
           </div>
         </div>
 
         <div class="hero-side">
           <div class="mini">
-            <div class="k">Slug</div>
+            <div class="k">Identifiant boutique</div>
             <div class="v" id="miniSlug">—</div>
           </div>
 
@@ -534,7 +546,7 @@
           </div>
 
           <div class="mini">
-            <div class="k">Adresse</div>
+            <div class="k">Adresse / repère</div>
             <div class="v" id="miniAddress">—</div>
           </div>
         </div>
@@ -543,30 +555,30 @@
 
     <section class="layout">
       <section class="card panel">
-        <h2>Identité boutique</h2>
+        <h2>Ce que les clients vont voir</h2>
         <div class="muted">
-          Ici tu règles ce que le client verra publiquement. Simple, utile, terrain.
+          Remplis simple et clair. En deux secondes, quelqu’un doit comprendre qui tu es, ce que tu vends et comment te joindre.
         </div>
 
         <div class="grid2" style="margin-top:14px">
           <div class="field">
             <div class="label">Nom de la boutique</div>
-            <input class="in" id="shopName" placeholder="Ex: Astou Market"/>
+            <input class="in" id="shopName" placeholder="Ex : Astou Market"/>
           </div>
           <div class="field">
-            <div class="label">Nom responsable</div>
-            <input class="in" id="ownerName" placeholder="Ex: Astou"/>
+            <div class="label">Nom du responsable</div>
+            <input class="in" id="ownerName" placeholder="Ex : Astou"/>
           </div>
         </div>
 
         <div class="grid2" style="margin-top:12px">
           <div class="field">
             <div class="label">Ville</div>
-            <input class="in" id="city" placeholder="Ex: Saly"/>
+            <input class="in" id="city" placeholder="Ex : Saly"/>
           </div>
           <div class="field">
-            <div class="label">Catégories</div>
-            <input class="in" id="categoriesText" placeholder="Ex: Cosmétiques / Produits naturels"/>
+            <div class="label">Ce que tu vends</div>
+            <input class="in" id="categoriesText" placeholder="Ex : Cosmétiques / Produits naturels"/>
           </div>
         </div>
 
@@ -577,65 +589,65 @@
           </div>
           <div class="field">
             <div class="label">WhatsApp</div>
-            <input class="in" id="whatsapp" placeholder="Ex: 221771342889"/>
+            <input class="in" id="whatsapp" placeholder="Ex : 221771342889"/>
           </div>
         </div>
 
         <div class="field" style="margin-top:12px">
-          <div class="label">Zones / quartier</div>
-          <input class="in" id="zones" placeholder="Ex: Saly centre, Ngaparou"/>
+          <div class="label">Zones servies / quartier</div>
+          <input class="in" id="zones" placeholder="Ex : Saly centre, Ngaparou"/>
         </div>
 
         <div class="field" style="margin-top:12px">
-          <div class="label">Adresse</div>
-          <input class="in" id="address" placeholder="Ex: Saly centre"/>
+          <div class="label">Adresse / repère</div>
+          <input class="in" id="address" placeholder="Ex : Saly centre"/>
         </div>
 
         <div class="field" style="margin-top:12px">
-          <div class="label">Livraison / note terrain</div>
-          <input class="in" id="deliveryNote" placeholder="Ex: Livraison locale selon zone"/>
+          <div class="label">Livraison / info utile</div>
+          <input class="in" id="deliveryNote" placeholder="Ex : Livraison locale selon zone"/>
         </div>
 
         <div class="field" style="margin-top:12px">
-          <div class="label">Paiement / note utile</div>
-          <input class="in" id="paymentNote" placeholder="Ex: Wave / espèces"/>
+          <div class="label">Paiement / info utile</div>
+          <input class="in" id="paymentNote" placeholder="Ex : Wave / espèces"/>
         </div>
 
         <div class="field" style="margin-top:12px">
-          <div class="label">Description</div>
-          <textarea id="description" placeholder="Ex: Boutique locale, produits utiles et bons."></textarea>
+          <div class="label">Présentation</div>
+          <textarea id="description" placeholder="Ex : Boutique locale, produits utiles, propres et faciles à commander."></textarea>
         </div>
 
         <div class="grid2" style="margin-top:12px">
           <div class="field">
-            <div class="label">Image couverture</div>
+            <div class="label">Image de couverture</div>
             <input class="in" id="coverUrl" placeholder="https://..."/>
           </div>
           <div class="field">
-            <div class="label">Logo / photo</div>
+            <div class="label">Logo ou photo</div>
             <input class="in" id="photoUrl" placeholder="https://..."/>
           </div>
         </div>
 
         <div class="actions">
-          <button class="btn primary" id="btnSave" type="button">💾 Enregistrer</button>
-          <button class="btn" id="btnReloadProfile" type="button">↻ Recharger profil</button>
+          <button class="btn primary" id="btnSave" type="button">💾 Enregistrer mes changements</button>
+          <button class="btn" id="btnReloadProfile" type="button">↻ Recharger mes infos</button>
         </div>
 
         <div class="msg" id="msgProfile">Prêt.</div>
       </section>
 
       <section class="card panel">
-        <h2>Publication & lecture terrain</h2>
+        <h2>Visibilité publique</h2>
         <div class="muted" id="sideLead">
-          Le public doit comprendre la boutique vite, sans deviner ce que tu vends ni comment te joindre.
+          Avant de sortir au public, assure-toi que la boutique est lisible, joignable et crédible.
         </div>
 
         <div class="stateRow">
           <div class="stateText" id="publishState">Chargement…</div>
           <div class="actions" style="margin-top:0">
-            <button class="btn primary" id="btnPublish" type="button">📢 Publier</button>
-            <button class="btn warn" id="btnUnpublish" type="button">🙈 Dépublier</button>
+            <button class="btn primary" id="btnPublish" type="button">🌍 Mettre en ligne</button>
+            <button class="btn warn" id="btnUnpublish" type="button">🙈 Retirer du public</button>
           </div>
         </div>
 
@@ -643,7 +655,7 @@
 
         <div class="stats">
           <div class="stat">
-            <div class="k">Produits total</div>
+            <div class="k">Produits au total</div>
             <div class="v" id="statTotal">0</div>
           </div>
           <div class="stat">
@@ -651,26 +663,26 @@
             <div class="v" id="statActive">0</div>
           </div>
           <div class="stat">
-            <div class="k">Produits inactifs</div>
+            <div class="k">Produits en pause</div>
             <div class="v" id="statInactive">0</div>
           </div>
           <div class="stat">
-            <div class="k">Produits publiés</div>
+            <div class="k">Produits visibles</div>
             <div class="v" id="statPublishedProducts">0</div>
           </div>
         </div>
 
         <div class="checklist" id="readinessBox">
-          <div class="checkitem bad" id="checkName">• Nom boutique à compléter</div>
-          <div class="checkitem bad" id="checkContact">• Contact WhatsApp ou téléphone à compléter</div>
-          <div class="checkitem bad" id="checkPlace">• Ville ou adresse à compléter</div>
-          <div class="checkitem bad" id="checkContent">• Catégorie ou description à compléter</div>
+          <div class="checkitem bad" id="checkName">• Le nom de la boutique manque</div>
+          <div class="checkitem bad" id="checkContact">• Le contact manque</div>
+          <div class="checkitem bad" id="checkPlace">• La ville ou l’adresse manque</div>
+          <div class="checkitem bad" id="checkContent">• Il faut dire clairement ce que tu vends</div>
         </div>
 
         <div class="reading">
           <div class="mini">
             <div class="k">Boutique</div>
-            <div class="v" id="factShop">Boutique DIGIY</div>
+            <div class="v" id="factShop">Ma boutique</div>
           </div>
 
           <div class="mini">
@@ -690,13 +702,13 @@
         </div>
 
         <div class="empty" id="previewBox">
-          Aucun slug MARKET actif détecté. La coque reste visible, mais la vraie boutique reste protégée.
+          Aucun accès boutique détecté pour le moment. La page reste visible, mais les vrais réglages restent protégés.
         </div>
       </section>
     </section>
 
     <div class="footer" id="footerText">
-      DIGIY PRO MARKET • Réglages boutique
+      DIGIY MARKET • Ma boutique
     </div>
   </div>
 
@@ -757,7 +769,7 @@
       }
 
       function getShopName(profile){
-        return toText(profile?.shop_name, toText(profile?.business_name, "Boutique DIGIY"));
+        return toText(profile?.shop_name, toText(profile?.business_name, "Ma boutique"));
       }
 
       function getCoverUrl(profile){
@@ -781,11 +793,17 @@
       }
 
       function setNavLinks(){
-        $("btnDashboard").href = ACCESS_SLUG ? withSlug("./dashboard.html") : "./dashboard.html";
+        $("btnDashboard").href = ACCESS_SLUG ? withSlug("./dashboard-pro.html") : "./dashboard-pro.html";
         $("btnCockpit").href = ACCESS_SLUG ? withSlug("./cockpit.html") : "./cockpit.html";
         $("btnProducts").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
         $("btnPin").href = ACCESS_SLUG ? withSlug("./pin.html") : "./pin.html";
         $("btnPublic").href = ACCESS_SLUG ? withSlug("./index.html") : "./index.html";
+      }
+
+      function setPinButtonVisibility(){
+        const btn = $("btnPin");
+        if (!btn) return;
+        btn.style.display = ACCESS_GRANTED ? "none" : "";
       }
 
       function setMsgProfile(txt, type){
@@ -954,7 +972,7 @@
           slug: ACCESS_SLUG || "",
           workspace_slug: ACCESS_SLUG || "",
           phone: ACCESS_PHONE || "",
-          public_label: "DIGIY PRO MARKET",
+          public_label: "DIGIY MARKET",
           is_blank: false,
           profile: {
             shop_name: "",
@@ -1023,10 +1041,10 @@
         const d = draft || getDraft();
         const issues = [];
 
-        if (!d.shop_name) issues.push("Nom boutique à compléter");
-        if (!(d.whatsapp || d.linked_phone)) issues.push("Contact WhatsApp ou téléphone à compléter");
-        if (!(d.city || d.address)) issues.push("Ville ou adresse à compléter");
-        if (!(d.categories_text || d.description)) issues.push("Catégorie ou description à compléter");
+        if (!d.shop_name) issues.push("Le nom de la boutique manque");
+        if (!(d.whatsapp || d.linked_phone)) issues.push("Le contact manque");
+        if (!(d.city || d.address)) issues.push("La ville ou l’adresse manque");
+        if (!(d.categories_text || d.description)) issues.push("Il faut dire clairement ce que tu vends");
 
         return issues;
       }
@@ -1038,26 +1056,26 @@
           {
             id: "checkName",
             ok: !!d.shop_name,
-            okText: "• Nom boutique prêt",
-            badText: "• Nom boutique à compléter"
+            okText: "• Le nom de la boutique est prêt",
+            badText: "• Le nom de la boutique manque"
           },
           {
             id: "checkContact",
             ok: !!(d.whatsapp || d.linked_phone),
-            okText: "• Contact utile prêt",
-            badText: "• Contact WhatsApp ou téléphone à compléter"
+            okText: "• Le contact est prêt",
+            badText: "• Le contact manque"
           },
           {
             id: "checkPlace",
             ok: !!(d.city || d.address),
-            okText: "• Ville / adresse prêtes",
-            badText: "• Ville ou adresse à compléter"
+            okText: "• La zone est prête",
+            badText: "• La ville ou l’adresse manque"
           },
           {
             id: "checkContent",
             ok: !!(d.categories_text || d.description),
-            okText: "• Lecture boutique claire",
-            badText: "• Catégorie ou description à compléter"
+            okText: "• On comprend bien ce que tu vends",
+            badText: "• Il faut dire clairement ce que tu vends"
           }
         ];
 
@@ -1070,8 +1088,8 @@
 
         const issues = getPublishIssues(d);
         $("sideLead").textContent = issues.length === 0
-          ? "La fiche est assez claire pour sortir au public. Tu peux publier."
-          : "Avant publication, complète les points ci-dessous pour que le client comprenne la boutique tout de suite.";
+          ? "Ta fiche est assez claire pour être visible. Tu peux la mettre en ligne."
+          : "Avant la mise en ligne, complète les points ci-dessous pour que le client comprenne tout de suite.";
 
         return issues;
       }
@@ -1096,8 +1114,8 @@
       function renderPublishState(){
         const issues = renderReadiness();
         const status = CURRENT_PUBLISHED
-          ? "Publié • boutique visible publiquement"
-          : "Non publiée • boutique encore en préparation";
+          ? "En ligne • visible publiquement"
+          : "Hors ligne • encore en préparation";
 
         $("publishState").textContent = issues.length === 0
           ? status
@@ -1116,31 +1134,31 @@
 
         rememberAccess();
         setNavLinks();
+        setPinButtonVisibility();
 
         const shop = getShopName(p);
         const owner = toText(p.owner_name, "");
         const city = toText(p.city, "Ville à définir");
-        const categories = toText(p.categories_text, "Catégories à définir");
+        const categories = toText(p.categories_text, "Ce que je vends");
         const address = toText(p.address, "Adresse à définir");
         const whatsapp = p.whatsapp || payload.phone || "";
-        const delivery = toText(p.delivery_note, "Livraison à définir");
-        const payment = toText(p.payment_note, "Paiement à définir");
-        const resolvedSlug = ACCESS_SLUG || "—";
+        const delivery = toText(p.delivery_note, "À définir");
+        const payment = toText(p.payment_note, "À définir");
 
         const subtitle = liveMode
           ? (payload.is_blank
-              ? "Boutique personnelle vierge. Tu peux maintenant la remplir proprement."
-              : "Boutique réelle chargée. Tu peux ajuster ton identité, ton contact et ta publication.")
+              ? "Ta boutique est prête à être remplie. Mets ton nom, ton contact, ta zone et ce que tu vends."
+              : "Ta vraie boutique est chargée. Tu peux ajuster ton identité, ton contact et sa visibilité.")
           : (ACCESS_SLUG
-              ? `Slug détecté (${ACCESS_SLUG}) mais la session PIN n’est pas ouverte.`
-              : "Coque protégée visible. Le contenu réel s’ouvre avec une session PIN MARKET valide.");
+              ? "Ton accès est bien repéré, mais il n’est pas encore ouvert."
+              : "Ici tu prépares ta boutique. Ouvre ton accès pour modifier les vrais réglages.");
 
         $("shopNameHero").textContent = shop;
         $("shopSubtitle").textContent = subtitle;
 
         $("pillCategories").textContent = "🏷️ " + categories;
         $("pillCity").textContent = "📍 " + city;
-        $("pillPublish").textContent = "🌍 " + (p.is_published ? "Publiée" : "Non publiée");
+        $("pillPublish").textContent = "🌍 " + (p.is_published ? "En ligne" : "Hors ligne");
 
         $("miniSlug").textContent = ACCESS_SLUG || "—";
         $("miniPhone").textContent = formatPhone(payload.phone || ACCESS_PHONE);
@@ -1153,24 +1171,24 @@
         $("factPayment").textContent = payment;
 
         $("modeBadge").className = liveMode ? "mode live" : "mode";
-        $("modeBadge").textContent = liveMode ? "Mode vivant" : "Mode protégé";
+        $("modeBadge").textContent = liveMode ? "Accès ouvert" : "Accès protégé";
 
         $("topSub").textContent = liveMode
-          ? `Réglages chargés pour ${resolvedSlug}`
-          : (ACCESS_SLUG ? `Slug détecté : ${ACCESS_SLUG} • session protégée` : "Aucun accès ouvert pour l’instant.");
+          ? "Tes réglages sont bien chargés"
+          : (ACCESS_SLUG ? "Ton identifiant est repéré, accès fermé pour l’instant" : "Aucun accès boutique ouvert pour le moment");
 
         $("previewBox").style.display = liveMode ? "none" : "block";
         $("previewBox").textContent = ACCESS_SLUG
-          ? `Slug ${ACCESS_SLUG} détecté. La coque reste visible, mais la vraie boutique reste verrouillée tant que le PIN n’a pas ouvert la session.`
-          : "Aucun slug MARKET actif détecté. La coque reste visible, mais la vraie boutique reste protégée.";
+          ? "Ton identifiant est bien repéré. Pour modifier la vraie boutique, ouvre ton accès avec ton PIN."
+          : "Aucun accès boutique détecté pour le moment. La page reste visible, mais les vrais réglages restent protégés.";
 
         $("footerText").textContent = liveMode
-          ? `DIGIY PRO MARKET • ${shop} • Réglages vivants`
-          : "DIGIY PRO MARKET • Réglages protégés";
+          ? `DIGIY MARKET • ${shop}`
+          : "DIGIY MARKET • Ma boutique";
 
         document.title = liveMode
-          ? `${shop} — Réglages boutique DIGIY PRO MARKET`
-          : "DIGIY PRO MARKET — Réglages boutique";
+          ? `${shop} — Réglages`
+          : "Ma boutique — Réglages";
 
         resetForm();
         $("shopName").value = p.shop_name || p.business_name || "";
@@ -1193,18 +1211,18 @@
 
       function syncPreviewFromInputs(){
         const draft = getDraft();
-        const shop = draft.shop_name || "Boutique DIGIY";
+        const shop = draft.shop_name || "Ma boutique";
         const city = draft.city || "Ville à définir";
-        const categories = draft.categories_text || "Catégories à définir";
-        const delivery = draft.delivery_note || "Livraison à définir";
-        const payment = draft.payment_note || "Paiement à définir";
+        const categories = draft.categories_text || "Ce que je vends";
+        const delivery = draft.delivery_note || "À définir";
+        const payment = draft.payment_note || "À définir";
         const address = draft.address || "Adresse à définir";
         const whatsapp = draft.whatsapp;
 
         $("shopNameHero").textContent = shop;
         $("pillCategories").textContent = "🏷️ " + categories;
         $("pillCity").textContent = "📍 " + city;
-        $("pillPublish").textContent = "🌍 " + (CURRENT_PUBLISHED ? "Publiée" : "Non publiée");
+        $("pillPublish").textContent = "🌍 " + (CURRENT_PUBLISHED ? "En ligne" : "Hors ligne");
         $("miniWhatsapp").textContent = formatPhone(whatsapp);
         $("miniAddress").textContent = address;
         $("factShop").textContent = shop;
@@ -1256,21 +1274,21 @@
 
       async function saveProfile(){
         if (!ACCESS_OK || !ACCESS_SLUG){
-          setMsgProfile("⚠️ Accès non ouvert pour enregistrer la vraie boutique.", "bad");
+          setMsgProfile("⚠️ Ouvre d’abord ton accès pour enregistrer la vraie boutique.", "bad");
           return;
         }
 
         try{
           setBusy(true);
-          setMsgProfile("⏳ Enregistrement de la boutique…", "warn");
+          setMsgProfile("⏳ Enregistrement en cours…", "warn");
 
           await persistDraft(CURRENT_PUBLISHED);
 
-          setMsgProfile("✅ Boutique enregistrée.", "ok");
+          setMsgProfile("✅ Tes changements sont enregistrés.", "ok");
           await loadLiveCockpit();
         }catch(e){
           console.error(e);
-          setMsgProfile("❌ Impossible d’enregistrer la boutique.", "bad");
+          setMsgProfile("❌ Impossible d’enregistrer pour le moment.", "bad");
         }finally{
           setBusy(false);
         }
@@ -1278,7 +1296,7 @@
 
       async function setPublishState(nextState){
         if (!ACCESS_OK || !ACCESS_SLUG){
-          setMsgPublish("⚠️ Accès non ouvert pour modifier la publication.", "bad");
+          setMsgPublish("⚠️ Ouvre d’abord ton accès pour changer la visibilité.", "bad");
           return;
         }
 
@@ -1286,14 +1304,14 @@
         const issues = getPublishIssues(draft);
 
         if (nextState && issues.length){
-          setMsgPublish("⚠️ Publication bloquée : " + issues.join(" • "), "warn");
+          setMsgPublish("⚠️ Mise en ligne bloquée : " + issues.join(" • "), "warn");
           renderReadiness(draft);
           return;
         }
 
         try{
           setBusy(true);
-          setMsgPublish("⏳ Mise à jour publication…", "warn");
+          setMsgPublish("⏳ Mise à jour en cours…", "warn");
 
           await persistDraft(!!nextState);
 
@@ -1306,11 +1324,11 @@
           if (!data?.ok) throw new Error(data?.reason || data?.error || "market_publish_error");
 
           CURRENT_PUBLISHED = !!nextState;
-          setMsgPublish(nextState ? "✅ Boutique publiée." : "✅ Boutique dépubliée.", "ok");
+          setMsgPublish(nextState ? "✅ Ta boutique est maintenant en ligne." : "✅ Ta boutique a été retirée du public.", "ok");
           await loadLiveCockpit();
         }catch(e){
           console.error(e);
-          setMsgPublish("❌ Impossible de modifier la publication.", "bad");
+          setMsgPublish("❌ Impossible de changer la visibilité pour le moment.", "bad");
         }finally{
           setBusy(false);
         }
@@ -1323,7 +1341,7 @@
           ACCESS_OK = false;
           applyCockpit(blockedCockpit(data?.reason || "not_ok"), false);
           setFormDisabled(true);
-          setMsgProfile("⚠️ Slug détecté mais accès non ouvert. Boutique réelle protégée.", "warn");
+          setMsgProfile("⚠️ L’identifiant est repéré, mais l’accès n’est pas ouvert.", "warn");
           setMsgPublish("Accès non ouvert.", "warn");
           return;
         }
@@ -1348,13 +1366,14 @@
 
           rememberAccess();
           setNavLinks();
+          setPinButtonVisibility();
 
           if (!ACCESS_SLUG){
             ACCESS_OK = false;
             applyCockpit(blockedCockpit("missing_slug"), false);
             setFormDisabled(true);
-            setMsgProfile("Aucun slug MARKET détecté. La coque reste visible.", "warn");
-            setMsgPublish("Aucun slug MARKET détecté.", "warn");
+            setMsgProfile("Aucun identifiant boutique détecté. La coque reste visible.", "warn");
+            setMsgPublish("Aucun identifiant détecté.", "warn");
             return;
           }
 
@@ -1362,8 +1381,8 @@
             ACCESS_OK = false;
             applyCockpit(blockedCockpit("access_not_open"), false);
             setFormDisabled(true);
-            setMsgProfile("⚠️ Session protégée non ouverte. Passe par PIN pour ouvrir les vrais réglages.", "warn");
-            setMsgPublish("Session protégée non ouverte.", "warn");
+            setMsgProfile("⚠️ Accès non ouvert. Passe par ton PIN pour ouvrir les vrais réglages.", "warn");
+            setMsgPublish("Accès non ouvert.", "warn");
             return;
           }
 
@@ -1372,18 +1391,18 @@
           if (ACCESS_OK){
             setMsgProfile(
               CURRENT_COCKPIT?.is_blank
-                ? "✅ Boutique vierge chargée. Tu peux commencer à remplir."
-                : "✅ Boutique réelle chargée.",
+                ? "✅ Boutique prête à être remplie."
+                : "✅ Ta boutique réelle est bien chargée.",
               "ok"
             );
-            setMsgPublish(CURRENT_PUBLISHED ? "Boutique déjà publiée." : "Boutique en brouillon.", "");
+            setMsgPublish(CURRENT_PUBLISHED ? "La boutique est déjà en ligne." : "La boutique est encore hors ligne.", "");
           }
         }catch(e){
           console.error(e);
           ACCESS_OK = false;
           applyCockpit(blockedCockpit("boot_error"), false);
           setFormDisabled(true);
-          setMsgProfile("❌ Impossible de charger la vraie boutique. Coque protégée affichée.", "bad");
+          setMsgProfile("❌ Impossible de charger la vraie boutique pour le moment.", "bad");
           setMsgPublish("Erreur de chargement.", "bad");
         }finally{
           setBusy(false);
@@ -1403,6 +1422,7 @@
 
       refreshInteractivity();
       setNavLinks();
+      setPinButtonVisibility();
       boot();
     })();
   </script>
