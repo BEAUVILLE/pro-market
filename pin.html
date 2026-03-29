@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#0c1118" />
-  <title>DIGIY — Ouvrir mon espace</title>
+  <title>Je vends — Ouvrir mon accès</title>
   <meta name="description" content="Accès sécurisé DIGIY pour ouvrir ton espace vendeur avec ton identifiant, ton téléphone et ton code." />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -257,7 +257,7 @@
         <div class="brand">
           <div class="logo">🛍️</div>
           <div>
-            <h1>Ouvrir mon espace</h1>
+            <h1>Ouvrir mon accès</h1>
             <p class="sub">Entre avec ton identifiant, ton téléphone et ton code</p>
           </div>
         </div>
@@ -270,7 +270,7 @@
         </p>
 
         <div class="field">
-          <label for="slug">Identifiant de ma boutique</label>
+          <label for="slug">Identifiant</label>
           <input id="slug" type="text" placeholder="market-221771342889" autocomplete="off" />
         </div>
 
@@ -288,9 +288,9 @@
         </div>
 
         <div class="actions">
-          <button id="btnOpen" class="btn primary" type="button">🔓 Ouvrir mon espace</button>
+          <button id="btnOpen" class="btn primary" type="button">🔓 Entrer dans mon espace</button>
           <a id="btnReturn" class="btn secondary hidden" href="./dashboard-pro.html">↩️ Revenir à ma page</a>
-          <a id="btnPay" class="btn ghost" href="https://commencer-a-payer.digiylyfe.com/" target="_blank" rel="noopener">💳 Gérer mon abonnement</a>
+          <a id="btnPay" class="btn ghost" href="https://commencer-a-payer.digiylyfe.com/" target="_blank" rel="noopener">💳 Voir mon abonnement</a>
         </div>
 
         <div class="grid">
@@ -303,13 +303,13 @@
         <div id="status" class="status">Prêt.</div>
 
         <div class="meta">
-          <div class="row"><div class="k">Espace</div><div class="v">Je vends</div></div>
-          <div class="row"><div class="k">Retour</div><div id="returnInfo" class="v">dashboard-pro.html</div></div>
-          <div class="row"><div class="k">Session</div><div id="sessionInfo" class="v">Aucune</div></div>
+          <div class="row"><div class="k">Métier</div><div class="v">Je vends</div></div>
+          <div class="row"><div class="k">Page de retour</div><div id="returnInfo" class="v">Mon activité</div></div>
+          <div class="row"><div class="k">Accès</div><div id="sessionInfo" class="v">Fermé</div></div>
         </div>
       </div>
 
-      <div class="foot">DIGIYLYFE • Accès sécurisé</div>
+      <div class="foot">DIGIYLYFE • Accès vendeur sécurisé</div>
     </section>
   </div>
 
@@ -406,6 +406,16 @@
         const n = Number(ts || 0);
         if (!n) return false;
         return (Date.now() - n) <= CFG.SESSION_MAX_AGE_MS;
+      }
+
+      function labelForPath(pathname) {
+        const file = String(pathname || "").split("/").pop() || "";
+        if (file === "dashboard-pro.html") return "Mon activité";
+        if (file === "cockpit.html") return "Ma gestion";
+        if (file === "boutique.html") return "Ma boutique";
+        if (file === "produits.html") return "Mes produits";
+        if (file === "index.html") return "Entrée";
+        return "Mon activité";
       }
 
       function buildNormalizedSession({ slug, phone, owner_id = null }) {
@@ -740,7 +750,7 @@
         const dummy = { slug: s, phone: p };
         el.btnReturn.href = buildReturnUrl(dummy);
         el.btnReturn.classList.remove("hidden");
-        el.returnInfo.textContent = new URL(el.btnReturn.href).pathname.split("/").pop() || "dashboard-pro.html";
+        el.returnInfo.textContent = labelForPath(new URL(el.btnReturn.href).pathname);
       }
 
       function hydrate() {
@@ -774,8 +784,8 @@
         }
 
         if (saved?.verified_at || saved?.validated_at || saved?.slug || saved?.phone) {
-          el.sessionInfo.textContent = "Active";
-          setStatus("Session locale déjà présente. Tu peux reprendre ton espace.", "ok");
+          el.sessionInfo.textContent = "Ouvert";
+          setStatus("Un accès local est déjà présent. Tu peux reprendre ton espace.", "ok");
         }
       }
 
@@ -809,12 +819,12 @@
           }
 
           if (!slug) {
-            setStatus("Identifiant inconnu.", "err");
+            setStatus("Je ne reconnais pas encore cet identifiant.", "err");
             return;
           }
 
           if (!phone) {
-            setStatus("Téléphone introuvable pour cet identifiant.", "err");
+            setStatus("Je n’ai pas retrouvé le téléphone lié à cet identifiant.", "err");
             return;
           }
 
@@ -830,7 +840,7 @@
             owner_id: auth.owner_id || null
           });
 
-          el.sessionInfo.textContent = "Active";
+          el.sessionInfo.textContent = "Ouvert";
           refreshLinks(session.slug, session.phone);
           setStatus("Code validé. Ouverture de ton espace...", "ok");
 
