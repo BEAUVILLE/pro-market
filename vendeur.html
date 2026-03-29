@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>DIGIY MARKET — Fiche vendeur</title>
+<title>Je vends — Ma fiche</title>
 <meta name="theme-color" content="#0d0a06"/>
-<meta name="description" content="Fiche publique DIGIY MARKET : boutique exemple ou fiche réelle en mode slug-first."/>
+<meta name="description" content="Je vends — fiche publique DIGIY pour présenter une boutique, ses repères et son contact direct."/>
 <meta name="robots" content="index,follow"/>
 
 <script>
@@ -20,9 +20,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,600;0,700;1,300;1,600&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Nunito:wght@400;600;800;900&display=swap" rel="stylesheet"/>
 
 <style>
-/* ═══════════════════════════════════════════════
-   DIGIY MARKET — FICHE VENDEUR · DESIGN ROYAL
-═══════════════════════════════════════════════ */
 :root {
   --ink:      #0d0a06;
   --ink-2:    #1a1208;
@@ -76,7 +73,6 @@ button { font: inherit; cursor: pointer }
   border-radius: 12px;
 }
 
-/* ═══ TOPBAR ═══ */
 .topbar {
   position: sticky; top: 0; z-index: 200;
   background: rgba(13,10,6,.9);
@@ -127,10 +123,8 @@ button { font: inherit; cursor: pointer }
   box-shadow: 0 8px 24px rgba(232,104,32,.28);
 }
 
-/* ═══ PAGE ═══ */
 .page { padding: 24px 0 72px }
 
-/* ═══ HERO COVER ═══ */
 .hero-cover-wrap {
   position: relative; border-radius: 32px; overflow: hidden;
   border: 1px solid rgba(200,134,10,.12);
@@ -225,7 +219,6 @@ button { font: inherit; cursor: pointer }
   font-size: .76rem; font-weight: 800; color: rgba(253,246,236,.52);
 }
 
-/* ═══ TWO-COL MAIN LAYOUT ═══ */
 .layout {
   display: grid;
   grid-template-columns: 1fr 360px;
@@ -233,7 +226,6 @@ button { font: inherit; cursor: pointer }
 }
 .col-left, .col-right { display: grid; gap: 18px; align-content: start }
 
-/* ═══ DARK CARD ═══ */
 .d-card {
   background: rgba(255,255,255,.03);
   border: 1px solid var(--line-lt);
@@ -249,7 +241,6 @@ button { font: inherit; cursor: pointer }
 }
 .d-card p { color: rgba(253,246,236,.62); line-height: 1.75; font-size: .92rem }
 
-/* gold top accent on card */
 .d-card.accented::before {
   content: "";
   position: absolute; top: 0; left: 24px; right: 24px; height: 2px;
@@ -257,7 +248,6 @@ button { font: inherit; cursor: pointer }
   opacity: .4;
 }
 
-/* ═══ INFO GRID ═══ */
 .info-grid {
   display: grid; grid-template-columns: repeat(2, 1fr);
   gap: 10px; margin-top: 14px;
@@ -272,19 +262,16 @@ button { font: inherit; cursor: pointer }
 }
 .info-tile-value { font-weight: 900; line-height: 1.45; font-size: .92rem }
 
-/* ═══ CTA ROW ═══ */
 .cta-row {
   display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px;
 }
 
-/* ═══ NOTE BOX ═══ */
 .note-box {
   margin-top: 14px; padding: 14px 16px; border-radius: 18px;
   background: rgba(200,134,10,.07); border: 1px solid rgba(200,134,10,.2);
   color: rgba(244,184,64,.75); font-size: .84rem; line-height: 1.65;
 }
 
-/* ═══ EDITO STRIP ═══ */
 .edito-strip {
   display: grid; grid-template-columns: repeat(3,1fr); gap: 12px;
   margin-top: 18px;
@@ -306,7 +293,6 @@ button { font: inherit; cursor: pointer }
 }
 .edito-tile p { color: var(--muted); font-size: .84rem; line-height: 1.6 }
 
-/* ═══ GALLERY ═══ */
 .gallery-hero {
   border-radius: 24px; overflow: hidden;
   border: 1px solid var(--line-lt); position: relative;
@@ -344,7 +330,6 @@ button { font: inherit; cursor: pointer }
   font-weight: 800; color: var(--muted); font-size: .7rem; line-height: 1.3;
 }
 
-/* ═══ PRODUCTS GRID ═══ */
 .products-grid {
   display: grid; grid-template-columns: repeat(2,1fr);
   gap: 12px; margin-top: 14px;
@@ -368,7 +353,6 @@ button { font: inherit; cursor: pointer }
   color: var(--gold-lt); font-weight: 900; font-size: .76rem;
 }
 
-/* ═══ MAP BOX ═══ */
 .map-frame {
   border-radius: 22px; overflow: hidden;
   border: 1px solid var(--line-lt); background: var(--ink-2);
@@ -377,7 +361,6 @@ button { font: inherit; cursor: pointer }
 .map-frame img { width: 100%; aspect-ratio: 16/10; object-fit: cover; display: block }
 .map-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px }
 
-/* ═══ SIDEBAR TILES ═══ */
 .side-list { display: grid; gap: 8px }
 .side-tile {
   border: 1px solid var(--line-lt); border-radius: 16px;
@@ -389,7 +372,6 @@ button { font: inherit; cursor: pointer }
 }
 .side-tile-value { font-weight: 900; font-size: .9rem; line-height: 1.45 }
 
-/* ═══ MODULE BOX ═══ */
 .module-box {
   background: linear-gradient(135deg, rgba(232,104,32,.1), rgba(200,56,48,.08));
   border: 1px solid rgba(232,104,32,.25); border-radius: 24px; padding: 22px;
@@ -409,7 +391,6 @@ button { font: inherit; cursor: pointer }
 .module-box p { color: rgba(253,246,236,.62); line-height: 1.7; font-size: .9rem }
 .module-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px }
 
-/* ═══ TRUST BOX ═══ */
 .trust-list { display: grid; gap: 8px; margin-top: 12px }
 .trust-item {
   border: 1px solid var(--line-lt); border-radius: 16px;
@@ -418,7 +399,6 @@ button { font: inherit; cursor: pointer }
 .trust-item strong { display: block; margin-bottom: 3px; font-weight: 900; font-size: .9rem }
 .trust-item span { color: var(--muted); font-size: .82rem; line-height: 1.55 }
 
-/* ═══ NEXT FEATURES ═══ */
 .feature-row {
   display: flex; align-items: center; gap: 10px;
   padding: 12px; border-radius: 14px;
@@ -432,7 +412,6 @@ button { font: inherit; cursor: pointer }
   background: rgba(200,134,10,.04);
 }
 
-/* ═══ EMPTY STATE ═══ */
 .empty-state {
   text-align: center; padding: 40px 24px;
   border: 1px dashed var(--line-lt); border-radius: 24px;
@@ -443,7 +422,6 @@ button { font: inherit; cursor: pointer }
 }
 .empty-state p { color: var(--muted); line-height: 1.7 }
 
-/* ═══ FLOAT CTA ═══ */
 .float-cta {
   position: fixed; right: 16px; bottom: 16px;
   z-index: 150; display: flex; flex-direction: column; gap: 10px;
@@ -458,14 +436,12 @@ button { font: inherit; cursor: pointer }
 .float-btn.wa { background: #0b8f59 }
 .float-btn.module { background: var(--g-fire) }
 
-/* ═══ ENTRANCE ANIMATIONS ═══ */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(24px) }
   to   { opacity: 1; transform: translateY(0) }
 }
 .anim { opacity: 0; animation: fadeUp .65s cubic-bezier(.23,1,.32,1) forwards }
 
-/* ═══ RESPONSIVE ═══ */
 @media(max-width:1080px) { .layout { grid-template-columns: 1fr } }
 @media(max-width:860px)  {
   .edito-strip { grid-template-columns: 1fr 1fr }
@@ -489,12 +465,12 @@ button { font: inherit; cursor: pointer }
   <div class="wrap topbar-inner">
     <a class="brand" href="index.html">
       <span class="brand-gem" id="brandIcon">🛍️</span>
-      <span>DIGIY MARKET <small>Fiche vendeur</small></span>
+      <span>DIGIY • Je vends <small>Ma fiche publique</small></span>
     </a>
     <div class="hdr-actions">
-      <a class="btn btn-ghost" href="index.html">← Marché</a>
-      <a class="btn btn-ghost" id="topWaBtn" href="#" target="_blank" rel="noopener">💬 WhatsApp</a>
-      <a class="btn btn-fire" id="topModuleBtn" href="https://commencer-a-payer.digiylyfe.com/" target="_blank" rel="noopener">🔥 Mon module</a>
+      <a class="btn btn-ghost" href="index.html">← Les boutiques</a>
+      <a class="btn btn-ghost" id="topWaBtn" href="#" target="_blank" rel="noopener">💬 Écrire sur WhatsApp</a>
+      <a class="btn btn-fire" id="topModuleBtn" href="https://commencer-a-payer.digiylyfe.com/" target="_blank" rel="noopener">🔥 Ouvrir ma boutique</a>
     </div>
   </div>
 </header>
@@ -506,14 +482,11 @@ button { font: inherit; cursor: pointer }
 </main>
 
 <div class="float-cta" id="floatCtas" style="display:none">
-  <a class="float-btn wa" id="floatWaBtn" href="#" target="_blank" rel="noopener">💬 WhatsApp</a>
-  <a class="float-btn module" id="floatModuleBtn" href="https://commencer-a-payer.digiylyfe.com/" target="_blank" rel="noopener">🔥 Je veux mon module</a>
+  <a class="float-btn wa" id="floatWaBtn" href="#" target="_blank" rel="noopener">💬 Écrire sur WhatsApp</a>
+  <a class="float-btn module" id="floatModuleBtn" href="https://commencer-a-payer.digiylyfe.com/" target="_blank" rel="noopener">🔥 Ouvrir ma boutique</a>
 </div>
 
 <script>
-/* ═══════════════════════════════════════
-   CONFIG & UTILITIES
-═══════════════════════════════════════ */
 const DEFAULT_CFG = {
   whatsapp: "221771342889",
   proUrl:   "https://commencer-a-payer.digiylyfe.com/",
@@ -582,7 +555,6 @@ function mapsUrl(query){
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 }
 
-/* ─── SVG generators ─── */
 function palette(bg){
   const map = {
     "#c8deff":["#bdd8ff","#8cb7ff"],
@@ -645,7 +617,7 @@ function buildGallery(v){
   if (rawImages.length) {
     const out = rawImages.map((src,i)=>({
       src,
-      caption: i === 0 ? "Image principale" : `Vue ${i+1}`
+      caption: i === 0 ? "Vue principale" : `Vue ${i+1}`
     }));
     if (v.mapPreview) out.push({src:v.mapPreview, caption:"Repère carte"});
     return out.slice(0,8);
@@ -657,7 +629,7 @@ function buildGallery(v){
     {title:"Ambiance",  sub:v.loc || v.city || "terrain",icon:"✨"},
     {title:"Style",     sub:v.categoryLabel || "boutique",icon:v.categoryIcon || "🛍️"},
     {title:"Repère",    sub:"présence publique",         icon:"📍"},
-    {title:"Éditorial", sub:"vitrine DIGIY",             icon:v.isRoyal ? "♛" : "🌍"}
+    {title:"Édito",     sub:"vitrine DIGIY",             icon:v.isRoyal ? "♛" : "🌍"}
   ];
   return items.map((item,i)=>({
     src: makeSvgData(item.title, item.sub, item.icon, i%2 ? c2 : c1, i%2 ? c1 : c2),
@@ -669,10 +641,10 @@ function buildExampleProducts(v){
   const base  = parsePriceBase(v.price);
   const parts = splitOffer(v.what);
   if(!parts.length) return [
-    {title:"Produit exemple 1", desc:"À personnaliser.", price:"Prix à définir"},
-    {title:"Produit exemple 2", desc:"À personnaliser.", price:"Prix à définir"},
-    {title:"Produit exemple 3", desc:"À personnaliser.", price:"Prix à définir"},
-    {title:"Produit exemple 4", desc:"À personnaliser.", price:"Prix à définir"}
+    {title:"Exemple 1", desc:"À personnaliser.", price:"Prix à définir"},
+    {title:"Exemple 2", desc:"À personnaliser.", price:"Prix à définir"},
+    {title:"Exemple 3", desc:"À personnaliser.", price:"Prix à définir"},
+    {title:"Exemple 4", desc:"À personnaliser.", price:"Prix à définir"}
   ];
   return parts.map((p,i)=>({
     title:p,
@@ -683,11 +655,11 @@ function buildExampleProducts(v){
 
 function buildRealPublicBlocks(v){
   const rows = [];
-  if (v.categoryLabel) rows.push({title:"Catégorie", desc:"Univers du commerçant.", price:v.categoryLabel});
-  if (v.address)       rows.push({title:"Adresse",   desc:"Repère public.",         price:v.address});
-  if (v.delivery_note) rows.push({title:"Livraison", desc:"Info publique utile.",    price:v.delivery_note});
-  if (v.payment_note)  rows.push({title:"Paiement",  desc:"Mode de paiement.",       price:v.payment_note});
-  if (v.owner_name)    rows.push({title:"Contact",   desc:"Nom public utile.",       price:v.owner_name});
+  if (v.categoryLabel) rows.push({title:"Catégorie", desc:"Univers de la boutique.", price:v.categoryLabel});
+  if (v.address)       rows.push({title:"Adresse",   desc:"Repère utile.",           price:v.address});
+  if (v.delivery_note) rows.push({title:"Livraison", desc:"Info pratique.",          price:v.delivery_note});
+  if (v.payment_note)  rows.push({title:"Paiement",  desc:"Mode accepté.",           price:v.payment_note});
+  if (v.owner_name)    rows.push({title:"Nom",       desc:"Personne de contact.",    price:v.owner_name});
   if (v.phone)         rows.push({title:"Téléphone", desc:"Numéro public.",          price:formatPhone(v.phone)});
   if (v.whatsapp)      rows.push({title:"WhatsApp",  desc:"Contact direct.",         price:formatPhone(v.whatsapp)});
   return rows.slice(0,6);
@@ -758,9 +730,6 @@ async function loadPublicProfileBySlug(slug){
   };
 }
 
-/* ═══════════════════════════════════════
-   RENDER
-═══════════════════════════════════════ */
 function renderVendor(v, cfg){
   const app      = document.getElementById("app");
   const mapsQ    = [v.name, v.address || "", v.city || "", v.loc || ""].filter(Boolean).join(" ");
@@ -774,12 +743,12 @@ function renderVendor(v, cfg){
   const isRoyal  = !!v.isRoyal;
   const heroCover = v.coverImage || gallery[0]?.src || fallbackImg(v);
 
-  document.title = `${v.name} — DIGIY MARKET`;
+  document.title = `${v.name} — Je vends`;
 
-  const waGeneral  = waLink(cfg.whatsapp, `Bonjour DIGIY 👋 Je veux une vitrine comme "${v.name}" sur DIGIY MARKET.`);
-  const waBoutique = v.whatsapp ? waLink(v.whatsapp, `Bonjour 👋 Je vous contacte depuis votre fiche DIGIY MARKET.`) : "";
+  const waGeneral  = waLink(cfg.whatsapp, `Bonjour DIGIY 👋 Je veux une boutique comme "${v.name}" sur DIGIY.`);
+  const waBoutique = v.whatsapp ? waLink(v.whatsapp, `Bonjour 👋 Je vous contacte depuis votre fiche DIGIY.`) : "";
   const waMain     = isEx ? waGeneral : (waBoutique || waGeneral);
-  const waLabel    = isEx ? "💬 WhatsApp DIGIY" : (waBoutique ? "💬 WhatsApp boutique" : "💬 WhatsApp DIGIY");
+  const waLabel    = isEx ? "💬 Parler à DIGIY" : (waBoutique ? "💬 Écrire à la boutique" : "💬 Parler à DIGIY");
 
   document.getElementById("topWaBtn").href = waMain;
   document.getElementById("topWaBtn").textContent = waLabel;
@@ -791,17 +760,17 @@ function renderVendor(v, cfg){
   applyTopBrand(cfg);
 
   const heroText = isEx
-    ? (v.what || "Vitrine exemple DIGIY MARKET.")
-    : (v.description || "Fiche publique DIGIY MARKET.");
+    ? (v.what || "Vitrine d'inspiration DIGIY.")
+    : (v.description || "Cette fiche présente les repères utiles de la boutique.");
 
   const sideNote = isEx
-    ? "Cette fiche exemple montre le niveau visuel possible pour une boutique DIGIY MARKET."
-    : "Cette fiche lit le profil réel par slug. Contact direct vers la boutique si numéro disponible.";
+    ? "Cette vitrine d'inspiration montre jusqu’où peut aller une boutique DIGIY."
+    : "Cette fiche montre les infos utiles de la boutique. Si le contact direct est disponible, tu écris sans détour.";
 
-  const sectionTitle = isEx ? "Produits & services mis en avant" : "Informations publiques";
+  const sectionTitle = isEx ? "Idées de mise en avant" : "Infos utiles";
   const sectionLead  = isEx
-    ? "La vitrine DIGIY MARKET présente les produits phares avec style et clarté."
-    : "Repères publics visibles sans inventer un faux catalogue.";
+    ? "Une vitrine qui donne envie, rassure et pousse au contact."
+    : "Les repères publics utiles, sans charger la fiche avec du faux.";
 
   const blocksHTML = blocks.length ? `
     <div class="products-grid">
@@ -815,8 +784,8 @@ function renderVendor(v, cfg){
     </div>
   ` : `
     <div class="empty-state" style="margin-top:14px">
-      <h2>Infos publiques à compléter</h2>
-      <p>La fiche est visible, mais certains repères publics n'ont pas encore été posés.</p>
+      <h2>Infos à compléter</h2>
+      <p>La fiche est bien là, mais certains repères utiles ne sont pas encore posés.</p>
     </div>
   `;
 
@@ -827,14 +796,14 @@ function renderVendor(v, cfg){
         <div class="hero-gradient"></div>
 
         <div class="hero-top-chips">
-          ${isRoyal ? `<span class="chip chip-royal">♛ ROYAL STAR</span>` : ""}
-          ${isEx ? `<span class="chip chip-example">EXEMPLE DIGIY</span>` : `<span class="chip chip-live">BOUTIQUE PUBLIQUE</span>`}
-          ${v.live ? `<span class="chip chip-live">VISIBLE</span>` : ""}
+          ${isRoyal ? `<span class="chip chip-royal">♛ STAR DIGIY</span>` : ""}
+          ${isEx ? `<span class="chip chip-example">INSPIRATION DIGIY</span>` : `<span class="chip chip-live">BOUTIQUE PUBLIQUE</span>`}
+          ${v.live ? `<span class="chip chip-live">OUVERTE</span>` : ""}
           <span class="chip chip-dark">${safe(v.categoryIcon || "🛍️")} ${safe(v.categoryLabel || "Boutique")}</span>
         </div>
 
         <div class="hero-copy">
-          <div class="hero-kicker">${isEx ? "✦ ROYAL VITRINE" : "✦ PUBLIC DIGIY MARKET"}</div>
+          <div class="hero-kicker">${isEx ? "✦ VITRINE D'INSPIRATION" : "✦ MA FICHE PUBLIQUE"}</div>
           <h1>${safe(v.name)}</h1>
           <p>${safe(heroText)}</p>
           <div class="hero-meta-row">
@@ -849,9 +818,9 @@ function renderVendor(v, cfg){
 
     <div class="edito-strip anim" style="animation-delay:.1s">
       <div class="edito-tile">
-        <div class="edito-tag">Signature</div>
-        <h3>${isEx ? "Présence éditoriale" : "Présence publique"}</h3>
-        <p>${isEx ? "Vitrine qui donne envie, inspire et convertit." : "Lecture propre, claire, séparée du cockpit vendeur."}</p>
+        <div class="edito-tag">Présence</div>
+        <h3>${isEx ? "Vitrine qui inspire" : "Boutique visible"}</h3>
+        <p>${isEx ? "Une façade qui donne envie, inspire et convertit." : "Une lecture claire pour comprendre la boutique en quelques secondes."}</p>
       </div>
       <div class="edito-tile">
         <div class="edito-tag">Univers</div>
@@ -872,8 +841,8 @@ function renderVendor(v, cfg){
           <div class="d-card-inner">
             <h2>Repères de la boutique</h2>
             <p>${isEx
-              ? "Une fiche exemple qui montre le niveau possible : galerie, contact direct, Maps, ouverture PRO."
-              : "Cette fiche publique lit le profil réel du commerçant via son slug — sans passer par la session PRO."
+              ? "Une vitrine d'inspiration qui montre le niveau possible : galerie, contact direct, Maps et ouverture boutique."
+              : "Cette fiche montre les infos publiques utiles de la boutique, séparées de son espace privé."
             }</p>
 
             <div class="info-grid">
@@ -886,20 +855,20 @@ function renderVendor(v, cfg){
                 <div class="info-tile-value">${safe(v.loc || "Sénégal")}</div>
               </div>
               <div class="info-tile">
-                <div class="info-tile-label">Type</div>
-                <div class="info-tile-value">${isEx ? "Vitrine exemple DIGIY" : "Boutique publique réelle"}</div>
+                <div class="info-tile-label">Style</div>
+                <div class="info-tile-value">${isEx ? "Vitrine d'inspiration DIGIY" : "Boutique publique"}</div>
               </div>
               <div class="info-tile">
                 <div class="info-tile-label">Statut</div>
-                <div class="info-tile-value">${isEx ? (v.live ? "Exemple visible" : "Vitrine exemple") : "Lecture publique active"}</div>
+                <div class="info-tile-value">${isEx ? (v.live ? "Inspiration visible" : "Inspiration DIGIY") : "Fiche en ligne"}</div>
               </div>
             </div>
 
             <div class="cta-row">
               <a class="btn btn-gold" href="${waMain}" target="_blank" rel="noopener">${waLabel}</a>
-              <a class="btn btn-fire" href="${cfg.proUrl || DEFAULT_CFG.proUrl}" target="_blank" rel="noopener">🔥 Je veux mon module</a>
-              <a class="btn btn-ghost" href="${mapLink}" target="_blank" rel="noopener">📍 Maps</a>
-              <a class="btn btn-ghost" href="index.html">← Marché</a>
+              <a class="btn btn-fire" href="${cfg.proUrl || DEFAULT_CFG.proUrl}" target="_blank" rel="noopener">🔥 Ouvrir ma boutique</a>
+              <a class="btn btn-ghost" href="${mapLink}" target="_blank" rel="noopener">📍 Ouvrir Maps</a>
+              <a class="btn btn-ghost" href="index.html">← Les boutiques</a>
             </div>
 
             <div class="note-box">${safe(sideNote)}</div>
@@ -908,10 +877,10 @@ function renderVendor(v, cfg){
 
         <div class="d-card anim" style="animation-delay:.16s">
           <div class="d-card-inner">
-            <h2>${isEx ? "Galerie royale" : "Galerie publique"}</h2>
+            <h2>${isEx ? "Galerie d'inspiration" : "Galerie de la boutique"}</h2>
             <p>${isEx
-              ? "Mini shooting éditorial : matière, lumière, ambiance, présence magazine."
-              : "Galerie publique autour de la boutique pour poser une présence claire."
+              ? "Matière, lumière, ambiance, présence : une vraie vitrine qui a du souffle."
+              : "Quelques vues utiles pour sentir l’univers de la boutique."
             }</p>
 
             <div class="gallery-hero">
@@ -939,13 +908,13 @@ function renderVendor(v, cfg){
 
         <div class="d-card anim" style="animation-delay:.24s">
           <div class="d-card-inner">
-            <h2>Présence terrain & Maps</h2>
-            <p>Repère local, accès direct Google Maps et contact utile.</p>
+            <h2>Repère & itinéraire</h2>
+            <p>Pour situer la boutique et ouvrir l’itinéraire directement.</p>
             <div class="map-frame">
               <img src="${mapImg}" alt="Carte ${safe(v.name)}">
             </div>
             <div class="map-actions">
-              <a class="btn btn-ghost" href="${mapLink}" target="_blank" rel="noopener">📍 Google Maps</a>
+              <a class="btn btn-ghost" href="${mapLink}" target="_blank" rel="noopener">📍 Ouvrir Google Maps</a>
               <a class="btn btn-gold" href="${waMain}" target="_blank" rel="noopener">${waLabel}</a>
             </div>
           </div>
@@ -953,10 +922,10 @@ function renderVendor(v, cfg){
 
         <div class="d-card anim" style="animation-delay:.28s">
           <div class="d-card-inner">
-            <h2>${isEx ? "Pourquoi cette fiche frappe fort" : "Pourquoi cette fiche est propre"}</h2>
+            <h2>${isEx ? "Pourquoi cette vitrine marque" : "Pourquoi cette fiche rassure"}</h2>
             <p>${isEx
-              ? "Présence complète : visuel, catégorie, zone, galerie, contact, Maps, et ouverture PRO. Le visiteur ne repart pas les mains vides."
-              : "Lecture publique par slug, séparée de la session vendeur. Clean, rapide, ciblée."
+              ? "Présence forte : visuel, zone, galerie, contact et repère. Le visiteur comprend vite et retient la boutique."
+              : "Une lecture simple, claire et directe. Le visiteur voit l’essentiel sans se perdre dans les mots techniques."
             }</p>
           </div>
         </div>
@@ -967,14 +936,14 @@ function renderVendor(v, cfg){
 
         <div class="d-card accented anim" style="animation-delay:.14s">
           <div class="d-card-inner">
-            <h2>Repères rapides</h2>
+            <h2>En deux secondes</h2>
             <div class="side-list">
               <div class="side-tile"><div class="side-tile-label">Nom</div><div class="side-tile-value">${safe(v.name)}</div></div>
               <div class="side-tile"><div class="side-tile-label">Activité</div><div class="side-tile-value">${safe(v.what || "Boutique locale")}</div></div>
               <div class="side-tile"><div class="side-tile-label">Zone</div><div class="side-tile-value">${safe(v.loc || "Sénégal")}</div></div>
               <div class="side-tile"><div class="side-tile-label">Univers</div><div class="side-tile-value">${safe(v.categoryLabel || "Boutique locale")}</div></div>
-              <div class="side-tile"><div class="side-tile-label">Slug</div><div class="side-tile-value">${safe(v.slug || "—")}</div></div>
-              <div class="side-tile"><div class="side-tile-label">Type</div><div class="side-tile-value">${isEx ? "Vitrine exemple DIGIY" : "Boutique publique réelle"}</div></div>
+              <div class="side-tile"><div class="side-tile-label">Identifiant</div><div class="side-tile-value">${safe(v.slug || "—")}</div></div>
+              <div class="side-tile"><div class="side-tile-label">Type de fiche</div><div class="side-tile-value">${isEx ? "Inspiration DIGIY" : "Boutique publique"}</div></div>
               ${!isEx && v.address ? `<div class="side-tile"><div class="side-tile-label">Adresse</div><div class="side-tile-value">${safe(v.address)}</div></div>` : ""}
               ${!isEx && v.phone ? `<div class="side-tile"><div class="side-tile-label">Téléphone</div><div class="side-tile-value">${safe(formatPhone(v.phone))}</div></div>` : ""}
               ${!isEx && v.whatsapp ? `<div class="side-tile"><div class="side-tile-label">WhatsApp</div><div class="side-tile-value">${safe(formatPhone(v.whatsapp))}</div></div>` : ""}
@@ -983,36 +952,36 @@ function renderVendor(v, cfg){
         </div>
 
         <div class="module-box anim" style="animation-delay:.18s">
-          <h3>🔥 Je veux mon module</h3>
-          <p>Cette vitrine peut devenir la tienne. Abonnement fixe, 0% de commission, présence magazine.</p>
+          <h3>🔥 Ouvrir ma boutique</h3>
+          <p>Cette vitrine peut devenir la tienne. Présence forte, contact direct, zéro détour.</p>
           <div class="module-row">
-            <a class="btn btn-fire" href="${cfg.proUrl || DEFAULT_CFG.proUrl}" target="_blank" rel="noopener">Mon module</a>
-            <a class="btn btn-ghost" href="${waGeneral}" target="_blank" rel="noopener">WhatsApp DIGIY</a>
+            <a class="btn btn-fire" href="${cfg.proUrl || DEFAULT_CFG.proUrl}" target="_blank" rel="noopener">Ouvrir ma boutique</a>
+            <a class="btn btn-ghost" href="${waGeneral}" target="_blank" rel="noopener">Parler à DIGIY</a>
           </div>
         </div>
 
         <div class="d-card anim" style="animation-delay:.22s">
           <div class="d-card-inner">
-            <h2>Ils nous font confiance</h2>
+            <h2>Pour qui c’est fait</h2>
             <div class="trust-list">
               <div class="trust-item"><strong>Vendeurs terrain</strong><span>Présence simple, forte, visible et humaine.</span></div>
               <div class="trust-item"><strong>Beauté & service</strong><span>Coiffure, onglerie, soin — tout peut vivre ici.</span></div>
-              <div class="trust-item"><strong>Commerce du quotidien</strong><span>Du textile à l'alimentaire, chaque boutique respire.</span></div>
+              <div class="trust-item"><strong>Commerce du quotidien</strong><span>Du textile à l'alimentaire, chaque boutique peut respirer.</span></div>
             </div>
           </div>
         </div>
 
         <div class="d-card anim" style="animation-delay:.26s">
           <div class="d-card-inner">
-            <h2>Ce que tu peux brancher</h2>
+            <h2>Tu peux aller plus loin</h2>
             <div class="side-list" style="gap:6px;margin-top:12px">
               ${[
-                "📸 Galerie réelle du commerçant",
-                "📍 Google Maps réel",
-                "💬 WhatsApp direct",
-                "📞 Téléphone",
-                "💳 DIGIY PAY",
-                "🏪 MARKET PRO complet"
+                "📸 Mettre de vraies photos",
+                "📍 Ajouter le repère Maps",
+                "💬 Ouvrir le WhatsApp direct",
+                "📞 Afficher le téléphone",
+                "💳 Brancher MON ARGENT",
+                "🏪 Passer en boutique complète"
               ].map(f=>`<div class="feature-row">${f}</div>`).join("")}
             </div>
           </div>
@@ -1066,21 +1035,18 @@ function renderVendor(v, cfg){
   }
 }
 
-/* ═══════════════════════════════════════
-   MISSING STATE
-═══════════════════════════════════════ */
 function renderMissing(){
   document.getElementById("app").innerHTML = `
     <div class="d-card" style="max-width:560px;margin:80px auto 0">
       <div class="d-card-inner" style="text-align:center;padding:48px 32px">
         <div style="font-size:3rem;margin-bottom:16px">🏗️</div>
-        <h2 style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:2rem;margin-bottom:10px">Fiche introuvable</h2>
+        <h2 style="font-family:'Cormorant Garamond',serif;font-weight:600;font-size:2rem;margin-bottom:10px">Boutique introuvable</h2>
         <p style="color:var(--muted);margin-bottom:24px">
-          Ouvre une fiche depuis <strong style="color:var(--cream)">index.html</strong> ou charge une vraie boutique avec <strong style="color:var(--cream)">?slug=...</strong>
+          Reviens vers <strong style="color:var(--cream)">Les boutiques</strong> ou demande le bon lien au commerçant.
         </p>
         <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
-          <a class="btn btn-fire" href="index.html">← Retour au marché</a>
-          <a class="btn btn-ghost" href="${DEFAULT_CFG.proUrl}" target="_blank" rel="noopener">🔥 Je veux mon module</a>
+          <a class="btn btn-fire" href="index.html">← Les boutiques</a>
+          <a class="btn btn-ghost" href="${DEFAULT_CFG.proUrl}" target="_blank" rel="noopener">🔥 Ouvrir ma boutique</a>
         </div>
       </div>
     </div>
@@ -1088,9 +1054,6 @@ function renderMissing(){
   document.getElementById("floatCtas").style.display = "none";
 }
 
-/* ═══════════════════════════════════════
-   BOOT
-═══════════════════════════════════════ */
 (async function boot(){
   const catalog     = readCatalog();
   const slug        = String(getParam("slug") || "").trim().toLowerCase();
@@ -1120,5 +1083,4 @@ function renderMissing(){
 </script>
 </body>
 </html>
-</body>
-</html>
+
