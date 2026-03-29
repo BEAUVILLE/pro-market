@@ -4,8 +4,12 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#0c1118" />
-  <title>DIGIY MARKET PRO — Accès PIN</title>
-  <meta name="description" content="Accès sécurisé DIGIY MARKET PRO par slug, téléphone et PIN." />
+  <title>DIGIY — Ouvrir mon espace</title>
+  <meta name="description" content="Accès sécurisé DIGIY pour ouvrir ton espace vendeur avec ton identifiant, ton téléphone et ton code." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
   <script>
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
@@ -32,12 +36,14 @@
       --shadow:0 20px 60px rgba(0,0,0,.35);
       --max:560px;
     }
+
     *{box-sizing:border-box}
     html,body{margin:0;padding:0}
+
     body{
       min-height:100dvh;
       color:var(--text);
-      font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      font-family:Outfit,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       background:
         radial-gradient(circle at top, rgba(139,92,246,.10), transparent 30%),
         linear-gradient(180deg,var(--bg),var(--bg2));
@@ -46,7 +52,9 @@
       justify-content:center;
       padding:20px;
     }
+
     .wrap{width:100%;max-width:var(--max)}
+
     .card{
       background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.03));
       border:1px solid var(--line);
@@ -55,62 +63,191 @@
       overflow:hidden;
       backdrop-filter:blur(12px);
     }
+
     .hero{
       padding:22px 22px 10px;
       border-bottom:1px solid rgba(255,255,255,.06);
       background:radial-gradient(circle at top right, rgba(139,92,246,.16), transparent 36%);
     }
+
     .brand{display:flex;align-items:center;gap:12px}
+
     .logo{
-      width:50px;height:50px;border-radius:16px;display:grid;place-items:center;
+      width:50px;
+      height:50px;
+      border-radius:16px;
+      display:grid;
+      place-items:center;
       background:linear-gradient(135deg,rgba(139,92,246,.18),rgba(167,139,250,.12));
       border:1px solid rgba(139,92,246,.24);
       font-size:24px;
     }
+
     h1{margin:0;font-size:1.1rem}
     .sub{margin:4px 0 0;color:var(--muted);font-size:.92rem}
+
     .body{padding:20px}
-    .intro{margin:0 0 16px;color:var(--muted);line-height:1.5}
+
+    .intro{
+      margin:0 0 16px;
+      color:var(--muted);
+      line-height:1.55;
+    }
+
     .field{margin-bottom:12px}
-    label{display:block;margin-bottom:7px;font-weight:700;font-size:.92rem}
+
+    label{
+      display:block;
+      margin-bottom:7px;
+      font-weight:800;
+      font-size:.92rem;
+    }
+
     input{
-      width:100%;min-height:52px;border-radius:16px;border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.04);color:var(--text);padding:0 14px;font-size:1rem;outline:none;
+      width:100%;
+      min-height:52px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+      padding:0 14px;
+      font-size:1rem;
+      outline:none;
+      font-family:inherit;
     }
-    input:focus{border-color:rgba(139,92,246,.55);box-shadow:0 0 0 4px rgba(139,92,246,.12)}
+
+    input:focus{
+      border-color:rgba(139,92,246,.55);
+      box-shadow:0 0 0 4px rgba(139,92,246,.12);
+    }
+
     .pin-row{display:flex;gap:10px}
-    .pin-row input{flex:1;text-align:center;letter-spacing:.25em;font-weight:800}
+    .pin-row input{
+      flex:1;
+      text-align:center;
+      letter-spacing:.25em;
+      font-weight:800;
+    }
+
     .mini{
-      min-width:56px;min-height:52px;border:none;border-radius:16px;cursor:pointer;
-      background:rgba(255,255,255,.06);color:var(--text);font-size:1rem;font-weight:800;
+      min-width:56px;
+      min-height:52px;
+      border:none;
+      border-radius:16px;
+      cursor:pointer;
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      font-size:1rem;
+      font-weight:800;
+      font-family:inherit;
     }
-    .actions{display:grid;gap:10px;margin-top:16px}
+
+    .actions{
+      display:grid;
+      gap:10px;
+      margin-top:16px;
+    }
+
     .btn{
-      appearance:none;border:none;min-height:54px;border-radius:18px;padding:0 16px;
-      text-decoration:none;display:flex;align-items:center;justify-content:center;cursor:pointer;
-      font-weight:800;font-size:1rem;
+      appearance:none;
+      border:none;
+      min-height:54px;
+      border-radius:18px;
+      padding:0 16px;
+      text-decoration:none;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      font-weight:800;
+      font-size:1rem;
+      font-family:inherit;
+      text-align:center;
     }
-    .btn.primary{background:linear-gradient(135deg,var(--violet),var(--violet2));color:#1e1b4b}
-    .btn.secondary{background:rgba(255,255,255,.06);color:var(--text);border:1px solid rgba(255,255,255,.08)}
-    .btn.ghost{background:transparent;color:#ddd6fe;border:1px solid rgba(221,214,254,.25)}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+
+    .btn.primary{
+      background:linear-gradient(135deg,var(--violet),var(--violet2));
+      color:#1e1b4b;
+    }
+
+    .btn.secondary{
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .btn.ghost{
+      background:transparent;
+      color:#ddd6fe;
+      border:1px solid rgba(221,214,254,.25);
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+
     .status{
-      margin-top:16px;border-radius:16px;padding:12px 14px;min-height:48px;line-height:1.5;
-      background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);color:var(--muted);
+      margin-top:16px;
+      border-radius:16px;
+      padding:12px 14px;
+      min-height:48px;
+      line-height:1.5;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.08);
+      color:var(--muted);
       white-space:pre-line;
     }
-    .status.ok{background:rgba(34,197,94,.10);border-color:rgba(34,197,94,.28);color:#dcfce7}
-    .status.err{background:rgba(239,68,68,.10);border-color:rgba(239,68,68,.28);color:#fee2e2}
-    .meta{
-      display:grid;gap:8px;margin-top:16px;padding:14px;border-radius:18px;
-      background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.06)
+
+    .status.ok{
+      background:rgba(34,197,94,.10);
+      border-color:rgba(34,197,94,.28);
+      color:#dcfce7;
     }
-    .row{display:flex;justify-content:space-between;gap:12px}
+
+    .status.err{
+      background:rgba(239,68,68,.10);
+      border-color:rgba(239,68,68,.28);
+      color:#fee2e2;
+    }
+
+    .meta{
+      display:grid;
+      gap:8px;
+      margin-top:16px;
+      padding:14px;
+      border-radius:18px;
+      background:rgba(255,255,255,.025);
+      border:1px solid rgba(255,255,255,.06)
+    }
+
+    .row{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+    }
+
     .k{color:var(--muted)}
-    .v{font-weight:700;text-align:right;word-break:break-word}
+    .v{
+      font-weight:700;
+      text-align:right;
+      word-break:break-word;
+    }
+
     .hidden{display:none!important}
-    .foot{padding:0 20px 20px;text-align:center;color:#94a3b8;font-size:.84rem}
-    @media (max-width:560px){.grid{grid-template-columns:1fr}}
+
+    .foot{
+      padding:0 20px 20px;
+      text-align:center;
+      color:#94a3b8;
+      font-size:.84rem;
+    }
+
+    @media (max-width:560px){
+      .grid{grid-template-columns:1fr}
+    }
   </style>
 </head>
 <body>
@@ -120,20 +257,20 @@
         <div class="brand">
           <div class="logo">🛍️</div>
           <div>
-            <h1>DIGIY MARKET PRO</h1>
-            <p class="sub">PIN d’accès — session interne directe</p>
+            <h1>Ouvrir mon espace</h1>
+            <p class="sub">Entre avec ton identifiant, ton téléphone et ton code</p>
           </div>
         </div>
       </div>
 
       <div class="body">
         <p class="intro">
-          Entre avec ton <strong>slug</strong> ou ton <strong>téléphone</strong>, puis ton <strong>PIN</strong>.
-          Une fois validé, la session est posée pour le guard et tu circules normalement dans MARKET PRO.
+          Entre avec ton <strong>identifiant</strong> ou ton <strong>téléphone</strong>, puis ton <strong>code</strong>.
+          Une fois validé, tu entres directement dans ton espace vendeur et tu circules normalement dans tes pages internes.
         </p>
 
         <div class="field">
-          <label for="slug">Slug</label>
+          <label for="slug">Identifiant de ma boutique</label>
           <input id="slug" type="text" placeholder="market-221771342889" autocomplete="off" />
         </div>
 
@@ -143,36 +280,36 @@
         </div>
 
         <div class="field">
-          <label for="pin">PIN</label>
+          <label for="pin">Code</label>
           <div class="pin-row">
             <input id="pin" type="password" inputmode="numeric" maxlength="8" placeholder="••••" autocomplete="one-time-code" />
-            <button id="togglePin" class="mini" type="button" aria-label="Afficher le PIN">👁️</button>
+            <button id="togglePin" class="mini" type="button" aria-label="Afficher le code">👁️</button>
           </div>
         </div>
 
         <div class="actions">
-          <button id="btnOpen" class="btn primary" type="button">🔓 Ouvrir mon espace MARKET</button>
-          <a id="btnReturn" class="btn secondary hidden" href="./dashboard-pro.html">↩️ Retour cible</a>
+          <button id="btnOpen" class="btn primary" type="button">🔓 Ouvrir mon espace</button>
+          <a id="btnReturn" class="btn secondary hidden" href="./dashboard-pro.html">↩️ Revenir à ma page</a>
           <a id="btnPay" class="btn ghost" href="https://commencer-a-payer.digiylyfe.com/" target="_blank" rel="noopener">💳 Gérer mon abonnement</a>
         </div>
 
         <div class="grid">
-          <a id="btnDashboard" class="btn secondary hidden" href="./dashboard-pro.html">🧭 Dashboard</a>
-          <a id="btnCockpit" class="btn secondary hidden" href="./cockpit.html">🏪 Cockpit</a>
-          <a id="btnBoutique" class="btn secondary hidden" href="./boutique.html">🏬 Boutique</a>
-          <a id="btnProduits" class="btn secondary hidden" href="./produits.html">📦 Produits</a>
+          <a id="btnDashboard" class="btn secondary hidden" href="./dashboard-pro.html">📈 Mon activité</a>
+          <a id="btnCockpit" class="btn secondary hidden" href="./cockpit.html">🧭 Ma gestion</a>
+          <a id="btnBoutique" class="btn secondary hidden" href="./boutique.html">🏬 Ma boutique</a>
+          <a id="btnProduits" class="btn secondary hidden" href="./produits.html">📦 Mes produits</a>
         </div>
 
         <div id="status" class="status">Prêt.</div>
 
         <div class="meta">
-          <div class="row"><div class="k">Module</div><div class="v">MARKET</div></div>
-          <div class="row"><div class="k">Retour cible</div><div id="returnInfo" class="v">dashboard-pro.html</div></div>
+          <div class="row"><div class="k">Espace</div><div class="v">Je vends</div></div>
+          <div class="row"><div class="k">Retour</div><div id="returnInfo" class="v">dashboard-pro.html</div></div>
           <div class="row"><div class="k">Session</div><div id="sessionInfo" class="v">Aucune</div></div>
         </div>
       </div>
 
-      <div class="foot">DIGIYLYFE • MARKET • PIN MASTER compatible guard</div>
+      <div class="foot">DIGIYLYFE • Accès sécurisé</div>
     </section>
   </div>
 
@@ -206,7 +343,9 @@
 
       const SUPABASE_URL = String(window.DIGIY_SUPABASE_URL || "").trim();
       const SUPABASE_KEY = String(window.DIGIY_SUPABASE_ANON || window.DIGIY_SUPABASE_ANON_KEY || "").trim();
-      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+        auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false }
+      });
 
       const el = {
         slug: document.getElementById("slug"),
@@ -271,6 +410,7 @@
 
       function buildNormalizedSession({ slug, phone, owner_id = null }) {
         const t = nowMs();
+        const expires = t + CFG.SESSION_MAX_AGE_MS;
         return {
           slug: normSlug(slug),
           phone: normPhone(phone),
@@ -281,13 +421,22 @@
           access_ok: true,
           ok: true,
           verified: true,
+          has_access: true,
+          pin_access: true,
 
           verified_at: t,
           validated_at: new Date(t).toISOString(),
+          access_until: expires,
+          pin_access_until: expires,
           ts: t,
 
           reason: "pin_ok"
         };
+      }
+
+      function savePlainFlag(key, value) {
+        try { localStorage.setItem(key, value); } catch (_) {}
+        try { sessionStorage.setItem(key, value); } catch (_) {}
       }
 
       function saveSession(payload) {
@@ -298,12 +447,17 @@
           try { sessionStorage.setItem(key, JSON.stringify(session)); } catch (_) {}
         }
 
-        try { localStorage.setItem(CFG.SLUG_KEY, session.slug); } catch (_) {}
-        try { sessionStorage.setItem(CFG.SLUG_KEY, session.slug); } catch (_) {}
-        try { localStorage.setItem(CFG.PHONE_KEY, session.phone); } catch (_) {}
-        try { sessionStorage.setItem(CFG.PHONE_KEY, session.phone); } catch (_) {}
-        try { localStorage.setItem(CFG.LAST_SLUG_KEY, session.slug); } catch (_) {}
-        try { sessionStorage.setItem(CFG.LAST_SLUG_KEY, session.slug); } catch (_) {}
+        savePlainFlag(CFG.SLUG_KEY, session.slug);
+        savePlainFlag(CFG.PHONE_KEY, session.phone);
+        savePlainFlag(CFG.LAST_SLUG_KEY, session.slug);
+
+        savePlainFlag("digiy_market_pin_access", "true");
+        savePlainFlag("digiy_market_access_ok", "true");
+        savePlainFlag("digiy_market_has_access", "true");
+        savePlainFlag("digiy_market_access", "true");
+
+        savePlainFlag("digiy_market_pin_access_until", String(session.pin_access_until));
+        savePlainFlag("digiy_market_access_until", String(session.access_until));
 
         try {
           window.DIGIY_ACCESS = Object.assign({}, window.DIGIY_ACCESS || {}, session);
@@ -315,6 +469,7 @@
       function readSession() {
         for (const key of CFG.STORAGE_KEYS) {
           let parsed = null;
+
           try {
             parsed = safeJsonParse(localStorage.getItem(key));
             if (!parsed) parsed = safeJsonParse(sessionStorage.getItem(key));
@@ -325,12 +480,13 @@
           const moduleName = String(parsed.module || parsed.module_code || "").trim().toUpperCase();
           if (moduleName && moduleName !== CFG.MODULE) continue;
 
-          const access = !!parsed.access || !!parsed.access_ok || !!parsed.ok || !!parsed.has_access;
+          const access = !!parsed.access || !!parsed.access_ok || !!parsed.ok || !!parsed.has_access || !!parsed.pin_access;
           const verifiedAt = Number(parsed.verified_at || parsed.validated_at_ms || parsed.ts || 0) || 0;
           const validatedAt = parsed.validated_at || null;
 
           let recent = false;
           if (verifiedAt && isRecent(verifiedAt)) recent = true;
+
           if (!recent && validatedAt) {
             const dt = new Date(validatedAt).getTime();
             if (dt && isRecent(dt)) recent = true;
@@ -346,6 +502,42 @@
             validated_at: validatedAt
           };
         }
+
+        const fallbackSlug = normSlug(
+          sessionStorage.getItem(CFG.SLUG_KEY) ||
+          localStorage.getItem(CFG.SLUG_KEY) ||
+          localStorage.getItem(CFG.LAST_SLUG_KEY) ||
+          ""
+        );
+
+        const fallbackPhone = normPhone(
+          sessionStorage.getItem(CFG.PHONE_KEY) ||
+          localStorage.getItem(CFG.PHONE_KEY) ||
+          ""
+        );
+
+        const plainAccess =
+          String(sessionStorage.getItem("digiy_market_pin_access") || localStorage.getItem("digiy_market_pin_access") || "").toLowerCase() === "true" ||
+          String(sessionStorage.getItem("digiy_market_access_ok") || localStorage.getItem("digiy_market_access_ok") || "").toLowerCase() === "true";
+
+        const plainUntil = Number(
+          sessionStorage.getItem("digiy_market_access_until") ||
+          localStorage.getItem("digiy_market_access_until") ||
+          sessionStorage.getItem("digiy_market_pin_access_until") ||
+          localStorage.getItem("digiy_market_pin_access_until") ||
+          0
+        );
+
+        if (plainAccess && plainUntil > Date.now() && (fallbackSlug || fallbackPhone)) {
+          return {
+            slug: fallbackSlug,
+            phone: fallbackPhone,
+            owner_id: null,
+            verified_at: 0,
+            validated_at: null
+          };
+        }
+
         return null;
       }
 
@@ -374,6 +566,7 @@
             };
           }
         }
+
         return null;
       }
 
@@ -402,6 +595,7 @@
             };
           }
         }
+
         return null;
       }
 
@@ -418,6 +612,7 @@
               owner_id: data.owner_id || null
             };
           }
+
           const vals = Object.values(data);
           if (vals.length >= 3) {
             const okLike = vals[0] === true || vals[0] === "t" || vals[0] === "true" || vals[0] === 1;
@@ -435,20 +630,21 @@
         if (typeof data === "string") {
           const txt = data.trim();
           if (txt.startsWith("(") && txt.endsWith(")")) {
-            const m = txt.match(/^\(([^,]+),([^,]+),([^,]+),?(.*)\)$/);
-            if (m) {
-              const okToken = String(m[1] || "").trim().replace(/^"|"$/g, "");
-              const moduleToken = String(m[2] || "").trim().replace(/^"|"$/g, "");
-              const phoneToken = String(m[3] || "").trim().replace(/^"|"$/g, "");
-              const okLike = okToken === "t" || okToken === "true" || okToken === "1";
-              if (okLike) {
-                return {
-                  ok: true,
-                  module: String(moduleToken || CFG.MODULE).toUpperCase(),
-                  phone: normPhone(phoneToken || fallbackPhone || ""),
-                  owner_id: null
-                };
-              }
+            const inside = txt.slice(1, -1);
+            const parts = inside.match(/(".*?"|[^,]+)/g) || [];
+            const okToken = String(parts[0] || "").trim().replace(/^"|"$/g, "");
+            const moduleToken = String(parts[1] || "").trim().replace(/^"|"$/g, "");
+            const phoneToken = String(parts[2] || "").trim().replace(/^"|"$/g, "");
+            const ownerToken = String(parts[4] || "").trim().replace(/^"|"$/g, "");
+
+            const okLike = okToken === "t" || okToken === "true" || okToken === "1";
+            if (okLike) {
+              return {
+                ok: true,
+                module: String(moduleToken || CFG.MODULE).toUpperCase(),
+                phone: normPhone(phoneToken || fallbackPhone || ""),
+                owner_id: ownerToken || null
+              };
             }
           }
         }
@@ -468,6 +664,7 @@
         for (const body of tries) {
           const { data, error } = await supabase.rpc(CFG.RPC_VERIFY_PIN, body);
           if (error) continue;
+
           const parsed = parseVerifyPinPayload(data, p);
           if (parsed?.ok) return parsed;
         }
@@ -520,6 +717,7 @@
       function refreshLinks(slug, phone) {
         const s = normSlug(slug);
         const p = normPhone(phone);
+
         const add = (base) => {
           const u = new URL(base, location.href);
           if (s) u.searchParams.set("slug", s);
@@ -553,12 +751,21 @@
         el.slug.value =
           qSlug ||
           saved?.slug ||
-          normSlug(sessionStorage.getItem(CFG.SLUG_KEY) || localStorage.getItem(CFG.SLUG_KEY) || localStorage.getItem(CFG.LAST_SLUG_KEY) || "");
+          normSlug(
+            sessionStorage.getItem(CFG.SLUG_KEY) ||
+            localStorage.getItem(CFG.SLUG_KEY) ||
+            localStorage.getItem(CFG.LAST_SLUG_KEY) ||
+            ""
+          );
 
         el.phone.value =
           qPhone ||
           saved?.phone ||
-          normPhone(sessionStorage.getItem(CFG.PHONE_KEY) || localStorage.getItem(CFG.PHONE_KEY) || "");
+          normPhone(
+            sessionStorage.getItem(CFG.PHONE_KEY) ||
+            localStorage.getItem(CFG.PHONE_KEY) ||
+            ""
+          );
 
         if (saved?.slug || saved?.phone) {
           refreshLinks(saved.slug || el.slug.value, saved.phone || el.phone.value);
@@ -566,9 +773,9 @@
           refreshLinks(el.slug.value, el.phone.value);
         }
 
-        if (saved?.verified_at || saved?.validated_at) {
+        if (saved?.verified_at || saved?.validated_at || saved?.slug || saved?.phone) {
           el.sessionInfo.textContent = "Active";
-          setStatus("Session locale déjà fraîche. Tu peux reprendre MARKET PRO.", "ok");
+          setStatus("Session locale déjà présente. Tu peux reprendre ton espace.", "ok");
         }
       }
 
@@ -579,17 +786,17 @@
           const pin = normPin(el.pin.value);
 
           if (!slug && !phone) {
-            setStatus("Renseigne au moins le slug ou le téléphone.", "err");
+            setStatus("Renseigne au moins ton identifiant ou ton téléphone.", "err");
             return;
           }
 
           if (!pin) {
-            setStatus("Entre ton PIN.", "err");
+            setStatus("Entre ton code.", "err");
             return;
           }
 
           el.btnOpen.disabled = true;
-          setStatus("Vérification du PIN...");
+          setStatus("Vérification du code...");
 
           if (slug && !phone) {
             const sub = await resolveSubBySlug(slug);
@@ -602,18 +809,18 @@
           }
 
           if (!slug) {
-            setStatus("Slug inconnu.", "err");
+            setStatus("Identifiant inconnu.", "err");
             return;
           }
 
           if (!phone) {
-            setStatus("Téléphone introuvable pour ce slug.", "err");
+            setStatus("Téléphone introuvable pour cet identifiant.", "err");
             return;
           }
 
           const auth = await verifyPin(phone, pin);
           if (!auth?.ok) {
-            setStatus("PIN invalide.", "err");
+            setStatus("Code invalide.", "err");
             return;
           }
 
@@ -625,7 +832,7 @@
 
           el.sessionInfo.textContent = "Active";
           refreshLinks(session.slug, session.phone);
-          setStatus("PIN validé. Ouverture de ton espace MARKET...", "ok");
+          setStatus("Code validé. Ouverture de ton espace...", "ok");
 
           setTimeout(() => {
             window.location.href = buildReturnUrl(session);
@@ -645,11 +852,13 @@
       });
 
       el.btnOpen.addEventListener("click", login);
-      [el.slug, el.phone, el.pin].forEach(node => {
+
+      [el.slug, el.phone, el.pin].forEach((node) => {
         node.addEventListener("keydown", (e) => {
           if (e.key === "Enter") login();
         });
       });
+
       el.slug.addEventListener("input", () => refreshLinks(el.slug.value, el.phone.value));
       el.phone.addEventListener("input", () => refreshLinks(el.slug.value, el.phone.value));
 
