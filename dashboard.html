@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>DIGIY PRO MARKET — Admin central</title>
+  <title>Je vends — Mon activité</title>
   <meta name="theme-color" content="#07140f" />
-  <meta name="description" content="Admin central DIGIY PRO MARKET : accès, boutique, publication, produits, navigation." />
+  <meta name="description" content="Espace vendeur DIGIY MARKET : accès, boutique, publication, produits et navigation." />
 
   <script>
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
@@ -15,7 +15,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-admin-20260314-v7"></script>
+  <script src="./guard.js?v=market-admin-20260314-v8"></script>
 
   <style>
     :root{
@@ -38,9 +38,13 @@
 
     *{box-sizing:border-box}
 
-    body{
+    html,body{
       margin:0;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      min-height:100%;
+    }
+
+    body{
+      font-family:Outfit,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       background:
         radial-gradient(1200px 700px at 20% -20%, rgba(99,102,241,.18), transparent 70%),
         radial-gradient(900px 600px at 100% 0%, rgba(34,197,94,.12), transparent 55%),
@@ -251,8 +255,8 @@
       <div class="brand">
         <div class="badge">🛍️</div>
         <div>
-          <div id="brandTitle">DIGIY PRO MARKET</div>
-          <small id="brandSub">Admin central vendeur</small>
+          <div id="brandTitle">Je vends</div>
+          <small id="brandSub">Mon activité vendeur</small>
         </div>
       </div>
 
@@ -260,12 +264,12 @@
         <div class="pill" id="pillStatus">Statut : <b>…</b></div>
         <button class="btn" id="btnReload" type="button">🔄 Recharger</button>
 
-        <a class="btn info" id="btnHallTop" href="./index.html">🏠 Hall</a>
-        <a class="btn" id="btnCockpitTop" href="./cockpit.html">📊 Cockpit</a>
-        <a class="btn" id="btnBoutiqueTop" href="./boutique.html">🛠️ Boutique</a>
-        <a class="btn" id="btnProductsTop" href="./produits.html">📦 Produits</a>
-        <a class="btn gold" id="btnPin" href="./pin.html">🔑 PIN</a>
-        <a class="btn warn" id="btnPublicTop" href="./fiche.html">🌍 Fiche publique</a>
+        <a class="btn info" id="btnHallTop" href="./index.html">🏠 Accueil</a>
+        <a class="btn" id="btnCockpitTop" href="./cockpit.html">📊 Mon activité</a>
+        <a class="btn" id="btnBoutiqueTop" href="./boutique.html">🛠️ Ma boutique</a>
+        <a class="btn" id="btnProductsTop" href="./produits.html">📦 Mes produits</a>
+        <a class="btn gold" id="btnPin" href="./pin.html">🔑 Mon accès</a>
+        <a class="btn warn" id="btnPublicTop" href="./fiche.html">🌍 Ma vitrine</a>
       </div>
     </div>
 
@@ -313,11 +317,11 @@
         </div>
 
         <div class="footer">
-          <a class="btn info" id="btnHall" href="./index.html">🏠 Hall</a>
-          <a class="btn primary" id="btnCockpit" href="./cockpit.html">📊 Cockpit</a>
-          <a class="btn" id="btnBoutique" href="./boutique.html">🛠️ Boutique</a>
-          <a class="btn" id="btnProduits" href="./produits.html">📦 Produits</a>
-          <a class="btn gold" id="btnPublic" href="./fiche.html">🌍 Fiche publique</a>
+          <a class="btn info" id="btnHall" href="./index.html">🏠 Accueil</a>
+          <a class="btn primary" id="btnCockpit" href="./cockpit.html">📊 Mon activité</a>
+          <a class="btn" id="btnBoutique" href="./boutique.html">🛠️ Ma boutique</a>
+          <a class="btn" id="btnProduits" href="./produits.html">📦 Mes produits</a>
+          <a class="btn gold" id="btnPublic" href="./fiche.html">🌍 Ma vitrine</a>
         </div>
       </div>
 
@@ -325,7 +329,7 @@
         <h3>Lecture rapide</h3>
 
         <div class="infoBox">
-          <div class="infoRow"><span class="muted">Slug</span><span id="infoSlug">—</span></div>
+          <div class="infoRow"><span class="muted">Identifiant</span><span id="infoSlug">—</span></div>
           <div class="infoRow"><span class="muted">Téléphone</span><span id="infoPhone">—</span></div>
           <div class="infoRow"><span class="muted">WhatsApp</span><span id="infoWhatsapp">—</span></div>
           <div class="infoRow"><span class="muted">Adresse</span><span id="infoAddress">—</span></div>
@@ -336,12 +340,12 @@
 
         <h3>Navigation</h3>
         <div class="footer" style="justify-content:flex-start">
-          <a class="btn info" id="btnHall2" href="./index.html">🏠 Hall</a>
-          <a class="btn" id="btnPin2" href="./pin.html">🔑 Porte PIN</a>
-          <a class="btn" id="btnCockpit2" href="./cockpit.html">📊 Cockpit vendeur</a>
+          <a class="btn info" id="btnHall2" href="./index.html">🏠 Accueil</a>
+          <a class="btn" id="btnPin2" href="./pin.html">🔑 Mon accès</a>
+          <a class="btn" id="btnCockpit2" href="./cockpit.html">📊 Mon activité</a>
           <a class="btn" id="btnBoutique2" href="./boutique.html">🛠️ Réglages</a>
           <a class="btn" id="btnProduits2" href="./produits.html">📦 Catalogue</a>
-          <a class="btn warn" id="btnPublic2" href="./fiche.html">🌍 Fiche publique</a>
+          <a class="btn warn" id="btnPublic2" href="./fiche.html">🌍 Ma vitrine</a>
         </div>
       </div>
 
@@ -355,11 +359,11 @@
         <div id="productPreview" class="empty">Chargement…</div>
 
         <div class="footer">
-          <a class="smallLink" href="./index.html" id="linkHall">Hall</a>
+          <a class="smallLink" href="./index.html" id="linkHall">Accueil</a>
           <a class="smallLink" href="./boutique.html" id="linkSupport">Réglages boutique</a>
-          <a class="smallLink" href="./cockpit.html" id="linkCockpit">Cockpit vendeur</a>
-          <a class="smallLink" href="./produits.html" id="linkProducts">Produits</a>
-          <a class="smallLink" href="./fiche.html" id="linkPublic">Fiche publique</a>
+          <a class="smallLink" href="./cockpit.html" id="linkCockpit">Mon activité</a>
+          <a class="smallLink" href="./produits.html" id="linkProducts">Mes produits</a>
+          <a class="smallLink" href="./fiche.html" id="linkPublic">Ma vitrine</a>
         </div>
       </div>
 
@@ -719,7 +723,7 @@
 
     $("dot").className = "statusDot bad";
     $("statusLine").textContent = "Accès protégé";
-    $("expiryLine").textContent = reason || "Aucun slug MARKET actif.";
+    $("expiryLine").textContent = reason || "Aucun accès actif.";
     $("pillStatus").innerHTML = 'Statut : <b>Bloqué</b>';
     $("shopName").textContent = "Boutique DIGIY";
     $("metaLine").innerHTML = '<span>Ville : —</span><span>•</span><span>Publication : —</span>';
@@ -735,32 +739,32 @@
     $("infoAddress").textContent = "—";
     $("infoCategories").textContent = "—";
 
-    $("brandTitle").textContent = "DIGIY PRO MARKET";
+    $("brandTitle").textContent = "Je vends";
     $("brandSub").textContent = ACCESS_SLUG
-      ? "Slug détecté • session protégée"
-      : "Admin central vendeur";
+      ? "Identifiant détecté • session protégée"
+      : "Mon activité vendeur";
 
     resetProductPreview(
       ACCESS_SLUG
-        ? "Slug détecté, mais aucun produit réel n’est exposé tant que le PIN n’a pas ouvert la session."
+        ? "Identifiant détecté, mais les données réelles restent protégées tant que l’accès n’est pas ouvert."
         : "Aucun produit visible sans accès ouvert."
     );
 
-    document.title = "DIGIY PRO MARKET — Admin central";
+    document.title = "Je vends — Mon activité";
     updateLinks();
 
     setNotifs([
       {
         level:"warn",
         tag:"ACCÈS",
-        title:"Coque admin visible",
-        text:"L’admin existe, mais les données réelles restent protégées tant que la session vendeur n’est pas ouverte."
+        title:"Espace protégé",
+        text:"Les données réelles restent protégées tant que la session vendeur n’est pas ouverte."
       },
       {
         level:"info",
         tag:"PORTE",
         title:"Entrée recommandée",
-        text:"Passe par la porte PIN avec le téléphone pour ouvrir proprement le cockpit et l’admin."
+        text:"Passe par la porte PIN avec le téléphone pour ouvrir proprement l’activité."
       }
     ]);
   }
@@ -794,14 +798,14 @@
     $("infoAddress").textContent = toText(p.address, "—");
     $("infoCategories").textContent = toText(p.categories_text, "—");
 
-    $("brandTitle").textContent = shopName;
+    $("brandTitle").textContent = shopName || "Je vends";
     $("brandSub").textContent = ACCESS_SLUG
-      ? `Admin central • ${ACCESS_SLUG}`
-      : "Admin central vendeur";
+      ? `Mon activité • ${ACCESS_SLUG}`
+      : "Mon activité vendeur";
 
     document.title = shopName
-      ? `${shopName} — Admin central DIGIY PRO MARKET`
-      : "DIGIY PRO MARKET — Admin central";
+      ? `${shopName} — Mon activité`
+      : "Je vends — Mon activité";
 
     const active = Number(stats.active || 0);
     const notifs = [];
@@ -818,7 +822,7 @@
         level:"ok",
         tag:"BOUTIQUE",
         title:"Boutique chargée",
-        text:"La fiche vendeur est bien reliée au slug actif."
+        text:"La fiche vendeur est bien reliée à l’identifiant actif."
       });
     }
 
@@ -827,14 +831,14 @@
         level:"warn",
         tag:"OFF",
         title:"Publication coupée",
-        text:"La fiche publique n’est pas encore visible tant que la publication n’est pas activée."
+        text:"La vitrine publique n’est pas encore visible tant que la publication n’est pas activée."
       });
     } else {
       notifs.push({
         level:"ok",
         tag:"ON",
         title:"Publication active",
-        text:"La fiche publique peut être vue avec le slug actif."
+        text:"La vitrine publique peut être vue avec l’identifiant actif."
       });
     }
 
@@ -858,7 +862,7 @@
       level:"info",
       tag:"NAV",
       title:"Navigation recousue",
-      text:"Hall, PIN, cockpit, boutique, produits et fiche publique gardent maintenant le slug actif."
+      text:"Accueil, accès, activité, boutique, produits et vitrine gardent maintenant l’identifiant actif."
     });
 
     setNotifs(notifs);
@@ -866,7 +870,7 @@
 
   function renderProductPreview(){
     if (!ACCESS_OK) {
-      resetProductPreview("Aucun produit visible sans session PIN ouverte.");
+      resetProductPreview("Aucun produit visible sans accès ouvert.");
       return;
     }
 
@@ -940,7 +944,7 @@
 
   async function boot(){
     setBusy(true);
-    setMsgMain("⏳ Chargement admin central…", "warn");
+    setMsgMain("⏳ Chargement de ton activité…", "warn");
 
     try{
       await waitGuardIfAny();
@@ -954,12 +958,12 @@
 
       if (!ACCESS_SLUG){
         applyBlockedState("Ajoute ?slug=market-... ou passe par la porte PIN.");
-        setMsgMain("⚠️ Aucun slug MARKET détecté.", "warn");
+        setMsgMain("⚠️ Aucun identifiant MARKET détecté.", "warn");
         return;
       }
 
       if (!ACCESS_GRANTED){
-        applyBlockedState("Session protégée non ouverte. Passe par PIN pour ouvrir le vrai dashboard.");
+        applyBlockedState("Session protégée non ouverte. Passe par PIN pour ouvrir ton activité.");
         setMsgMain("⚠️ Session protégée non ouverte. Passe par PIN.", "warn");
         return;
       }
@@ -968,8 +972,8 @@
       const cockpit = await loadCockpit(client);
 
       if (!cockpit){
-        applyBlockedState("Slug détecté mais accès réel non ouvert.");
-        setMsgMain("⚠️ Slug détecté, mais accès réel non ouvert.", "warn");
+        applyBlockedState("Identifiant détecté mais accès réel non ouvert.");
+        setMsgMain("⚠️ Identifiant détecté, mais accès réel non ouvert.", "warn");
         return;
       }
 
@@ -982,30 +986,30 @@
       setMsgMain(
         cockpit.is_blank
           ? "✅ Boutique vierge chargée. Tu peux continuer la pose."
-          : "✅ Admin central réel chargé.",
+          : "✅ Activité réelle chargée.",
         "ok"
       );
 
       try{
         await loadProducts(client);
         if (!PRODUCTS.length){
-          setMsgMain("✅ Admin chargé. Aucun produit pour l’instant.", "ok");
+          setMsgMain("✅ Activité chargée. Aucun produit pour l’instant.", "ok");
         }
       }catch(e){
         console.error(e);
         PRODUCTS = [];
         renderProductPreview();
         applyStatsFromState(cockpit.stats || {});
-        setMsgMain("⚠️ Admin chargé, mais impossible de lire les produits pour l’instant.", "warn");
+        setMsgMain("⚠️ Activité chargée, mais impossible de lire les produits pour l’instant.", "warn");
       }
 
     }catch(e){
       console.error(e);
-      applyBlockedState("Erreur de chargement admin.");
+      applyBlockedState("Erreur de chargement.");
       setMsgMain(
         String(e?.message || "") === "supabase_config_missing"
           ? "❌ Configuration Supabase manquante ou invalide."
-          : "❌ Impossible de charger l’admin central.",
+          : "❌ Impossible de charger cet espace.",
         "bad"
       );
     }finally{
@@ -1014,12 +1018,6 @@
   }
 
   $("btnReload").addEventListener("click", boot);
-  updateLinks();
-  boot();
-})();
-</script>
-</body>
-</html>
   updateLinks();
   boot();
 })();
