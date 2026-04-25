@@ -13,13 +13,13 @@
 
   <script>
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-    window.DIGIY_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
+    window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
     window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
     window.DIGIY_MODULE = "MARKET";
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-produits-20260329-human-v1"></script>
+  <script src="./guard.js?v=market-produits-20260329-human-v2"></script>
 
   <style>
     :root{
@@ -422,7 +422,7 @@
       <div class="right">
         <div class="pill" id="pillStatus">Accès : <b>…</b></div>
         <button class="btn" id="btnReloadTop" type="button">🔄 Recharger</button>
-        <a class="btn" id="btnDashboardTop" href="./dashboard.html">📈 Mon activité</a>
+        <a class="btn" id="btnDashboardTop" href="./dashboard-pro.html">📈 Mon activité</a>
         <a class="btn" id="btnPin" href="./pin.html">🔑 Mon accès</a>
       </div>
     </div>
@@ -577,7 +577,7 @@
 
           <div class="footer" style="margin-top:0">
             <button class="btn" id="btnReload" type="button">🔄 Recharger</button>
-            <a class="smallLink" href="./dashboard.html" id="linkDashboard">Mon activité</a>
+            <a class="smallLink" href="./dashboard-pro.html" id="linkDashboard">Mon activité</a>
             <a class="smallLink" href="./cockpit.html" id="linkCockpit">Ma gestion</a>
             <a class="smallLink" href="./boutique.html" id="linkBoutique">Ma boutique</a>
             <a class="smallLink" href="./fiche.html" id="linkPublic">Ma fiche</a>
@@ -742,11 +742,11 @@
 
   function updateLinks(){
     $("btnPin").href = ACCESS_SLUG ? buildPath("./pin.html", { slug:true, phone:true }) : "./pin.html";
-    $("btnDashboardTop").href = ACCESS_SLUG ? buildPath("./dashboard.html", { slug:true, phone:true }) : "./dashboard.html";
+    $("btnDashboardTop").href = ACCESS_SLUG ? buildPath("./dashboard-pro.html", { slug:true, phone:true }) : "./dashboard-pro.html";
     $("btnCockpit").href = ACCESS_SLUG ? buildPath("./cockpit.html", { slug:true, phone:true }) : "./cockpit.html";
     $("btnBoutique").href = ACCESS_SLUG ? buildPath("./boutique.html", { slug:true, phone:true }) : "./boutique.html";
     $("btnPublic").href = publicPath();
-    $("linkDashboard").href = ACCESS_SLUG ? buildPath("./dashboard.html", { slug:true, phone:true }) : "./dashboard.html";
+    $("linkDashboard").href = ACCESS_SLUG ? buildPath("./dashboard-pro.html", { slug:true, phone:true }) : "./dashboard-pro.html";
     $("linkCockpit").href = ACCESS_SLUG ? buildPath("./cockpit.html", { slug:true, phone:true }) : "./cockpit.html";
     $("linkBoutique").href = ACCESS_SLUG ? buildPath("./boutique.html", { slug:true, phone:true }) : "./boutique.html";
     $("linkPublic").href = publicPath();
