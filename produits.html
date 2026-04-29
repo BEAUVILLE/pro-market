@@ -401,6 +401,188 @@
       line-height:1.6;
     }
 
+
+    .quickMarket{
+      grid-column:1/-1;
+      border-color:rgba(250,204,21,.22);
+      background:
+        radial-gradient(900px 360px at 100% 0%, rgba(250,204,21,.11), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02)),
+        rgba(18,26,51,.32);
+    }
+
+    .quickGuide{
+      padding:13px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.12);
+      display:grid;
+      gap:8px;
+      margin:12px 0;
+    }
+
+    .quickGuide strong{
+      color:var(--gold);
+      font-size:13px;
+      font-weight:1000;
+    }
+
+    .quickGuide p{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+      font-weight:800;
+      line-height:1.55;
+    }
+
+    .quickExamples{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .quickExamples button{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.05);
+      color:var(--text);
+      border-radius:999px;
+      padding:8px 11px;
+      font-size:12px;
+      font-weight:900;
+      cursor:pointer;
+    }
+
+    .quickExamples button:hover{
+      border-color:rgba(250,204,21,.30);
+      color:var(--gold);
+    }
+
+    .quickDraft{
+      display:none;
+      margin-top:12px;
+      padding:13px;
+      border-radius:18px;
+      border:1px solid rgba(34,197,94,.28);
+      background:rgba(34,197,94,.08);
+      color:#d7ffe1;
+      font-size:13px;
+      font-weight:800;
+      line-height:1.55;
+    }
+
+    .quickDraft strong{color:#fff}
+
+    .memoryBox{
+      margin-top:12px;
+      padding:13px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.12);
+      display:grid;
+      gap:10px;
+    }
+
+    .memoryHead{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:flex-start;
+    }
+
+    .memoryTitle{
+      font-size:13px;
+      font-weight:1000;
+      color:var(--gold);
+      line-height:1.25;
+    }
+
+    .memoryHelp{
+      margin-top:4px;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      line-height:1.45;
+    }
+
+    .memoryList{
+      display:grid;
+      gap:8px;
+    }
+
+    .memoryItem{
+      padding:11px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      display:grid;
+      gap:5px;
+    }
+
+    .memoryItemTop{
+      display:flex;
+      justify-content:space-between;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:flex-start;
+    }
+
+    .memoryItemTitle{
+      font-size:13px;
+      font-weight:1000;
+      color:var(--text);
+      line-height:1.35;
+    }
+
+    .memoryItemAmount{
+      font-size:12px;
+      font-weight:1000;
+      color:#d7ffe1;
+      white-space:nowrap;
+    }
+
+    .memoryItemMeta{
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      line-height:1.4;
+    }
+
+    .memoryEmpty{
+      padding:11px;
+      border-radius:16px;
+      border:1px dashed rgba(255,255,255,.16);
+      color:var(--muted);
+      font-size:12px;
+      font-weight:800;
+      line-height:1.45;
+    }
+
+    .memoryPayAction{
+      margin-top:6px;
+      display:inline-flex;
+      width:max-content;
+      max-width:100%;
+      min-height:36px;
+      align-items:center;
+      justify-content:center;
+      gap:7px;
+      padding:8px 11px;
+      border-radius:999px;
+      border:1px solid rgba(250,204,21,.28);
+      background:rgba(250,204,21,.10);
+      color:var(--gold);
+      font-size:12px;
+      font-weight:1000;
+    }
+
+    .memoryPayHint{
+      color:rgba(201,215,207,.78);
+      font-size:11px;
+      font-weight:800;
+      line-height:1.35;
+    }
+
     .loading{
       opacity:.72;
       pointer-events:none;
@@ -550,6 +732,54 @@
             <button class="btn" id="btnReset" type="button">🧹 Vider le formulaire</button>
           </div>
         </form>
+      </div>
+
+
+      <div class="card quickMarket" id="quickMarketNote">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap">
+          <div>
+            <h3 style="margin:0 0 6px 0">Note rapide vente</h3>
+            <div class="muted" style="font-weight:800;line-height:1.55">
+              Écris comme tu parles. DIGIY prépare la trace, puis tu l’envoies vers <b>Mon argent</b> quand c’est bon.
+            </div>
+          </div>
+          <div class="tag warn">MARKET → PAY</div>
+        </div>
+
+        <div class="quickGuide">
+          <strong>Une phrase suffit.</strong>
+          <p>Exemples : vente, achat stock, client qui doit, livraison ou petite dépense liée à tes produits.</p>
+          <div class="quickExamples" id="quickMarketExamples">
+            <button type="button">Vente sac 15000 wave</button>
+            <button type="button">Achat stock chaussures 40000 cash</button>
+            <button type="button">Client Awa doit 5000</button>
+            <button type="button">Livraison 2000 cash</button>
+            <button type="button">Dépense emballage 3000 cash</button>
+          </div>
+        </div>
+
+        <textarea class="textarea" id="quickMarketInput" placeholder="Ex : Vente sac 15000 wave"></textarea>
+
+        <div class="footer" style="justify-content:flex-start">
+          <button class="btn gold" id="btnQuickMarketPrepare" type="button">Préparer</button>
+          <button class="btn primary" id="btnQuickMarketConfirm" type="button" style="display:none">✅ Confirmer</button>
+          <button class="btn" id="btnQuickMarketClear" type="button">Effacer</button>
+        </div>
+
+        <div class="quickDraft" id="quickMarketDraft"></div>
+
+        <div class="memoryBox">
+          <div class="memoryHead">
+            <div>
+              <div class="memoryTitle">🧠 Aide-mémoire vente</div>
+              <div class="memoryHelp">Dernières notes confirmées ici. Elles restent locales sur le téléphone, puis peuvent être envoyées vers Mon argent.</div>
+            </div>
+            <button class="btn" id="btnQuickMarketMemoryClear" type="button">Vider</button>
+          </div>
+          <div class="memoryList" id="quickMarketMemoryList">
+            <div class="memoryEmpty">Aucune note vente confirmée pour le moment.</div>
+          </div>
+        </div>
       </div>
 
       <div class="card" style="grid-column:1/-1">
@@ -945,6 +1175,8 @@
     updateLinks();
     updatePublishButton();
     setFormDisabled(true);
+    renderQuickMarketDraft(null);
+    renderQuickMarketMemory();
     resetForm(true);
 
     $("productList").innerHTML = "";
@@ -1006,6 +1238,7 @@
     updateLinks();
     updatePublishButton();
     setFormDisabled(false);
+    renderQuickMarketMemory();
 
     const notifs = [];
     if (data.is_blank) {
@@ -1232,6 +1465,313 @@
     if (!(String(p.categories_text || "").trim() || String(p.description || "").trim())) issues.push("présentation boutique incomplète");
     return issues;
   }
+
+
+  function quickMarketAmount(text){
+    const m = String(text || "").replace(/\s+/g, " ").match(/(\d[\d\s.,]*)\s*(f|fcfa|xof)?/i);
+    if(!m) return 0;
+    const raw = String(m[1] || "").replace(/[^\d]/g, "");
+    const n = Number(raw);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function quickMarketChannel(text){
+    const t = String(text || "").toLowerCase();
+    if(/\bwave\b/.test(t)) return "wave";
+    if(/\b(cash|espèces|especes|liquide)\b/.test(t)) return "cash";
+    if(/\b(orange money|orange|om)\b/.test(t)) return "orange_money";
+    if(/\b(carte|cb)\b/.test(t)) return "card";
+    if(/\b(banque|virement)\b/.test(t)) return "bank";
+    return "manual";
+  }
+
+  function quickMarketComplement(text){
+    const s = String(text || "").trim();
+    const lower = s.toLowerCase();
+
+    const productWords = lower.match(/\b(sac|sacs|robe|robes|chaussure|chaussures|parfum|parfums|téléphone|telephone|bijou|bijoux|huile|riz|lot|carton|emballage|emballages|livraison|stock|marchandise)\b/);
+    if (productWords) return productWords[1];
+
+    if(/\b(client)\b/.test(lower) && /\b(doit|reste)\b/.test(lower)){
+      const words = s.replace(/[.,;:!?]/g, " ").split(/\s+/).filter(Boolean);
+      const banned = new Set(["client","doit","reste","payer","cash","wave","fcfa","xof","f"]);
+      const candidates = words.filter(w => {
+        const clean = w.toLowerCase().replace(/[^\p{L}\p{N}-]/gu, "");
+        if(!clean || /^\d+$/.test(clean)) return false;
+        return !banned.has(clean);
+      });
+      if(candidates.length){
+        const raw = candidates[candidates.length - 1].replace(/[^\p{L}\p{N}-]/gu, "");
+        return raw ? raw.charAt(0).toUpperCase() + raw.slice(1) : "";
+      }
+    }
+
+    return "";
+  }
+
+  function quickMarketDraftFromText(text){
+    const sentence = String(text || "").trim().replace(/\s+/g, " ");
+    const lower = sentence.toLowerCase();
+    const amount = quickMarketAmount(sentence);
+    const channel = quickMarketChannel(sentence);
+
+    let type = "note";
+    let title = "Note vente";
+    let direction = "none";
+    let category = "market_note";
+    let kind = "other";
+    let impact = "à classer";
+
+    if(/\b(client)\b.*\b(doit|reste)\b|\b(doit|reste)\b/.test(lower)){
+      type = "client_debt";
+      title = "Client doit encore";
+      direction = "out";
+      category = "client_debt";
+      kind = "expense";
+      impact = "à suivre";
+    } else if(/\b(vente|vendu|encaissé|encaisse|recette|client payé|client paye)\b/.test(lower)){
+      type = "market_sale";
+      title = "Vente encaissée";
+      direction = "in";
+      category = "product_sale";
+      kind = "sale";
+      impact = "recette vente";
+    } else if(/\b(achat|stock|marchandise|fournisseur|réassort|reassort)\b/.test(lower)){
+      type = "stock_purchase";
+      title = "Achat stock";
+      direction = "out";
+      category = "stock_purchase";
+      kind = "expense";
+      impact = "dépense stock";
+    } else if(/\b(livraison|transport)\b/.test(lower)){
+      type = "delivery_expense";
+      title = "Livraison payée";
+      direction = "out";
+      category = "delivery";
+      kind = "expense";
+      impact = "dépense vente";
+    } else if(/\b(dépense|depense|payé|paye|emballage|sachet|sachets|sac|sacs)\b/.test(lower)){
+      type = "shop_expense";
+      title = "Dépense vente";
+      direction = "out";
+      category = "shop_expense";
+      kind = "expense";
+      impact = "dépense vente";
+    }
+
+    return {
+      sentence,
+      type,
+      title,
+      amount_xof: amount,
+      channel,
+      direction,
+      category,
+      kind,
+      impact,
+      complement: quickMarketComplement(sentence),
+      module: "MARKET",
+      status: "draft",
+      created_at: new Date().toISOString()
+    };
+  }
+
+  function quickMarketMemoryKey(){
+    return ACCESS_SLUG ? `digiy_market_quick_memory:${ACCESS_SLUG}` : "digiy_market_quick_memory";
+  }
+
+  function quickMarketDraftKey(){
+    return ACCESS_SLUG ? `digiy_market_quick_draft:${ACCESS_SLUG}` : "digiy_market_quick_draft";
+  }
+
+  function readQuickMarketMemory(){
+    try{
+      const raw = localStorage.getItem(quickMarketMemoryKey());
+      const arr = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) ? arr : [];
+    }catch{
+      return [];
+    }
+  }
+
+  function writeQuickMarketMemory(items){
+    try{
+      localStorage.setItem(quickMarketMemoryKey(), JSON.stringify((items || []).slice(0, 10)));
+      return true;
+    }catch{
+      return false;
+    }
+  }
+
+  function saveQuickMarketDraft(draft, confirmed = false){
+    try{
+      localStorage.setItem(quickMarketDraftKey(), JSON.stringify({
+        ...draft,
+        status: confirmed ? "confirmed_local" : "draft",
+        confirmed_at: confirmed ? new Date().toISOString() : null
+      }));
+      return true;
+    }catch{
+      return false;
+    }
+  }
+
+  function addQuickMarketMemory(draft){
+    const item = {
+      ...draft,
+      memory_id: "market_" + Date.now(),
+      confirmed_at: new Date().toISOString()
+    };
+    const list = [item, ...readQuickMarketMemory()].slice(0, 10);
+    writeQuickMarketMemory(list);
+    return item;
+  }
+
+  function paySlugFromMarketPhone(){
+    const p = normPhone(ACCESS_PHONE || CURRENT?.phone || "");
+    return p ? "pay-" + p : "";
+  }
+
+  function payMarketLabel(item){
+    const title = String(item?.title || "Note vente").trim();
+    const comp = String(item?.complement || "").trim();
+    return comp ? `${title} — ${comp}` : title;
+  }
+
+  function buildPayFromMarketUrl(item){
+    const p = normPhone(ACCESS_PHONE || CURRENT?.phone || "");
+    const paySlug = paySlugFromMarketPhone();
+    const qsPay = new URLSearchParams();
+
+    if(paySlug) qsPay.set("slug", paySlug);
+    if(p) qsPay.set("phone", p);
+
+    qsPay.set("fromDraft", "1");
+    qsPay.set("direction", item?.direction === "in" ? "in" : "out");
+    qsPay.set("scope", "pro");
+    qsPay.set("amount", String(Math.round(Number(item?.amount_xof || 0))));
+    qsPay.set("kind", item?.kind || (item?.direction === "in" ? "sale" : "expense"));
+    qsPay.set("channel", item?.channel && item.channel !== "manual" ? String(item.channel) : "other");
+    qsPay.set("category", item?.category || "market_note");
+    qsPay.set("source_module", "MARKET");
+    qsPay.set("source_id", String(item?.memory_id || item?.created_at || "market_quick_note"));
+    qsPay.set("label", payMarketLabel(item));
+    qsPay.set("note", String(item?.sentence || "").trim());
+    qsPay.set("complement", String(item?.complement || "").trim());
+    qsPay.set("intent", "market_quick_note");
+
+    return "https://pro-pay.digiylyfe.com/admin.html?" + qsPay.toString();
+  }
+
+  function renderQuickMarketDraft(draft){
+    const box = $("quickMarketDraft");
+    const confirmBtn = $("btnQuickMarketConfirm");
+    if(!box) return;
+
+    if(!draft || !draft.sentence){
+      box.style.display = "none";
+      box.innerHTML = "";
+      if(confirmBtn) confirmBtn.style.display = "none";
+      return;
+    }
+
+    const amountText = draft.amount_xof ? money(draft.amount_xof) : "montant à préciser";
+    const channelText = draft.channel === "manual" ? "canal à préciser" : draft.channel;
+
+    box.style.display = "block";
+    if(confirmBtn) confirmBtn.style.display = "inline-flex";
+
+    box.innerHTML = `
+      <strong>Voilà ce que DIGIY a préparé :</strong><br>
+      Type : ${esc(draft.title)}<br>
+      Montant : ${esc(amountText)}<br>
+      Canal : ${esc(channelText)}<br>
+      Impact : ${esc(draft.impact)}<br>
+      ${draft.complement ? `Complément : ${esc(draft.complement)}<br>` : ``}
+      <br>
+      <span style="color:rgba(236,255,244,.72)">Brouillon seulement. Rien n’est envoyé en base automatiquement.</span>
+    `;
+  }
+
+  function renderQuickMarketMemory(){
+    const box = $("quickMarketMemoryList");
+    if(!box) return;
+
+    const list = readQuickMarketMemory();
+    if(!list.length){
+      box.innerHTML = `<div class="memoryEmpty">Aucune note vente confirmée pour le moment.</div>`;
+      return;
+    }
+
+    box.innerHTML = list.slice(0, 10).map(item => {
+      const amount = item.amount_xof ? money(item.amount_xof) : "montant à préciser";
+      const channel = item.channel && item.channel !== "manual" ? item.channel : "canal à préciser";
+      const comp = item.complement ? " · " + item.complement : "";
+      const payUrl = buildPayFromMarketUrl(item);
+      return `
+        <div class="memoryItem">
+          <div class="memoryItemTop">
+            <div class="memoryItemTitle">${esc(item.title || "Note vente")}${esc(comp)}</div>
+            <div class="memoryItemAmount">${esc(amount)}</div>
+          </div>
+          <div class="memoryItemMeta">
+            ${esc(channel)} · ${esc(item.impact || "à classer")}<br>
+            ${esc(item.sentence || "")}
+          </div>
+          <a class="memoryPayAction" href="${esc(payUrl)}">💰 Envoyer vers Mon argent</a>
+          <div class="memoryPayHint">PAY s’ouvre prérempli. Le pro confirme avant l’enregistrement final.</div>
+        </div>
+      `;
+    }).join("");
+  }
+
+  function prepareQuickMarket(){
+    const input = $("quickMarketInput");
+    const sentence = String(input?.value || "").trim();
+
+    if(!sentence){
+      setMsgMain("⚠️ Écris une note courte avant de préparer.", "warn");
+      input?.focus();
+      return;
+    }
+
+    const draft = quickMarketDraftFromText(sentence);
+    saveQuickMarketDraft(draft, false);
+    renderQuickMarketDraft(draft);
+    setMsgMain("✅ Note préparée. Vérifie puis confirme.", "ok");
+  }
+
+  function confirmQuickMarket(){
+    const input = $("quickMarketInput");
+    const sentence = String(input?.value || "").trim();
+
+    if(!ACCESS_OK || !ACCESS_PHONE){
+      setMsgMain("⚠️ Ouvre d’abord ton accès vendeur avant de confirmer une note.", "warn");
+      return;
+    }
+
+    if(!sentence){
+      setMsgMain("⚠️ Rien à confirmer.", "warn");
+      return;
+    }
+
+    const draft = quickMarketDraftFromText(sentence);
+    const item = addQuickMarketMemory(draft);
+    saveQuickMarketDraft(item, true);
+    renderQuickMarketDraft(null);
+    renderQuickMarketMemory();
+    if(input) input.value = "";
+    setMsgMain("✅ Note confirmée localement. Tu peux l’envoyer vers Mon argent.", "ok");
+  }
+
+  function clearQuickMarket(){
+    const input = $("quickMarketInput");
+    if(input) input.value = "";
+    try{ localStorage.removeItem(quickMarketDraftKey()); }catch(_){}
+    renderQuickMarketDraft(null);
+    setMsgMain("Note rapide vidée.", "");
+  }
+
 
   let SB_CLIENT = null;
   async function makeClient(){
@@ -1493,6 +2033,26 @@
       setBusy(false);
     }
   }
+
+
+  $("btnQuickMarketPrepare").addEventListener("click", prepareQuickMarket);
+  $("btnQuickMarketConfirm").addEventListener("click", confirmQuickMarket);
+  $("btnQuickMarketClear").addEventListener("click", clearQuickMarket);
+  $("btnQuickMarketMemoryClear").addEventListener("click", () => {
+    writeQuickMarketMemory([]);
+    renderQuickMarketMemory();
+    setMsgMain("Aide-mémoire vente vidé.", "");
+  });
+  $("quickMarketExamples").querySelectorAll("button").forEach(btn => {
+    btn.addEventListener("click", () => {
+      $("quickMarketInput").value = btn.textContent.trim();
+      prepareQuickMarket();
+    });
+  });
+  $("quickMarketInput").addEventListener("input", () => {
+    const txt = $("quickMarketInput").value.trim();
+    if(!txt) renderQuickMarketDraft(null);
+  });
 
   $("productForm").addEventListener("submit", handleSave);
   $("btnReset").addEventListener("click", () => resetForm(false));
