@@ -656,7 +656,7 @@
           <button class="btn warn" id="btnPublish" type="button">🌍 Mettre en ligne</button>
           <a class="btn primary" id="btnCockpit" href="./cockpit.html">🧭 Ma gestion</a>
           <a class="btn" id="btnBoutique" href="./boutique.html">🛠️ Ma boutique</a>
-          <a class="btn gold" id="btnPublic" href="./fiche.html">🌍 Ma fiche</a>
+          <a class="btn gold" id="btnPublic" href="./index.html">🌍 Ma vitrine</a>
         </div>
       </div>
 
@@ -810,7 +810,7 @@
             <a class="smallLink" href="./dashboard-pro.html" id="linkDashboard">Mon activité</a>
             <a class="smallLink" href="./cockpit.html" id="linkCockpit">Ma gestion</a>
             <a class="smallLink" href="./boutique.html" id="linkBoutique">Ma boutique</a>
-            <a class="smallLink" href="./fiche.html" id="linkPublic">Ma fiche</a>
+            <a class="smallLink" href="./index.html" id="linkPublic">Ma vitrine</a>
           </div>
         </div>
 
@@ -937,7 +937,7 @@
 
   function publicPath(){
     return ACCESS_SLUG
-      ? buildPath("./fiche.html", { slug:true, phone:false })
+      ? buildPath("./index.html", { slug:true, phone:false })
       : "./index.html";
   }
 
