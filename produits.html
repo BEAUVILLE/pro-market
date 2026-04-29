@@ -875,6 +875,39 @@
       .replaceAll("'", "&#039;");
   }
 
+  function describeError(err){
+    if (!err) return "erreur inconnue";
+    if (typeof err === "string") return err;
+
+    const parts = [];
+    if (err.message) parts.push(String(err.message));
+    if (err.code) parts.push("code " + String(err.code));
+    if (err.details) parts.push(String(err.details));
+    if (err.hint) parts.push("indice " + String(err.hint));
+    if (err.status) parts.push("statut " + String(err.status));
+    if (err.error) parts.push(String(err.error));
+
+    if (parts.length) return parts.join(" · ");
+
+    try {
+      const json = JSON.stringify(err);
+      return json && json !== "{}" ? json : String(err);
+    } catch (_) {
+      return String(err);
+    }
+  }
+
+  function logError(label, err){
+    console.error(label, {
+      message: err?.message || null,
+      code: err?.code || null,
+      details: err?.details || null,
+      hint: err?.hint || null,
+      status: err?.status || null,
+      raw: err
+    });
+  }
+
   function toText(v, fallback){
     const s = String(v || "").trim();
     return s || (fallback || "");
@@ -1022,7 +1055,12 @@
   }
 
   function resolveAccessGranted(){
-    const st = window.DIGIY_GUARD?.state || {};
+    const guard = window.DIGIY_GUARD || {};
+    const st = (typeof guard.getSession === "function" ? guard.getSession() : null) || guard.state || {};
+
+    if (typeof guard.isAuthenticated === "function") {
+      try { if (guard.isAuthenticated()) return true; } catch (_) {}
+    }
 
     const directFlags = [
       st.access_ok,
@@ -1095,22 +1133,51 @@
   async function waitGuardIfAny(){
     try{
       const guard = window.DIGIY_GUARD;
-      if (!guard) return;
+      if (!guard) return null;
 
       if (guard.ready && typeof guard.ready.then === "function"){
         await guard.ready;
-        return;
-      }
-
-      if (typeof guard.ready === "function"){
+      } else if (typeof guard.ready === "function"){
         const maybePromise = guard.ready();
         if (maybePromise && typeof maybePromise.then === "function"){
           await maybePromise;
         }
       }
+
+      return (typeof guard.getSession === "function" ? guard.getSession() : null) || guard.state || null;
     }catch(e){
       console.warn("guard ready warning:", e);
+      return null;
     }
+  }
+
+  function hydrateAccessFromGuard(session){
+    const guard = window.DIGIY_GUARD || {};
+    const st = session || (typeof guard.getSession === "function" ? guard.getSession() : null) || guard.state || {};
+
+    const guardSlug = normSlug(
+      (typeof guard.getSlug === "function" ? guard.getSlug() : "") ||
+      st.slug ||
+      st.session?.slug ||
+      st.identity?.slug ||
+      ""
+    );
+
+    const guardPhone = normPhone(
+      (typeof guard.getPhone === "function" ? guard.getPhone() : "") ||
+      st.phone ||
+      st.session?.phone ||
+      st.identity?.phone ||
+      ""
+    );
+
+    if (guardSlug) ACCESS_SLUG = guardSlug;
+    if (guardPhone) ACCESS_PHONE = guardPhone;
+
+    ACCESS_GRANTED = resolveAccessGranted();
+    rememberAccess();
+
+    return { slug: ACCESS_SLUG, phone: ACCESS_PHONE, access: ACCESS_GRANTED };
   }
 
   function setNotifs(items){
@@ -1964,11 +2031,11 @@
     setMsgMain("⏳ Chargement des produits…", "warn");
 
     try{
-      await waitGuardIfAny();
+      const guardSession = await waitGuardIfAny();
 
       ACCESS_SLUG = resolveSlug();
       ACCESS_PHONE = resolvePhone();
-      ACCESS_GRANTED = resolveAccessGranted();
+      hydrateAccessFromGuard(guardSession);
       updateLinks();
 
       if (!ACCESS_SLUG){
@@ -2012,7 +2079,7 @@
           setMsgMain("✅ Produits chargés.", "ok");
         }
       }catch(e){
-        console.error(e);
+        logError("[DIGIY MARKET produits] lecture produits KO", e);
         PRODUCTS = [];
         renderProducts();
         applyStatsFromProducts();
@@ -2021,12 +2088,13 @@
       }
 
     }catch(e){
-      console.error(e);
+      logError("[DIGIY MARKET produits] boot KO", e);
       applyBlockedState("Erreur de chargement.");
+      const detail = describeError(e);
       setMsgMain(
         String(e?.message || "") === "supabase_config_missing"
           ? "❌ Configuration Supabase manquante ou invalide."
-          : "❌ Impossible de charger les produits.",
+          : "❌ Impossible de charger les produits. Détail : " + detail,
         "bad"
       );
     }finally{
