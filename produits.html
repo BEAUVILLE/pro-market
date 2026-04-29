@@ -898,14 +898,20 @@
   }
 
   function logError(label, err){
-    console.error(label, {
+    const payload = {
       message: err?.message || null,
       code: err?.code || null,
       details: err?.details || null,
       hint: err?.hint || null,
       status: err?.status || null,
       raw: err
-    });
+    };
+
+    try{
+      console.error(label, payload, JSON.stringify(payload, null, 2));
+    }catch(_){
+      console.error(label, payload);
+    }
   }
 
   function toText(v, fallback){
@@ -1744,6 +1750,11 @@
 
     const amountText = draft.amount_xof ? money(draft.amount_xof) : "montant à préciser";
     const channelText = draft.channel === "manual" ? "canal à préciser" : draft.channel;
+    const payUrl = buildPayFromMarketUrl({
+      ...draft,
+      memory_id: draft.memory_id || "market_draft_" + Date.now()
+    });
+    const canSendPay = !!normPhone(ACCESS_PHONE || CURRENT?.phone || new URLSearchParams(location.search).get("phone") || "");
 
     box.style.display = "block";
     if(confirmBtn) confirmBtn.style.display = "inline-flex";
@@ -1757,6 +1768,10 @@
       ${draft.complement ? `Complément : ${esc(draft.complement)}<br>` : ``}
       <br>
       <span style="color:rgba(236,255,244,.72)">Brouillon seulement. Rien n’est envoyé en base automatiquement.</span>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+        ${canSendPay ? `<a class="memoryPayAction" href="${esc(payUrl)}">💰 Envoyer vers Mon argent</a>` : ``}
+      </div>
+      ${canSendPay ? `<div class="memoryPayHint">PAY PRO s’ouvre prérempli. Le pro confirme avant l’enregistrement final.</div>` : `<div class="memoryPayHint">Téléphone manquant : impossible de préparer le lien PAY PRO.</div>`}
     `;
   }
 
@@ -1812,8 +1827,12 @@
     const input = $("quickMarketInput");
     const sentence = String(input?.value || "").trim();
 
-    if(!ACCESS_OK || !ACCESS_PHONE){
-      setMsgMain("⚠️ Ouvre d’abord ton accès vendeur avant de confirmer une note.", "warn");
+    if(!ACCESS_PHONE){
+      ACCESS_PHONE = normPhone(new URLSearchParams(location.search).get("phone") || CURRENT?.phone || "");
+    }
+
+    if(!ACCESS_PHONE){
+      setMsgMain("⚠️ Téléphone introuvable : impossible de préparer le lien vers Mon argent.", "warn");
       return;
     }
 
@@ -1828,7 +1847,7 @@
     renderQuickMarketDraft(null);
     renderQuickMarketMemory();
     if(input) input.value = "";
-    setMsgMain("✅ Note confirmée localement. Tu peux l’envoyer vers Mon argent.", "ok");
+    setMsgMain("✅ Note confirmée. Le bouton Mon argent est prêt dans l’aide-mémoire.", "ok");
   }
 
   function clearQuickMarket(){
@@ -2051,21 +2070,52 @@
       }
 
       const client = await makeClient();
-      const cockpit = await loadCockpit(client);
 
-      if (!cockpit){
-        applyBlockedState("Identifiant détecté mais accès réel non ouvert.");
-        setMsgMain("⚠️ Identifiant détecté, mais accès réel non ouvert.", "warn");
-        return;
+      let cockpit = null;
+      let cockpitError = null;
+
+      try{
+        cockpit = await loadCockpit(client);
+      }catch(e){
+        cockpitError = e;
+        logError("[DIGIY MARKET produits] cockpit KO", e);
       }
 
       ACCESS_OK = true;
-      ACCESS_SLUG = getResolvedSlug(cockpit) || ACCESS_SLUG;
-      ACCESS_PHONE = normPhone(cockpit.phone || ACCESS_PHONE);
-      rememberAccess();
 
-      CURRENT = cockpit;
-      applyLiveState(cockpit);
+      if (cockpit){
+        ACCESS_SLUG = getResolvedSlug(cockpit) || ACCESS_SLUG;
+        ACCESS_PHONE = normPhone(cockpit.phone || ACCESS_PHONE);
+        CURRENT = cockpit;
+        rememberAccess();
+        applyLiveState(cockpit);
+      } else {
+        CURRENT = {
+          ok: true,
+          is_blank: true,
+          slug: ACCESS_SLUG,
+          phone: ACCESS_PHONE,
+          profile: {
+            slug: ACCESS_SLUG,
+            shop_name: "Ma boutique",
+            business_name: "Ma boutique",
+            city: "",
+            address: "",
+            whatsapp: ACCESS_PHONE,
+            categories_text: "",
+            is_published: false
+          },
+          stats: { total_products: 0, active_products: 0, published_products: 0 }
+        };
+        rememberAccess();
+        applyLiveState(CURRENT);
+        setMsgMain(
+          cockpitError
+            ? "⚠️ Accès ouvert. La boutique s’affiche en mode sûr, mais le profil n’a pas répondu : " + describeError(cockpitError)
+            : "⚠️ Accès ouvert. Profil boutique non chargé, mode sûr activé.",
+          "warn"
+        );
+      }
 
       try{
         await loadProducts(client);
@@ -2073,7 +2123,9 @@
         applyStatsFromProducts();
         refreshNotifsFromState();
 
-        if (!PRODUCTS.length){
+        if (cockpitError){
+          setMsgMain("⚠️ Produits chargés, mais profil boutique à vérifier : " + describeError(cockpitError), "warn");
+        } else if (!PRODUCTS.length){
           setMsgMain("✅ Boutique chargée. Aucun produit pour l’instant.", "ok");
         } else {
           setMsgMain("✅ Produits chargés.", "ok");
@@ -2084,7 +2136,12 @@
         renderProducts();
         applyStatsFromProducts();
         refreshNotifsFromState();
-        setMsgMain("⚠️ Boutique chargée, mais impossible de lire les produits pour l’instant.", "warn");
+        setMsgMain(
+          cockpitError
+            ? "⚠️ Accès ouvert, mais profil et produits à vérifier. Profil : " + describeError(cockpitError) + " • Produits : " + describeError(e)
+            : "⚠️ Boutique chargée, mais impossible de lire les produits pour l’instant : " + describeError(e),
+          "warn"
+        );
       }
 
     }catch(e){
