@@ -1247,23 +1247,27 @@
       async function persistDraft(publishedState){
         const draft = getDraft();
 
+        const payload = {
+          shop_name: draft.shop_name,
+          owner_name: draft.owner_name,
+          city: draft.city,
+          zones: draft.zones,
+          address: draft.address,
+          whatsapp: draft.whatsapp,
+          photo_url: draft.photo_url,
+          cover_url: draft.cover_url,
+          description: draft.description,
+          categories_text: draft.categories_text,
+          delivery_note: draft.delivery_note,
+          payment_note: draft.payment_note,
+          priority: CURRENT_PRIORITY,
+          is_published: !!publishedState,
+          is_active: true
+        };
+
         const { data, error } = await sb.rpc("digiy_market_save_profile", {
           p_slug: ACCESS_SLUG,
-          p_shop_name: draft.shop_name,
-          p_owner_name: draft.owner_name,
-          p_city: draft.city,
-          p_zones: draft.zones,
-          p_address: draft.address,
-          p_whatsapp: draft.whatsapp,
-          p_photo_url: draft.photo_url,
-          p_cover_url: draft.cover_url,
-          p_description: draft.description,
-          p_categories_text: draft.categories_text,
-          p_delivery_note: draft.delivery_note,
-          p_payment_note: draft.payment_note,
-          p_priority: CURRENT_PRIORITY,
-          p_is_published: !!publishedState,
-          p_is_active: true
+          p_payload: payload
         });
 
         if (error) throw error;
@@ -1271,6 +1275,7 @@
 
         return data;
       }
+
 
       async function saveProfile(){
         if (!ACCESS_OK || !ACCESS_SLUG){
