@@ -446,6 +446,67 @@
       line-height:1.6;
     }
 
+    .emptyAction{
+      display:none;
+      margin-top:12px;
+      padding:16px;
+      border-radius:20px;
+      border:1px solid rgba(250,204,21,.22);
+      background:rgba(250,204,21,.08);
+      line-height:1.55;
+    }
+
+    .emptyAction strong{
+      display:block;
+      color:var(--gold);
+      font-size:16px;
+      margin-bottom:5px;
+    }
+
+    .emptyAction p{
+      margin:0 0 12px;
+      color:var(--muted);
+      font-weight:800;
+      font-size:14px;
+    }
+
+    .help{
+      color:rgba(236,255,244,.62);
+      font-size:12px;
+      font-weight:800;
+      line-height:1.45;
+    }
+
+    .fold{
+      margin-top:12px;
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:18px;
+      background:rgba(0,0,0,.14);
+      overflow:hidden;
+    }
+
+    .fold summary{
+      list-style:none;
+      cursor:pointer;
+      padding:13px 14px;
+      color:var(--gold);
+      font-weight:1000;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+
+    .fold summary::-webkit-details-marker{display:none}
+    .fold summary::after{content:"＋";opacity:.8}
+    .fold[open] summary::after{content:"−"}
+
+    .foldBody{
+      padding:0 14px 14px;
+      display:grid;
+      gap:10px;
+    }
+
     .footer{
       text-align:center;
       color:var(--muted);
@@ -628,6 +689,7 @@
         <a class="btn info" id="btnDashboard" href="./dashboard-pro.html">🏠 Mon activité</a>
         <a class="btn" id="btnCockpit" href="./cockpit.html">🧭 Ma gestion</a>
         <a class="btn" id="btnProducts" href="./produits.html">📦 Mes produits</a>
+        <a class="btn primary" id="btnFirstProductTop" href="./produits.html" style="display:none">➕ Ajouter un produit</a>
         <a class="btn gold" id="btnPin" href="./pin.html">🔑 Ouvrir mon accès</a>
         <a class="btn" id="btnPublic" href="./index.html">🌍 Voir ma vitrine</a>
       </div>
@@ -680,36 +742,39 @@
       <div class="liveBoxInner">
         <div>
           <div class="liveBadge">🎥 WhatsApp Visio Live by DIGIY</div>
-          <h2 class="liveTitle">Voir les produits en vidéo, comme si le client était sur place.</h2>
+          <h2 class="liveTitle">Voir le produit en direct, sans trajet inutile.</h2>
           <div class="liveText">
-            Cette phrase peut être reprise sur ta vitrine publique. Elle explique au client qu’il peut regarder les produits en direct,
-            poser ses questions, recevoir tes conseils et choisir sans faire un trajet inutile. <b>Moins de distance, plus de confiance.</b>
+            Le client peut regarder, poser ses questions et confirmer avec la boutique. <b>Moins de distance, plus de confiance.</b>
           </div>
           <div class="liveChips">
             <span class="liveChip">📹 Vidéo en direct</span>
             <span class="liveChip">💬 Conseil commerçant</span>
-            <span class="liveChip">⏱️ Gain de temps</span>
             <span class="liveChip">🛵 Livraison selon zone</span>
           </div>
           <div class="actions">
-            <button class="btn gold" id="btnLiveAudio" type="button">▶ Écouter le Live DIGIY</button>
+            <button class="btn primary" id="btnLiveWhatsTest" type="button">🎥 Tester la visio</button>
             <button class="btn" id="btnLiveCopy" type="button">📋 Copier le texte</button>
-            <button class="btn primary" id="btnLiveWhatsTest" type="button">🎥 Tester WhatsApp Visio</button>
+            <button class="btn gold" id="btnLiveAudio" type="button">▶ Écouter</button>
           </div>
           <div class="msg" id="msgLiveDigiy">Prêt.</div>
         </div>
 
         <div class="livePanel">
           <div class="livePanelTitle">Texte vitrine conseillé</div>
-          <textarea class="liveCopy" id="liveCopyText" readonly>WhatsApp Visio Live by DIGIY
+          <details class="fold" id="liveTextFold">
+            <summary>Voir le texte conseillé</summary>
+            <div class="foldBody">
+              <textarea class="liveCopy" id="liveCopyText" readonly>WhatsApp Visio Live by DIGIY
 Voir les produits en vidéo, comme si vous étiez sur place.
 
 Malgré la distance, vous gagnez du temps, vous évitez un trajet inutile et vous recevez les conseils du commerçant avant de choisir.
 
 Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le paiement reste direct au commerçant. Selon votre zone, une livraison locale peut être organisée.</textarea>
-          <div class="liveHint">
-            À utiliser sur la vitrine publique, dans WhatsApp, dans une affiche ou dans une présentation client. À l’oral, le bouton audio dit surtout “Live DIGIY” pour rester clair.
-          </div>
+              <div class="liveHint">
+                À utiliser sur la vitrine publique, dans WhatsApp, dans une affiche ou dans une présentation client.
+              </div>
+            </div>
+          </details>
         </div>
       </div>
     </section>
@@ -782,12 +847,14 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
 
         <div class="grid2" style="margin-top:12px">
           <div class="field">
-            <div class="label">Image de couverture</div>
+            <div class="label">Lien de la photo de couverture</div>
             <input class="in" id="coverUrl" placeholder="https://..."/>
+            <div class="help">Optionnel. Colle ici le lien préparé depuis la médiathèque DIGIYLYFE.NET, ou laisse vide.</div>
           </div>
           <div class="field">
-            <div class="label">Logo ou photo</div>
+            <div class="label">Lien du logo ou de la photo boutique</div>
             <input class="in" id="photoUrl" placeholder="https://..."/>
+            <div class="help">Optionnel. La boutique peut fonctionner sans image. La visio WhatsApp aide aussi le client à voir en direct.</div>
           </div>
         </div>
 
@@ -832,6 +899,12 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
             <div class="k">Produits visibles</div>
             <div class="v" id="statPublishedProducts">0</div>
           </div>
+        </div>
+
+        <div class="emptyAction" id="emptyProductsBox">
+          <strong>Ta boutique est en ligne, mais elle attend ses premiers produits.</strong>
+          <p>Commence simple : nom du produit, prix, disponibilité et WhatsApp. La photo peut venir plus tard.</p>
+          <a class="btn primary" id="btnFirstProductSide" href="./produits.html">➕ Ajouter mon premier produit</a>
         </div>
 
         <div class="checklist" id="readinessBox">
@@ -958,6 +1031,8 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
         $("btnDashboard").href = ACCESS_SLUG ? withSlug("./dashboard-pro.html") : "./dashboard-pro.html";
         $("btnCockpit").href = ACCESS_SLUG ? withSlug("./cockpit.html") : "./cockpit.html";
         $("btnProducts").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
+        if ($("btnFirstProductTop")) $("btnFirstProductTop").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
+        if ($("btnFirstProductSide")) $("btnFirstProductSide").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
         $("btnPin").href = ACCESS_SLUG ? withSlug("./pin.html") : "./pin.html";
         $("btnPublic").href = ACCESS_SLUG ? withSlug("./index.html") : "./index.html";
       }
@@ -1271,6 +1346,12 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
         $("statActive").textContent = String(s.active);
         $("statInactive").textContent = String(s.inactive);
         $("statPublishedProducts").textContent = String(s.published);
+
+        const showFirstProduct = ACCESS_OK && s.total === 0;
+        const side = $("emptyProductsBox");
+        const top = $("btnFirstProductTop");
+        if (side) side.style.display = showFirstProduct ? "block" : "none";
+        if (top) top.style.display = showFirstProduct ? "inline-flex" : "none";
       }
 
       function renderPublishState(){
@@ -1660,7 +1741,7 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
         try{ window.speechSynthesis.cancel(); }catch(_){ }
         playing = false;
         const btn = $("btnLiveAudio");
-        if(btn) btn.textContent = "▶ Écouter le Live DIGIY";
+        if(btn) btn.textContent = "▶ Écouter";
       }
 
       function playAudio(){
