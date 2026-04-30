@@ -482,6 +482,129 @@
     .checkitem.ok{color:#bbf7d0}
     .checkitem.bad{color:#fde68a}
 
+
+
+    .liveBox{
+      border-color:rgba(250,204,21,.24);
+      background:
+        radial-gradient(900px 360px at 100% 0%, rgba(250,204,21,.12), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));
+      overflow:hidden;
+    }
+
+    .liveBoxInner{
+      display:grid;
+      grid-template-columns:1.04fr .96fr;
+      gap:16px;
+      padding:20px;
+      align-items:stretch;
+    }
+
+    .liveBadge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      width:max-content;
+      max-width:100%;
+      padding:9px 13px;
+      border-radius:999px;
+      border:1px solid rgba(250,204,21,.28);
+      background:rgba(250,204,21,.11);
+      color:#fff1a8;
+      font-size:12px;
+      font-weight:1000;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+
+    .liveTitle{
+      margin:10px 0 8px;
+      font-size:clamp(23px,3vw,34px);
+      line-height:1.04;
+      letter-spacing:-.025em;
+      font-weight:1000;
+    }
+
+    .liveText{
+      color:var(--muted);
+      font-size:15px;
+      font-weight:800;
+      line-height:1.65;
+      max-width:76ch;
+    }
+
+    .liveText b{color:var(--text)}
+
+    .liveChips{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+
+    .liveChip{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.16);
+      color:var(--muted);
+      font-size:12px;
+      font-weight:900;
+    }
+
+    .livePanel{
+      padding:14px;
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.16);
+      display:grid;
+      gap:10px;
+      align-content:start;
+    }
+
+    .livePanelTitle{
+      color:var(--gold);
+      font-size:13px;
+      font-weight:1000;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+    }
+
+    .liveCopy{
+      width:100%;
+      min-height:110px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.045);
+      color:var(--text);
+      padding:12px;
+      font-size:13px;
+      font-weight:800;
+      line-height:1.55;
+      resize:vertical;
+      outline:none;
+    }
+
+    .liveActions{
+      display:flex;
+      gap:9px;
+      flex-wrap:wrap;
+    }
+
+    .liveHint{
+      color:rgba(236,255,244,.62);
+      font-size:12px;
+      font-weight:800;
+      line-height:1.45;
+    }
+
+    @media(max-width:980px){
+      .liveBoxInner{grid-template-columns:1fr}
+    }
+
     @media(max-width:640px){
       .top-actions,.actions{width:100%}
       .top-actions > *, .actions > *{flex:1 1 auto}
@@ -552,6 +675,45 @@
         </div>
       </div>
     </section>
+
+    <section class="card liveBox" id="whatsappVisioLive">
+      <div class="liveBoxInner">
+        <div>
+          <div class="liveBadge">🎥 WhatsApp Visio Live by DIGIY</div>
+          <h2 class="liveTitle">Voir les produits en vidéo, comme si le client était sur place.</h2>
+          <div class="liveText">
+            Cette phrase peut être reprise sur ta vitrine publique. Elle explique au client qu’il peut regarder les produits en direct,
+            poser ses questions, recevoir tes conseils et choisir sans faire un trajet inutile. <b>Moins de distance, plus de confiance.</b>
+          </div>
+          <div class="liveChips">
+            <span class="liveChip">📹 Vidéo en direct</span>
+            <span class="liveChip">💬 Conseil commerçant</span>
+            <span class="liveChip">⏱️ Gain de temps</span>
+            <span class="liveChip">🛵 Livraison selon zone</span>
+          </div>
+          <div class="actions">
+            <button class="btn gold" id="btnLiveAudio" type="button">▶ Écouter le Live DIGIY</button>
+            <button class="btn" id="btnLiveCopy" type="button">📋 Copier le texte</button>
+            <button class="btn primary" id="btnLiveWhatsTest" type="button">🎥 Tester WhatsApp Visio</button>
+          </div>
+          <div class="msg" id="msgLiveDigiy">Prêt.</div>
+        </div>
+
+        <div class="livePanel">
+          <div class="livePanelTitle">Texte vitrine conseillé</div>
+          <textarea class="liveCopy" id="liveCopyText" readonly>WhatsApp Visio Live by DIGIY
+Voir les produits en vidéo, comme si vous étiez sur place.
+
+Malgré la distance, vous gagnez du temps, vous évitez un trajet inutile et vous recevez les conseils du commerçant avant de choisir.
+
+Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le paiement reste direct au commerçant. Selon votre zone, une livraison locale peut être organisée.</textarea>
+          <div class="liveHint">
+            À utiliser sur la vitrine publique, dans WhatsApp, dans une affiche ou dans une présentation client. À l’oral, le bouton audio dit surtout “Live DIGIY” pour rester clair.
+          </div>
+        </div>
+      </div>
+    </section>
+
 
     <section class="layout">
       <section class="card panel">
@@ -1431,5 +1593,114 @@
       boot();
     })();
   </script>
+
+
+  <script>
+    (function(){
+      "use strict";
+
+      const $ = (id) => document.getElementById(id);
+      const liveText = "Bienvenue dans le Live DIGIY. Avec WhatsApp Visio Live by DIGIY, le client peut voir les produits en direct, en vidéo, comme s’il était sur place. Malgré la distance, il gagne du temps, évite un trajet inutile et reçoit les conseils du commerçant avant de choisir. Le client regarde, choisit et confirme directement avec la boutique. Le paiement reste direct au commerçant. Selon la zone, une livraison locale peut être organisée.";
+
+      function normPhone(v){
+        const d = String(v || "").replace(/[^\d]/g, "");
+        if (!d) return "";
+        if (d.startsWith("221") && d.length === 12) return d;
+        if (d.length === 9) return "221" + d;
+        return d;
+      }
+
+      function getPhone(){
+        const direct = normPhone($("whatsapp")?.value || "");
+        if (direct) return direct;
+        const linked = normPhone($("linkedPhone")?.value || "");
+        if (linked) return linked;
+        const qs = new URLSearchParams(location.search);
+        const fromQs = normPhone(qs.get("phone"));
+        if (fromQs) return fromQs;
+        const fromSession = normPhone(sessionStorage.getItem("digiy_market_phone"));
+        if (fromSession) return fromSession;
+        const fromLocal = normPhone(localStorage.getItem("digiy_market_last_phone"));
+        if (fromLocal) return fromLocal;
+        return "";
+      }
+
+      function setLiveMsg(txt, type){
+        const el = $("msgLiveDigiy");
+        if(!el) return;
+        el.textContent = txt;
+        el.className = "msg " + (type || "");
+      }
+
+      async function copyLiveText(){
+        const val = $("liveCopyText")?.value || "";
+        try{
+          await navigator.clipboard.writeText(val);
+          setLiveMsg("✅ Texte WhatsApp Visio Live copié.", "ok");
+        }catch(_){
+          const area = $("liveCopyText");
+          if(area){ area.focus(); area.select(); }
+          setLiveMsg("⚠️ Copie automatique impossible. Le texte est sélectionné.", "warn");
+        }
+      }
+
+      function openLiveWhatsApp(){
+        const phone = getPhone();
+        if(!phone){
+          setLiveMsg("⚠️ Ajoute ton WhatsApp avant de tester la visio live.", "warn");
+          return;
+        }
+        const text = encodeURIComponent("Bonjour, je viens de DIGIY MARKET. Je souhaite voir les produits en WhatsApp Visio Live by DIGIY, en vidéo, comme si j’étais sur place, avant de confirmer mon choix.");
+        window.open("https://wa.me/" + phone + "?text=" + text, "_blank", "noopener,noreferrer");
+        setLiveMsg("✅ WhatsApp Visio Live ouvert avec le message prêt.", "ok");
+      }
+
+      let playing = false;
+      function stopAudio(){
+        try{ window.speechSynthesis.cancel(); }catch(_){ }
+        playing = false;
+        const btn = $("btnLiveAudio");
+        if(btn) btn.textContent = "▶ Écouter le Live DIGIY";
+      }
+
+      function playAudio(){
+        if(!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)){
+          setLiveMsg("⚠️ Audio non disponible sur ce navigateur.", "warn");
+          return;
+        }
+        if(playing){ stopAudio(); return; }
+        stopAudio();
+        const utter = new SpeechSynthesisUtterance(liveText);
+        utter.lang = "fr-FR";
+        utter.rate = 0.82;
+        utter.pitch = 1;
+        utter.volume = 1;
+        utter.onstart = function(){
+          playing = true;
+          const btn = $("btnLiveAudio");
+          if(btn) btn.textContent = "■ Arrêter";
+          setLiveMsg("🎧 Lecture du Live DIGIY…", "ok");
+        };
+        utter.onend = function(){
+          stopAudio();
+          setLiveMsg("✅ Audio terminé.", "ok");
+        };
+        utter.onerror = function(){
+          stopAudio();
+          setLiveMsg("⚠️ Lecture audio interrompue.", "warn");
+        };
+        window.speechSynthesis.speak(utter);
+      }
+
+      document.addEventListener("DOMContentLoaded", function(){
+        $("btnLiveCopy")?.addEventListener("click", copyLiveText);
+        $("btnLiveWhatsTest")?.addEventListener("click", openLiveWhatsApp);
+        $("btnLiveAudio")?.addEventListener("click", playAudio);
+      });
+      window.addEventListener("beforeunload", stopAudio);
+      document.addEventListener("visibilitychange", function(){ if(document.hidden) stopAudio(); });
+    })();
+  </script>
+
 </body>
 </html>
