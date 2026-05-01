@@ -3,9 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>Je vends — Mon activité</title>
+  <title>Je vends — Accueil</title>
   <meta name="theme-color" content="#07140f" />
-  <meta name="description" content="Je vends — vue d’ensemble du vendeur : accès, boutique, visibilité, produits et navigation." />
+  <meta name="description" content="Je vends — accueil mobile MARKET : attention du jour, produits, notes rapides et liens utiles." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 
   <script>
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
@@ -29,19 +33,17 @@
       --danger:#ef4444;
       --accent:#6366f1;
       --gold:#facc15;
-      --line:rgba(255,255,255,.09);
+      --line:rgba(255,255,255,.10);
       --shadow:0 16px 40px rgba(0,0,0,.32);
       --radius:22px;
       --pad:16px;
       --max:1120px;
+      --navH:76px;
     }
 
     *{box-sizing:border-box}
-
-    html,body{
-      margin:0;
-      min-height:100%;
-    }
+    html,body{margin:0;min-height:100%}
+    html{scroll-behavior:smooth}
 
     body{
       font-family:Outfit,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
@@ -50,34 +52,28 @@
         radial-gradient(900px 600px at 100% 0%, rgba(34,197,94,.12), transparent 55%),
         linear-gradient(180deg,#07140f,#05100c 55%,#040b08 100%);
       color:var(--text);
+      padding-bottom:calc(var(--navH) + env(safe-area-inset-bottom,0px) + 18px);
     }
 
-    .wrap{max-width:var(--max);margin:0 auto;padding:18px 14px 34px}
+    a{color:inherit;text-decoration:none}
+    button{font:inherit}
+
+    .wrap{max-width:var(--max);margin:0 auto;padding:16px 14px 24px}
 
     .topbar{
       display:flex;align-items:center;justify-content:space-between;
-      gap:12px;padding:10px 6px;margin-bottom:12px;flex-wrap:wrap;
+      gap:12px;padding:8px 2px 12px;margin-bottom:6px;
     }
 
-    .brand{
-      display:flex;align-items:center;gap:10px;
-      font-weight:800;letter-spacing:.2px;
-    }
-
+    .brand{display:flex;align-items:center;gap:10px;min-width:0}
     .brand .badge{
       display:inline-flex;align-items:center;justify-content:center;
-      width:38px;height:38px;border-radius:13px;
+      width:42px;height:42px;border-radius:15px;
       background:rgba(34,197,94,.18);border:1px solid var(--line);
-      font-size:18px;
+      font-size:20px;flex:0 0 auto;
     }
-
-    .brand small{
-      display:block;color:var(--muted);font-size:12px;font-weight:800;margin-top:2px;
-    }
-
-    .right{
-      display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end;
-    }
+    .brand b{display:block;font-size:17px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .brand small{display:block;color:var(--muted);font-size:12px;font-weight:800;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:64vw}
 
     .pill{
       display:inline-flex;align-items:center;gap:8px;
@@ -85,57 +81,30 @@
       background:rgba(255,255,255,.04);
       border:1px solid var(--line);
       color:var(--muted);
-      font-weight:700;font-size:13px;
+      font-weight:800;font-size:12px;
+      white-space:nowrap;
     }
-
-    .pill b{color:var(--text);font-weight:900}
+    .pill b{color:var(--text);font-weight:1000}
 
     .btn{
+      min-height:44px;
       border:1px solid var(--line);
       background:rgba(255,255,255,.05);
       color:var(--text);
-      padding:11px 13px;border-radius:14px;
-      font-weight:900;cursor:pointer;
+      padding:11px 13px;border-radius:15px;
+      font-weight:950;cursor:pointer;
       text-decoration:none;
       display:inline-flex;align-items:center;justify-content:center;gap:8px;
+      line-height:1.1;
     }
-
-    .btn.primary{
-      background:rgba(34,197,94,.16);
-      border-color:rgba(34,197,94,.28);
-      color:#d9ffe8;
-    }
-
-    .btn.gold{
-      background:rgba(250,204,21,.12);
-      border-color:rgba(250,204,21,.24);
-      color:#fff0a7;
-    }
-
-    .btn.warn{
-      background:rgba(245,158,11,.12);
-      border-color:rgba(245,158,11,.24);
-      color:#ffe2b0;
-    }
-
-    .btn.info{
-      background:rgba(99,102,241,.12);
-      border-color:rgba(99,102,241,.24);
-      color:#dfe2ff;
-    }
-
+    .btn.primary{background:rgba(34,197,94,.16);border-color:rgba(34,197,94,.30);color:#d9ffe8}
+    .btn.gold{background:rgba(250,204,21,.12);border-color:rgba(250,204,21,.26);color:#fff0a7}
+    .btn.warn{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.26);color:#ffe2b0}
+    .btn.info{background:rgba(99,102,241,.12);border-color:rgba(99,102,241,.26);color:#dfe2ff}
     .btn:disabled{opacity:.55;cursor:not-allowed}
 
-    .grid{
-      display:grid;
-      grid-template-columns:1fr;
-      gap:12px;
-      margin-top:8px;
-    }
-
-    @media(min-width:920px){
-      .grid{grid-template-columns:1.05fr .95fr}
-    }
+    .grid{display:grid;grid-template-columns:1fr;gap:12px;margin-top:8px}
+    @media(min-width:920px){.grid{grid-template-columns:1.04fr .96fr}}
 
     .card{
       background:rgba(18,26,51,.32);
@@ -143,144 +112,127 @@
       border-radius:var(--radius);
       box-shadow:var(--shadow);
       padding:var(--pad);
-      backdrop-filter: blur(8px);
+      backdrop-filter:blur(8px);
     }
 
-    .card h3{margin:0 0 8px 0;font-size:16px;letter-spacing:.2px}
+    .hero{
+      display:grid;gap:12px;
+      background:
+        radial-gradient(800px 300px at 100% 0%, rgba(250,204,21,.12), transparent 58%),
+        linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.018));
+    }
+
+    .heroTop{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+    .heroTitle{font-size:clamp(28px,5vw,42px);font-weight:1000;letter-spacing:-.9px;line-height:1.04;margin:0}
+    .lead{color:var(--muted);font-weight:800;line-height:1.55;margin:5px 0 0;font-size:14px}
     .muted{color:var(--muted)}
     .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .hr{height:1px;background:var(--line);margin:12px 0}
 
-    .statusDot{
-      width:10px;height:10px;border-radius:999px;background:var(--warn)
-    }
-
+    .statusDot{width:10px;height:10px;border-radius:999px;background:var(--warn);flex:0 0 auto}
     .statusDot.ok{background:var(--ok)}
     .statusDot.bad{background:var(--danger)}
 
-    .heroTitle{
-      font-size:30px;font-weight:1000;letter-spacing:-.8px;margin:4px 0 2px 0
+    .quickActions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    @media(min-width:760px){.quickActions{grid-template-columns:repeat(4,1fr)}}
+
+    .actionCard{
+      min-height:92px;padding:13px;border-radius:18px;border:1px solid var(--line);
+      background:rgba(255,255,255,.035);display:grid;align-content:center;gap:6px;
     }
+    .actionCard strong{font-size:15px;line-height:1.15}
+    .actionCard span{color:var(--muted);font-size:12px;font-weight:800;line-height:1.35}
+    .actionCard.main{border-color:rgba(34,197,94,.32);background:rgba(34,197,94,.09)}
+    .actionCard.note{border-color:rgba(250,204,21,.32);background:rgba(250,204,21,.09)}
 
-    .mini{
-      display:flex;gap:10px;align-items:center;flex-wrap:wrap;
-      font-size:13px;color:var(--muted);font-weight:750
-    }
-
-    .hr{height:1px;background:var(--line);margin:12px 0}
-
-    .statGrid{
-      display:grid;
-      grid-template-columns:repeat(4,1fr);
-      gap:10px;
-      margin-top:10px;
-    }
-
-    @media(max-width:760px){
-      .statGrid{grid-template-columns:repeat(2,1fr)}
-    }
-
-    .stat{
-      padding:12px;border-radius:16px;
-      background:rgba(255,255,255,.03);
-      border:1px solid var(--line);
-    }
-
+    .statGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}
+    @media(max-width:760px){.statGrid{grid-template-columns:repeat(2,1fr)}}
+    .stat{padding:12px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
     .stat .k{font-size:12px;color:var(--muted);font-weight:800;margin-bottom:6px}
-    .stat .v{font-size:24px;font-weight:1000;line-height:1}
+    .stat .v{font-size:25px;font-weight:1000;line-height:1}
 
-    .infoBox{
-      padding:12px;border-radius:16px;
-      background:rgba(255,255,255,.03);
-      border:1px solid var(--line);
-      display:grid;gap:8px;
-    }
-
-    .infoRow{
-      display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;
-      font-size:14px;font-weight:850;
-    }
+    .infoBox{padding:12px;border-radius:16px;background:rgba(255,255,255,.03);border:1px solid var(--line);display:grid;gap:8px}
+    .infoRow{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:14px;font-weight:850}
+    .infoRow span:last-child{text-align:right;word-break:break-word}
 
     .notifList{display:flex;flex-direction:column;gap:8px;margin-top:8px}
-
-    .notif{
-      padding:10px 12px;border-radius:14px;border:1px solid var(--line);
-      background:rgba(255,255,255,.03);
-      display:flex;align-items:flex-start;justify-content:space-between;gap:10px
-    }
-
-    .tag{
-      font-size:12px;font-weight:900;
-      padding:6px 9px;border-radius:999px;border:1px solid var(--line);
-      color:var(--muted)
-    }
-
+    .notif{padding:11px 12px;border-radius:15px;border:1px solid var(--line);background:rgba(255,255,255,.03);display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+    .notif b{line-height:1.25}
+    .tag{font-size:12px;font-weight:950;padding:6px 9px;border-radius:999px;border:1px solid var(--line);color:var(--muted);white-space:nowrap}
     .tag.warn{color:#ffe2b0;border-color:rgba(245,158,11,.35);background:rgba(245,158,11,.10)}
     .tag.ok{color:#c9ffd9;border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.08)}
     .tag.info{color:#cfd6ff;border-color:rgba(99,102,241,.35);background:rgba(99,102,241,.10)}
 
-    .footer{
-      margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end
-    }
-
-    .smallLink{color:var(--muted);text-decoration:none;font-weight:800}
+    .sectionTitle{margin:0 0 8px;font-size:16px;letter-spacing:.2px}
+    .footer{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .smallLink{color:var(--muted);text-decoration:none;font-weight:850}
     .smallLink:hover{color:var(--text)}
 
-    .empty{
-      padding:16px;border-radius:16px;border:1px dashed var(--line);
-      color:var(--muted);font-weight:800;text-align:center;
-      background:rgba(255,255,255,.02);
-      line-height:1.6;
+    .empty{padding:16px;border-radius:16px;border:1px dashed var(--line);color:var(--muted);font-weight:800;text-align:center;background:rgba(255,255,255,.02);line-height:1.6}
+    .msg{margin-top:10px;font-weight:900;line-height:1.5}
+    .msg.ok{color:#86efac}.msg.bad{color:#fca5a5}.msg.warn{color:#fde68a}
+
+    .noteBox{border-color:rgba(250,204,21,.24);background:rgba(250,204,21,.06)}
+    .noteLine{color:var(--muted);font-weight:800;line-height:1.55;font-size:14px;margin:0}
+
+    .bottomNav{
+      position:fixed;left:0;right:0;bottom:0;z-index:30;
+      padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
+      background:rgba(4,11,8,.92);border-top:1px solid var(--line);
+      backdrop-filter:blur(14px);
     }
-
-    .msg{
-      margin-top:12px;
-      font-weight:900;
-      line-height:1.5;
+    .bottomNavInner{max-width:680px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+    .navItem{
+      min-width:0;min-height:56px;border-radius:17px;border:1px solid transparent;
+      color:rgba(236,255,244,.78);display:grid;place-items:center;text-align:center;
+      font-size:11px;font-weight:950;line-height:1.05;padding:6px 3px;
     }
+    .navItem .ico{font-size:18px;margin-bottom:4px;display:block}
+    .navItem.active{color:#fff;border-color:rgba(34,197,94,.30);background:rgba(34,197,94,.13)}
+    .navItem.gold{color:#fff0a7;border-color:rgba(250,204,21,.24);background:rgba(250,204,21,.09)}
 
-    .msg.ok{color:#86efac}
-    .msg.bad{color:#fca5a5}
-    .msg.warn{color:#fde68a}
+    .loading{opacity:.72;pointer-events:none}
 
-    .loading{
-      opacity:.72;
-      pointer-events:none;
+    @media(max-width:640px){
+      .wrap{padding:12px 10px 18px}
+      .topbar{align-items:flex-start}
+      .pill{font-size:11px;padding:7px 9px}
+      .card{padding:14px;border-radius:20px}
+      .heroTitle{font-size:30px}
+      .quickActions{grid-template-columns:1fr 1fr}
+      .btn{width:100%}
+      .footer{justify-content:stretch}
+      .footer > *{flex:1 1 auto}
+      .infoRow span:last-child{text-align:left}
     }
   </style>
 </head>
 <body>
   <div class="wrap">
-
     <div class="topbar">
       <div class="brand">
         <div class="badge">🛍️</div>
         <div>
-          <div id="brandTitle">Je vends</div>
-          <small id="brandSub">Vue d’ensemble vendeur</small>
+          <b id="brandTitle">Je vends</b>
+          <small id="brandSub">Accueil boutique</small>
         </div>
       </div>
-
-      <div class="right">
-        <div class="pill" id="pillStatus">Accès : <b>…</b></div>
-        <button class="btn" id="btnReload" type="button">🔄 Recharger</button>
-
-        <a class="btn info" id="btnHallTop" href="./index.html">🏠 Entrée</a>
-        <a class="btn" id="btnCockpitTop" href="./cockpit.html">🧭 Ma gestion</a>
-        <a class="btn" id="btnBoutiqueTop" href="./boutique.html">🛠️ Ma boutique</a>
-        <a class="btn" id="btnProductsTop" href="./produits.html">📦 Mes produits</a>
-        <a class="btn gold" id="btnPin" href="./pin.html">🔑 Mon code</a>
-        <a class="btn warn" id="btnPublicTop" href="./fiche.html">🌍 Ma fiche</a>
-      </div>
+      <div class="pill" id="pillStatus">Accès : <b>…</b></div>
     </div>
 
     <div class="grid">
-
-      <div class="card">
-        <h3>Vue d’ensemble</h3>
+      <section class="card hero" style="grid-column:1/-1">
+        <div class="heroTop">
+          <div>
+            <h1 class="heroTitle" id="shopName">Ma boutique</h1>
+            <p class="lead" id="metaLine">Ce qui demande ton attention maintenant.</p>
+          </div>
+          <button class="btn" id="btnReload" type="button">🔄 Recharger</button>
+        </div>
 
         <div class="row">
           <div class="statusDot" id="dot"></div>
-          <div style="flex:1">
+          <div style="flex:1;min-width:210px">
             <div style="font-weight:1000" id="statusLine">Chargement…</div>
             <div class="muted" style="font-weight:800;font-size:13px;margin-top:2px" id="expiryLine">—</div>
           </div>
@@ -288,46 +240,33 @@
 
         <div class="msg" id="msgMain">Prêt.</div>
 
-        <div class="hr"></div>
-
-        <div class="heroTitle" id="shopName">Ma boutique</div>
-        <div class="mini" id="metaLine">
-          <span>Ville : —</span>
-          <span>•</span>
-          <span>Vitrine : —</span>
+        <div class="quickActions" aria-label="Actions principales MARKET">
+          <a class="actionCard main" id="btnProduits" href="./produits.html">
+            <strong>📦 Mes produits</strong>
+            <span>Voir, corriger, masquer.</span>
+          </a>
+          <a class="actionCard" id="btnAjouter" href="./produits.html#productForm">
+            <strong>➕ Ajouter</strong>
+            <span>Le geste maître vendeur.</span>
+          </a>
+          <a class="actionCard note" id="btnNotes" href="./produits.html#quickMarketNote">
+            <strong>📝 Note rapide</strong>
+            <span>Vente, stock, dette, livraison.</span>
+          </a>
+          <a class="actionCard" id="btnPlus" href="./boutique.html">
+            <strong>⚙️ Plus</strong>
+            <span>Réglages, vitrine, visio.</span>
+          </a>
         </div>
+      </section>
 
-        <div class="statGrid">
-          <div class="stat">
-            <div class="k">Produits visibles</div>
-            <div class="v" id="statActive">0</div>
-          </div>
-          <div class="stat">
-            <div class="k">Produits masqués</div>
-            <div class="v" id="statInactive">0</div>
-          </div>
-          <div class="stat">
-            <div class="k">En ligne</div>
-            <div class="v" id="statPublishedProducts">0</div>
-          </div>
-          <div class="stat">
-            <div class="k">Total</div>
-            <div class="v" id="statTotal">0</div>
-          </div>
-        </div>
+      <section class="card">
+        <h3 class="sectionTitle">À surveiller</h3>
+        <div class="notifList" id="notifList"></div>
+      </section>
 
-        <div class="footer">
-          <a class="btn info" id="btnHall" href="./index.html">🏠 Entrée</a>
-          <a class="btn primary" id="btnCockpit" href="./cockpit.html">🧭 Ma gestion</a>
-          <a class="btn" id="btnBoutique" href="./boutique.html">🛠️ Ma boutique</a>
-          <a class="btn" id="btnProduits" href="./produits.html">📦 Mes produits</a>
-          <a class="btn gold" id="btnPublic" href="./fiche.html">🌍 Ma fiche</a>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>En deux secondes</h3>
-
+      <section class="card">
+        <h3 class="sectionTitle">Boutique en bref</h3>
         <div class="infoBox">
           <div class="infoRow"><span class="muted">Identifiant</span><span id="infoSlug">—</span></div>
           <div class="infoRow"><span class="muted">Téléphone</span><span id="infoPhone">—</span></div>
@@ -335,40 +274,55 @@
           <div class="infoRow"><span class="muted">Adresse</span><span id="infoAddress">—</span></div>
           <div class="infoRow"><span class="muted">Activité</span><span id="infoCategories">—</span></div>
         </div>
+      </section>
 
-        <div class="hr"></div>
-
-        <h3>Où aller</h3>
-        <div class="footer" style="justify-content:flex-start">
-          <a class="btn info" id="btnHall2" href="./index.html">🏠 Entrée</a>
-          <a class="btn" id="btnPin2" href="./pin.html">🔑 Mon code</a>
-          <a class="btn" id="btnCockpit2" href="./cockpit.html">🧭 Ma gestion</a>
-          <a class="btn" id="btnBoutique2" href="./boutique.html">🛠️ Réglages</a>
-          <a class="btn" id="btnProduits2" href="./produits.html">📦 Catalogue</a>
-          <a class="btn warn" id="btnPublic2" href="./fiche.html">🌍 Ma fiche</a>
+      <section class="card" style="grid-column:1/-1">
+        <h3 class="sectionTitle">Ce qui se voit maintenant</h3>
+        <div class="statGrid">
+          <div class="stat"><div class="k">Produits visibles</div><div class="v" id="statActive">0</div></div>
+          <div class="stat"><div class="k">Produits masqués</div><div class="v" id="statInactive">0</div></div>
+          <div class="stat"><div class="k">En ligne</div><div class="v" id="statPublishedProducts">0</div></div>
+          <div class="stat"><div class="k">Total</div><div class="v" id="statTotal">0</div></div>
         </div>
-      </div>
-
-      <div class="card" style="grid-column:1/-1">
-        <h3>À surveiller</h3>
-        <div class="notifList" id="notifList"></div>
 
         <div class="hr"></div>
-
-        <h3>Ce qui se voit d’abord</h3>
         <div id="productPreview" class="empty">Chargement…</div>
+      </section>
 
-        <div class="footer">
-          <a class="smallLink" href="./index.html" id="linkHall">Entrée</a>
-          <a class="smallLink" href="./boutique.html" id="linkSupport">Ma boutique</a>
-          <a class="smallLink" href="./cockpit.html" id="linkCockpit">Ma gestion</a>
-          <a class="smallLink" href="./produits.html" id="linkProducts">Mes produits</a>
-          <a class="smallLink" href="./fiche.html" id="linkPublic">Ma fiche</a>
+      <section class="card noteBox" style="grid-column:1/-1">
+        <h3 class="sectionTitle">Note rapide → Mon argent</h3>
+        <p class="noteLine">
+          Une vente, un achat stock, une livraison, un client qui doit ou une petite dépense ne doit pas attendre.
+          Tu écris simple, DIGIY prépare la trace, puis tu envoies vers Mon argent.
+        </p>
+        <div class="footer" style="justify-content:flex-start">
+          <a class="btn gold" id="btnNotes2" href="./produits.html#quickMarketNote">📝 Écrire une note</a>
+          <a class="btn primary" id="btnPay" href="https://pro-pay.digiylyfe.com/admin.html">💰 Voir mon argent</a>
         </div>
-      </div>
+      </section>
 
+      <section class="card" style="grid-column:1/-1">
+        <h3 class="sectionTitle">Plus</h3>
+        <div class="footer" style="justify-content:flex-start">
+          <a class="btn" id="btnBoutique" href="./boutique.html">🛠️ Régler ma boutique</a>
+          <a class="btn info" id="btnCockpit" href="./cockpit.html">🧭 Ma gestion</a>
+          <a class="btn gold" id="btnPublic" href="./index.html">🌍 Voir ma vitrine</a>
+          <a class="btn warn" id="btnPin" href="./pin.html">🔑 Mon accès</a>
+          <a class="btn" id="btnTicket" href="./ticket.html">🎫 Ticket</a>
+        </div>
+      </section>
     </div>
   </div>
+
+  <nav class="bottomNav" aria-label="Navigation MARKET">
+    <div class="bottomNavInner">
+      <a class="navItem active" id="navHome" href="./dashboard-pro.html"><span><span class="ico">🏠</span>Accueil</span></a>
+      <a class="navItem" id="navProducts" href="./produits.html"><span><span class="ico">📦</span>Produits</span></a>
+      <a class="navItem" id="navAdd" href="./produits.html#productForm"><span><span class="ico">➕</span>Ajouter</span></a>
+      <a class="navItem gold" id="navNotes" href="./produits.html#quickMarketNote"><span><span class="ico">📝</span>Notes</span></a>
+      <a class="navItem" id="navMore" href="./boutique.html"><span><span class="ico">⚙️</span>Plus</span></a>
+    </div>
+  </nav>
 
 <script>
 (function(){
@@ -387,9 +341,7 @@
   let BUSY = false;
   let SB_CLIENT = null;
 
-  function normSlug(v){
-    return String(v || "").trim().toLowerCase();
-  }
+  function normSlug(v){ return String(v || "").trim().toLowerCase(); }
 
   function normPhone(v){
     const d = String(v || "").replace(/[^\d]/g, "");
@@ -404,44 +356,6 @@
     return d ? "+" + d : "—";
   }
 
-  function buildPath(base, opts){
-    const o = opts || {};
-    const includeSlug = o.slug !== false;
-    const includePhone = !!o.phone;
-
-    const u = new URL(base, location.href);
-
-    if (includeSlug && ACCESS_SLUG) u.searchParams.set("slug", ACCESS_SLUG);
-    if (includePhone && ACCESS_PHONE) u.searchParams.set("phone", ACCESS_PHONE);
-
-    return u.pathname + u.search;
-  }
-
-  function pinPath(){
-    return buildPath("./pin.html", { slug:true, phone:true });
-  }
-
-  function cockpitPath(){
-    return buildPath("./cockpit.html", { slug:true, phone:true });
-  }
-
-  function boutiquePath(){
-    return buildPath("./boutique.html", { slug:true, phone:true });
-  }
-
-  function produitsPath(){
-    return buildPath("./produits.html", { slug:true, phone:true });
-  }
-
-  function hallPath(){
-    return buildPath("./index.html", { slug:true, phone:true });
-  }
-
-  function fichePath(){
-    if (ACCESS_SLUG) return buildPath("./fiche.html", { slug:true, phone:false });
-    return "./index.html";
-  }
-
   function escapeHtml(str){
     return String(str || "")
       .replaceAll("&", "&amp;")
@@ -454,6 +368,37 @@
   function toText(v, fallback){
     const s = String(v || "").trim();
     return s || (fallback || "");
+  }
+
+  function buildPath(base, opts){
+    const o = opts || {};
+    const includeSlug = o.slug !== false;
+    const includePhone = !!o.phone;
+    const hash = o.hash || "";
+    const u = new URL(base, location.href);
+    if (includeSlug && ACCESS_SLUG) u.searchParams.set("slug", ACCESS_SLUG);
+    if (includePhone && ACCESS_PHONE) u.searchParams.set("phone", ACCESS_PHONE);
+    if (hash) u.hash = hash;
+    return u.pathname + u.search + u.hash;
+  }
+
+  function publicPath(){ return buildPath("./index.html", { slug:true, phone:false }); }
+  function pinPath(){ return buildPath("./pin.html", { slug:true, phone:true }); }
+  function cockpitPath(){ return buildPath("./cockpit.html", { slug:true, phone:true }); }
+  function boutiquePath(){ return buildPath("./boutique.html", { slug:true, phone:true }); }
+  function produitsPath(){ return buildPath("./produits.html", { slug:true, phone:true }); }
+  function addPath(){ return buildPath("./produits.html", { slug:true, phone:true, hash:"productForm" }); }
+  function notesPath(){ return buildPath("./produits.html", { slug:true, phone:true, hash:"quickMarketNote" }); }
+  function ticketPath(){ return buildPath("./ticket.html", { slug:true, phone:true }); }
+  function payPath(){
+    const phone = ACCESS_PHONE || normPhone(CURRENT?.phone);
+    const u = new URL("https://pro-pay.digiylyfe.com/admin.html");
+    if (phone) {
+      u.searchParams.set("slug", "pay-" + phone);
+      u.searchParams.set("phone", phone);
+    }
+    u.searchParams.set("from", "MARKET");
+    return u.toString();
   }
 
   function getResolvedSlug(payload){
@@ -508,17 +453,13 @@
     try{
       const guard = window.DIGIY_GUARD;
       if (!guard) return;
-
       if (guard.ready && typeof guard.ready.then === "function"){
         await guard.ready;
         return;
       }
-
       if (typeof guard.ready === "function"){
         const maybePromise = guard.ready();
-        if (maybePromise && typeof maybePromise.then === "function"){
-          await maybePromise;
-        }
+        if (maybePromise && typeof maybePromise.then === "function") await maybePromise;
       }
     }catch(e){
       console.warn("guard ready warning:", e);
@@ -527,60 +468,33 @@
 
   function resolveSlug(){
     const qs = new URLSearchParams(location.search);
-
     const fromQuery = normSlug(qs.get("slug"));
     if (fromQuery) return fromQuery;
-
     const fromGuard = normSlug(window.DIGIY_GUARD?.state?.slug);
     if (fromGuard) return fromGuard;
-
     const marketSession = normSlug(sessionStorage.getItem("digiy_market_slug"));
     if (marketSession) return marketSession;
-
     const marketLocal = normSlug(localStorage.getItem("digiy_market_last_slug"));
     if (marketLocal) return marketLocal;
-
     return "";
   }
 
   function resolvePhone(){
     const qs = new URLSearchParams(location.search);
-
     const fromQuery = normPhone(qs.get("phone"));
     if (fromQuery) return fromQuery;
-
-    const fromGuard = normPhone(
-      window.DIGIY_GUARD?.state?.phone ||
-      window.DIGIY_GUARD?.state?.identity?.phone
-    );
+    const fromGuard = normPhone(window.DIGIY_GUARD?.state?.phone || window.DIGIY_GUARD?.state?.identity?.phone);
     if (fromGuard) return fromGuard;
-
     const marketSession = normPhone(sessionStorage.getItem("digiy_market_phone"));
     if (marketSession) return marketSession;
-
     const marketLocal = normPhone(localStorage.getItem("digiy_market_last_phone"));
     if (marketLocal) return marketLocal;
-
     return "";
   }
 
   function resolveAccessGranted(){
     const st = window.DIGIY_GUARD?.state || {};
-
-    const directFlags = [
-      st.access_ok,
-      st.accessOk,
-      st.has_access,
-      st.hasAccess,
-      st.access,
-      st.pin_access,
-      st.pinAccess,
-      st.allowed,
-      st.is_allowed,
-      st.isAllowed,
-      st.ok
-    ];
-
+    const directFlags = [st.access_ok, st.accessOk, st.has_access, st.hasAccess, st.access, st.pin_access, st.pinAccess, st.allowed, st.is_allowed, st.isAllowed, st.ok];
     if (directFlags.some(isTruthyLike)) return true;
 
     const sessionFlags = [
@@ -593,7 +507,6 @@
       localStorage.getItem("digiy_market_has_access"),
       localStorage.getItem("digiy_market_access")
     ];
-
     if (sessionFlags.some(isTruthyLike)) return true;
 
     const untilValues = [
@@ -608,57 +521,35 @@
 
     for (const raw of untilValues){
       if (!raw) continue;
-
       const n = Number(raw);
       if (Number.isFinite(n) && n > Date.now()) return true;
-
       const d = Date.parse(String(raw));
       if (Number.isFinite(d) && d > Date.now()) return true;
     }
-
     return false;
   }
 
   function updateLinks(){
-    $("btnHallTop").href = hallPath();
-    $("btnHall").href = hallPath();
-    $("btnHall2").href = hallPath();
-    $("linkHall").href = hallPath();
-
-    $("btnPin").href = pinPath();
-    $("btnPin2").href = pinPath();
-
-    $("btnCockpitTop").href = cockpitPath();
-    $("btnCockpit").href = cockpitPath();
-    $("btnCockpit2").href = cockpitPath();
-
-    $("btnBoutiqueTop").href = boutiquePath();
-    $("btnBoutique").href = boutiquePath();
-    $("btnBoutique2").href = boutiquePath();
-
-    $("btnProduits").href = produitsPath();
-    $("btnProduits2").href = produitsPath();
-    $("btnProductsTop").href = produitsPath();
-
-    $("btnPublicTop").href = fichePath();
-    $("btnPublic").href = fichePath();
-    $("btnPublic2").href = fichePath();
-
-    $("linkSupport").href = boutiquePath();
-    $("linkCockpit").href = cockpitPath();
-    $("linkProducts").href = produitsPath();
-    $("linkPublic").href = fichePath();
+    const pairs = [
+      ["btnProduits", produitsPath()], ["btnAjouter", addPath()], ["btnNotes", notesPath()], ["btnNotes2", notesPath()],
+      ["btnPlus", boutiquePath()], ["btnBoutique", boutiquePath()], ["btnCockpit", cockpitPath()], ["btnPublic", publicPath()],
+      ["btnPin", pinPath()], ["btnTicket", ticketPath()], ["btnPay", payPath()],
+      ["navHome", buildPath("./dashboard-pro.html", { slug:true, phone:true })],
+      ["navProducts", produitsPath()], ["navAdd", addPath()], ["navNotes", notesPath()], ["navMore", boutiquePath()]
+    ];
+    for (const [id, href] of pairs){
+      const el = $(id);
+      if (el) el.href = href;
+    }
   }
 
   function setNotifs(items){
     const box = $("notifList");
     box.innerHTML = "";
-
     if (!items.length){
       box.innerHTML = '<div class="notif"><div><b>Rien à signaler</b><div class="muted" style="font-weight:750;margin-top:2px">Tout roule.</div></div><div class="tag ok">OK</div></div>';
       return;
     }
-
     for(const it of items){
       const tagClass = it.level === "warn" ? "warn" : it.level === "ok" ? "ok" : "info";
       const div = document.createElement("div");
@@ -666,7 +557,7 @@
       div.innerHTML = `
         <div>
           <b>${escapeHtml(it.title)}</b>
-          <div class="muted" style="font-weight:750;margin-top:2px">${escapeHtml(it.text)}</div>
+          <div class="muted" style="font-weight:750;margin-top:3px;line-height:1.45">${escapeHtml(it.text)}</div>
         </div>
         <div class="tag ${tagClass}">${escapeHtml(it.tag)}</div>
       `;
@@ -705,7 +596,6 @@
     const inactive = PRODUCTS.length - active;
     const published = PRODUCTS.filter(p => p.is_published).length;
     const total = PRODUCTS.length;
-
     $("statActive").textContent = String(active);
     $("statInactive").textContent = String(inactive);
     $("statPublishedProducts").textContent = String(published);
@@ -726,7 +616,7 @@
     $("expiryLine").textContent = reason || "Aucun accès actif.";
     $("pillStatus").innerHTML = 'Accès : <b>Bloqué</b>';
     $("shopName").textContent = "Ma boutique";
-    $("metaLine").innerHTML = '<span>Ville : —</span><span>•</span><span>Vitrine : —</span>';
+    $("metaLine").textContent = "Ouvre ton accès pour voir ce qui demande ton attention.";
 
     $("statActive").textContent = "0";
     $("statInactive").textContent = "0";
@@ -740,32 +630,15 @@
     $("infoCategories").textContent = "—";
 
     $("brandTitle").textContent = "Je vends";
-    $("brandSub").textContent = ACCESS_SLUG
-      ? "Identifiant détecté • accès protégé"
-      : "Vue d’ensemble vendeur";
+    $("brandSub").textContent = ACCESS_SLUG ? "Identifiant détecté • accès protégé" : "Accueil boutique";
+    resetProductPreview(ACCESS_SLUG ? "Identifiant détecté, mais les données restent protégées tant que ton accès n’est pas ouvert." : "Aucun produit visible sans accès ouvert.");
 
-    resetProductPreview(
-      ACCESS_SLUG
-        ? "Identifiant détecté, mais les données réelles restent protégées tant que l’accès n’est pas ouvert."
-        : "Aucun produit visible sans accès ouvert."
-    );
-
-    document.title = "Je vends — Mon activité";
+    document.title = "Je vends — Accueil";
     updateLinks();
 
     setNotifs([
-      {
-        level:"warn",
-        tag:"ACCÈS",
-        title:"Espace protégé",
-        text:"Les vraies données restent protégées tant que ton accès vendeur n’est pas ouvert."
-      },
-      {
-        level:"info",
-        tag:"PORTE",
-        title:"Bon réflexe",
-        text:"Passe par ton code avec le téléphone pour ouvrir proprement ton activité."
-      }
+      { level:"warn", tag:"ACCÈS", title:"Espace protégé", text:"Les vraies données restent protégées tant que ton accès vendeur n’est pas ouvert." },
+      { level:"info", tag:"PORTE", title:"Bon réflexe", text:"Passe par ton code avec le téléphone pour ouvrir proprement ton activité." }
     ]);
   }
 
@@ -777,19 +650,15 @@
     ACCESS_SLUG = getResolvedSlug(data) || ACCESS_SLUG;
 
     const shopName = getShopName(p);
-
     updateLinks();
 
     $("dot").className = "statusDot ok";
     $("statusLine").textContent = "Accès actif";
-    $("expiryLine").textContent = data.is_blank
-      ? "Code validé • boutique prête à être remplie."
-      : "Code validé • activité réelle chargée.";
+    $("expiryLine").textContent = data.is_blank ? "Code validé • boutique prête à être remplie." : "Code validé • activité réelle chargée.";
     $("pillStatus").innerHTML = 'Accès : <b>Ouvert</b>';
 
     $("shopName").textContent = shopName;
-    $("metaLine").innerHTML = `<span>Ville : ${escapeHtml(toText(p.city, "—"))}</span><span>•</span><span>Vitrine : ${p.is_published ? "En ligne" : "Hors ligne"}</span>`;
-
+    $("metaLine").textContent = `${toText(p.city, "Ville non renseignée")} • ${p.is_published ? "Vitrine en ligne" : "Vitrine hors ligne"}`;
     applyStatsFromState(stats);
 
     $("infoSlug").textContent = ACCESS_SLUG || "—";
@@ -799,72 +668,31 @@
     $("infoCategories").textContent = toText(p.categories_text, "—");
 
     $("brandTitle").textContent = shopName || "Je vends";
-    $("brandSub").textContent = ACCESS_SLUG
-      ? `Mon activité • ${ACCESS_SLUG}`
-      : "Vue d’ensemble vendeur";
-
-    document.title = shopName
-      ? `${shopName} — Mon activité`
-      : "Je vends — Mon activité";
+    $("brandSub").textContent = "Accueil boutique";
+    document.title = shopName ? `${shopName} — Accueil` : "Je vends — Accueil";
 
     const active = Number(stats.active || 0);
     const notifs = [];
 
     if (data.is_blank) {
-      notifs.push({
-        level:"warn",
-        tag:"START",
-        title:"Boutique prête à remplir",
-        text:"Complète ta boutique pour poser une vraie identité publique."
-      });
+      notifs.push({ level:"warn", tag:"START", title:"Boutique prête à remplir", text:"Complète ton identité, ton contact et tes premiers produits." });
     } else {
-      notifs.push({
-        level:"ok",
-        tag:"BOUTIQUE",
-        title:"Boutique chargée",
-        text:"Ta fiche vendeur est bien reliée à l’identifiant actif."
-      });
+      notifs.push({ level:"ok", tag:"BOUTIQUE", title:"Boutique chargée", text:"Ta fiche vendeur est bien reliée à l’identifiant actif." });
     }
 
     if (!p.is_published) {
-      notifs.push({
-        level:"warn",
-        tag:"OFF",
-        title:"Vitrine coupée",
-        text:"Ta fiche publique n’est pas encore visible tant que la publication n’est pas activée."
-      });
+      notifs.push({ level:"warn", tag:"OFF", title:"Vitrine hors ligne", text:"Ta vitrine publique n’est pas encore visible tant que la publication n’est pas activée." });
     } else {
-      notifs.push({
-        level:"ok",
-        tag:"ON",
-        title:"Vitrine en ligne",
-        text:"Ta fiche publique peut être vue avec l’identifiant actif."
-      });
+      notifs.push({ level:"ok", tag:"ON", title:"Vitrine en ligne", text:"Les clients peuvent voir ta boutique publique." });
     }
 
     if (active === 0) {
-      notifs.push({
-        level:"info",
-        tag:"PRODUITS",
-        title:"Rien à montrer pour l’instant",
-        text:"Aucun produit visible pour le moment."
-      });
+      notifs.push({ level:"info", tag:"PRODUITS", title:"Aucun produit visible", text:"Ajoute ton premier produit ou rends visible un produit existant." });
     } else {
-      notifs.push({
-        level:"ok",
-        tag:"PRODUITS",
-        title:"Produits visibles",
-        text:`${active} produit(s) visible(s) dans la boutique.`
-      });
+      notifs.push({ level:"ok", tag:"PRODUITS", title:"Produits visibles", text:`${active} produit(s) visible(s) dans la boutique.` });
     }
 
-    notifs.push({
-      level:"info",
-      tag:"NAV",
-      title:"Chemin recousu",
-      text:"Entrée, accès, activité, boutique, produits et fiche gardent maintenant l’identifiant actif."
-    });
-
+    notifs.push({ level:"info", tag:"NOTES", title:"Note rapide disponible", text:"Une vente, une dette client, une livraison ou un achat stock peut partir vers Mon argent." });
     setNotifs(notifs);
   }
 
@@ -873,40 +701,33 @@
       resetProductPreview("Aucun produit visible sans accès ouvert.");
       return;
     }
-
     if (!PRODUCTS.length) {
-      resetProductPreview("Aucun produit pour l’instant.");
+      resetProductPreview("Aucun produit pour l’instant. Le bon premier geste : ajouter un produit simple avec nom, prix et WhatsApp.");
       return;
     }
 
-    const top = PRODUCTS.slice(0, 3).map(p => {
+    const top = PRODUCTS.slice(0, 4).map(p => {
       const state = p.is_active ? "Visible" : "Masqué";
       const published = p.is_published ? " • En ligne" : "";
       const feat = p.is_featured ? " • En avant" : "";
       return `
-        <div style="padding:10px 0;border-bottom:1px solid var(--line)">
+        <div style="padding:11px 0;border-bottom:1px solid var(--line)">
           <b>${escapeHtml(p.title)}</b>
-          <div class="muted" style="margin-top:4px;font-weight:750">
+          <div class="muted" style="margin-top:4px;font-weight:780;line-height:1.45">
             ${escapeHtml(p.category || "Sans catégorie")} • ${Number(p.price_fcfa || 0).toLocaleString("fr-FR")} FCFA • ${state}${published}${feat}
           </div>
         </div>
       `;
     }).join("");
-
     $("productPreview").innerHTML = top;
   }
 
   async function makeClient(){
     if (SB_CLIENT) return SB_CLIENT;
-
-    if (!window.supabase || !SUPABASE_URL || !SUPABASE_ANON_KEY){
-      throw new Error("supabase_config_missing");
-    }
-
+    if (!window.supabase || !SUPABASE_URL || !SUPABASE_ANON_KEY) throw new Error("supabase_config_missing");
     SB_CLIENT = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
       auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false }
     });
-
     return SB_CLIENT;
   }
 
@@ -944,7 +765,7 @@
 
   async function boot(){
     setBusy(true);
-    setMsgMain("⏳ Chargement de ton activité…", "warn");
+    setMsgMain("⏳ Chargement de ton accueil MARKET…", "warn");
 
     try{
       await waitGuardIfAny();
@@ -983,24 +804,17 @@
       storeAccess();
 
       applyLiveState(cockpit);
-      setMsgMain(
-        cockpit.is_blank
-          ? "✅ Boutique prête. Tu peux continuer la pose."
-          : "✅ Activité réelle chargée.",
-        "ok"
-      );
+      setMsgMain(cockpit.is_blank ? "✅ Boutique prête. Commence par tes infos et ton premier produit." : "✅ Accueil MARKET chargé.", "ok");
 
       try{
         await loadProducts(client);
-        if (!PRODUCTS.length){
-          setMsgMain("✅ Activité chargée. Rien à montrer pour l’instant.", "ok");
-        }
+        if (!PRODUCTS.length) setMsgMain("✅ Accueil chargé. Aucun produit visible pour l’instant.", "ok");
       }catch(e){
         console.error(e);
         PRODUCTS = [];
         renderProductPreview();
         applyStatsFromState(cockpit.stats || {});
-        setMsgMain("⚠️ Activité chargée, mais impossible de lire les produits pour l’instant.", "warn");
+        setMsgMain("⚠️ Accueil chargé, mais impossible de lire les produits pour l’instant.", "warn");
       }
 
     }catch(e){
@@ -1009,7 +823,7 @@
       setMsgMain(
         String(e?.message || "") === "supabase_config_missing"
           ? "❌ Configuration Supabase manquante ou invalide."
-          : "❌ Impossible de charger cet espace.",
+          : "❌ Impossible de charger cet accueil MARKET.",
         "bad"
       );
     }finally{
@@ -1024,3 +838,4 @@
 </script>
 </body>
 </html>
+
