@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>Ma boutique — Réglages</title>
+  <title>Je vends — Plus</title>
   <meta name="theme-color" content="#07140f"/>
   <meta name="description" content="Réglages de ta boutique DIGIY MARKET : identité, contact, visibilité publique et lecture terrain."/>
 
@@ -54,7 +54,7 @@
       font-family:"Outfit", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
     }
 
-    body{padding:16px}
+    body{padding:16px;padding-bottom:96px}
     a{color:inherit;text-decoration:none}
 
     .wrap{
@@ -670,17 +670,67 @@
       .top-actions,.actions{width:100%}
       .top-actions > *, .actions > *{flex:1 1 auto}
     }
+    .mobileNav{
+      position:fixed;
+      left:10px;
+      right:10px;
+      bottom:10px;
+      z-index:50;
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:6px;
+      padding:8px;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:22px;
+      background:rgba(4,11,8,.92);
+      box-shadow:0 18px 50px rgba(0,0,0,.42);
+      backdrop-filter:blur(14px);
+    }
+
+    .mobileNav a{
+      min-height:50px;
+      border-radius:16px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:3px;
+      color:rgba(236,255,244,.72);
+      text-decoration:none;
+      font-size:11px;
+      font-weight:950;
+      line-height:1.05;
+      border:1px solid transparent;
+      background:transparent;
+    }
+
+    .mobileNav a strong{
+      font-size:17px;
+      line-height:1;
+    }
+
+    .mobileNav a.active{
+      color:#fff1a8;
+      border-color:rgba(250,204,21,.26);
+      background:rgba(250,204,21,.10);
+    }
+
+    @media(min-width:900px){
+      body{padding-bottom:16px}
+      .mobileNav{display:none}
+    }
+
   </style>
 </head>
 <body>
   <div class="wrap">
-    <section class="card topbar">
+    <section class="card topbar" id="plusTop">
       <div class="brand">
         <div class="brand-mark">🛍️</div>
         <div class="brand-copy">
           <div class="eyebrow">JE VENDS</div>
-          <div class="brand-title">Ma boutique</div>
-          <div class="brand-sub" id="topSub">Préparation de ton espace boutique…</div>
+          <div class="brand-title">Plus</div>
+          <div class="brand-sub" id="topSub">Réglages boutique, vitrine et contact</div>
         </div>
       </div>
 
@@ -689,7 +739,7 @@
         <a class="btn info" id="btnDashboard" href="./dashboard-pro.html">🏠 Mon activité</a>
         <a class="btn" id="btnCockpit" href="./cockpit.html">🧭 Ma gestion</a>
         <a class="btn" id="btnProducts" href="./produits.html">📦 Mes produits</a>
-        <a class="btn primary" id="btnFirstProductTop" href="./produits.html" style="display:none">➕ Ajouter un produit</a>
+        <a class="btn primary" id="btnFirstProductTop" href="./produits.html#productForm" style="display:none">➕ Ajouter un produit</a>
         <a class="btn gold" id="btnPin" href="./pin.html">🔑 Ouvrir mon accès</a>
         <a class="btn" id="btnPublic" href="./index.html">🌍 Voir ma vitrine</a>
       </div>
@@ -703,7 +753,7 @@
           <div>
             <h1 id="shopNameHero">Ma boutique</h1>
             <div class="subtitle" id="shopSubtitle">
-              Ici tu règles ce que les clients vont voir. Nom, contact, quartier, livraison, présentation.
+              Ici tu règles ce que les clients vont voir : boutique, contact, vitrine, WhatsApp Visio Live et visibilité.
             </div>
           </div>
 
@@ -904,7 +954,7 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
         <div class="emptyAction" id="emptyProductsBox">
           <strong>Ta boutique est en ligne, mais elle attend ses premiers produits.</strong>
           <p>Commence simple : nom du produit, prix, disponibilité et WhatsApp. La photo peut venir plus tard.</p>
-          <a class="btn primary" id="btnFirstProductSide" href="./produits.html">➕ Ajouter mon premier produit</a>
+          <a class="btn primary" id="btnFirstProductSide" href="./produits.html#productForm">➕ Ajouter mon premier produit</a>
         </div>
 
         <div class="checklist" id="readinessBox">
@@ -1035,6 +1085,15 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
         if ($("btnFirstProductSide")) $("btnFirstProductSide").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
         $("btnPin").href = ACCESS_SLUG ? withSlug("./pin.html") : "./pin.html";
         $("btnPublic").href = ACCESS_SLUG ? withSlug("./index.html") : "./index.html";
+
+        const dashboardUrl = ACCESS_SLUG ? withSlug("./dashboard-pro.html") : "./dashboard-pro.html";
+        const produitsUrl = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
+        const boutiqueUrl = ACCESS_SLUG ? withSlug("./boutique.html") : "./boutique.html";
+        if ($("navAccueil")) $("navAccueil").href = dashboardUrl;
+        if ($("navProduits")) $("navProduits").href = produitsUrl;
+        if ($("navAjouter")) $("navAjouter").href = produitsUrl + "#productForm";
+        if ($("navNotes")) $("navNotes").href = produitsUrl + "#quickMarketNote";
+        if ($("navPlus")) $("navPlus").href = boutiqueUrl;
       }
 
       function setPinButtonVisibility(){
@@ -1782,6 +1841,14 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
       document.addEventListener("visibilitychange", function(){ if(document.hidden) stopAudio(); });
     })();
   </script>
+
+  <nav class="mobileNav" aria-label="Navigation MARKET">
+    <a id="navAccueil" href="./dashboard-pro.html"><strong>🏠</strong><span>Accueil</span></a>
+    <a id="navProduits" href="./produits.html"><strong>📦</strong><span>Produits</span></a>
+    <a id="navAjouter" href="./produits.html#productForm"><strong>➕</strong><span>Ajouter</span></a>
+    <a id="navNotes" href="./produits.html#quickMarketNote"><strong>📝</strong><span>Notes</span></a>
+    <a id="navPlus" class="active" href="./boutique.html"><strong>☰</strong><span>Plus</span></a>
+  </nav>
 
 </body>
 </html>
