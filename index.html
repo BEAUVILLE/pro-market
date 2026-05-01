@@ -6,19 +6,17 @@
   window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
   window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
   window.DIGIY_MODULE = "MARKET";
-
-  // IMPORTANT : défini AVANT guard.js
   window.DIGIY_LOGIN_URL = "./pin.html";
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./guard.js"></script>
+<script src="./guard.js?v=market-index-mobile-20260501"></script>
 
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-<title>Je vends — Mon entrée</title>
+<title>Je vends — Entrée</title>
 <meta name="theme-color" content="#07140f"/>
-<meta name="description" content="Je vends — une entrée simple pour ouvrir mon accès, voir mon activité, régler ma boutique et gérer mes produits."/>
+<meta name="description" content="Je vends — entrée simple pour ouvrir son accès, voir son activité, gérer ses produits, ajouter vite, noter une vente et régler sa boutique."/>
 
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -28,24 +26,21 @@
   :root{
     --bg:#07140f;
     --bg2:#05100c;
-    --card:#10241b;
-    --card2:#0d1d16;
     --line:rgba(255,255,255,.10);
-    --line-strong:rgba(255,255,255,.16);
+    --line2:rgba(255,255,255,.16);
     --text:#ecfff4;
     --muted:rgba(236,255,244,.72);
     --primary:#22c55e;
     --primary2:#16a34a;
     --gold:#facc15;
-    --gold-ink:#3b2f00;
-    --danger:#ef4444;
     --warn:#f59e0b;
     --info:#60a5fa;
+    --danger:#ef4444;
     --shadow:0 20px 60px rgba(0,0,0,.38);
-    --shadow-soft:0 10px 26px rgba(0,0,0,.24);
+    --soft:0 10px 26px rgba(0,0,0,.24);
     --r:24px;
-    --r2:20px;
-    --max:1120px;
+    --max:980px;
+    --bottom:86px;
   }
 
   *{box-sizing:border-box}
@@ -62,549 +57,192 @@
     font-family:Outfit,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
   }
 
-  body{
-    padding:16px;
-    display:grid;
-    place-items:center;
-  }
-
+  body{padding:16px 14px calc(var(--bottom) + env(safe-area-inset-bottom,0px))}
   a{color:inherit;text-decoration:none}
+  button{font:inherit}
 
-  .floating-back{
-    position:fixed;
-    top:calc(env(safe-area-inset-top, 0px) + 14px);
-    left:calc(env(safe-area-inset-left, 0px) + 14px);
-    z-index:99999;
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    gap:8px;
-    padding:12px 16px;
-    border-radius:999px;
-    border:1px solid rgba(250,204,21,.32);
-    background:linear-gradient(135deg, rgba(250,204,21,.96), rgba(34,197,94,.92));
-    color:#041b12;
-    font-weight:900;
-    font-size:14px;
-    line-height:1;
-    box-shadow:0 16px 40px rgba(0,0,0,.38);
-    backdrop-filter:blur(10px);
-    -webkit-backdrop-filter:blur(10px);
-    transition:transform .18s ease, box-shadow .18s ease;
-  }
-
-  .floating-back:hover{
-    transform:translateY(-1px);
-    box-shadow:0 20px 46px rgba(0,0,0,.45);
-  }
-
-  .floating-back:active{
-    transform:translateY(0);
-  }
-
-  .wrap{
-    width:100%;
-    max-width:var(--max);
-    display:grid;
-    gap:16px;
-  }
+  .wrap{width:100%;max-width:var(--max);margin:0 auto;display:grid;gap:14px}
 
   .card{
-    width:100%;
     border:1px solid var(--line);
     border-radius:var(--r);
-    background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.018));
+    background:linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.018));
     box-shadow:var(--shadow);
     overflow:hidden;
   }
 
-  .body{
-    padding:28px;
-    display:grid;
-    gap:22px;
-  }
+  .hero{padding:22px;display:grid;gap:16px}
 
-  .badge{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    padding:9px 13px;
-    border-radius:999px;
-    border:1px solid rgba(34,197,94,.28);
-    background:rgba(34,197,94,.12);
-    color:#bbf7d0;
-    font-size:12px;
-    font-weight:900;
-    width:max-content;
-  }
+  .topline{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 
-  .dot{
-    width:8px;
-    height:8px;
-    border-radius:999px;
-    background:var(--primary);
-    box-shadow:0 0 0 4px rgba(34,197,94,.14);
-  }
+  .brand{display:flex;align-items:center;gap:12px;min-width:0}
+  .mark{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg, rgba(34,197,94,.18), rgba(250,204,21,.14));border:1px solid var(--line);font-size:23px;flex:0 0 auto}
+  .eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);font-weight:950;margin-bottom:2px}
+  .brandTitle{font-size:18px;font-weight:950;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .brandSub{color:var(--muted);font-size:12px;font-weight:800;margin-top:3px}
 
-  h1{
-    margin:0;
-    font-size:clamp(30px,4vw,48px);
-    line-height:1.03;
-    letter-spacing:-.02em;
-  }
+  .badge{display:inline-flex;align-items:center;gap:8px;padding:9px 13px;border-radius:999px;border:1px solid rgba(34,197,94,.28);background:rgba(34,197,94,.12);color:#bbf7d0;font-size:12px;font-weight:900;width:max-content;max-width:100%}
+  .dot{width:8px;height:8px;border-radius:999px;background:var(--primary);box-shadow:0 0 0 4px rgba(34,197,94,.14)}
 
-  .subtitle{
-    color:var(--muted);
-    font-size:16px;
-    font-weight:800;
-    line-height:1.58;
-    max-width:820px;
-  }
+  h1{margin:0;font-size:clamp(30px,8vw,46px);line-height:1.02;letter-spacing:-.03em}
+  .subtitle{color:var(--muted);font-size:15px;font-weight:800;line-height:1.58;max-width:780px}
 
-  .hero-top{
-    display:grid;
-    gap:14px;
-  }
+  .heroActions{display:grid;gap:10px;grid-template-columns:1fr 1fr}
+  .heroActions .wide{grid-column:1/-1}
 
-  .hero-actions{
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
-  }
+  @media(max-width:620px){.heroActions{grid-template-columns:1fr}}
 
-  .btn{
-    min-height:48px;
-    padding:12px 16px;
-    border-radius:14px;
-    font-weight:900;
-    border:1px solid var(--line);
-    background:rgba(255,255,255,.06);
-    color:var(--text);
-    display:inline-flex;
-    align-items:center;
-    justify-content:center;
-    gap:8px;
-    cursor:pointer;
-    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-    text-decoration:none;
-    box-shadow:var(--shadow-soft);
-  }
+  .btn{min-height:50px;padding:12px 15px;border-radius:16px;font-weight:950;border:1px solid var(--line);background:rgba(255,255,255,.06);color:var(--text);display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;box-shadow:var(--soft);text-align:center}
+  .btn.primary{background:linear-gradient(135deg,var(--primary),var(--primary2));color:#041b12;border-color:transparent}
+  .btn.gold{background:rgba(250,204,21,.12);color:var(--gold);border-color:rgba(250,204,21,.22)}
+  .btn.info{background:rgba(96,165,250,.12);color:#bfdbfe;border-color:rgba(96,165,250,.22)}
+  .btn.warn{background:rgba(245,158,11,.12);color:#fde68a;border-color:rgba(245,158,11,.24)}
 
-  .btn:hover{
-    transform:translateY(-1px);
-    border-color:var(--line-strong);
-  }
+  .statusGrid{display:grid;gap:12px;grid-template-columns:1.08fr .92fr}
+  @media(max-width:820px){.statusGrid{grid-template-columns:1fr}}
 
-  .btn.primary{
-    background:linear-gradient(135deg,var(--primary),var(--primary2));
-    color:#041b12;
-    border-color:transparent;
-  }
+  .box{border:1px solid var(--line);border-radius:22px;background:rgba(0,0,0,.16);padding:16px;display:grid;gap:12px}
+  .box h2{margin:0;font-size:19px;line-height:1.2}
+  .muted{color:var(--muted);font-size:14px;font-weight:800;line-height:1.55}
 
-  .btn.gold{
-    background:rgba(250,204,21,.12);
-    color:var(--gold);
-    border-color:rgba(250,204,21,.22);
-  }
+  .status{padding:12px 14px;border-radius:16px;border:1px solid rgba(255,255,255,.10);background:rgba(0,0,0,.16);font-weight:900;color:var(--muted);line-height:1.45}
+  .status.ok{color:#bbf7d0;border-color:rgba(34,197,94,.22);background:rgba(34,197,94,.10)}
+  .status.warn{color:#fde68a;border-color:rgba(250,204,21,.22);background:rgba(250,204,21,.08)}
+  .status.info{color:#bfdbfe;border-color:rgba(96,165,250,.22);background:rgba(96,165,250,.08)}
+  .status.danger{color:#fecaca;border-color:rgba(239,68,68,.22);background:rgba(239,68,68,.08)}
 
-  .btn.info{
-    background:rgba(96,165,250,.12);
-    color:#bfdbfe;
-    border-color:rgba(96,165,250,.22);
-  }
+  .reading{display:grid;gap:9px}
+  .readingRow{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03);font-size:13px;font-weight:900}
+  .readingRow .k{color:var(--muted)}
+  .readingRow .v{word-break:break-word;text-align:right}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:12px}
 
-  .pills{
-    display:flex;
-    flex-wrap:wrap;
-    gap:10px;
-  }
+  .sectionTitle{margin:4px 0 0;font-size:18px;letter-spacing:-.01em}
+  .navGrid{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
+  @media(max-width:760px){.navGrid{grid-template-columns:1fr}}
 
-  .pill{
-    display:inline-flex;
-    align-items:center;
-    gap:8px;
-    padding:9px 12px;
-    border-radius:999px;
-    border:1px solid var(--line);
-    background:rgba(0,0,0,.18);
-    color:var(--muted);
-    font-size:12px;
-    font-weight:900;
-  }
+  .navCard{border:1px solid rgba(255,255,255,.10);border-radius:22px;background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(0,0,0,.16));padding:16px;display:grid;gap:10px;box-shadow:var(--soft)}
+  .navHead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .navTag{display:inline-flex;width:max-content;padding:7px 10px;border-radius:999px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.04);color:var(--muted);font-size:11px;font-weight:900;letter-spacing:.02em;text-transform:uppercase}
+  .navTitle{margin:8px 0 0;font-size:18px;line-height:1.2}
+  .navText{color:var(--muted);font-size:14px;font-weight:800;line-height:1.5}
+  .navIcon{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-size:21px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.10);flex:0 0 auto}
 
-  .status-grid{
-    display:grid;
-    gap:14px;
-    grid-template-columns:1.15fr .85fr;
-  }
+  .footer{text-align:center;color:var(--muted);font-size:12px;font-weight:800;padding:4px 0 0}
 
-  @media(max-width:880px){
-    .status-grid{
-      grid-template-columns:1fr;
-    }
-  }
+  .bottomNav{position:fixed;left:0;right:0;bottom:0;z-index:50;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));background:rgba(4,11,8,.82);border-top:1px solid rgba(255,255,255,.10);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+  .bottomNavInner{max-width:720px;margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+  .bottomNav a{min-height:54px;border-radius:16px;display:grid;place-items:center;gap:2px;padding:6px 4px;color:rgba(236,255,244,.70);font-size:11px;font-weight:950;border:1px solid transparent;text-align:center}
+  .bottomNav a b{font-size:18px;line-height:1}
+  .bottomNav a.active{color:#fff7bd;background:rgba(250,204,21,.12);border-color:rgba(250,204,21,.24)}
+  .bottomNav a:active{transform:scale(.98)}
 
-  .box{
-    border:1px solid rgba(255,255,255,.10);
-    border-radius:20px;
-    background:rgba(0,0,0,.16);
-    padding:18px;
-    display:grid;
-    gap:14px;
-  }
-
-  .box h2{
-    margin:0;
-    font-size:20px;
-    line-height:1.2;
-  }
-
-  .muted{
-    color:var(--muted);
-    font-size:14px;
-    font-weight:800;
-    line-height:1.55;
-  }
-
-  .mono{
-    font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
-    word-break:break-all;
-    font-size:13px;
-  }
-
-  .status{
-    padding:12px 14px;
-    border-radius:16px;
-    border:1px solid rgba(255,255,255,.10);
-    background:rgba(0,0,0,.16);
-    font-weight:900;
-    color:var(--muted);
-    line-height:1.45;
-  }
-
-  .status.ok{
-    color:#bbf7d0;
-    border-color:rgba(34,197,94,.22);
-    background:rgba(34,197,94,.10);
-  }
-
-  .status.warn{
-    color:#fde68a;
-    border-color:rgba(250,204,21,.22);
-    background:rgba(250,204,21,.08);
-  }
-
-  .status.info{
-    color:#bfdbfe;
-    border-color:rgba(96,165,250,.22);
-    background:rgba(96,165,250,.08);
-  }
-
-  .status.danger{
-    color:#fecaca;
-    border-color:rgba(239,68,68,.22);
-    background:rgba(239,68,68,.08);
-  }
-
-  .reading{
-    display:grid;
-    gap:10px;
-  }
-
-  .reading-row{
-    display:flex;
-    justify-content:space-between;
-    gap:12px;
-    flex-wrap:wrap;
-    padding:11px 12px;
-    border-radius:14px;
-    border:1px solid rgba(255,255,255,.10);
-    background:rgba(255,255,255,.03);
-    font-size:13px;
-    font-weight:900;
-  }
-
-  .reading-row .k{
-    color:var(--muted);
-  }
-
-  .reading-row .v{
-    color:var(--text);
-    word-break:break-word;
-    text-align:right;
-  }
-
-  .nav-grid{
-    display:grid;
-    gap:14px;
-    grid-template-columns:repeat(2, minmax(0,1fr));
-  }
-
-  @media(max-width:760px){
-    .nav-grid{
-      grid-template-columns:1fr;
-    }
-  }
-
-  .nav-card{
-    border:1px solid rgba(255,255,255,.10);
-    border-radius:20px;
-    background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(0,0,0,.16));
-    padding:18px;
-    display:grid;
-    gap:12px;
-    transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease;
-    box-shadow:var(--shadow-soft);
-  }
-
-  .nav-card:hover{
-    transform:translateY(-2px);
-    border-color:rgba(255,255,255,.18);
-  }
-
-  .nav-head{
-    display:flex;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap:12px;
-  }
-
-  .nav-icon{
-    width:44px;
-    height:44px;
-    border-radius:14px;
-    display:grid;
-    place-items:center;
-    font-size:21px;
-    background:rgba(255,255,255,.07);
-    border:1px solid rgba(255,255,255,.10);
-    flex:0 0 auto;
-  }
-
-  .nav-title{
-    margin:0;
-    font-size:18px;
-    line-height:1.2;
-  }
-
-  .nav-text{
-    color:var(--muted);
-    font-size:14px;
-    font-weight:800;
-    line-height:1.55;
-  }
-
-  .nav-tag{
-    display:inline-flex;
-    align-items:center;
-    width:max-content;
-    padding:7px 10px;
-    border-radius:999px;
-    border:1px solid rgba(255,255,255,.10);
-    background:rgba(255,255,255,.04);
-    color:var(--muted);
-    font-size:11px;
-    font-weight:900;
-    letter-spacing:.02em;
-    text-transform:uppercase;
-  }
-
-  .section-title{
-    margin:0;
-    font-size:18px;
-    letter-spacing:-.01em;
-  }
-
-  .footer{
-    text-align:center;
-    color:var(--muted);
-    font-size:12px;
-    font-weight:800;
-    padding:0 28px 24px;
-  }
-
-  @media(max-width:640px){
-    .floating-back{
-      top:calc(env(safe-area-inset-top, 0px) + 10px);
-      left:calc(env(safe-area-inset-left, 0px) + 10px);
-      padding:11px 14px;
-      font-size:13px;
-    }
-
-    .body{
-      padding:22px 18px 18px;
-    }
-
-    h1{
-      font-size:clamp(28px, 8vw, 40px);
-    }
-
-    .subtitle{
-      font-size:15px;
-    }
+  @media(min-width:900px){
+    body{padding-bottom:24px}
+    .bottomNav{display:none}
   }
 </style>
 </head>
 <body>
-  <a class="floating-back" href="https://digiylyfe.com/" aria-label="Retour au site DIGIYLYFE">
-    ↩️ Retour site
-  </a>
-
   <div class="wrap">
-    <div class="card">
-      <div class="body">
-        <div class="badge"><span class="dot"></span> JE VENDS</div>
-
-        <div class="hero-top">
+    <main class="card hero">
+      <div class="topline">
+        <div class="brand">
+          <div class="mark">🛍️</div>
           <div>
-            <h1>Entre dans ton espace vendeur</h1>
-            <div class="subtitle">
-              Une seule entrée claire pour ouvrir ton accès, voir ton activité, régler ta boutique et gérer tes produits.
-              Ici, on te guide proprement vers la bonne porte, sans langage froid ni détour inutile.
-            </div>
-          </div>
-
-          <div class="hero-actions">
-            <a class="btn primary" id="heroDashboard" href="./dashboard.html">📈 Voir mon activité</a>
-            <a class="btn gold" id="heroPin" href="./pin.html">🔑 Ouvrir mon accès</a>
-            <a class="btn info" id="heroCockpit" href="./cockpit.html">🧭 Aller à ma gestion</a>
+            <div class="eyebrow">JE VENDS</div>
+            <div class="brandTitle">Entrée vendeur</div>
+            <div class="brandSub" id="topSub">Un seul chemin, sans te perdre</div>
           </div>
         </div>
+        <div class="badge"><span class="dot"></span><span id="badgeText">MARKET</span></div>
+      </div>
 
-        <div class="pills">
-          <div class="pill">🔑 Mon code</div>
-          <div class="pill">📈 Mon activité</div>
-          <div class="pill">🧭 Ma gestion</div>
-          <div class="pill">🛠️ Ma boutique</div>
-          <div class="pill">🛒 Mes produits</div>
-          <div class="pill" id="pillSlug">🧭 Entrée guidée</div>
-        </div>
-
-        <div class="status-grid">
-          <div class="box">
-            <h2>Où tu en es</h2>
-            <div class="status warn" id="statusBox">Lecture de ton accès en cours...</div>
-
-            <div class="reading">
-              <div class="reading-row">
-                <span class="k">Identifiant actif</span>
-                <span class="v mono" id="slugText">—</span>
-              </div>
-              <div class="reading-row">
-                <span class="k">Numéro lié</span>
-                <span class="v" id="phoneText">—</span>
-              </div>
-              <div class="reading-row">
-                <span class="k">Accès</span>
-                <span class="v" id="sessionText">—</span>
-              </div>
-            </div>
-
-            <div class="muted" id="statusHint">
-              Si ton identifiant est déjà reconnu, tu peux ouvrir directement ton espace.
-            </div>
-          </div>
-
-          <div class="box">
-            <h2>Repères utiles</h2>
-            <div class="muted">
-              Depuis cette entrée, tu peux aller vers ton code d’accès, ton activité, ta gestion, ta boutique et tes produits.
-              Tout reste cousu sur le même chemin pour éviter les allers-retours inutiles.
-            </div>
-            <div class="status info">
-              Cette page sert à t’orienter vers la bonne porte de travail.
-            </div>
-          </div>
-        </div>
-
-        <h2 class="section-title">Choisis où aller</h2>
-
-        <div class="nav-grid">
-          <a class="nav-card" id="navPin" href="./pin.html">
-            <div class="nav-head">
-              <div>
-                <div class="nav-tag">Entrée</div>
-                <h3 class="nav-title">Ouvrir avec mon code</h3>
-              </div>
-              <div class="nav-icon">🔑</div>
-            </div>
-            <div class="nav-text">
-              La bonne porte pour ouvrir ton accès proprement et retrouver ton espace.
-            </div>
-          </a>
-
-          <a class="nav-card" id="navDashboard" href="./dashboard.html">
-            <div class="nav-head">
-              <div>
-                <div class="nav-tag">Vue d’ensemble</div>
-                <h3 class="nav-title">Mon activité</h3>
-              </div>
-              <div class="nav-icon">📈</div>
-            </div>
-            <div class="nav-text">
-              Le point central pour lire tes repères, ton accès et la navigation principale.
-            </div>
-          </a>
-
-          <a class="nav-card" id="navCockpit" href="./cockpit.html">
-            <div class="nav-head">
-              <div>
-                <div class="nav-tag">Travail</div>
-                <h3 class="nav-title">Ma gestion</h3>
-              </div>
-              <div class="nav-icon">🧭</div>
-            </div>
-            <div class="nav-text">
-              Ta vraie vue de travail, avec tes données quand l’accès est bien ouvert.
-            </div>
-          </a>
-
-          <a class="nav-card" id="navProduits" href="./produits.html">
-            <div class="nav-head">
-              <div>
-                <div class="nav-tag">Catalogue</div>
-                <h3 class="nav-title">Mes produits</h3>
-              </div>
-              <div class="nav-icon">🛒</div>
-            </div>
-            <div class="nav-text">
-              Ajouter, corriger, mettre en avant ou masquer ce que tu vends.
-            </div>
-          </a>
-
-          <a class="nav-card" id="navBoutique" href="./boutique.html">
-            <div class="nav-head">
-              <div>
-                <div class="nav-tag">Réglages</div>
-                <h3 class="nav-title">Ma boutique</h3>
-              </div>
-              <div class="nav-icon">🛠️</div>
-            </div>
-            <div class="nav-text">
-              Régler ton identité, ton contact, ta visibilité et ta lecture terrain.
-            </div>
-          </a>
-
-          <a class="nav-card" href="https://digiylyfe.com/">
-            <div class="nav-head">
-              <div>
-                <div class="nav-tag">Sortie</div>
-                <h3 class="nav-title">Revenir au site</h3>
-              </div>
-              <div class="nav-icon">🏠</div>
-            </div>
-            <div class="nav-text">
-              Revenir au site principal sans rester coincé dans une page isolée.
-            </div>
-          </a>
+      <div>
+        <h1>Entre dans ton espace vendeur</h1>
+        <div class="subtitle">
+          Ouvre ton accès, regarde ce qui demande attention, ajoute un produit, note une vente, puis règle ta boutique quand il faut.
+          Sur téléphone, le menu du bas garde le chemin simple.
         </div>
       </div>
 
-      <div class="footer">
-        JE VENDS • entrée propre • navigation cousue • même chemin • identifiant guidé ♾️
+      <div class="heroActions">
+        <a class="btn primary wide" id="heroDashboard" href="./dashboard-pro.html">🏠 Voir mon activité</a>
+        <a class="btn gold" id="heroPin" href="./pin.html">🔑 Ouvrir mon accès</a>
+        <a class="btn info" id="heroProducts" href="./produits.html">📦 Mes produits</a>
+        <a class="btn warn" id="heroNote" href="./produits.html#quickMarketNote">📝 Note rapide</a>
+        <a class="btn" id="heroPlus" href="./boutique.html">⚙️ Plus</a>
       </div>
-    </div>
+
+      <section class="statusGrid">
+        <div class="box">
+          <h2>Où tu en es</h2>
+          <div class="status warn" id="statusBox">Lecture de ton accès en cours...</div>
+          <div class="reading">
+            <div class="readingRow"><span class="k">Identifiant actif</span><span class="v mono" id="slugText">—</span></div>
+            <div class="readingRow"><span class="k">Numéro lié</span><span class="v" id="phoneText">—</span></div>
+            <div class="readingRow"><span class="k">Accès</span><span class="v" id="sessionText">—</span></div>
+          </div>
+          <div class="muted" id="statusHint">Si ton identifiant est reconnu, tu peux continuer vers ton activité.</div>
+        </div>
+
+        <div class="box">
+          <h2>Repère DIGIY</h2>
+          <div class="muted">
+            MARKET garde le même cerveau mobile : Accueil, Produits, Ajouter, Notes, Plus.
+            La boutique travaille, Mon argent reçoit les notes quand elles sont prêtes.
+          </div>
+          <div class="status info">Une note rapide peut nourrir Mon argent sans casser le rythme de vente.</div>
+        </div>
+      </section>
+
+      <h2 class="sectionTitle">Choisis où aller</h2>
+
+      <section class="navGrid">
+        <a class="navCard" id="navDashboard" href="./dashboard-pro.html">
+          <div class="navHead"><div><div class="navTag">Accueil</div><h3 class="navTitle">Mon activité</h3></div><div class="navIcon">🏠</div></div>
+          <div class="navText">Ce qui demande attention maintenant : visibilité, produits, accès, prochaines actions.</div>
+        </a>
+
+        <a class="navCard" id="navProduits" href="./produits.html">
+          <div class="navHead"><div><div class="navTag">Produits</div><h3 class="navTitle">Mes produits</h3></div><div class="navIcon">📦</div></div>
+          <div class="navText">Voir, corriger, masquer ou mettre en avant ce que tu vends.</div>
+        </a>
+
+        <a class="navCard" id="navAjouter" href="./produits.html#productForm">
+          <div class="navHead"><div><div class="navTag">Geste maître</div><h3 class="navTitle">Ajouter un produit</h3></div><div class="navIcon">➕</div></div>
+          <div class="navText">Nom, prix, photo, petit texte. Simple, direct, terrain.</div>
+        </a>
+
+        <a class="navCard" id="navNotes" href="./produits.html#quickMarketNote">
+          <div class="navHead"><div><div class="navTag">Mon argent</div><h3 class="navTitle">Note rapide</h3></div><div class="navIcon">📝</div></div>
+          <div class="navText">Vente, stock, livraison, client qui doit, petite dépense : tu écris vite, DIGIY prépare.</div>
+        </a>
+
+        <a class="navCard" id="navBoutique" href="./boutique.html">
+          <div class="navHead"><div><div class="navTag">Plus</div><h3 class="navTitle">Ma boutique</h3></div><div class="navIcon">⚙️</div></div>
+          <div class="navText">Réglages, visibilité, WhatsApp Visio Live, contact et fiche publique.</div>
+        </a>
+
+        <a class="navCard" id="navPin" href="./pin.html">
+          <div class="navHead"><div><div class="navTag">Accès</div><h3 class="navTitle">Ouvrir avec mon code</h3></div><div class="navIcon">🔑</div></div>
+          <div class="navText">La porte de secours si la session n’est pas encore ouverte.</div>
+        </a>
+      </section>
+
+      <div class="footer">JE VENDS • entrée propre • menu bas stable • notes vers Mon argent ♾️</div>
+    </main>
   </div>
+
+  <nav class="bottomNav" aria-label="Navigation MARKET">
+    <div class="bottomNavInner">
+      <a class="active" id="bottomHome" href="./dashboard-pro.html"><b>🏠</b><span>Accueil</span></a>
+      <a id="bottomProducts" href="./produits.html"><b>📦</b><span>Produits</span></a>
+      <a id="bottomAdd" href="./produits.html#productForm"><b>➕</b><span>Ajouter</span></a>
+      <a id="bottomNotes" href="./produits.html#quickMarketNote"><b>📝</b><span>Notes</span></a>
+      <a id="bottomPlus" href="./boutique.html"><b>⚙️</b><span>Plus</span></a>
+    </div>
+  </nav>
 
   <script>
     (function(){
@@ -643,6 +281,7 @@
       }
 
       const hintedSlug = normSlug(qs.get("slug"));
+      const hintedPhone = normPhone(qs.get("phone"));
 
       const rememberedSlug =
         normSlug(sessionStorage.getItem("digiy_market_slug")) ||
@@ -656,7 +295,7 @@
         "";
 
       const activeSlug = hintedSlug || rememberedSlug || "";
-      const activePhone = rememberedPhone || "";
+      const activePhone = hintedPhone || rememberedPhone || "";
 
       const sessionFlags = [
         sessionStorage.getItem("digiy_market_pin_access"),
@@ -681,38 +320,35 @@
       if (!sessionOpen){
         for (const raw of untilValues){
           if (!raw) continue;
-
           const n = Number(raw);
-          if (Number.isFinite(n) && n > Date.now()){
-            sessionOpen = true;
-            break;
-          }
-
+          if (Number.isFinite(n) && n > Date.now()){ sessionOpen = true; break; }
           const d = Date.parse(String(raw));
-          if (Number.isFinite(d) && d > Date.now()){
-            sessionOpen = true;
-            break;
-          }
+          if (Number.isFinite(d) && d > Date.now()){ sessionOpen = true; break; }
         }
       }
 
-      if (hintedSlug) {
-        try {
-          sessionStorage.setItem("digiy_market_slug", hintedSlug);
-          sessionStorage.setItem("digiy_market_last_slug", hintedSlug);
-          localStorage.setItem("digiy_market_last_slug", hintedSlug);
-        } catch (_) {}
-      }
+      try{
+        if (activeSlug){
+          sessionStorage.setItem("digiy_market_slug", activeSlug);
+          sessionStorage.setItem("digiy_market_last_slug", activeSlug);
+          localStorage.setItem("digiy_market_last_slug", activeSlug);
+        }
+        if (activePhone){
+          sessionStorage.setItem("digiy_market_phone", activePhone);
+          localStorage.setItem("digiy_market_last_phone", activePhone);
+        }
+      }catch(_){}
 
-      function withSlug(path){
+      function withContext(path, includePhone){
         const u = new URL(path, location.href);
         if (activeSlug) u.searchParams.set("slug", activeSlug);
+        if (includePhone && activePhone) u.searchParams.set("phone", activePhone);
         return u.pathname + u.search + u.hash;
       }
 
-      function setHref(id, path){
+      function setHref(id, path, includePhone){
         const el = $(id);
-        if (el) el.href = withSlug(path);
+        if (el) el.href = withContext(path, includePhone !== false);
       }
 
       function setStatus(msg, tone){
@@ -722,52 +358,50 @@
         box.textContent = msg;
       }
 
+      const ids = {
+        heroDashboard:"./dashboard-pro.html",
+        heroPin:"./pin.html",
+        heroProducts:"./produits.html",
+        heroNote:"./produits.html#quickMarketNote",
+        heroPlus:"./boutique.html",
+        navPin:"./pin.html",
+        navDashboard:"./dashboard-pro.html",
+        navProduits:"./produits.html",
+        navAjouter:"./produits.html#productForm",
+        navNotes:"./produits.html#quickMarketNote",
+        navBoutique:"./boutique.html",
+        bottomHome:"./dashboard-pro.html",
+        bottomProducts:"./produits.html",
+        bottomAdd:"./produits.html#productForm",
+        bottomNotes:"./produits.html#quickMarketNote",
+        bottomPlus:"./boutique.html"
+      };
+
+      Object.entries(ids).forEach(([id,path]) => setHref(id, path, true));
+
       const slugText = $("slugText");
       const phoneText = $("phoneText");
       const sessionText = $("sessionText");
-      const pillSlug = $("pillSlug");
       const statusHint = $("statusHint");
+      const badgeText = $("badgeText");
 
       if (slugText) slugText.textContent = activeSlug || "Aucun identifiant mémorisé";
       if (phoneText) phoneText.textContent = displayPhone(activePhone);
       if (sessionText) sessionText.textContent = sessionOpen ? "Ouvert" : "Fermé";
-
-      if (pillSlug) {
-        pillSlug.textContent = activeSlug
-          ? `🧭 Identifiant guidé : ${activeSlug}`
-          : "🧭 Entrée libre";
-      }
-
-      setHref("heroDashboard", "./dashboard.html");
-      setHref("heroPin", "./pin.html");
-      setHref("heroCockpit", "./cockpit.html");
-
-      setHref("navPin", "./pin.html");
-      setHref("navDashboard", "./dashboard.html");
-      setHref("navCockpit", "./cockpit.html");
-      setHref("navProduits", "./produits.html");
-      setHref("navBoutique", "./boutique.html");
+      if (badgeText) badgeText.textContent = activeSlug ? activeSlug : "MARKET";
 
       if (activeSlug && sessionOpen) {
-        setStatus("Ton identifiant est bien reconnu et ton accès semble déjà ouvert. Tu peux entrer directement dans ton espace.", "ok");
-        if (statusHint) {
-          statusHint.textContent =
-            "Ton identifiant circule déjà et ton accès semble ouvert.";
-        }
+        setStatus("Ton identifiant est reconnu et ton accès semble déjà ouvert. Tu peux aller directement à ton activité.", "ok");
+        if (statusHint) statusHint.textContent = "Ton chemin est prêt : Accueil, Produits, Ajouter, Notes, Plus.";
       } else if (activeSlug && !sessionOpen) {
-        setStatus("Ton identifiant est bien reconnu, mais ton accès n’est pas encore ouvert. Passe par ton code pour entrer proprement.", "warn");
-        if (statusHint) {
-          statusHint.textContent =
-            "Ton identifiant est bien repéré, mais le bon réflexe reste la porte d’accès.";
-        }
+        setStatus("Ton identifiant est reconnu, mais ton accès n’est pas encore ouvert. Passe par ton code pour entrer proprement.", "warn");
+        if (statusHint) statusHint.textContent = "Le bon réflexe : ouvrir l’accès, puis continuer sans retaper le code partout.";
       } else {
         setStatus("Aucun identifiant trouvé. Passe par ton code pour entrer proprement.", "warn");
-        if (statusHint) {
-          statusHint.textContent =
-            "Sans identifiant mémorisé, la bonne porte reste l’accès par code.";
-        }
+        if (statusHint) statusHint.textContent = "Sans identifiant mémorisé, la bonne porte reste l’accès par code.";
       }
     })();
   </script>
 </body>
 </html>
+
