@@ -1,10 +1,22 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <title>Je vends — Ticket</title>
-  <meta name="theme-color" content="#0b1020" />
+  <meta name="theme-color" content="#07140f"/>
+  <meta name="description" content="Je vends — ticket simple pour imprimer, vérifier ou annuler une vente MARKET."/>
+
+  <script>
+    window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
+    window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+    window.DIGIY_MODULE = "MARKET";
+    window.DIGIY_LOGIN_URL = "./pin.html";
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./guard.js?v=market-ticket-20260501"></script>
 
   <style>
     :root{
@@ -13,156 +25,446 @@
       --line:#e2e8f0;
       --bg:#f8fafc;
       --card:#ffffff;
+      --green:#16a34a;
+      --blue:#0ea5e9;
+      --red:#ef4444;
+      --gold:#f59e0b;
+      --nav:#07140f;
+      --navText:#ecfff4;
+      --shadow:0 18px 50px rgba(15,23,42,.12);
+      --navH:76px;
     }
+
     *{box-sizing:border-box;margin:0;padding:0}
+
     body{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      background:var(--bg);
+      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+      background:
+        radial-gradient(900px 420px at 10% -10%, rgba(34,197,94,.10), transparent 60%),
+        linear-gradient(180deg,#f8fafc,#eef2f7);
       color:var(--ink);
-      padding:16px;
+      padding:16px 16px calc(var(--navH) + env(safe-area-inset-bottom,0px) + 18px);
+      min-height:100vh;
     }
-    .wrap{
-      max-width:420px;
+
+    a{color:inherit;text-decoration:none}
+
+    .page{
+      max-width:480px;
       margin:0 auto;
+      display:grid;
+      gap:12px;
+    }
+
+    .top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      padding:10px 2px;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    }
+
+    .brand{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      min-width:0;
+    }
+
+    .mark{
+      width:42px;
+      height:42px;
+      border-radius:15px;
+      display:grid;
+      place-items:center;
+      background:#07140f;
+      color:#facc15;
+      box-shadow:var(--shadow);
+      flex:0 0 auto;
+    }
+
+    .brandTitle{
+      font-weight:950;
+      font-size:15px;
+      color:#07140f;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .brandSub{
+      margin-top:2px;
+      font-size:12px;
+      color:var(--muted);
+      font-weight:800;
+    }
+
+    .miniActions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .miniBtn{
+      min-height:38px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:7px;
+      border:1px solid var(--line);
+      background:#fff;
+      color:#0f172a;
+      border-radius:999px;
+      padding:9px 11px;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      font-size:12px;
+      font-weight:900;
+      box-shadow:0 8px 18px rgba(15,23,42,.08);
+    }
+
+    .wrap{
+      width:100%;
       background:var(--card);
       border:1px solid var(--line);
-      border-radius:14px;
-      padding:14px;
+      border-radius:16px;
+      padding:15px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
     }
-    .row{display:flex;justify-content:space-between;gap:10px}
-    .h1{font-weight:900;font-size:18px}
-    .small{font-size:12px;color:var(--muted)}
-    .sep{border-top:1px dashed var(--line);margin:10px 0}
-    table{width:100%;border-collapse:collapse}
-    th,td{font-size:12px;padding:6px 0;border-bottom:1px dotted var(--line);vertical-align:top}
-    th{color:var(--muted);font-weight:800;text-align:left}
-    td.r, th.r{text-align:right}
-    .tot td{border-bottom:none;font-weight:900}
-    .actions{
+
+    .row{
       display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+    }
+
+    .h1{
+      font-weight:900;
+      font-size:18px;
+      line-height:1.2;
+      word-break:break-word;
+    }
+
+    .small{
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.45;
+    }
+
+    .sep{
+      border-top:1px dashed var(--line);
+      margin:10px 0;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+    }
+
+    th,td{
+      font-size:12px;
+      padding:6px 0;
+      border-bottom:1px dotted var(--line);
+      vertical-align:top;
+    }
+
+    th{
+      color:var(--muted);
+      font-weight:800;
+      text-align:left;
+    }
+
+    td.r, th.r{text-align:right}
+
+    .tot td{
+      border-bottom:none;
+      font-weight:900;
+      font-size:14px;
+    }
+
+    .status{
+      display:inline-flex;
+      padding:5px 8px;
+      border-radius:999px;
+      background:#f1f5f9;
+      color:#334155;
+      font-size:11px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    .status.ok{background:#dcfce7;color:#166534}
+    .status.warn{background:#fef3c7;color:#92400e}
+    .status.bad{background:#fee2e2;color:#991b1b}
+
+    .actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
       gap:10px;
       margin-top:12px;
     }
+
     button{
-      flex:1;
+      min-height:44px;
       padding:10px 12px;
-      border-radius:10px;
+      border-radius:12px;
       border:1px solid var(--line);
       background:#fff;
-      font-weight:800;
+      font-weight:900;
       cursor:pointer;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
     }
+
     button.primary{
-      background:#0ea5e9;
+      background:var(--blue);
       color:#fff;
-      border-color:#0ea5e9;
+      border-color:var(--blue);
     }
+
     button.danger{
-      background:#ef4444;
+      background:var(--red);
       color:#fff;
-      border-color:#ef4444;
+      border-color:var(--red);
     }
+
     button:disabled{
       opacity:.55;
       cursor:not-allowed;
     }
+
     .error{
       margin-top:10px;
-      color:#ef4444;
+      color:#b91c1c;
       font-size:12px;
       min-height:1.2em;
       white-space:pre-line;
+      line-height:1.45;
     }
+
+    .hint{
+      margin-top:10px;
+      padding:10px;
+      border-radius:12px;
+      background:#f8fafc;
+      border:1px solid var(--line);
+      color:var(--muted);
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      font-size:12px;
+      font-weight:750;
+      line-height:1.45;
+    }
+
+    .navBottom{
+      position:fixed;
+      left:0;
+      right:0;
+      bottom:0;
+      z-index:50;
+      padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
+      background:rgba(7,20,15,.94);
+      border-top:1px solid rgba(255,255,255,.10);
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+      font-family:Outfit,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    }
+
+    .navInner{
+      max-width:760px;
+      margin:0 auto;
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:6px;
+    }
+
+    .navItem{
+      min-height:56px;
+      border-radius:16px;
+      display:grid;
+      place-items:center;
+      align-content:center;
+      gap:3px;
+      color:rgba(236,255,244,.70);
+      font-size:11px;
+      font-weight:900;
+      border:1px solid transparent;
+    }
+
+    .navItem .ico{
+      font-size:18px;
+      line-height:1;
+    }
+
+    .navItem.more{
+      color:#041b12;
+      background:linear-gradient(135deg,#facc15,#22c55e);
+      border-color:rgba(250,204,21,.35);
+    }
+
+    @media(max-width:420px){
+      body{padding-left:10px;padding-right:10px}
+      .actions{grid-template-columns:1fr}
+      .miniActions{display:none}
+    }
+
     @media print{
-      body{background:#fff;padding:0}
-      .wrap{border:none;border-radius:0;max-width:none}
-      .actions,.error{display:none !important}
+      body{
+        background:#fff;
+        padding:0;
+      }
+      .page{
+        max-width:none;
+        display:block;
+      }
+      .top,.actions,.error,.hint,.navBottom{
+        display:none !important;
+      }
+      .wrap{
+        border:none;
+        border-radius:0;
+        box-shadow:none;
+        max-width:none;
+      }
     }
   </style>
 </head>
 
 <body>
-  <div class="wrap">
-    <div class="row">
-      <div>
-        <div class="h1" id="storeName">Ma boutique</div>
-        <div class="small" id="storeSlug">—</div>
+  <div class="page">
+    <div class="top">
+      <div class="brand">
+        <div class="mark">🧾</div>
+        <div>
+          <div class="brandTitle">Ticket MARKET</div>
+          <div class="brandSub" id="topSub">Lecture du ticket…</div>
+        </div>
       </div>
-      <div style="text-align:right">
-        <div class="small">TICKET</div>
-        <div class="small" id="saleIdShort">—</div>
+
+      <div class="miniActions">
+        <a class="miniBtn" id="btnBack" href="./produits.html">📦 Produits</a>
+        <a class="miniBtn" id="btnHome" href="./dashboard-pro.html">🏠 Accueil</a>
       </div>
     </div>
 
-    <div class="sep"></div>
+    <div class="wrap">
+      <div class="row">
+        <div>
+          <div class="h1" id="storeName">Ma boutique</div>
+          <div class="small" id="storeSlug">—</div>
+        </div>
+        <div style="text-align:right">
+          <div class="small">TICKET</div>
+          <div class="small" id="saleIdShort">—</div>
+        </div>
+      </div>
 
-    <div class="row small">
-      <div id="saleDate">—</div>
-      <div id="saleStatus">—</div>
+      <div class="sep"></div>
+
+      <div class="row small">
+        <div id="saleDate">—</div>
+        <div><span class="status" id="saleStatus">—</span></div>
+      </div>
+
+      <div class="sep"></div>
+
+      <table aria-label="Articles du ticket">
+        <thead>
+          <tr>
+            <th>Article</th>
+            <th class="r">Qté</th>
+            <th class="r">PU</th>
+            <th class="r">Total</th>
+          </tr>
+        </thead>
+        <tbody id="lines"></tbody>
+      </table>
+
+      <div class="sep"></div>
+
+      <table aria-label="Totaux du ticket">
+        <tbody>
+          <tr><td class="small">Sous-total</td><td class="r" id="subTotal">0 FCFA</td></tr>
+          <tr><td class="small">TVA</td><td class="r" id="taxTotal">0 FCFA</td></tr>
+          <tr class="tot"><td>TOTAL</td><td class="r" id="grandTotal">0 FCFA</td></tr>
+        </tbody>
+      </table>
+
+      <div class="sep"></div>
+
+      <div class="small" style="font-weight:900;margin-bottom:6px">Paiements</div>
+      <div id="payments" class="small">—</div>
+
+      <div class="actions">
+        <button class="primary" id="btnPrint" type="button">🧾 Imprimer</button>
+        <button class="danger" id="btnVoid" type="button">⛔ Annuler</button>
+      </div>
+
+      <div class="hint">
+        Outil secondaire MARKET. Le ticket sert à imprimer ou vérifier une vente. Le cœur du module reste : produits, ajout, notes rapides et Mon argent.
+      </div>
+
+      <div class="error" id="errorBox"></div>
     </div>
-
-    <div class="sep"></div>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Article</th>
-          <th class="r">Qté</th>
-          <th class="r">PU</th>
-          <th class="r">Total</th>
-        </tr>
-      </thead>
-      <tbody id="lines"></tbody>
-    </table>
-
-    <div class="sep"></div>
-
-    <table>
-      <tbody>
-        <tr><td class="small">Sous-total</td><td class="r" id="subTotal">0 FCFA</td></tr>
-        <tr><td class="small">TVA</td><td class="r" id="taxTotal">0 FCFA</td></tr>
-        <tr class="tot"><td>TOTAL</td><td class="r" id="grandTotal">0 FCFA</td></tr>
-      </tbody>
-    </table>
-
-    <div class="sep"></div>
-
-    <div class="small" style="font-weight:900;margin-bottom:6px">Paiements</div>
-    <div id="payments" class="small">—</div>
-
-    <div class="actions">
-      <button class="primary" id="btnPrint">🧾 Imprimer</button>
-      <button class="danger" id="btnVoid">⛔ Annuler la vente</button>
-    </div>
-
-    <div class="error" id="errorBox"></div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <nav class="navBottom" aria-label="Navigation MARKET">
+    <div class="navInner">
+      <a class="navItem" id="navHome" href="./dashboard-pro.html"><span class="ico">🏠</span><span>Accueil</span></a>
+      <a class="navItem" id="navProducts" href="./produits.html"><span class="ico">📦</span><span>Produits</span></a>
+      <a class="navItem" id="navAdd" href="./produits.html#productForm"><span class="ico">➕</span><span>Ajouter</span></a>
+      <a class="navItem" id="navNotes" href="./produits.html#quickMarketNote"><span class="ico">✍️</span><span>Notes</span></a>
+      <a class="navItem more" id="navMore" href="./boutique.html"><span class="ico">⚙️</span><span>Plus</span></a>
+    </div>
+  </nav>
 
   <script>
   (function(){
     "use strict";
 
-    const SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indlc3Ftd2pqdHNlZnlqbmx1b3NqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxNzg4ODIsImV4cCI6MjA4MDc1NDg4Mn0.dZfYOc2iL2_wRYL3zExZFsFSBK6AbMeOid2LrIjcTdA";
-    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const SUPABASE_URL = window.DIGIY_SUPABASE_URL;
+    const SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON;
+    const $ = (id) => document.getElementById(id);
 
-    const $ = (id)=>document.getElementById(id);
-    const btnPrint = $("btnPrint");
-    const btnVoid = $("btnVoid");
+    let sb = null;
+    let ACCESS_SLUG = "";
+    let ACCESS_PHONE = "";
+    let OWNER_ID = "";
+    let SALE_ID = "";
 
     function err(m){
       $("errorBox").textContent = m || "";
     }
 
     function qp(k){
-      try{return new URLSearchParams(location.search).get(k) || ""}catch(_){return ""}
+      try{return new URLSearchParams(location.search).get(k) || "";}catch(_){return "";}
+    }
+
+    function normSlug(v){
+      return String(v || "").trim().toLowerCase();
+    }
+
+    function normPhone(v){
+      const d = String(v || "").replace(/[^\d]/g, "");
+      if (!d) return "";
+      if (d.startsWith("221") && d.length === 12) return d;
+      if (d.length === 9) return "221" + d;
+      return d;
+    }
+
+    function esc(str){
+      return String(str || "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
     }
 
     function money(x){
       const n = Number(x || 0);
-      return `${n.toFixed(0)} FCFA`;
+      return Number.isFinite(n) ? `${n.toLocaleString("fr-FR")} FCFA` : "0 FCFA";
     }
 
     function shortId(id){
@@ -171,197 +473,350 @@
       return s.length > 10 ? `${s.slice(0,8)}…` : s;
     }
 
-    const saleId = (
-      qp("sale_id") ||
-      qp("id") ||
-      window.DIGIY_GUARD?.getSession?.()?.sale_id ||
-      localStorage.getItem("DIGIY_LAST_SALE_ID") ||
-      ""
-    ).trim();
+    function buildPath(base, opts){
+      const o = opts || {};
+      const u = new URL(base, location.href);
+      if (ACCESS_SLUG && o.slug !== false) u.searchParams.set("slug", ACCESS_SLUG);
+      if (ACCESS_PHONE && o.phone) u.searchParams.set("phone", ACCESS_PHONE);
+      return u.pathname + u.search + u.hash;
+    }
 
-    const slug = (
-      qp("slug") ||
-      window.DIGIY_GUARD?.getSlug?.() ||
-      localStorage.getItem("DIGIY_SLUG") ||
-      ""
-    ).trim();
+    function updateLinks(){
+      const map = {
+        btnBack:["./produits.html",{slug:true,phone:true}],
+        btnHome:["./dashboard-pro.html",{slug:true,phone:true}],
+        navHome:["./dashboard-pro.html",{slug:true,phone:true}],
+        navProducts:["./produits.html",{slug:true,phone:true}],
+        navAdd:["./produits.html#productForm",{slug:true,phone:true}],
+        navNotes:["./produits.html#quickMarketNote",{slug:true,phone:true}],
+        navMore:["./boutique.html",{slug:true,phone:true}]
+      };
 
-    const ownerId = (
-      window.DIGIY_GUARD?.getSession?.()?.owner_id ||
-      localStorage.getItem("DIGIY_PRO_ID") ||
-      ""
-    ).trim();
+      Object.entries(map).forEach(([id, cfg]) => {
+        const el = $(id);
+        if (el) el.href = buildPath(cfg[0], cfg[1]);
+      });
+    }
+
+    async function waitGuard(){
+      try{
+        const guard = window.DIGIY_GUARD;
+        if (!guard) return null;
+
+        if (guard.ready && typeof guard.ready.then === "function"){
+          await guard.ready;
+        } else if (typeof guard.ready === "function"){
+          const r = guard.ready();
+          if (r && typeof r.then === "function") await r;
+        }
+
+        return (typeof guard.getSession === "function" ? guard.getSession() : null) || guard.state || null;
+      }catch(e){
+        console.warn("guard ready warning:", e);
+        return null;
+      }
+    }
+
+    function resolveContext(session){
+      const guard = window.DIGIY_GUARD || {};
+      const st = session || guard.state || {};
+
+      SALE_ID = String(
+        qp("sale_id") ||
+        qp("id") ||
+        st.sale_id ||
+        st.session?.sale_id ||
+        localStorage.getItem("DIGIY_LAST_SALE_ID") ||
+        localStorage.getItem("digiy_market_last_sale_id") ||
+        ""
+      ).trim();
+
+      ACCESS_SLUG = normSlug(
+        qp("slug") ||
+        (typeof guard.getSlug === "function" ? guard.getSlug() : "") ||
+        st.slug ||
+        st.session?.slug ||
+        st.identity?.slug ||
+        sessionStorage.getItem("digiy_market_slug") ||
+        localStorage.getItem("digiy_market_last_slug") ||
+        localStorage.getItem("DIGIY_SLUG") ||
+        ""
+      );
+
+      ACCESS_PHONE = normPhone(
+        qp("phone") ||
+        (typeof guard.getPhone === "function" ? guard.getPhone() : "") ||
+        st.phone ||
+        st.session?.phone ||
+        st.identity?.phone ||
+        sessionStorage.getItem("digiy_market_phone") ||
+        localStorage.getItem("digiy_market_last_phone") ||
+        ""
+      );
+
+      OWNER_ID = String(
+        st.owner_id ||
+        st.session?.owner_id ||
+        st.identity?.owner_id ||
+        localStorage.getItem("DIGIY_PRO_ID") ||
+        localStorage.getItem("digiy_market_owner_id") ||
+        ""
+      ).trim();
+
+      if (ACCESS_SLUG){
+        try{
+          sessionStorage.setItem("digiy_market_slug", ACCESS_SLUG);
+          localStorage.setItem("digiy_market_last_slug", ACCESS_SLUG);
+        }catch(_){}
+      }
+
+      if (ACCESS_PHONE){
+        try{
+          sessionStorage.setItem("digiy_market_phone", ACCESS_PHONE);
+          localStorage.setItem("digiy_market_last_phone", ACCESS_PHONE);
+        }catch(_){}
+      }
+
+      updateLinks();
+    }
+
+    function getClient(){
+      if (sb) return sb;
+      if (!window.supabase || !SUPABASE_URL || !SUPABASE_ANON_KEY){
+        throw new Error("Configuration Supabase manquante.");
+      }
+      sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+        auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false }
+      });
+      return sb;
+    }
+
+    async function selectFirst(table, select, eq){
+      const client = getClient();
+      let q = client.from(table).select(select);
+      Object.entries(eq || {}).forEach(([k,v]) => { q = q.eq(k,v); });
+      const { data, error } = await q.maybeSingle();
+      if (error) throw error;
+      return data || null;
+    }
 
     async function loadProductNames(ids){
       const uniq = [...new Set((ids || []).filter(Boolean))];
       if (!uniq.length) return new Map();
 
+      const tables = ["market_products", "digiy_market_products"];
       const tries = [
-        { select: "id,title", pick: (p) => p.title },
-        { select: "id,product_name", pick: (p) => p.product_name },
-        { select: "id,name", pick: (p) => p.name }
+        { select:"id,title", pick:(p)=>p.title },
+        { select:"id,product_name", pick:(p)=>p.product_name },
+        { select:"id,name", pick:(p)=>p.name }
       ];
 
-      for (const t of tries){
-        const { data, error } = await sb
-          .from("market_products")
-          .select(t.select)
-          .in("id", uniq);
+      for (const table of tables){
+        for (const t of tries){
+          try{
+            const { data, error } = await getClient()
+              .from(table)
+              .select(t.select)
+              .in("id", uniq);
 
-        if (!error && Array.isArray(data)) {
-          const map = new Map();
-          data.forEach((p) => {
-            map.set(p.id, t.pick(p) || "Article");
-          });
-          return map;
+            if (!error && Array.isArray(data)){
+              const map = new Map();
+              data.forEach((p) => map.set(p.id, t.pick(p) || "Article"));
+              if (map.size) return map;
+            }
+          }catch(_){}
         }
       }
 
       return new Map();
     }
 
+    function setStatus(value){
+      const el = $("saleStatus");
+      const s = String(value || "—");
+      const low = s.toLowerCase();
+      el.textContent = "Statut : " + s;
+
+      let cls = "status";
+      if (["paid","posted","completed","ok"].includes(low)) cls += " ok";
+      else if (["void","voided","cancelled","canceled"].includes(low)) cls += " bad";
+      else cls += " warn";
+      el.className = cls;
+    }
+
     async function loadTicket(){
       err("");
+      $("topSub").textContent = "Lecture du ticket…";
 
-      if (!saleId) {
+      if (!SALE_ID){
         $("saleIdShort").textContent = "—";
-        $("saleStatus").textContent = "Statut : introuvable";
+        setStatus("introuvable");
         $("saleDate").textContent = "Référence manquante";
         $("lines").innerHTML = "";
         $("payments").textContent = "—";
-        btnVoid.disabled = true;
+        $("btnVoid").disabled = true;
         err("Ticket introuvable : référence de vente manquante.");
+        $("topSub").textContent = "Référence manquante";
         return;
       }
 
-      $("saleIdShort").textContent = shortId(saleId);
+      $("saleIdShort").textContent = shortId(SALE_ID);
 
-      const { data: sale, error: e1 } = await sb
-        .from("market_sales")
-        .select("id,created_at,status,subtotal,tax_total,total,store_id")
-        .eq("id", saleId)
-        .maybeSingle();
+      let sale = null;
+      try{
+        sale = await selectFirst("market_sales", "id,created_at,status,subtotal,tax_total,total,store_id", { id: SALE_ID });
+      }catch(e){
+        console.warn("market_sales read warning:", e);
+      }
 
-      if (e1 || !sale) {
-        btnVoid.disabled = true;
+      if (!sale){
+        $("btnVoid").disabled = true;
         err("Ticket introuvable.");
+        $("topSub").textContent = "Ticket introuvable";
         return;
       }
 
-      const { data: store } = await sb
-        .from("market_stores")
-        .select("store_name,slug")
-        .eq("id", sale.store_id)
-        .maybeSingle();
+      let store = null;
+      try{
+        if (sale.store_id){
+          store = await selectFirst("market_stores", "store_name,slug", { id: sale.store_id });
+        }
+      }catch(e){
+        console.warn("market_stores read warning:", e);
+      }
 
       const storeLabel = store?.store_name || "Ma boutique";
-      const storeRef = store?.slug || slug || "—";
+      const storeRef = store?.slug || ACCESS_SLUG || "—";
 
       $("storeName").textContent = storeLabel;
       $("storeSlug").textContent = `Référence boutique : ${storeRef}`;
-      $("saleDate").textContent = new Date(sale.created_at).toLocaleString();
-      $("saleStatus").textContent = `Statut : ${sale.status || "—"}`;
+      $("saleDate").textContent = sale.created_at ? new Date(sale.created_at).toLocaleString("fr-FR") : "—";
+      setStatus(sale.status || "—");
 
       $("subTotal").textContent = money(sale.subtotal);
       $("taxTotal").textContent = money(sale.tax_total);
       $("grandTotal").textContent = money(sale.total);
 
-      const { data: lines, error: e2 } = await sb
-        .from("market_sale_lines")
-        .select("qty,unit_price,line_total,product_id")
-        .eq("sale_id", saleId);
+      let lines = [];
+      try{
+        const { data, error } = await getClient()
+          .from("market_sale_lines")
+          .select("qty,unit_price,line_total,product_id")
+          .eq("sale_id", SALE_ID);
 
-      if (e2) {
-        err(e2.message || "Impossible de lire les lignes du ticket.");
-        return;
+        if (error) throw error;
+        lines = Array.isArray(data) ? data : [];
+      }catch(e){
+        err(e.message || "Impossible de lire les lignes du ticket.");
+        lines = [];
       }
 
-      const ids = (lines || []).map(l => l.product_id);
+      const ids = lines.map(l => l.product_id);
       const nameMap = await loadProductNames(ids);
 
       const tbody = $("lines");
       tbody.innerHTML = "";
-      (lines || []).forEach(l => {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${nameMap.get(l.product_id) || "Article"}</td>
-          <td class="r">${l.qty}</td>
-          <td class="r">${money(l.unit_price)}</td>
-          <td class="r">${money(l.line_total)}</td>
-        `;
-        tbody.appendChild(tr);
-      });
 
-      const { data: pays } = await sb
-        .from("market_sale_payments")
-        .select("method,amount,reference")
-        .eq("sale_id", saleId)
-        .order("created_at", { ascending: true });
-
-      if (!pays || pays.length === 0) {
-        $("payments").textContent = "—";
+      if (!lines.length){
+        tbody.innerHTML = '<tr><td colspan="4" class="small">Aucune ligne trouvée.</td></tr>';
       } else {
-        $("payments").innerHTML = pays.map(p => {
-          const ref = p.reference ? ` (${p.reference})` : "";
-          return `• ${p.method}: ${money(p.amount)}${ref}`;
-        }).join("<br/>");
+        lines.forEach(l => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `
+            <td>${esc(nameMap.get(l.product_id) || "Article")}</td>
+            <td class="r">${esc(String(l.qty ?? 0))}</td>
+            <td class="r">${esc(money(l.unit_price))}</td>
+            <td class="r">${esc(money(l.line_total))}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      try{
+        const { data: pays } = await getClient()
+          .from("market_sale_payments")
+          .select("method,amount,reference")
+          .eq("sale_id", SALE_ID)
+          .order("created_at", { ascending:true });
+
+        if (!pays || !pays.length){
+          $("payments").textContent = "—";
+        } else {
+          $("payments").innerHTML = pays.map(p => {
+            const ref = p.reference ? ` (${esc(p.reference)})` : "";
+            return `• ${esc(p.method || "paiement")}: ${esc(money(p.amount))}${ref}`;
+          }).join("<br/>");
+        }
+      }catch(e){
+        console.warn("payments read warning:", e);
+        $("payments").textContent = "—";
       }
 
       const statusText = String(sale.status || "").toLowerCase();
-      const alreadyClosed = ["void", "voided", "cancelled", "canceled"].includes(statusText);
-      btnVoid.disabled = alreadyClosed || !saleId || !slug || !ownerId;
+      const alreadyClosed = ["void","voided","cancelled","canceled"].includes(statusText);
+      $("btnVoid").disabled = alreadyClosed || !SALE_ID || !ACCESS_SLUG || !OWNER_ID;
+      $("topSub").textContent = "Ticket chargé";
     }
 
     async function voidTicket(){
       err("");
 
-      if (!saleId) {
+      if (!SALE_ID){
         err("Référence de vente manquante.");
         return;
       }
 
-      if (!slug) {
+      if (!ACCESS_SLUG){
         err("Référence boutique manquante.");
         return;
       }
 
-      if (!ownerId) {
-        err("Session vendeur introuvable.");
+      if (!OWNER_ID){
+        err("Session vendeur introuvable. Annulation protégée.");
         return;
       }
 
-      const ok = confirm("Annuler cette vente ?\n\nLe stock sera remis.");
+      const ok = confirm("Annuler cette vente ?\n\nLe stock sera remis si le moteur MARKET l’autorise.");
       if (!ok) return;
 
-      btnVoid.disabled = true;
+      $("btnVoid").disabled = true;
 
-      const { data, error } = await sb.rpc("market_void_sale_by_slug", {
-        p_slug: slug,
-        p_owner_id: ownerId,
-        p_sale_id: saleId,
-        p_note: "annulation via ticket.html"
-      });
+      try{
+        const { data, error } = await getClient().rpc("market_void_sale_by_slug", {
+          p_slug: ACCESS_SLUG,
+          p_owner_id: OWNER_ID,
+          p_sale_id: SALE_ID,
+          p_note: "annulation via ticket.html"
+        });
 
-      if (error) {
-        btnVoid.disabled = false;
-        err(error.message || "Impossible d’annuler cette vente.");
-        return;
+        if (error) throw error;
+        if (!data?.ok) throw new Error(data?.reason || "Annulation refusée.");
+
+        await loadTicket();
+        alert("Vente annulée ✅");
+      }catch(e){
+        $("btnVoid").disabled = false;
+        err(e.message || "Impossible d’annuler cette vente.");
       }
-
-      if (!data?.ok) {
-        btnVoid.disabled = false;
-        err(data?.reason || "Annulation refusée.");
-        return;
-      }
-
-      await loadTicket();
-      alert("Vente annulée ✅");
     }
 
-    btnPrint.addEventListener("click", () => window.print());
-    btnVoid.addEventListener("click", voidTicket);
+    async function boot(){
+      try{
+        const session = await waitGuard();
+        resolveContext(session);
+        getClient();
+        await loadTicket();
+      }catch(e){
+        console.error(e);
+        err(e.message || "Impossible de charger le ticket.");
+        $("btnVoid").disabled = true;
+      }
+    }
 
-    loadTicket();
+    $("btnPrint").addEventListener("click", () => window.print());
+    $("btnVoid").addEventListener("click", voidTicket);
+
+    boot();
   })();
   </script>
 </body>
