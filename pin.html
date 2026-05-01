@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#0c1118" />
-  <title>Je vends — Ouvrir mon accès</title>
-  <meta name="description" content="Accès sécurisé DIGIY pour ouvrir ton espace vendeur avec ton identifiant, ton téléphone et ton code." />
+  <title>Je vends — Accès</title>
+  <meta name="description" content="Je vends — ouvrir mon accès MARKET et revenir vers Accueil, Produits, Ajouter, Notes ou Plus." />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -50,7 +50,7 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      padding:20px;
+      padding:20px 20px calc(92px + env(safe-area-inset-bottom,0px));
     }
 
     .wrap{width:100%;max-width:var(--max)}
@@ -245,6 +245,50 @@
       font-size:.84rem;
     }
 
+
+    .navBottom{
+      position:fixed;
+      left:0;
+      right:0;
+      bottom:0;
+      z-index:50;
+      padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
+      background:rgba(2,6,23,.94);
+      border-top:1px solid rgba(255,255,255,.10);
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
+    }
+
+    .navInner{
+      max-width:760px;
+      margin:0 auto;
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:6px;
+    }
+
+    .navItem{
+      min-height:56px;
+      border-radius:16px;
+      display:grid;
+      place-items:center;
+      align-content:center;
+      gap:3px;
+      color:rgba(248,250,252,.70);
+      font-size:11px;
+      font-weight:900;
+      border:1px solid transparent;
+      text-decoration:none;
+    }
+
+    .navItem .ico{font-size:18px;line-height:1}
+
+    .navItem.active{
+      color:#1e1b4b;
+      background:linear-gradient(135deg,var(--violet),var(--violet2));
+      border-color:rgba(221,214,254,.28);
+    }
+
     @media (max-width:560px){
       .grid{grid-template-columns:1fr}
     }
@@ -257,8 +301,8 @@
         <div class="brand">
           <div class="logo">🛍️</div>
           <div>
-            <h1>Ouvrir mon accès</h1>
-            <p class="sub">Entre avec ton identifiant, ton téléphone et ton code</p>
+            <h1>Ouvrir mon accès MARKET</h1>
+            <p class="sub">Une porte, puis tu circules librement</p>
           </div>
         </div>
       </div>
@@ -266,7 +310,7 @@
       <div class="body">
         <p class="intro">
           Entre avec ton <strong>identifiant</strong> ou ton <strong>téléphone</strong>, puis ton <strong>code</strong>.
-          Une fois validé, tu entres directement dans ton espace vendeur et tu circules normalement dans tes pages internes.
+          Une fois validé, tu reviens vers Accueil, Produits, Ajouter, Notes ou Plus sans retaper ton code à chaque page.
         </p>
 
         <div class="field">
@@ -289,29 +333,40 @@
 
         <div class="actions">
           <button id="btnOpen" class="btn primary" type="button">🔓 Entrer dans mon espace</button>
-          <a id="btnReturn" class="btn secondary hidden" href="./dashboard-pro.html">↩️ Revenir à ma page</a>
+          <a id="btnReturn" class="btn secondary hidden" href="./dashboard-pro.html">↩️ Revenir dans MARKET</a>
           <a id="btnPay" class="btn ghost" href="https://commencer-a-payer.digiylyfe.com/" target="_blank" rel="noopener">💳 Voir mon abonnement</a>
         </div>
 
         <div class="grid">
-          <a id="btnDashboard" class="btn secondary hidden" href="./dashboard-pro.html">📈 Mon activité</a>
-          <a id="btnCockpit" class="btn secondary hidden" href="./cockpit.html">🧭 Ma gestion</a>
-          <a id="btnBoutique" class="btn secondary hidden" href="./boutique.html">🏬 Ma boutique</a>
-          <a id="btnProduits" class="btn secondary hidden" href="./produits.html">📦 Mes produits</a>
+          <a id="btnDashboard" class="btn secondary hidden" href="./dashboard-pro.html">🏠 Accueil</a>
+          <a id="btnCockpit" class="btn secondary hidden" href="./cockpit.html">🧭 Gestion</a>
+          <a id="btnBoutique" class="btn secondary hidden" href="./boutique.html">⚙️ Plus</a>
+          <a id="btnProduits" class="btn secondary hidden" href="./produits.html">📦 Produits</a>
         </div>
 
         <div id="status" class="status">Prêt.</div>
 
         <div class="meta">
           <div class="row"><div class="k">Métier</div><div class="v">Je vends</div></div>
-          <div class="row"><div class="k">Page de retour</div><div id="returnInfo" class="v">Mon activité</div></div>
+          <div class="row"><div class="k">Page de retour</div><div id="returnInfo" class="v">Accueil</div></div>
           <div class="row"><div class="k">Accès</div><div id="sessionInfo" class="v">Fermé</div></div>
         </div>
       </div>
 
-      <div class="foot">DIGIYLYFE • Accès vendeur sécurisé</div>
+      <div class="foot">DIGIYLYFE • Accès MARKET sécurisé</div>
     </section>
   </div>
+
+
+  <nav class="navBottom" aria-label="Navigation MARKET">
+    <div class="navInner">
+      <a class="navItem" id="navHome" href="./dashboard-pro.html"><span class="ico">🏠</span><span>Accueil</span></a>
+      <a class="navItem" id="navProducts" href="./produits.html"><span class="ico">📦</span><span>Produits</span></a>
+      <a class="navItem" id="navAdd" href="./produits.html#productForm"><span class="ico">➕</span><span>Ajouter</span></a>
+      <a class="navItem" id="navNotes" href="./produits.html#quickMarketNote"><span class="ico">✍️</span><span>Notes</span></a>
+      <a class="navItem active" id="navMore" href="./boutique.html"><span class="ico">🔑</span><span>Accès</span></a>
+    </div>
+  </nav>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
@@ -410,12 +465,12 @@
 
       function labelForPath(pathname) {
         const file = String(pathname || "").split("/").pop() || "";
-        if (file === "dashboard-pro.html") return "Mon activité";
+        if (file === "dashboard-pro.html") return "Accueil";
         if (file === "cockpit.html") return "Ma gestion";
         if (file === "boutique.html") return "Ma boutique";
         if (file === "produits.html") return "Mes produits";
         if (file === "index.html") return "Entrée";
-        return "Mon activité";
+        return "Accueil";
       }
 
       function buildNormalizedSession({ slug, phone, owner_id = null }) {
@@ -739,6 +794,17 @@
         el.btnCockpit.href = add("./cockpit.html");
         el.btnBoutique.href = add("./boutique.html");
         el.btnProduits.href = add("./produits.html");
+
+        const navHome = document.getElementById("navHome");
+        const navProducts = document.getElementById("navProducts");
+        const navAdd = document.getElementById("navAdd");
+        const navNotes = document.getElementById("navNotes");
+        const navMore = document.getElementById("navMore");
+        if (navHome) navHome.href = add("./dashboard-pro.html");
+        if (navProducts) navProducts.href = add("./produits.html");
+        if (navAdd) navAdd.href = add("./produits.html#productForm");
+        if (navNotes) navNotes.href = add("./produits.html#quickMarketNote");
+        if (navMore) navMore.href = add("./boutique.html");
 
         if (s) {
           el.btnDashboard.classList.remove("hidden");
