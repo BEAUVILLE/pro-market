@@ -583,6 +583,69 @@
       line-height:1.35;
     }
 
+
+    /* DIGIY mobile doctrine : le menu bas porte la navigation */
+    @media(max-width:760px){
+      body{padding-bottom:92px}
+      .wrap{padding-bottom:110px}
+      .topbar{position:relative}
+      .right{
+        width:100%;
+        justify-content:flex-start;
+        overflow-x:auto;
+        flex-wrap:nowrap;
+        padding-bottom:4px;
+        -webkit-overflow-scrolling:touch;
+      }
+      .right .btn,.right .pill{white-space:nowrap;flex:0 0 auto}
+      .card{scroll-margin-top:14px;scroll-margin-bottom:100px}
+      .footer .btn{flex:1 1 auto}
+    }
+
+    .mobileNav{
+      position:fixed;
+      left:10px;
+      right:10px;
+      bottom:calc(10px + env(safe-area-inset-bottom));
+      z-index:9999;
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:6px;
+      padding:8px;
+      border-radius:22px;
+      border:1px solid rgba(255,255,255,.12);
+      background:rgba(5,16,12,.92);
+      box-shadow:0 18px 48px rgba(0,0,0,.48);
+      backdrop-filter:blur(14px);
+    }
+
+    .mobileNav a{
+      min-height:48px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:3px;
+      border-radius:16px;
+      color:rgba(236,255,244,.72);
+      font-size:11px;
+      font-weight:950;
+      text-align:center;
+      text-decoration:none;
+      border:1px solid transparent;
+    }
+
+    .mobileNav a span:first-child{font-size:17px;line-height:1}
+    .mobileNav a.active{
+      color:#fff6bf;
+      border-color:rgba(250,204,21,.24);
+      background:rgba(250,204,21,.10);
+    }
+
+    @media(min-width:761px){
+      .mobileNav{display:none}
+    }
+
     .loading{
       opacity:.72;
       pointer-events:none;
@@ -597,22 +660,22 @@
         <div class="badge">📦</div>
         <div>
           <div id="brandTitle">Mes produits</div>
-          <small id="brandSub">Ce que je vends</small>
+          <small id="brandSub">Produits · Ajouter · Notes</small>
         </div>
       </div>
 
       <div class="right">
         <div class="pill" id="pillStatus">Accès : <b>…</b></div>
         <button class="btn" id="btnReloadTop" type="button">🔄 Recharger</button>
-        <a class="btn" id="btnDashboardTop" href="./dashboard-pro.html">📈 Mon activité</a>
-        <a class="btn" id="btnPin" href="./pin.html">🔑 Mon accès</a>
+        <a class="btn" id="btnDashboardTop" href="./dashboard-pro.html">🏠 Accueil</a>
+        <a class="btn" id="btnPin" href="./pin.html">🔑 Accès</a>
       </div>
     </div>
 
     <div class="grid">
 
-      <div class="card">
-        <h3>Mon espace</h3>
+      <div class="card" id="marketHome">
+        <h3>Accueil</h3>
 
         <div class="row">
           <div class="statusDot" id="dot"></div>
@@ -660,7 +723,7 @@
         </div>
       </div>
 
-      <div class="card">
+      <div class="card" id="productFormCard">
         <h3>Ajouter ou corriger un produit</h3>
 
         <div class="infoBox">
@@ -782,7 +845,7 @@
         </div>
       </div>
 
-      <div class="card" style="grid-column:1/-1">
+      <div class="card" id="productsListSection" style="grid-column:1/-1">
         <div class="row" style="justify-content:space-between;align-items:flex-end">
           <div>
             <h3>Mes produits</h3>
@@ -822,8 +885,30 @@
         <div id="emptyState" class="empty" style="display:none;">Aucun produit pour l’instant.</div>
       </div>
 
+      <div class="card" id="marketMore" style="grid-column:1/-1">
+        <h3>Plus</h3>
+        <div class="muted" style="font-weight:800;line-height:1.55">
+          Ici on garde le secondaire : réglages boutique, vitrine, accès, gestion et outils utiles.
+        </div>
+        <div class="footer" style="justify-content:flex-start">
+          <a class="btn" id="btnMoreDashboard" href="./dashboard-pro.html">🏠 Accueil</a>
+          <a class="btn" id="btnMoreBoutique" href="./boutique.html">🛠️ Réglages boutique</a>
+          <a class="btn" id="btnMoreCockpit" href="./cockpit.html">🧭 Ma gestion</a>
+          <a class="btn gold" id="btnMorePublic" href="./index.html">🌍 Voir ma vitrine</a>
+          <a class="btn" id="btnMorePin" href="./pin.html">🔑 Accès</a>
+        </div>
+      </div>
+
     </div>
   </div>
+
+  <nav class="mobileNav" aria-label="Navigation MARKET">
+    <a id="navHome" href="./dashboard-pro.html"><span>🏠</span><span>Accueil</span></a>
+    <a id="navProducts" class="active" href="#productsListSection"><span>📦</span><span>Produits</span></a>
+    <a id="navAdd" href="#productFormCard"><span>➕</span><span>Ajouter</span></a>
+    <a id="navNotes" href="#quickMarketNote"><span>📝</span><span>Notes</span></a>
+    <a id="navMore" href="#marketMore"><span>⋯</span><span>Plus</span></a>
+  </nav>
 
 <script>
 (function(){
@@ -1019,6 +1104,18 @@
     $("linkCockpit").href = ACCESS_SLUG ? buildPath("./cockpit.html", { slug:true, phone:true }) : "./cockpit.html";
     $("linkBoutique").href = ACCESS_SLUG ? buildPath("./boutique.html", { slug:true, phone:true }) : "./boutique.html";
     $("linkPublic").href = publicPath();
+
+    if ($("btnMoreDashboard")) $("btnMoreDashboard").href = ACCESS_SLUG ? buildPath("./dashboard-pro.html", { slug:true, phone:true }) : "./dashboard-pro.html";
+    if ($("btnMoreBoutique")) $("btnMoreBoutique").href = ACCESS_SLUG ? buildPath("./boutique.html", { slug:true, phone:true }) : "./boutique.html";
+    if ($("btnMoreCockpit")) $("btnMoreCockpit").href = ACCESS_SLUG ? buildPath("./cockpit.html", { slug:true, phone:true }) : "./cockpit.html";
+    if ($("btnMorePublic")) $("btnMorePublic").href = publicPath();
+    if ($("btnMorePin")) $("btnMorePin").href = ACCESS_SLUG ? buildPath("./pin.html", { slug:true, phone:true }) : "./pin.html";
+
+    if ($("navHome")) $("navHome").href = ACCESS_SLUG ? buildPath("./dashboard-pro.html", { slug:true, phone:true }) : "./dashboard-pro.html";
+    if ($("navProducts")) $("navProducts").href = "#productsListSection";
+    if ($("navAdd")) $("navAdd").href = "#productFormCard";
+    if ($("navNotes")) $("navNotes").href = "#quickMarketNote";
+    if ($("navMore")) $("navMore").href = "#marketMore";
   }
 
   function resolveSlug(){
@@ -1553,9 +1650,9 @@
     if(/\bwave\b/.test(t)) return "wave";
     if(/\b(cash|espèces|especes|liquide)\b/.test(t)) return "cash";
     if(/\b(orange money|orange|om)\b/.test(t)) return "orange_money";
-    if(/\b(carte|cb)\b/.test(t)) return "card";
+    if(/\b(carte|cb)\b/.test(t)) return "other";
     if(/\b(banque|virement)\b/.test(t)) return "bank";
-    return "manual";
+    return "other";
   }
 
   function quickMarketComplement(text){
@@ -1719,19 +1816,26 @@
     if(paySlug) qsPay.set("slug", paySlug);
     if(p) qsPay.set("phone", p);
 
+    const amount = String(Math.round(Number(item?.amount_xof || 0)));
+    const channel = item?.channel && item.channel !== "manual" ? String(item.channel) : "other";
+    const movementDate = new Date().toISOString().slice(0, 10);
+
     qsPay.set("fromDraft", "1");
+    qsPay.set("intent", "quick_note");
     qsPay.set("direction", item?.direction === "in" ? "in" : "out");
     qsPay.set("scope", "pro");
-    qsPay.set("amount", String(Math.round(Number(item?.amount_xof || 0))));
+    qsPay.set("amount", amount);
+    qsPay.set("amount_xof", amount);
     qsPay.set("kind", item?.kind || (item?.direction === "in" ? "sale" : "expense"));
-    qsPay.set("channel", item?.channel && item.channel !== "manual" ? String(item.channel) : "other");
+    qsPay.set("channel", channel);
     qsPay.set("category", item?.category || "market_note");
+    qsPay.set("movement_date", movementDate);
     qsPay.set("source_module", "MARKET");
+    qsPay.set("source_slug", ACCESS_SLUG || "");
     qsPay.set("source_id", String(item?.memory_id || item?.created_at || "market_quick_note"));
     qsPay.set("label", payMarketLabel(item));
     qsPay.set("note", String(item?.sentence || "").trim());
     qsPay.set("complement", String(item?.complement || "").trim());
-    qsPay.set("intent", "market_quick_note");
 
     return "https://pro-pay.digiylyfe.com/admin.html?" + qsPay.toString();
   }
@@ -2193,6 +2297,23 @@
       ACTIVE_FILTER = chip.dataset.filter || "all";
       renderProducts();
     });
+  });
+
+  function setMobileNavActive(id){
+    ["navHome","navProducts","navAdd","navNotes","navMore"].forEach(navId => {
+      const el = $(navId);
+      if (el) el.classList.toggle("active", navId === id);
+    });
+  }
+
+  [
+    ["navProducts","productsListSection"],
+    ["navAdd","productFormCard"],
+    ["navNotes","quickMarketNote"],
+    ["navMore","marketMore"]
+  ].forEach(([navId, targetId]) => {
+    const el = $(navId);
+    if (el) el.addEventListener("click", () => setMobileNavActive(navId));
   });
 
   boot();
