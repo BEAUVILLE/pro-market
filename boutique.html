@@ -670,6 +670,185 @@
       .top-actions,.actions{width:100%}
       .top-actions > *, .actions > *{flex:1 1 auto}
     }
+
+
+    .routeMini{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      width:100%;
+      justify-content:flex-end;
+      margin-top:4px;
+    }
+
+    .routeMini a{
+      min-height:42px;
+      padding:10px 13px;
+      border-radius:999px;
+      border:1px solid rgba(250,204,21,.24);
+      background:rgba(250,204,21,.08);
+      color:#fff1a8;
+      font-size:12px;
+      font-weight:950;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:7px;
+      box-shadow:0 10px 26px rgba(0,0,0,.18);
+    }
+
+    .routeMini a.hub{
+      border-color:rgba(34,197,94,.26);
+      background:rgba(34,197,94,.10);
+      color:#bbf7d0;
+    }
+
+    .guideAudioBox{
+      position:relative;
+      margin-top:2px;
+      border:1px solid rgba(250,204,21,.42);
+      border-radius:22px;
+      padding:15px;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at top right,rgba(250,204,21,.18),transparent 38%),
+        radial-gradient(circle at bottom left,rgba(34,197,94,.14),transparent 42%),
+        linear-gradient(180deg,rgba(250,204,21,.095),rgba(34,197,94,.065) 62%,rgba(0,0,0,.10));
+      box-shadow:0 18px 42px rgba(0,0,0,.24),0 0 0 1px rgba(250,204,21,.055) inset;
+    }
+
+    .guideAudioTop{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+      position:relative;
+      z-index:1;
+    }
+
+    .guideAudioLead{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      margin-bottom:8px;
+      padding:6px 11px;
+      border-radius:999px;
+      background:rgba(250,204,21,.16);
+      border:1px solid rgba(250,204,21,.40);
+      color:#fff1a8;
+      font-size:11px;
+      font-weight:1000;
+      letter-spacing:.02em;
+    }
+
+    .guideAudioLead .pulse{
+      width:8px;
+      height:8px;
+      border-radius:999px;
+      background:var(--gold);
+      box-shadow:0 0 14px rgba(250,204,21,.75);
+      animation:marketAudioPulse 1.5s ease-in-out infinite;
+    }
+
+    .guideAudioTitle{
+      font-size:17px;
+      font-weight:1000;
+      line-height:1.2;
+      color:#fff8db;
+    }
+
+    .guideAudioText{
+      margin-top:6px;
+      color:#e9f7ee;
+      font-size:13px;
+      line-height:1.55;
+      font-weight:800;
+      max-width:620px;
+    }
+
+    .guideAudioHint{
+      margin-top:8px;
+      color:#fff1a8;
+      font-size:12px;
+      font-weight:1000;
+    }
+
+    .guideAudioActions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .guideAudioBtn{
+      min-height:46px;
+      border-radius:999px;
+      border:1px solid rgba(250,204,21,.62);
+      background:linear-gradient(135deg,#facc15,#f59e0b);
+      color:#06140f;
+      font-weight:1000;
+      padding:10px 15px;
+      cursor:pointer;
+      box-shadow:0 12px 28px rgba(250,204,21,.25);
+      transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+
+    .guideAudioBtn:hover{
+      transform:translateY(-1px);
+      box-shadow:0 16px 34px rgba(250,204,21,.34);
+      filter:saturate(1.05);
+    }
+
+    .guideAudioBtn.stop{
+      border-color:rgba(239,68,68,.40);
+      background:rgba(239,68,68,.10);
+      color:#fecaca;
+      box-shadow:none;
+    }
+
+    .guideAudioProgressWrap{
+      position:relative;
+      z-index:1;
+      height:6px;
+      margin-top:13px;
+      border-radius:999px;
+      background:rgba(255,255,255,.12);
+      overflow:hidden;
+    }
+
+    .guideAudioProgress{
+      width:0%;
+      height:100%;
+      background:linear-gradient(90deg,#facc15,#22c55e);
+      transition:width .2s linear;
+    }
+
+    .guideAudioGlow{
+      position:absolute;
+      right:14px;
+      bottom:10px;
+      width:86px;
+      height:86px;
+      border-radius:999px;
+      background:radial-gradient(circle,rgba(250,204,21,.18),transparent 66%);
+      pointer-events:none;
+      filter:blur(3px);
+    }
+
+    @keyframes marketAudioPulse{
+      0%,100%{transform:scale(1);opacity:1}
+      50%{transform:scale(1.25);opacity:.72}
+    }
+
+    @media(max-width:640px){
+      .routeMini{justify-content:flex-start}
+      .routeMini a{flex:1}
+      .guideAudioActions,.guideAudioBtn{width:100%}
+      .guideAudioBtn{justify-content:center}
+      .guideAudioGlow{display:none}
+    }
+
     .mobileNav{
       position:fixed;
       left:10px;
@@ -743,6 +922,12 @@
         <a class="btn gold" id="btnPin" href="./pin.html">🔑 Ouvrir mon accès</a>
         <a class="btn" id="btnPublic" href="./index.html">🌍 Voir ma vitrine</a>
       </div>
+
+      <nav class="routeMini" aria-label="Navigation DIGIY">
+        <a href="https://digiylyfe.com/" rel="noopener noreferrer">🌍 Site</a>
+        <a class="hub" id="btnGlobalHub" href="https://pro-espace.digiylyfe.com/" rel="noopener noreferrer">🧭 HUB</a>
+        <a href="https://tarifs.digiylyfe.com/" target="_blank" rel="noopener noreferrer">📦 Tarifs</a>
+      </nav>
     </section>
 
     <section class="hero">
@@ -755,6 +940,25 @@
             <div class="subtitle" id="shopSubtitle">
               Ici tu règles ce que les clients vont voir : boutique, contact, vitrine, WhatsApp Visio Live et visibilité.
             </div>
+          </div>
+
+          <div class="guideAudioBox" aria-label="Explication audio Je vends">
+            <div class="guideAudioTop">
+              <div>
+                <div class="guideAudioLead"><span class="pulse"></span> Conseil DIGIY · écoute d'abord</div>
+                <div class="guideAudioTitle">🎧 Comprendre ta boutique avant de régler</div>
+                <div class="guideAudioText">
+                  Une voix explique comment remplir ta boutique, guider le client, montrer tes produits et garder tes ventes directes.
+                </div>
+                <div class="guideAudioHint">👉 45 secondes pour comprendre avant de publier.</div>
+              </div>
+              <div class="guideAudioActions">
+                <button class="guideAudioBtn" id="btnMarketBoutiqueAudio" type="button">🎧 Écouter DIGIY</button>
+                <button class="guideAudioBtn stop" id="btnMarketBoutiqueAudioStop" type="button">⏹ Stop</button>
+              </div>
+            </div>
+            <div class="guideAudioProgressWrap" aria-hidden="true"><div class="guideAudioProgress" id="marketBoutiqueAudioProgress"></div></div>
+            <div class="guideAudioGlow" aria-hidden="true"></div>
           </div>
 
           <div class="pills">
@@ -804,7 +1008,7 @@
           <div class="actions">
             <button class="btn primary" id="btnLiveWhatsTest" type="button">🎥 Tester la visio</button>
             <button class="btn" id="btnLiveCopy" type="button">📋 Copier le texte</button>
-            <button class="btn gold" id="btnLiveAudio" type="button">▶ Écouter</button>
+            <button class="btn gold" id="btnLiveAudio" type="button">🎧 Écouter la visio</button>
           </div>
           <div class="msg" id="msgLiveDigiy">Prêt.</div>
         </div>
@@ -1259,6 +1463,15 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
           sessionStorage.setItem("digiy_market_phone", ACCESS_PHONE);
           localStorage.setItem("digiy_market_last_phone", ACCESS_PHONE);
         }
+        updateGlobalHubLink();
+      }
+
+      function updateGlobalHubLink(){
+        const hub = $("btnGlobalHub");
+        if (!hub) return;
+        const u = new URL("https://pro-espace.digiylyfe.com/");
+        if (ACCESS_PHONE) u.searchParams.set("phone", ACCESS_PHONE);
+        hub.href = u.toString();
       }
 
       function blockedCockpit(reason){
@@ -1734,6 +1947,83 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
     })();
   </script>
 
+  <script>
+    (function(){
+      "use strict";
+
+      const AUDIO_TEXT = "Bienvenue dans Je vends, la boutique DIGIY. Ici, tu règles ce que les clients vont voir : le nom de ta boutique, ta ville, ton WhatsApp, ce que tu vends, tes infos utiles et ta visibilité. DIGIY MARKET fonctionne comme une galerie marchande : plusieurs boutiques peuvent être vues, mais le client contacte directement le commerçant. Remplis d'abord ta boutique, ajoute ensuite tes produits avec leur prix, puis utilise les notes rapides pour une vente, un stock, une livraison ou un client qui doit. Quand la note est prête, elle peut aller vers Mon argent. Le paiement reste direct au commerçant, avec zéro commission DIGIY.";
+      const btnPlay = document.getElementById("btnMarketBoutiqueAudio");
+      const btnStop = document.getElementById("btnMarketBoutiqueAudioStop");
+      const progress = document.getElementById("marketBoutiqueAudioProgress");
+      let playing = false;
+      let timer = null;
+
+      function getVoice(){
+        try{
+          const voices = window.speechSynthesis.getVoices() || [];
+          return voices.find(v => /^fr/i.test(v.lang || "") && /audrey|amelie|hortense|julie|thomas|paul|french/i.test(v.name || ""))
+            || voices.find(v => /^fr/i.test(v.lang || ""))
+            || null;
+        }catch(_){ return null; }
+      }
+
+      function stopAudio(){
+        try{ window.speechSynthesis.cancel(); }catch(_){ }
+        clearInterval(timer);
+        timer = null;
+        playing = false;
+        if(btnPlay) btnPlay.textContent = "🎧 Écouter DIGIY";
+        if(progress) progress.style.width = "0%";
+      }
+
+      function playAudio(){
+        if(!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)){
+          alert("Audio indisponible sur ce navigateur.");
+          return;
+        }
+        if(playing){ stopAudio(); return; }
+        stopAudio();
+
+        const utter = new SpeechSynthesisUtterance(AUDIO_TEXT);
+        utter.lang = "fr-FR";
+        utter.rate = 0.86;
+        utter.pitch = 1.04;
+        utter.volume = 1;
+        const voice = getVoice();
+        if(voice) utter.voice = voice;
+
+        const duration = Math.max(12000, AUDIO_TEXT.split(/\s+/).length * 430);
+        let elapsed = 0;
+
+        utter.onstart = function(){
+          playing = true;
+          if(btnPlay) btnPlay.textContent = "⏸️ Lecture en cours";
+          if(progress) progress.style.width = "0%";
+          timer = setInterval(function(){
+            elapsed += 250;
+            if(progress) progress.style.width = Math.min(96, (elapsed / duration) * 100) + "%";
+          }, 250);
+        };
+
+        utter.onend = function(){
+          if(progress) progress.style.width = "100%";
+          setTimeout(stopAudio, 260);
+        };
+        utter.onerror = stopAudio;
+
+        window.speechSynthesis.speak(utter);
+      }
+
+      if(btnPlay) btnPlay.addEventListener("click", playAudio);
+      if(btnStop) btnStop.addEventListener("click", stopAudio);
+      if(window.speechSynthesis && typeof window.speechSynthesis.onvoiceschanged !== "undefined"){
+        window.speechSynthesis.onvoiceschanged = getVoice;
+      }
+      window.addEventListener("beforeunload", stopAudio);
+      document.addEventListener("visibilitychange", function(){ if(document.hidden) stopAudio(); });
+    })();
+  </script>
+
 
   <script>
     (function(){
@@ -1800,7 +2090,7 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
         try{ window.speechSynthesis.cancel(); }catch(_){ }
         playing = false;
         const btn = $("btnLiveAudio");
-        if(btn) btn.textContent = "▶ Écouter";
+        if(btn) btn.textContent = "🎧 Écouter la visio";
       }
 
       function playAudio(){
