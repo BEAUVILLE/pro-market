@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <title>Je vends — Ma gestion</title>
   <meta name="theme-color" content="#07140f"/>
-  <meta name="description" content="Je vends — gestion légère de ma boutique, mes produits, mes notes et ma visibilité, sans exposer les identifiants."/>
+  <meta name="description" content="Je vends — accueil vendeur MARKET, produits, notes, boutique et visibilité sans exposer les identifiants."/>
 
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -20,23 +20,24 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-cockpit-coffre-20260505"></script>
+  <script src="./guard.js?v=market-cockpit-coffre-20260505-2"></script>
 
   <style>
     :root{
       --bg:#07140f;
       --bg2:#05100c;
-      --card:#10241b;
       --line:rgba(255,255,255,.10);
       --line2:rgba(255,255,255,.16);
       --text:#ecfff4;
       --muted:rgba(236,255,244,.72);
+      --soft:rgba(236,255,244,.56);
       --primary:#22c55e;
       --primary2:#16a34a;
       --gold:#facc15;
-      --warn:#f59e0b;
-      --danger:#ef4444;
+      --gold2:#f59e0b;
       --info:#60a5fa;
+      --danger:#ef4444;
+      --warn:#f59e0b;
       --shadow:0 18px 48px rgba(0,0,0,.34);
       --r:24px;
       --max:1120px;
@@ -71,7 +72,7 @@
     .card{
       border:1px solid var(--line);
       border-radius:var(--r);
-      background:linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.018));
+      background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.018));
       box-shadow:var(--shadow);
       overflow:hidden;
     }
@@ -99,7 +100,7 @@
       display:grid;
       place-items:center;
       border:1px solid var(--line);
-      background:linear-gradient(135deg, rgba(34,197,94,.18), rgba(250,204,21,.13));
+      background:linear-gradient(135deg,rgba(34,197,94,.18),rgba(250,204,21,.13));
       font-size:22px;
       flex:0 0 auto;
     }
@@ -316,7 +317,7 @@
       padding:13px;
     }
 
-    a.task{transition:transform .15s ease, border-color .15s ease}
+    a.task{transition:transform .15s ease,border-color .15s ease}
     a.task:active{transform:scale(.99)}
     a.task:hover{border-color:rgba(250,204,21,.24)}
 
@@ -367,23 +368,11 @@
     .infoRow span:first-child{color:var(--muted)}
     .infoRow span:last-child{text-align:right;word-break:break-word}
 
-    .empty{
-      margin-top:12px;
-      padding:14px;
-      border-radius:18px;
-      border:1px dashed var(--line2);
-      color:var(--muted);
-      background:rgba(255,255,255,.02);
-      font-size:14px;
-      font-weight:800;
-      line-height:1.55;
-    }
-
     .quick{
       border-color:rgba(250,204,21,.24);
       background:
         radial-gradient(700px 320px at 100% 0%, rgba(250,204,21,.12), transparent 58%),
-        linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.018));
+        linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.018));
     }
 
     .notice{
@@ -472,6 +461,7 @@
     body.locked .privateOnly{display:none!important}
     body.locked .lockedOnly{display:inline-flex!important}
     body.locked .task.lockedOnly{display:flex!important}
+    body.locked .stats{display:none!important}
 
     @media(min-width:900px){
       body{padding-bottom:24px}
@@ -484,7 +474,7 @@
   <div class="wrap">
     <section class="card topbar">
       <div class="brand">
-        <div class="mark">🧭</div>
+        <div class="mark">🛍️</div>
         <div>
           <div class="eyebrow">JE VENDS</div>
           <div class="brand-title">Ma gestion</div>
@@ -612,18 +602,16 @@
 
       const CFG = {
         MODULE: "MARKET",
-        MODULE_LOWER: "market",
         SESSION_MAX_AGE_MS: 8 * 60 * 60 * 1000,
         RPC_COCKPIT: "digiy_market_get_cockpit_by_slug",
         RPC_PRODUCTS: "digiy_market_list_products_by_slug",
-        TABLE_SUBS: "digiy_subscriptions_public",
+        RPC_RESOLVE: "digiy_market_resolve_identity",
         GALLERY_URL: "https://market.digiylyfe.com/"
       };
 
       let ACCESS_SLUG = "";
       let ACCESS_PHONE = "";
       let ACCESS_GRANTED = false;
-      let ACCESS_OK = false;
       let CURRENT = null;
       let PRODUCTS = [];
       let SB_CLIENT = null;
@@ -743,7 +731,9 @@
           "DIGIY_SESSION_MARKET",
           "DIGIY_PIN_SESSION",
           "DIGIY_ACCESS",
-          "digiy_market_session"
+          "digiy_market_session",
+          "digiy_access",
+          "digiy_session"
         ];
 
         for (const key of keys){
@@ -775,7 +765,6 @@
               fresh(obj.ts);
 
             if (!ok || !isAlive) continue;
-
             return obj;
           }
         }
@@ -785,20 +774,36 @@
 
       function resolveSlug(session){
         const params = new URLSearchParams(location.search);
-        return normSlug(params.get("slug") || params.get("market_slug") || params.get("subscription_slug")) ||
-          normSlug(session?.slug || session?.session?.slug || session?.identity?.slug) ||
-          normSlug(window.DIGIY_GUARD?.state?.slug) ||
-          normSlug(getStored(["digiy_market_slug","digiy_market_last_slug","market_slug","digiy_last_slug"])) ||
+        const raw =
+          params.get("slug") ||
+          params.get("market_slug") ||
+          params.get("subscription_slug") ||
+          session?.slug ||
+          session?.session?.slug ||
+          session?.identity?.slug ||
+          window.DIGIY_GUARD?.state?.slug ||
+          getStored(["digiy_market_slug","digiy_market_last_slug","market_slug","digiy_last_slug"]) ||
           "";
+
+        const s = normSlug(raw);
+        if (s && !s.startsWith("market-")) return "";
+        return s;
       }
 
       function resolvePhone(session){
         const params = new URLSearchParams(location.search);
-        return normPhone(params.get("phone") || params.get("tel") || params.get("owner_phone") || params.get("checkout_phone")) ||
-          normPhone(session?.phone || session?.session?.phone || session?.identity?.phone) ||
-          normPhone(window.DIGIY_GUARD?.state?.phone || window.DIGIY_GUARD?.state?.identity?.phone) ||
-          normPhone(getStored(["digiy_market_phone","digiy_market_last_phone","market_phone","digiy_last_phone","digiy_phone"])) ||
-          "";
+        return normPhone(
+          params.get("phone") ||
+          params.get("tel") ||
+          params.get("owner_phone") ||
+          params.get("checkout_phone") ||
+          session?.phone ||
+          session?.session?.phone ||
+          session?.identity?.phone ||
+          window.DIGIY_GUARD?.state?.phone ||
+          window.DIGIY_GUARD?.state?.identity?.phone ||
+          getStored(["digiy_market_phone","digiy_market_last_phone","market_phone","digiy_last_phone","digiy_phone"])
+        );
       }
 
       function resolveAccess(session){
@@ -884,25 +889,17 @@
         if (!p || ACCESS_SLUG) return;
 
         try{
-          const sb = await client();
-          const tries = [
-            { phone:p, module:CFG.MODULE },
-            { phone:p, module:CFG.MODULE_LOWER },
-            { phone:p }
-          ];
+          const data = await rpcTry(CFG.RPC_RESOLVE, [
+            { p_identity:p },
+            { p_phone:p }
+          ]);
 
-          for (const q of tries){
-            const { data, error } = await sb
-              .from(CFG.TABLE_SUBS)
-              .select("phone,slug,module")
-              .match(q)
-              .limit(1);
-
-            if (!error && Array.isArray(data) && data[0]){
-              ACCESS_SLUG = normSlug(data[0].slug || "");
-              ACCESS_PHONE = normPhone(data[0].phone || p);
+          if (data?.ok && data?.slug){
+            const s = normSlug(data.slug);
+            if (s.startsWith("market-")){
+              ACCESS_SLUG = s;
+              ACCESS_PHONE = normPhone(data.phone || p);
               remember();
-              return;
             }
           }
         }catch(e){
@@ -975,24 +972,6 @@
         box.textContent = message;
       }
 
-      function cleanInternalLinks(){
-        const internal = [
-          ["a[href*='dashboard-pro.html']", "./cockpit.html"],
-          ["a[href*='cockpit.html']", "./cockpit.html"],
-          ["a[href*='produits.html#productForm']", "./produits.html#productForm"],
-          ["a[href*='produits.html#quickMarketNote']", "./produits.html#quickMarketNote"],
-          ["a[href*='produits.html']", "./produits.html"],
-          ["a[href*='boutique.html']", "./boutique.html"],
-          ["a[href*='pin.html']", "./pin.html"]
-        ];
-
-        internal.forEach(([selector, clean]) => {
-          document.querySelectorAll(selector).forEach((a) => {
-            if (a.href && a.href.startsWith(location.origin)) a.href = clean;
-          });
-        });
-      }
-
       function publicTarget(){
         const p = CURRENT?.profile || CURRENT?.shop || CURRENT?.boutique || CURRENT || {};
         const u =
@@ -1011,10 +990,6 @@
       function updatePublicLink(){
         const actPublic = $("actPublic");
         if (actPublic) actPublic.href = publicTarget();
-      }
-
-      function payPath(){
-        return "https://pro-pay.digiylyfe.com/admin.html";
       }
 
       function setTasks(items){
@@ -1037,15 +1012,11 @@
             </a>
           `;
         }).join("");
-
-        cleanInternalLinks();
       }
 
       function setBlocked(reason){
-        ACCESS_OK = false;
         CURRENT = null;
         PRODUCTS = [];
-
         document.body.classList.add("locked");
 
         $("modeBadge").className = "mode lock";
@@ -1061,7 +1032,7 @@
         $("infoPublish").textContent = "Accès fermé";
         $("infoSecure").textContent = "Identifiants cachés";
 
-        setStats({ total_products:0, active_products:0, inactive_products:0, published_products:0 });
+        setStats({});
         statusNotice("Mode aperçu. Les portes privées restent fermées tant que l’accès n’est pas confirmé.", "warn");
 
         setTasks([
@@ -1083,7 +1054,6 @@
         ]);
 
         updatePublicLink();
-        cleanInternalLinks();
       }
 
       function applyLive(payload){
@@ -1091,7 +1061,6 @@
         const stats = pickStats(payload);
 
         CURRENT = Object.assign({}, normalizePayload(payload), { profile });
-        ACCESS_OK = true;
 
         document.body.classList.remove("locked");
 
@@ -1102,6 +1071,10 @@
           profile?.workspace_slug ||
           ACCESS_SLUG
         );
+
+        if (ACCESS_SLUG && !ACCESS_SLUG.startsWith("market-")) {
+          ACCESS_SLUG = "";
+        }
 
         ACCESS_PHONE = normPhone(
           CURRENT?.phone ||
@@ -1204,22 +1177,15 @@
         });
 
         setTasks(tasks);
-
-        const payLinks = document.querySelectorAll("a[href*='pro-pay.digiylyfe.com']");
-        payLinks.forEach(a => { a.href = payPath(); });
-
         updatePublicLink();
-        cleanInternalLinks();
         statusNotice("Accès ouvert. Les identifiants restent dans le coffre, pas dans l’écran.", "ok");
       }
 
       async function loadCockpit(){
-        const payloads = [
+        return await rpcTry(CFG.RPC_COCKPIT, [
           { p_slug: ACCESS_SLUG },
           { slug: ACCESS_SLUG }
-        ];
-
-        return await rpcTry(CFG.RPC_COCKPIT, payloads);
+        ]);
       }
 
       async function loadProducts(){
@@ -1249,6 +1215,7 @@
           ACCESS_SLUG = resolveSlug(session);
           ACCESS_PHONE = resolvePhone(session);
           ACCESS_GRANTED = resolveAccess(session) || resolveAccess(storedSession || {});
+
           await resolveMissingSlugByPhone();
           remember();
 
@@ -1282,7 +1249,6 @@
 
       $("btnReloadTop")?.addEventListener("click", boot);
 
-      cleanInternalLinks();
       boot();
     })();
   </script>
