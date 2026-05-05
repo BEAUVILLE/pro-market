@@ -10,7 +10,7 @@
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./guard.js?v=market-index-mobile-20260501"></script>
+<script src="./guard.js?v=market-index-coffre-20260505"></script>
 
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
@@ -97,8 +97,7 @@
   .btn.gold{background:rgba(250,204,21,.12);color:var(--gold);border-color:rgba(250,204,21,.22)}
   .btn.info{background:rgba(96,165,250,.12);color:#bfdbfe;border-color:rgba(96,165,250,.22)}
   .btn.warn{background:rgba(245,158,11,.12);color:#fde68a;border-color:rgba(245,158,11,.24)}
-
-
+  .btn.danger{background:rgba(239,68,68,.10);color:#fecaca;border-color:rgba(239,68,68,.24)}
 
   .routeNav{
     display:flex;
@@ -286,7 +285,6 @@
   .readingRow{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 12px;border-radius:14px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.03);font-size:13px;font-weight:900}
   .readingRow .k{color:var(--muted)}
   .readingRow .v{word-break:break-word;text-align:right}
-  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:12px}
 
   .sectionTitle{margin:4px 0 0;font-size:18px;letter-spacing:-.01em}
   .navGrid{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -326,7 +324,7 @@
             <div class="brandSub" id="topSub">Un seul chemin, sans te perdre</div>
           </div>
         </div>
-        <div class="badge"><span class="dot"></span><span id="badgeText">MARKET</span></div>
+        <div class="badge"><span class="dot"></span><span id="badgeText">Compte sécurisé</span></div>
       </div>
 
       <nav class="routeNav" aria-label="Navigation DIGIY">
@@ -365,7 +363,7 @@
       </section>
 
       <div class="heroActions">
-        <a class="btn primary wide" id="heroDashboard" href="./dashboard-pro.html">🏠 Voir mon activité</a>
+        <a class="btn primary wide" id="heroDashboard" href="./cockpit.html">🏠 Voir mon activité</a>
         <a class="btn gold" id="heroPin" href="./pin.html">🔑 Ouvrir mon accès</a>
         <a class="btn info" id="heroProducts" href="./produits.html">📦 Mes produits</a>
         <a class="btn warn" id="heroNote" href="./produits.html#quickMarketNote">📝 Note rapide</a>
@@ -377,11 +375,11 @@
           <h2>Où tu en es</h2>
           <div class="status warn" id="statusBox">Lecture de ton accès en cours...</div>
           <div class="reading">
-            <div class="readingRow"><span class="k">Identifiant actif</span><span class="v mono" id="slugText">—</span></div>
-            <div class="readingRow"><span class="k">Numéro lié</span><span class="v" id="phoneText">—</span></div>
+            <div class="readingRow"><span class="k">Compte</span><span class="v" id="accountText">Compte sécurisé</span></div>
             <div class="readingRow"><span class="k">Accès</span><span class="v" id="sessionText">—</span></div>
+            <div class="readingRow"><span class="k">Espace</span><span class="v">Je vends</span></div>
           </div>
-          <div class="muted" id="statusHint">Si ton identifiant est reconnu, tu peux continuer vers ton activité.</div>
+          <div class="muted" id="statusHint">Les identifiants restent dans le coffre. L’écran ne les expose pas.</div>
         </div>
 
         <div class="box">
@@ -397,7 +395,7 @@
       <h2 class="sectionTitle">Choisis où aller</h2>
 
       <section class="navGrid">
-        <a class="navCard" id="navDashboard" href="./dashboard-pro.html">
+        <a class="navCard" id="navDashboard" href="./cockpit.html">
           <div class="navHead"><div><div class="navTag">Accueil</div><h3 class="navTitle">Mon activité</h3></div><div class="navIcon">🏠</div></div>
           <div class="navText">Ce qui demande attention maintenant : visibilité, produits, accès, prochaines actions.</div>
         </a>
@@ -434,7 +432,7 @@
 
   <nav class="bottomNav" aria-label="Navigation MARKET">
     <div class="bottomNavInner">
-      <a class="active" id="bottomHome" href="./dashboard-pro.html"><b>🏠</b><span>Accueil</span></a>
+      <a class="active" id="bottomHome" href="./cockpit.html"><b>🏠</b><span>Accueil</span></a>
       <a id="bottomProducts" href="./produits.html"><b>📦</b><span>Produits</span></a>
       <a id="bottomAdd" href="./produits.html#productForm"><b>➕</b><span>Ajouter</span></a>
       <a id="bottomNotes" href="./produits.html#quickMarketNote"><b>📝</b><span>Notes</span></a>
@@ -467,19 +465,32 @@
         return d;
       }
 
-      function displayPhone(v){
-        const d = normPhone(v);
-        return d ? "+" + d : "—";
-      }
-
       function isTruthyLike(v){
         if (v === true || v === 1) return true;
         const s = String(v == null ? "" : v).trim().toLowerCase();
         return s === "true" || s === "1" || s === "yes" || s === "ok";
       }
 
-      const hintedSlug = normSlug(qs.get("slug"));
-      const hintedPhone = normPhone(qs.get("phone"));
+      function storeBoth(key, value){
+        if (!value) return;
+        try { sessionStorage.setItem(key, value); } catch(_){}
+        try { localStorage.setItem(key, value); } catch(_){}
+      }
+
+      const hintedSlug = normSlug(
+        qs.get("slug") ||
+        qs.get("market_slug") ||
+        qs.get("subscription_slug") ||
+        ""
+      );
+
+      const hintedPhone = normPhone(
+        qs.get("phone") ||
+        qs.get("tel") ||
+        qs.get("owner_phone") ||
+        qs.get("checkout_phone") ||
+        ""
+      );
 
       const rememberedSlug =
         normSlug(sessionStorage.getItem("digiy_market_slug")) ||
@@ -494,6 +505,28 @@
 
       const activeSlug = hintedSlug || rememberedSlug || "";
       const activePhone = hintedPhone || rememberedPhone || "";
+
+      if (activeSlug){
+        storeBoth("digiy_market_slug", activeSlug);
+        storeBoth("digiy_market_last_slug", activeSlug);
+        storeBoth("market_slug", activeSlug);
+      }
+
+      if (activePhone){
+        storeBoth("digiy_market_phone", activePhone);
+        storeBoth("digiy_market_last_phone", activePhone);
+        storeBoth("market_phone", activePhone);
+      }
+
+      function cleanVisibleUrl(){
+        const sensitive = [
+          "phone","tel","owner_phone","checkout_phone","subscription_phone",
+          "slug","market_slug","subscription_slug","pro_slug","module","from"
+        ];
+        const hasSensitive = sensitive.some(k => qs.has(k));
+        if (!hasSensitive) return;
+        try { history.replaceState({}, document.title, location.pathname + location.hash); } catch(_){}
+      }
 
       const sessionFlags = [
         sessionStorage.getItem("digiy_market_pin_access"),
@@ -525,30 +558,6 @@
         }
       }
 
-      try{
-        if (activeSlug){
-          sessionStorage.setItem("digiy_market_slug", activeSlug);
-          sessionStorage.setItem("digiy_market_last_slug", activeSlug);
-          localStorage.setItem("digiy_market_last_slug", activeSlug);
-        }
-        if (activePhone){
-          sessionStorage.setItem("digiy_market_phone", activePhone);
-          localStorage.setItem("digiy_market_last_phone", activePhone);
-        }
-      }catch(_){}
-
-      function withContext(path, includePhone){
-        const u = new URL(path, location.href);
-        if (activeSlug) u.searchParams.set("slug", activeSlug);
-        if (includePhone && activePhone) u.searchParams.set("phone", activePhone);
-        return u.pathname + u.search + u.hash;
-      }
-
-      function setHref(id, path, includePhone){
-        const el = $(id);
-        if (el) el.href = withContext(path, includePhone !== false);
-      }
-
       function setStatus(msg, tone){
         const box = $("statusBox");
         if (!box) return;
@@ -556,134 +565,140 @@
         box.textContent = msg;
       }
 
-      const ids = {
-        heroDashboard:"./dashboard-pro.html",
+      function setHref(id, path){
+        const el = $(id);
+        if (el) el.href = path;
+      }
+
+      const cleanRoutes = {
+        heroDashboard:"./cockpit.html",
         heroPin:"./pin.html",
         heroProducts:"./produits.html",
         heroNote:"./produits.html#quickMarketNote",
         heroPlus:"./boutique.html",
         navPin:"./pin.html",
-        navDashboard:"./dashboard-pro.html",
+        navDashboard:"./cockpit.html",
         navProduits:"./produits.html",
         navAjouter:"./produits.html#productForm",
         navNotes:"./produits.html#quickMarketNote",
         navBoutique:"./boutique.html",
-        bottomHome:"./dashboard-pro.html",
+        bottomHome:"./cockpit.html",
         bottomProducts:"./produits.html",
         bottomAdd:"./produits.html#productForm",
         bottomNotes:"./produits.html#quickMarketNote",
         bottomPlus:"./boutique.html"
       };
 
-      Object.entries(ids).forEach(([id,path]) => setHref(id, path, true));
+      Object.entries(cleanRoutes).forEach(([id,path]) => setHref(id, path));
 
-      const slugText = $("slugText");
-      const phoneText = $("phoneText");
+      const accountText = $("accountText");
       const sessionText = $("sessionText");
       const statusHint = $("statusHint");
       const badgeText = $("badgeText");
+      const topSub = $("topSub");
 
-      if (slugText) slugText.textContent = activeSlug || "Aucun identifiant mémorisé";
-      if (phoneText) phoneText.textContent = displayPhone(activePhone);
+      const accountKnown = !!(activeSlug || activePhone);
+
+      if (accountText) accountText.textContent = accountKnown ? "Compte reconnu" : "Compte non ouvert";
       if (sessionText) sessionText.textContent = sessionOpen ? "Ouvert" : "Fermé";
-      if (badgeText) badgeText.textContent = activeSlug ? activeSlug : "MARKET";
+      if (badgeText) badgeText.textContent = accountKnown ? "Compte sécurisé" : "MARKET";
+      if (topSub) topSub.textContent = accountKnown ? "Compte reconnu · identifiants cachés" : "Ouvre ton accès pour commencer";
 
-      if (activeSlug && sessionOpen) {
-        setStatus("Ton identifiant est reconnu et ton accès semble déjà ouvert. Tu peux aller directement à ton activité.", "ok");
-        if (statusHint) statusHint.textContent = "Ton chemin est prêt : Accueil, Produits, Ajouter, Notes, Plus.";
-      } else if (activeSlug && !sessionOpen) {
-        setStatus("Ton identifiant est reconnu, mais ton accès n’est pas encore ouvert. Passe par ton code pour entrer proprement.", "warn");
-        if (statusHint) statusHint.textContent = "Le bon réflexe : ouvrir l’accès, puis continuer sans retaper le code partout.";
+      if (accountKnown && sessionOpen) {
+        setStatus("Ton compte est reconnu et ton accès est ouvert. Tu peux aller directement à ton activité.", "ok");
+        if (statusHint) statusHint.textContent = "Ton chemin est prêt : Accueil, Produits, Ajouter, Notes, Plus. Les identifiants restent cachés.";
+      } else if (accountKnown && !sessionOpen) {
+        setStatus("Ton compte est reconnu, mais l’accès vendeur n’est pas encore ouvert.", "warn");
+        if (statusHint) statusHint.textContent = "Entre ton code pour ouvrir ton espace. Les identifiants restent dans le coffre.";
       } else {
-        setStatus("Aucun identifiant trouvé. Passe par ton code pour entrer proprement.", "warn");
-        if (statusHint) statusHint.textContent = "Sans identifiant mémorisé, la bonne porte reste l’accès par code.";
+        setStatus("Aucun compte MARKET reconnu sur ce téléphone pour l’instant.", "info");
+        if (statusHint) statusHint.textContent = "Passe par Ouvrir mon accès. Après validation, ce téléphone retiendra le compte.";
       }
+
+      cleanVisibleUrl();
     })();
   </script>
-
 
   <script>
     (function(){
       "use strict";
 
-      const AUDIO_TEXT =
-        "Bienvenue dans Je vends, l’espace MARKET de DIGIY. Ici, tu ne rentres pas dans une application compliquée. Tu avances étape par étape. D’abord, tu peux ouvrir ton activité. Ensuite, tu règles ta boutique : nom, ville, contact WhatsApp et visibilité. Puis tu ajoutes tes produits avec leur prix, leur photo et une petite description. MARKET fonctionne comme une galerie marchande : plusieurs boutiques peuvent être visibles, chacune garde son lien direct avec le client. Et quand une vente, un achat de stock, une livraison ou un client qui doit arrive, tu peux écrire une note rapide. DIGIY prépare la trace, puis Mon argent t’aide à voir ce qui entre, ce qui sort, et ce qu’il reste vraiment. Simple, direct, sans commission.";
-
+      const AUDIO_TEXT = "Bienvenue dans Je vends, la porte d’entrée MARKET. Ici, tu peux ouvrir ton accès, voir ton activité, gérer tes produits, ajouter rapidement un article, écrire une note de vente, puis régler ta boutique. MARKET fonctionne comme une galerie marchande : le client voit les boutiques et contacte directement le commerçant. Le paiement reste direct au professionnel, avec zéro commission DIGIY. Les notes rapides servent à garder la trace d’une vente, d’un stock, d’une livraison ou d’un client qui doit, puis à préparer Mon argent.";
       const btnPlay = document.getElementById("btnMarketAudio");
       const btnStop = document.getElementById("btnMarketAudioStop");
-      const bar = document.getElementById("marketAudioProgress");
-      const synth = window.speechSynthesis;
+      const progress = document.getElementById("marketAudioProgress");
       let playing = false;
       let timer = null;
 
       function getVoice(){
-        if(!synth) return null;
-        const voices = synth.getVoices() || [];
-        return voices.find(v => /^fr/i.test(v.lang || "") && /audrey|amelie|hortense|julie|thomas|paul|french/i.test(v.name || ""))
-          || voices.find(v => /^fr/i.test(v.lang || ""))
-          || null;
-      }
-
-      function resetAudio(){
-        clearInterval(timer);
-        timer = null;
-        playing = false;
-        if(bar) bar.style.width = "0%";
-        if(btnPlay) btnPlay.textContent = "🎧 Écouter DIGIY";
+        try{
+          const voices = window.speechSynthesis.getVoices() || [];
+          return voices.find(v => /^fr/i.test(v.lang || "") && /audrey|amelie|hortense|julie|thomas|paul|french/i.test(v.name || ""))
+            || voices.find(v => /^fr/i.test(v.lang || ""))
+            || null;
+        }catch(_){ return null; }
       }
 
       function stopAudio(){
-        try{ if(synth) synth.cancel(); }catch(_){ }
-        resetAudio();
+        try{ window.speechSynthesis.cancel(); }catch(_){ }
+        clearInterval(timer);
+        timer = null;
+        playing = false;
+        if(btnPlay) btnPlay.textContent = "🎧 Écouter DIGIY";
+        if(progress) progress.style.width = "0%";
       }
 
       function playAudio(){
-        if(!("speechSynthesis" in window)){
+        if(!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)){
           alert("Audio indisponible sur ce navigateur.");
           return;
         }
 
         if(playing){ stopAudio(); return; }
+        stopAudio();
 
-        try{ synth.cancel(); }catch(_){ }
-        clearInterval(timer);
-
-        const utt = new SpeechSynthesisUtterance(AUDIO_TEXT);
-        utt.lang = "fr-FR";
-        utt.rate = 0.88;
-        utt.pitch = 1.05;
-        utt.volume = 1;
+        const utter = new SpeechSynthesisUtterance(AUDIO_TEXT);
+        utter.lang = "fr-FR";
+        utter.rate = 0.86;
+        utter.pitch = 1.04;
+        utter.volume = 1;
 
         const voice = getVoice();
-        if(voice) utt.voice = voice;
+        if(voice) utter.voice = voice;
 
-        playing = true;
-        if(btnPlay) btnPlay.textContent = "⏸️ Lecture en cours";
-        if(bar) bar.style.width = "0%";
+        const duration = Math.max(12000, AUDIO_TEXT.split(/\s+/).length * 430);
+        let elapsed = 0;
 
-        let progress = 0;
-        const duration = Math.max(26000, AUDIO_TEXT.split(" ").length * 470);
-        timer = setInterval(() => {
-          progress += 250;
-          if(bar) bar.style.width = Math.min(96, (progress / duration) * 100) + "%";
-        }, 250);
-
-        utt.onend = function(){
-          if(bar) bar.style.width = "100%";
-          setTimeout(resetAudio, 350);
+        utter.onstart = function(){
+          playing = true;
+          if(btnPlay) btnPlay.textContent = "⏸️ Lecture en cours";
+          if(progress) progress.style.width = "0%";
+          timer = setInterval(function(){
+            elapsed += 250;
+            if(progress) progress.style.width = Math.min(96, (elapsed / duration) * 100) + "%";
+          }, 250);
         };
-        utt.onerror = resetAudio;
 
-        synth.speak(utt);
+        utter.onend = function(){
+          if(progress) progress.style.width = "100%";
+          setTimeout(stopAudio, 260);
+        };
+
+        utter.onerror = stopAudio;
+
+        window.speechSynthesis.speak(utter);
       }
 
       if(btnPlay) btnPlay.addEventListener("click", playAudio);
       if(btnStop) btnStop.addEventListener("click", stopAudio);
-      if(synth && typeof synth.onvoiceschanged !== "undefined") synth.onvoiceschanged = getVoice;
+      if(window.speechSynthesis && typeof window.speechSynthesis.onvoiceschanged !== "undefined"){
+        window.speechSynthesis.onvoiceschanged = getVoice;
+      }
       window.addEventListener("beforeunload", stopAudio);
+      document.addEventListener("visibilitychange", function(){ if(document.hidden) stopAudio(); });
     })();
   </script>
-
 </body>
 </html>
+
 
