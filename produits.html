@@ -18,6 +18,78 @@
     window.DIGIY_MODULE = "MARKET";
   </script>
 
+  <script>
+    /*
+      DIGIY MARKET — coffre PRO produits
+      Accepte les anciens liens ?slug= / ?phone=, mémorise le contexte localement,
+      puis nettoie la barre d’adresse avant le guard. Rien de sensible ne reste visible.
+    */
+    (function(){
+      "use strict";
+
+      const qs = new URLSearchParams(location.search);
+
+      function normSlug(v){
+        return String(v || "")
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, "-")
+          .replace(/[^a-z0-9-]/g, "")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "");
+      }
+
+      function normPhone(v){
+        const d = String(v || "").replace(/[^\d]/g, "");
+        if (!d) return "";
+        if (d.startsWith("221") && d.length === 12) return d;
+        if (d.length === 9) return "221" + d;
+        return d;
+      }
+
+      const incomingSlug =
+        normSlug(qs.get("slug")) ||
+        normSlug(qs.get("market_slug")) ||
+        normSlug(qs.get("subscription_slug")) ||
+        normSlug(qs.get("pro_slug"));
+
+      const incomingPhone =
+        normPhone(qs.get("phone")) ||
+        normPhone(qs.get("tel")) ||
+        normPhone(qs.get("owner_phone")) ||
+        normPhone(qs.get("checkout_phone"));
+
+      try{
+        if (incomingSlug){
+          sessionStorage.setItem("digiy_market_slug", incomingSlug);
+          sessionStorage.setItem("digiy_market_last_slug", incomingSlug);
+          localStorage.setItem("digiy_market_last_slug", incomingSlug);
+          localStorage.setItem("market_slug", incomingSlug);
+        }
+
+        if (incomingPhone){
+          sessionStorage.setItem("digiy_market_phone", incomingPhone);
+          localStorage.setItem("digiy_market_last_phone", incomingPhone);
+          localStorage.setItem("market_phone", incomingPhone);
+        }
+      }catch(_){ }
+
+      const sensitiveKeys = [
+        "slug", "market_slug", "subscription_slug", "pro_slug",
+        "phone", "tel", "owner_phone", "checkout_phone", "subscription_phone",
+        "owner", "owner_id", "module", "from"
+      ];
+
+      const hasSensitive = sensitiveKeys.some((key) => qs.has(key));
+      if (hasSensitive && window.history && typeof window.history.replaceState === "function"){
+        sensitiveKeys.forEach((key) => qs.delete(key));
+        const cleanSearch = qs.toString();
+        const cleanUrl = location.pathname + (cleanSearch ? "?" + cleanSearch : "") + location.hash;
+        window.history.replaceState(null, document.title, cleanUrl);
+      }
+    })();
+  </script>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./guard.js?v=market-produits-20260329-human-v2"></script>
 
@@ -667,7 +739,7 @@
       <div class="right">
         <div class="pill" id="pillStatus">Accès : <b>…</b></div>
         <button class="btn" id="btnReloadTop" type="button">🔄 Recharger</button>
-        <a class="btn" id="btnDashboardTop" href="./dashboard-pro.html">🏠 Accueil</a>
+        <a class="btn" id="btnDashboardTop" href="./cockpit.html">🏠 Accueil</a>
         <a class="btn" id="btnPin" href="./pin.html">🔑 Accès</a>
       </div>
     </div>
@@ -727,9 +799,9 @@
         <h3>Ajouter ou corriger un produit</h3>
 
         <div class="infoBox">
-          <div class="infoRow"><span class="muted">Identifiant</span><span id="infoSlug">—</span></div>
-          <div class="infoRow"><span class="muted">Téléphone</span><span id="infoPhone">—</span></div>
-          <div class="infoRow"><span class="muted">WhatsApp</span><span id="infoWhatsapp">—</span></div>
+          <div class="infoRow"><span class="muted">Compte</span><span id="infoSecure">Compte sécurisé</span></div>
+          <div class="infoRow"><span class="muted">Session</span><span id="infoSession">—</span></div>
+          <div class="infoRow"><span class="muted">Contact client</span><span id="infoWhatsapp">—</span></div>
           <div class="infoRow"><span class="muted">Adresse</span><span id="infoAddress">—</span></div>
           <div class="infoRow"><span class="muted">Activité</span><span id="infoCategories">—</span></div>
         </div>
@@ -870,7 +942,7 @@
 
           <div class="footer" style="margin-top:0">
             <button class="btn" id="btnReload" type="button">🔄 Recharger</button>
-            <a class="smallLink" href="./dashboard-pro.html" id="linkDashboard">Mon activité</a>
+            <a class="smallLink" href="./cockpit.html" id="linkDashboard">Ma gestion</a>
             <a class="smallLink" href="./cockpit.html" id="linkCockpit">Ma gestion</a>
             <a class="smallLink" href="./boutique.html" id="linkBoutique">Ma boutique</a>
             <a class="smallLink" href="./index.html" id="linkPublic">Ma vitrine</a>
@@ -891,7 +963,7 @@
           Ici on garde le secondaire : réglages boutique, vitrine, accès, gestion et outils utiles.
         </div>
         <div class="footer" style="justify-content:flex-start">
-          <a class="btn" id="btnMoreDashboard" href="./dashboard-pro.html">🏠 Accueil</a>
+          <a class="btn" id="btnMoreDashboard" href="./cockpit.html">🏠 Accueil</a>
           <a class="btn" id="btnMoreBoutique" href="./boutique.html">🛠️ Réglages boutique</a>
           <a class="btn" id="btnMoreCockpit" href="./cockpit.html">🧭 Ma gestion</a>
           <a class="btn gold" id="btnMorePublic" href="./index.html">🌍 Voir ma vitrine</a>
@@ -903,7 +975,7 @@
   </div>
 
   <nav class="mobileNav" aria-label="Navigation MARKET">
-    <a id="navHome" href="./dashboard-pro.html"><span>🏠</span><span>Accueil</span></a>
+    <a id="navHome" href="./cockpit.html"><span>🏠</span><span>Accueil</span></a>
     <a id="navProducts" class="active" href="#productsListSection"><span>📦</span><span>Produits</span></a>
     <a id="navAdd" href="#productFormCard"><span>➕</span><span>Ajouter</span></a>
     <a id="navNotes" href="#quickMarketNote"><span>📝</span><span>Notes</span></a>
@@ -1010,20 +1082,32 @@
   }
 
   function buildPath(base, opts){
-    const o = opts || {};
-    const includeSlug = o.slug !== false;
-    const includePhone = !!o.phone;
-
+    /*
+      Coffre PRO : le contexte privé vit en sessionStorage/localStorage.
+      On ne propage plus slug/phone dans les liens visibles.
+    */
     const u = new URL(base, location.href);
-    if (includeSlug && ACCESS_SLUG) u.searchParams.set("slug", ACCESS_SLUG);
-    if (includePhone && ACCESS_PHONE) u.searchParams.set("phone", ACCESS_PHONE);
-    return u.pathname + u.search;
+    [
+      "slug", "market_slug", "subscription_slug", "pro_slug",
+      "phone", "tel", "owner_phone", "checkout_phone", "subscription_phone",
+      "owner", "owner_id", "module", "from"
+    ].forEach((key) => u.searchParams.delete(key));
+    return u.pathname + u.search + u.hash;
   }
 
   function publicPath(){
-    return ACCESS_SLUG
-      ? buildPath("./index.html", { slug:true, phone:false })
-      : "./index.html";
+    const p = CURRENT?.profile || {};
+    const candidate = String(
+      p.public_url ||
+      p.publicUrl ||
+      p.shop_url ||
+      CURRENT?.public_url ||
+      CURRENT?.publicUrl ||
+      ""
+    ).trim();
+
+    if (/^https:\/\//i.test(candidate)) return candidate;
+    return "https://market.digiylyfe.com/";
   }
 
   function getResolvedSlug(payload){
@@ -1095,23 +1179,23 @@
   }
 
   function updateLinks(){
-    $("btnPin").href = ACCESS_SLUG ? buildPath("./pin.html", { slug:true, phone:true }) : "./pin.html";
-    $("btnDashboardTop").href = ACCESS_SLUG ? buildPath("./dashboard-pro.html", { slug:true, phone:true }) : "./dashboard-pro.html";
-    $("btnCockpit").href = ACCESS_SLUG ? buildPath("./cockpit.html", { slug:true, phone:true }) : "./cockpit.html";
-    $("btnBoutique").href = ACCESS_SLUG ? buildPath("./boutique.html", { slug:true, phone:true }) : "./boutique.html";
+    $("btnPin").href = "./pin.html";
+    $("btnDashboardTop").href = "./cockpit.html";
+    $("btnCockpit").href = "./cockpit.html";
+    $("btnBoutique").href = "./boutique.html";
     $("btnPublic").href = publicPath();
-    $("linkDashboard").href = ACCESS_SLUG ? buildPath("./dashboard-pro.html", { slug:true, phone:true }) : "./dashboard-pro.html";
-    $("linkCockpit").href = ACCESS_SLUG ? buildPath("./cockpit.html", { slug:true, phone:true }) : "./cockpit.html";
-    $("linkBoutique").href = ACCESS_SLUG ? buildPath("./boutique.html", { slug:true, phone:true }) : "./boutique.html";
+    $("linkDashboard").href = "./cockpit.html";
+    $("linkCockpit").href = "./cockpit.html";
+    $("linkBoutique").href = "./boutique.html";
     $("linkPublic").href = publicPath();
 
-    if ($("btnMoreDashboard")) $("btnMoreDashboard").href = ACCESS_SLUG ? buildPath("./dashboard-pro.html", { slug:true, phone:true }) : "./dashboard-pro.html";
-    if ($("btnMoreBoutique")) $("btnMoreBoutique").href = ACCESS_SLUG ? buildPath("./boutique.html", { slug:true, phone:true }) : "./boutique.html";
-    if ($("btnMoreCockpit")) $("btnMoreCockpit").href = ACCESS_SLUG ? buildPath("./cockpit.html", { slug:true, phone:true }) : "./cockpit.html";
+    if ($("btnMoreDashboard")) $("btnMoreDashboard").href = "./cockpit.html";
+    if ($("btnMoreBoutique")) $("btnMoreBoutique").href = "./boutique.html";
+    if ($("btnMoreCockpit")) $("btnMoreCockpit").href = "./cockpit.html";
     if ($("btnMorePublic")) $("btnMorePublic").href = publicPath();
-    if ($("btnMorePin")) $("btnMorePin").href = ACCESS_SLUG ? buildPath("./pin.html", { slug:true, phone:true }) : "./pin.html";
+    if ($("btnMorePin")) $("btnMorePin").href = "./pin.html";
 
-    if ($("navHome")) $("navHome").href = ACCESS_SLUG ? buildPath("./dashboard-pro.html", { slug:true, phone:true }) : "./dashboard-pro.html";
+    if ($("navHome")) $("navHome").href = "./cockpit.html";
     if ($("navProducts")) $("navProducts").href = "#productsListSection";
     if ($("navAdd")) $("navAdd").href = "#productFormCard";
     if ($("navNotes")) $("navNotes").href = "#quickMarketNote";
@@ -1217,9 +1301,9 @@
   }
 
   function resolveAccessReason(){
-    if (!ACCESS_SLUG) return "Ajoute ?slug=market-... ou passe par ton accès sécurisé.";
+    if (!ACCESS_SLUG) return "Passe par ton accès sécurisé.";
     if (!ACCESS_GRANTED) return "Passe par ton code pour ouvrir la vraie vue vendeur.";
-    return "Identifiant détecté mais accès non ouvert.";
+    return "Compte détecté mais accès non ouvert.";
   }
 
   function rememberAccess(){
@@ -1324,7 +1408,7 @@
     $("pillStatus").innerHTML = 'Accès : <b>Bloqué</b>';
     $("brandTitle").textContent = "Mes produits";
     $("brandSub").textContent = ACCESS_SLUG
-      ? "Identifiant détecté • données protégées"
+      ? "Compte reconnu • données protégées"
       : "Ce que je vends";
     $("shopName").textContent = "Ma boutique";
     $("metaLine").innerHTML = '<span>Ville : —</span><span>•</span><span>Vitrine : —</span>';
@@ -1334,9 +1418,9 @@
     $("statPublishedProducts").textContent = "0";
     $("statTotal").textContent = "0";
 
-    $("infoSlug").textContent = ACCESS_SLUG || "—";
-    $("infoPhone").textContent = displayPhone(ACCESS_PHONE);
-    $("infoWhatsapp").textContent = "—";
+    $("infoSecure").textContent = ACCESS_SLUG ? "Compte reconnu" : "À ouvrir";
+    $("infoSession").textContent = ACCESS_GRANTED ? "Ouverte" : "Accès fermé";
+    $("infoWhatsapp").textContent = "Caché";
     $("infoAddress").textContent = "—";
     $("infoCategories").textContent = "—";
 
@@ -1352,7 +1436,7 @@
     $("productList").innerHTML = "";
     $("emptyState").style.display = "block";
     $("emptyState").textContent = ACCESS_SLUG
-      ? "Identifiant détecté, mais tes vraies données restent verrouillées tant que l’accès n’a pas été ouvert."
+      ? "Compte reconnu, mais tes vraies données restent verrouillées tant que l’accès n’a pas été ouvert."
       : "Aucun produit visible sans accès ouvert.";
 
     setNotifs([
@@ -1383,9 +1467,7 @@
       : "Code validé • boutique réelle chargée.";
     $("pillStatus").innerHTML = 'Accès : <b>Ouvert</b>';
     $("brandTitle").textContent = "Mes produits";
-    $("brandSub").textContent = resolvedSlug
-      ? `Identifiant : ${resolvedSlug}`
-      : "Ce que je vends";
+    $("brandSub").textContent = "Produits · Ajouter · Notes";
 
     $("shopName").textContent = shopName;
     $("metaLine").innerHTML = `<span>Ville : ${esc(toText(p.city, "—"))}</span><span>•</span><span>Vitrine : ${p.is_published ? "En ligne" : "Hors ligne"}</span>`;
@@ -1395,9 +1477,9 @@
     $("statPublishedProducts").textContent = String(stats.published);
     $("statTotal").textContent = String(stats.total);
 
-    $("infoSlug").textContent = resolvedSlug || "—";
-    $("infoPhone").textContent = displayPhone(data.phone || ACCESS_PHONE);
-    $("infoWhatsapp").textContent = displayPhone(p.whatsapp || data.phone || ACCESS_PHONE);
+    $("infoSecure").textContent = "Compte sécurisé";
+    $("infoSession").textContent = "Ouverte";
+    $("infoWhatsapp").textContent = (p.whatsapp || data.phone || ACCESS_PHONE) ? "Configuré" : "À définir";
     $("infoAddress").textContent = toText(p.address, "—");
     $("infoCategories").textContent = toText(p.categories_text, "—");
 
@@ -1414,7 +1496,7 @@
     if (data.is_blank) {
       notifs.push({level:"warn",tag:"START",title:"Boutique prête à remplir",text:"Complète ta boutique et pose tes premiers produits."});
     } else {
-      notifs.push({level:"ok",tag:"BOUTIQUE",title:"Boutique chargée",text:"Tes produits sont bien reliés au bon identifiant."});
+      notifs.push({level:"ok",tag:"BOUTIQUE",title:"Boutique chargée",text:"Tes produits sont bien reliés au bon compte vendeur."});
     }
 
     if (!p.is_published) {
@@ -1798,6 +1880,7 @@
   }
 
   function paySlugFromMarketPhone(){
+    /* Conservé pour compatibilité interne : ne jamais exposer ce slug dans l’URL. */
     const p = normPhone(ACCESS_PHONE || CURRENT?.phone || "");
     return p ? "pay-" + p : "";
   }
@@ -1809,12 +1892,11 @@
   }
 
   function buildPayFromMarketUrl(item){
-    const p = normPhone(ACCESS_PHONE || CURRENT?.phone || "");
-    const paySlug = paySlugFromMarketPhone();
+    /*
+      Coffre PRO : on n’envoie plus phone/slug/source_slug dans l’URL visible.
+      Mon argent reçoit seulement l’intention métier et les champs de note utiles.
+    */
     const qsPay = new URLSearchParams();
-
-    if(paySlug) qsPay.set("slug", paySlug);
-    if(p) qsPay.set("phone", p);
 
     const amount = String(Math.round(Number(item?.amount_xof || 0)));
     const channel = item?.channel && item.channel !== "manual" ? String(item.channel) : "other";
@@ -1831,7 +1913,6 @@
     qsPay.set("category", item?.category || "market_note");
     qsPay.set("movement_date", movementDate);
     qsPay.set("source_module", "MARKET");
-    qsPay.set("source_slug", ACCESS_SLUG || "");
     qsPay.set("source_id", String(item?.memory_id || item?.created_at || "market_quick_note"));
     qsPay.set("label", payMarketLabel(item));
     qsPay.set("note", String(item?.sentence || "").trim());
@@ -1858,7 +1939,7 @@
       ...draft,
       memory_id: draft.memory_id || "market_draft_" + Date.now()
     });
-    const canSendPay = !!normPhone(ACCESS_PHONE || CURRENT?.phone || new URLSearchParams(location.search).get("phone") || "");
+    const canSendPay = true;
 
     box.style.display = "block";
     if(confirmBtn) confirmBtn.style.display = "inline-flex";
@@ -1875,7 +1956,7 @@
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
         ${canSendPay ? `<a class="memoryPayAction" href="${esc(payUrl)}">💰 Envoyer vers Mon argent</a>` : ``}
       </div>
-      ${canSendPay ? `<div class="memoryPayHint">PAY PRO s’ouvre prérempli. Le pro confirme avant l’enregistrement final.</div>` : `<div class="memoryPayHint">Téléphone manquant : impossible de préparer le lien PAY PRO.</div>`}
+      ${canSendPay ? `<div class="memoryPayHint">PAY PRO s’ouvre sans identifiant visible. Le pro confirme avant l’enregistrement final.</div>` : ``}
     `;
   }
 
@@ -1930,15 +2011,6 @@
   function confirmQuickMarket(){
     const input = $("quickMarketInput");
     const sentence = String(input?.value || "").trim();
-
-    if(!ACCESS_PHONE){
-      ACCESS_PHONE = normPhone(new URLSearchParams(location.search).get("phone") || CURRENT?.phone || "");
-    }
-
-    if(!ACCESS_PHONE){
-      setMsgMain("⚠️ Téléphone introuvable : impossible de préparer le lien vers Mon argent.", "warn");
-      return;
-    }
 
     if(!sentence){
       setMsgMain("⚠️ Rien à confirmer.", "warn");
@@ -2007,7 +2079,7 @@
     if (CURRENT?.is_blank) {
       notifs.push({level:"warn",tag:"START",title:"Boutique prête à remplir",text:"Complète ta boutique et pose tes premiers produits."});
     } else {
-      notifs.push({level:"ok",tag:"BOUTIQUE",title:"Boutique chargée",text:"Tes produits sont bien reliés au bon identifiant."});
+      notifs.push({level:"ok",tag:"BOUTIQUE",title:"Boutique chargée",text:"Tes produits sont bien reliés au bon compte vendeur."});
     }
 
     if (!published) {
