@@ -16,7 +16,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-ticket-20260501"></script>
+  <script src="./guard.js?v=market-ticket-coffre-20260505"></script>
 
   <style>
     :root{
@@ -344,7 +344,7 @@
 
       <div class="miniActions">
         <a class="miniBtn" id="btnBack" href="./produits.html">📦 Produits</a>
-        <a class="miniBtn" id="btnHome" href="./dashboard-pro.html">🏠 Accueil</a>
+        <a class="miniBtn" id="btnHome" href="./cockpit.html">🏠 Accueil</a>
       </div>
     </div>
 
@@ -352,7 +352,7 @@
       <div class="row">
         <div>
           <div class="h1" id="storeName">Ma boutique</div>
-          <div class="small" id="storeSlug">—</div>
+          <div class="small" id="storeSecure">Compte sécurisé</div>
         </div>
         <div style="text-align:right">
           <div class="small">TICKET</div>
@@ -411,7 +411,7 @@
 
   <nav class="navBottom" aria-label="Navigation MARKET">
     <div class="navInner">
-      <a class="navItem" id="navHome" href="./dashboard-pro.html"><span class="ico">🏠</span><span>Accueil</span></a>
+      <a class="navItem" id="navHome" href="./cockpit.html"><span class="ico">🏠</span><span>Accueil</span></a>
       <a class="navItem" id="navProducts" href="./produits.html"><span class="ico">📦</span><span>Produits</span></a>
       <a class="navItem" id="navAdd" href="./produits.html#productForm"><span class="ico">➕</span><span>Ajouter</span></a>
       <a class="navItem" id="navNotes" href="./produits.html#quickMarketNote"><span class="ico">✍️</span><span>Notes</span></a>
@@ -442,7 +442,15 @@
     }
 
     function normSlug(v){
-      return String(v || "").trim().toLowerCase();
+      const s = String(v || "")
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9-]/g, "")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "");
+      if (s && !s.startsWith("market-")) return "";
+      return s;
     }
 
     function normPhone(v){
@@ -473,28 +481,45 @@
       return s.length > 10 ? `${s.slice(0,8)}…` : s;
     }
 
-    function buildPath(base, opts){
-      const o = opts || {};
+    function cleanVisibleUrl(){
+      const params = new URLSearchParams(location.search);
+      const sensitive = [
+        "phone","tel","owner_phone","checkout_phone","subscription_phone",
+        "market_phone","slug","market_slug","subscription_slug","pro_slug",
+        "module","from"
+      ];
+
+      const dirty = sensitive.some(k => params.has(k));
+      if (!dirty) return;
+
+      const keep = new URLSearchParams();
+      const saleId = params.get("sale_id") || params.get("id");
+      if (saleId) keep.set("sale_id", saleId);
+
+      const clean = location.pathname + (keep.toString() ? "?" + keep.toString() : "") + location.hash;
+      try { history.replaceState({}, document.title, clean); } catch(_){}
+    }
+
+    function buildPath(base){
       const u = new URL(base, location.href);
-      if (ACCESS_SLUG && o.slug !== false) u.searchParams.set("slug", ACCESS_SLUG);
-      if (ACCESS_PHONE && o.phone) u.searchParams.set("phone", ACCESS_PHONE);
-      return u.pathname + u.search + u.hash;
+      u.search = "";
+      return u.pathname + u.hash;
     }
 
     function updateLinks(){
       const map = {
-        btnBack:["./produits.html",{slug:true,phone:true}],
-        btnHome:["./dashboard-pro.html",{slug:true,phone:true}],
-        navHome:["./dashboard-pro.html",{slug:true,phone:true}],
-        navProducts:["./produits.html",{slug:true,phone:true}],
-        navAdd:["./produits.html#productForm",{slug:true,phone:true}],
-        navNotes:["./produits.html#quickMarketNote",{slug:true,phone:true}],
-        navMore:["./boutique.html",{slug:true,phone:true}]
+        btnBack:"./produits.html",
+        btnHome:"./cockpit.html",
+        navHome:"./cockpit.html",
+        navProducts:"./produits.html",
+        navAdd:"./produits.html#productForm",
+        navNotes:"./produits.html#quickMarketNote",
+        navMore:"./boutique.html"
       };
 
-      Object.entries(map).forEach(([id, cfg]) => {
+      Object.entries(map).forEach(([id, path]) => {
         const el = $(id);
-        if (el) el.href = buildPath(cfg[0], cfg[1]);
+        if (el) el.href = buildPath(path);
       });
     }
 
@@ -517,6 +542,20 @@
       }
     }
 
+    function getStored(keys){
+      for (const key of keys){
+        try{
+          const s = sessionStorage.getItem(key);
+          if (s) return s;
+        }catch(_){}
+        try{
+          const l = localStorage.getItem(key);
+          if (l) return l;
+        }catch(_){}
+      }
+      return "";
+    }
+
     function resolveContext(session){
       const guard = window.DIGIY_GUARD || {};
       const st = session || guard.state || {};
@@ -532,29 +571,25 @@
       ).trim();
 
       ACCESS_SLUG = normSlug(
-        qp("slug") ||
         (typeof guard.getSlug === "function" ? guard.getSlug() : "") ||
         st.slug ||
         st.session?.slug ||
         st.identity?.slug ||
-        sessionStorage.getItem("digiy_market_slug") ||
-        localStorage.getItem("digiy_market_last_slug") ||
-        localStorage.getItem("DIGIY_SLUG") ||
+        getStored(["digiy_market_slug","digiy_market_last_slug","market_slug"]) ||
         ""
       );
 
       ACCESS_PHONE = normPhone(
-        qp("phone") ||
         (typeof guard.getPhone === "function" ? guard.getPhone() : "") ||
         st.phone ||
         st.session?.phone ||
         st.identity?.phone ||
-        sessionStorage.getItem("digiy_market_phone") ||
-        localStorage.getItem("digiy_market_last_phone") ||
+        getStored(["digiy_market_phone","digiy_market_last_phone","market_phone"]) ||
         ""
       );
 
       OWNER_ID = String(
+        (typeof guard.getOwnerId === "function" ? guard.getOwnerId() : "") ||
         st.owner_id ||
         st.session?.owner_id ||
         st.identity?.owner_id ||
@@ -578,6 +613,7 @@
       }
 
       updateLinks();
+      cleanVisibleUrl();
     }
 
     function getClient(){
@@ -686,10 +722,9 @@
       }
 
       const storeLabel = store?.store_name || "Ma boutique";
-      const storeRef = store?.slug || ACCESS_SLUG || "—";
 
       $("storeName").textContent = storeLabel;
-      $("storeSlug").textContent = `Référence boutique : ${storeRef}`;
+      $("storeSecure").textContent = "Compte vendeur sécurisé";
       $("saleDate").textContent = sale.created_at ? new Date(sale.created_at).toLocaleString("fr-FR") : "—";
       setStatus(sale.status || "—");
 
@@ -767,7 +802,7 @@
       }
 
       if (!ACCESS_SLUG){
-        err("Référence boutique manquante.");
+        err("Compte vendeur non reconnu. Rouvre ton accès.");
         return;
       }
 
@@ -802,6 +837,8 @@
 
     async function boot(){
       try{
+        updateLinks();
+        cleanVisibleUrl();
         const session = await waitGuard();
         resolveContext(session);
         getClient();
