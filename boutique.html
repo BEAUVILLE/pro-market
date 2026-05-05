@@ -18,6 +18,73 @@
     window.DIGIY_MODULE = "MARKET";
   </script>
 
+  <script>
+    /*
+      DIGIY MARKET — coffre PRO
+      Accepte les anciens liens ?slug= / ?phone=, mémorise le contexte,
+      puis nettoie l'URL visible. Rien de sensible ne reste en façade téléphone.
+    */
+    (function(){
+      "use strict";
+      const qs = new URLSearchParams(location.search);
+
+      function normSlug(v){
+        return String(v || "")
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, "-")
+          .replace(/[^a-z0-9-]/g, "")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "");
+      }
+
+      function normPhone(v){
+        const d = String(v || "").replace(/[^\d]/g, "");
+        if (!d) return "";
+        if (d.startsWith("221") && d.length === 12) return d;
+        if (d.length === 9) return "221" + d;
+        return d;
+      }
+
+      const incomingSlug =
+        normSlug(qs.get("slug")) ||
+        normSlug(qs.get("market_slug")) ||
+        normSlug(qs.get("subscription_slug"));
+
+      const incomingPhone =
+        normPhone(qs.get("phone")) ||
+        normPhone(qs.get("tel")) ||
+        normPhone(qs.get("owner_phone")) ||
+        normPhone(qs.get("checkout_phone"));
+
+      try{
+        if (incomingSlug){
+          sessionStorage.setItem("digiy_market_slug", incomingSlug);
+          sessionStorage.setItem("digiy_market_last_slug", incomingSlug);
+          localStorage.setItem("digiy_market_last_slug", incomingSlug);
+        }
+        if (incomingPhone){
+          sessionStorage.setItem("digiy_market_phone", incomingPhone);
+          localStorage.setItem("digiy_market_last_phone", incomingPhone);
+        }
+      }catch(_){}
+
+      const sensitiveKeys = [
+        "slug","market_slug","subscription_slug","pro_slug",
+        "phone","tel","owner_phone","checkout_phone","subscription_phone","module","from"
+      ];
+
+      const hasSensitive = sensitiveKeys.some(k => qs.has(k));
+
+      if (hasSensitive && window.history && typeof window.history.replaceState === "function"){
+        sensitiveKeys.forEach(k => qs.delete(k));
+        const cleanSearch = qs.toString();
+        const cleanUrl = location.pathname + (cleanSearch ? "?" + cleanSearch : "") + location.hash;
+        window.history.replaceState(null, document.title, cleanUrl);
+      }
+    })();
+  </script>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./guard.js?v=market-boutique-20260329-v7"></script>
 
@@ -915,7 +982,7 @@
 
       <div class="top-actions">
         <button class="btn ghost" id="btnReload" type="button">🔄 Recharger</button>
-        <a class="btn info" id="btnDashboard" href="./dashboard-pro.html">🏠 Mon activité</a>
+        <a class="btn info" id="btnDashboard" href="./cockpit.html">🏠 Mon activité</a>
         <a class="btn" id="btnCockpit" href="./cockpit.html">🧭 Ma gestion</a>
         <a class="btn" id="btnProducts" href="./produits.html">📦 Mes produits</a>
         <a class="btn primary" id="btnFirstProductTop" href="./produits.html#productForm" style="display:none">➕ Ajouter un produit</a>
@@ -970,17 +1037,17 @@
 
         <div class="hero-side">
           <div class="mini">
-            <div class="k">Identifiant boutique</div>
-            <div class="v" id="miniSlug">—</div>
+            <div class="k">Compte</div>
+            <div class="v" id="miniSlug">Compte sécurisé</div>
           </div>
 
           <div class="mini">
-            <div class="k">Téléphone lié</div>
-            <div class="v" id="miniPhone">—</div>
+            <div class="k">Accès</div>
+            <div class="v" id="miniPhone">Identifiants cachés</div>
           </div>
 
           <div class="mini">
-            <div class="k">WhatsApp</div>
+            <div class="k">Contact client</div>
             <div class="v" id="miniWhatsapp">—</div>
           </div>
 
@@ -1065,8 +1132,8 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
 
         <div class="grid2" style="margin-top:12px">
           <div class="field">
-            <div class="label">Téléphone lié</div>
-            <input class="in" id="linkedPhone" readonly/>
+            <div class="label">Compte</div>
+            <input class="in" id="linkedPhone" readonly value="Compte sécurisé"/>
           </div>
           <div class="field">
             <div class="label">WhatsApp</div>
@@ -1270,9 +1337,35 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
       }
 
       function withSlug(base){
+        /*
+          Liens internes propres : le contexte privé est déjà en session/localStorage.
+          Pas de ?slug= ni ?phone= dans la barre d'adresse du pro.
+        */
         const u = new URL(base, location.href);
-        if (ACCESS_SLUG) u.searchParams.set("slug", ACCESS_SLUG);
-        return u.pathname + u.search;
+        ["slug","market_slug","subscription_slug","pro_slug","phone","tel","owner_phone","checkout_phone","module","from"].forEach((key) => {
+          u.searchParams.delete(key);
+        });
+        return u.pathname + u.search + u.hash;
+      }
+
+      function cleanPublicHref(profile){
+        const direct = String(profile?.public_url || profile?.publicUrl || "").trim();
+        if (/^https:\/\//i.test(direct)) return direct;
+        return "https://market.digiylyfe.com/";
+      }
+
+      function cleanVisibleUrl(){
+        const qs = new URLSearchParams(location.search);
+        const sensitiveKeys = [
+          "slug","market_slug","subscription_slug","pro_slug",
+          "phone","tel","owner_phone","checkout_phone","subscription_phone","module","from"
+        ];
+        const hasSensitive = sensitiveKeys.some(k => qs.has(k));
+        if (!hasSensitive) return;
+        sensitiveKeys.forEach(k => qs.delete(k));
+        const cleanSearch = qs.toString();
+        const cleanUrl = location.pathname + (cleanSearch ? "?" + cleanSearch : "") + location.hash;
+        try { history.replaceState(null, document.title, cleanUrl); } catch(_){}
       }
 
       function isTruthyLike(v){
@@ -1282,18 +1375,21 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
       }
 
       function setNavLinks(){
-        $("btnDashboard").href = ACCESS_SLUG ? withSlug("./dashboard-pro.html") : "./dashboard-pro.html";
-        $("btnCockpit").href = ACCESS_SLUG ? withSlug("./cockpit.html") : "./cockpit.html";
-        $("btnProducts").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
-        if ($("btnFirstProductTop")) $("btnFirstProductTop").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
-        if ($("btnFirstProductSide")) $("btnFirstProductSide").href = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
-        $("btnPin").href = ACCESS_SLUG ? withSlug("./pin.html") : "./pin.html";
-        $("btnPublic").href = ACCESS_SLUG ? withSlug("./index.html") : "./index.html";
+        const cockpitUrl = "./cockpit.html";
+        const produitsUrl = "./produits.html";
+        const boutiqueUrl = "./boutique.html";
+        const pinUrl = "./pin.html";
+        const publicUrl = cleanPublicHref(CURRENT_COCKPIT?.profile || {});
 
-        const dashboardUrl = ACCESS_SLUG ? withSlug("./dashboard-pro.html") : "./dashboard-pro.html";
-        const produitsUrl = ACCESS_SLUG ? withSlug("./produits.html") : "./produits.html";
-        const boutiqueUrl = ACCESS_SLUG ? withSlug("./boutique.html") : "./boutique.html";
-        if ($("navAccueil")) $("navAccueil").href = dashboardUrl;
+        $("btnDashboard").href = cockpitUrl;
+        $("btnCockpit").href = cockpitUrl;
+        $("btnProducts").href = produitsUrl;
+        if ($("btnFirstProductTop")) $("btnFirstProductTop").href = produitsUrl + "#productForm";
+        if ($("btnFirstProductSide")) $("btnFirstProductSide").href = produitsUrl + "#productForm";
+        $("btnPin").href = pinUrl;
+        $("btnPublic").href = publicUrl;
+
+        if ($("navAccueil")) $("navAccueil").href = cockpitUrl;
         if ($("navProduits")) $("navProduits").href = produitsUrl;
         if ($("navAjouter")) $("navAjouter").href = produitsUrl + "#productForm";
         if ($("navNotes")) $("navNotes").href = produitsUrl + "#quickMarketNote";
@@ -1469,9 +1565,7 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
       function updateGlobalHubLink(){
         const hub = $("btnGlobalHub");
         if (!hub) return;
-        const u = new URL("https://pro-espace.digiylyfe.com/");
-        if (ACCESS_PHONE) u.searchParams.set("phone", ACCESS_PHONE);
-        hub.href = u.toString();
+        hub.href = "https://pro-espace.digiylyfe.com/";
       }
 
       function blockedCockpit(reason){
@@ -1675,9 +1769,9 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
         $("pillCity").textContent = "📍 " + city;
         $("pillPublish").textContent = "🌍 " + (p.is_published ? "En ligne" : "Hors ligne");
 
-        $("miniSlug").textContent = ACCESS_SLUG || "—";
-        $("miniPhone").textContent = formatPhone(payload.phone || ACCESS_PHONE);
-        $("miniWhatsapp").textContent = formatPhone(whatsapp);
+        $("miniSlug").textContent = "Compte sécurisé";
+        $("miniPhone").textContent = "Identifiants cachés";
+        $("miniWhatsapp").textContent = normPhone(whatsapp) ? "Configuré" : "À définir";
         $("miniAddress").textContent = address;
 
         $("factShop").textContent = shop;
@@ -1690,11 +1784,11 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
 
         $("topSub").textContent = liveMode
           ? "Tes réglages sont bien chargés"
-          : (ACCESS_SLUG ? "Ton identifiant est repéré, accès fermé pour l’instant" : "Aucun accès boutique ouvert pour le moment");
+          : (ACCESS_SLUG ? "Compte reconnu, accès fermé pour l’instant" : "Aucun accès boutique ouvert pour le moment");
 
         $("previewBox").style.display = liveMode ? "none" : "block";
         $("previewBox").textContent = ACCESS_SLUG
-          ? "Ton identifiant est bien repéré. Pour modifier la vraie boutique, ouvre ton accès avec ton PIN."
+          ? "Compte reconnu. Pour modifier la vraie boutique, ouvre ton accès avec ton PIN."
           : "Aucun accès boutique détecté pour le moment. La page reste visible, mais les vrais réglages restent protégés.";
 
         $("footerText").textContent = liveMode
@@ -1710,7 +1804,7 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
         $("ownerName").value = owner;
         $("city").value = p.city || "";
         $("categoriesText").value = p.categories_text || "";
-        $("linkedPhone").value = formatPhone(payload.phone || ACCESS_PHONE);
+        $("linkedPhone").value = "Compte sécurisé";
         $("whatsapp").value = p.whatsapp || normPhone(payload.phone || ACCESS_PHONE || "");
         $("zones").value = p.zones || "";
         $("address").value = p.address || "";
@@ -1738,7 +1832,7 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
         $("pillCategories").textContent = "🏷️ " + categories;
         $("pillCity").textContent = "📍 " + city;
         $("pillPublish").textContent = "🌍 " + (CURRENT_PUBLISHED ? "En ligne" : "Hors ligne");
-        $("miniWhatsapp").textContent = formatPhone(whatsapp);
+        $("miniWhatsapp").textContent = normPhone(whatsapp) ? "Configuré" : "À définir";
         $("miniAddress").textContent = address;
         $("factShop").textContent = shop;
         $("factCity").textContent = city;
@@ -1880,6 +1974,8 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
           setBusy(true);
           await waitGuardIfAny();
 
+          cleanVisibleUrl();
+
           ACCESS_PHONE = resolvePhone();
           ACCESS_SLUG = resolveSlug();
           ACCESS_GRANTED = resolveAccessGranted();
@@ -1892,8 +1988,8 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
             ACCESS_OK = false;
             applyCockpit(blockedCockpit("missing_slug"), false);
             setFormDisabled(true);
-            setMsgProfile("Aucun identifiant boutique détecté. La coque reste visible.", "warn");
-            setMsgPublish("Aucun identifiant détecté.", "warn");
+            setMsgProfile("Aucun compte boutique détecté. La coque reste visible.", "warn");
+            setMsgPublish("Aucun compte détecté.", "warn");
             return;
           }
 
@@ -2043,11 +2139,11 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
       function getPhone(){
         const direct = normPhone($("whatsapp")?.value || "");
         if (direct) return direct;
-        const linked = normPhone($("linkedPhone")?.value || "");
-        if (linked) return linked;
-        const qs = new URLSearchParams(location.search);
-        const fromQs = normPhone(qs.get("phone"));
-        if (fromQs) return fromQs;
+
+        /*
+          Pas de lecture ?phone= en façade.
+          Pour le test interne, on peut reprendre le téléphone mémorisé dans le coffre local.
+        */
         const fromSession = normPhone(sessionStorage.getItem("digiy_market_phone"));
         if (fromSession) return fromSession;
         const fromLocal = normPhone(localStorage.getItem("digiy_market_last_phone"));
@@ -2133,7 +2229,7 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
   </script>
 
   <nav class="mobileNav" aria-label="Navigation MARKET">
-    <a id="navAccueil" href="./dashboard-pro.html"><strong>🏠</strong><span>Accueil</span></a>
+    <a id="navAccueil" href="./cockpit.html"><strong>🏠</strong><span>Accueil</span></a>
     <a id="navProduits" href="./produits.html"><strong>📦</strong><span>Produits</span></a>
     <a id="navAjouter" href="./produits.html#productForm"><strong>➕</strong><span>Ajouter</span></a>
     <a id="navNotes" href="./produits.html#quickMarketNote"><strong>📝</strong><span>Notes</span></a>
