@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <meta name="theme-color" content="#07140f"/>
   <title>Je vends — Accès sécurisé</title>
-  <meta name="description" content="Je vends — accès MARKET sécurisé, fluide après inscription, sans afficher les identifiants sensibles."/>
+  <meta name="description" content="Je vends — accès MARKET sécurisé par RPC coffre, sans afficher les identifiants sensibles."/>
 
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -293,13 +293,13 @@
           <div>
             <div class="eyebrow">JE VENDS</div>
             <h1>Mon accès boutique</h1>
-            <p class="sub" id="heroSub">Si l’inscription vient d’être faite, DIGIY récupère le contexte sans l’afficher.</p>
+            <p class="sub" id="heroSub">Le coffre MARKET reconnaît ton compte sans l’afficher.</p>
           </div>
         </div>
       </section>
 
       <section class="body">
-        <div class="notice" id="noticeBox">Lecture de ton inscription et de ton accès sur ce téléphone…</div>
+        <div class="notice" id="noticeBox">Lecture de ton compte MARKET…</div>
 
         <div id="identityBox" class="hidden">
           <div class="field">
@@ -358,11 +358,10 @@
 
       const CFG = {
         MODULE: "MARKET",
-        MODULE_LOWER: "market",
         DEFAULT_NEXT: "./cockpit.html",
         SESSION_MAX_AGE_MS: 8 * 60 * 60 * 1000,
-        RPC_VERIFY_PIN: "digiy_verify_pin",
-        TABLE_SUBS: "digiy_subscriptions_public",
+        RPC_RESOLVE: "digiy_market_resolve_identity",
+        RPC_OPEN: "digiy_market_open_with_pin",
 
         SESSION_KEYS: [
           "DIGIY_MARKET_PIN_SESSION",
@@ -548,7 +547,7 @@
           ""
         ).trim().toUpperCase();
 
-        return !m || m === CFG.MODULE || m === CFG.MODULE_LOWER.toUpperCase();
+        return !m || m === CFG.MODULE;
       }
 
       function extractIdentityFromObject(obj, depth){
@@ -679,12 +678,8 @@
           try {
             const u = new URL(ret, location.href);
             const rp = u.searchParams;
-            if (!slug) {
-              slug = normSlug(rp.get("slug") || rp.get("market_slug") || rp.get("subscription_slug") || "");
-            }
-            if (!phone) {
-              phone = normPhone(rp.get("phone") || rp.get("tel") || rp.get("owner_phone") || rp.get("checkout_phone") || "");
-            }
+            if (!slug) slug = normSlug(rp.get("slug") || rp.get("market_slug") || rp.get("subscription_slug") || "");
+            if (!phone) phone = normPhone(rp.get("phone") || rp.get("tel") || rp.get("owner_phone") || rp.get("checkout_phone") || "");
           } catch(_){}
         }
 
@@ -752,85 +747,24 @@
         }
       }
 
-      async function resolveBySlug(slug){
-        const s = normSlug(slug);
-        if (!s) return null;
+      async function resolveIdentity(obj){
+        const raw = normSlug(obj?.slug || "") || normPhone(obj?.phone || "") || "";
+        if (!raw) return { slug:"", phone:"", source:obj?.source || "none" };
 
-        const tries = [
-          { slug:s, module:CFG.MODULE },
-          { slug:s, module:CFG.MODULE_LOWER },
-          { slug:s }
-        ];
-
-        for (const q of tries){
-          const { data, error } = await sb
-            .from(CFG.TABLE_SUBS)
-            .select("phone,slug,module")
-            .match(q)
-            .limit(1);
-
-          if (!error && Array.isArray(data) && data[0]){
-            return {
-              slug:normSlug(data[0].slug || s),
-              phone:normPhone(data[0].phone || ""),
-              module:String(data[0].module || CFG.MODULE).toUpperCase()
-            };
-          }
+        const { data, error } = await sb.rpc(CFG.RPC_RESOLVE, { p_identity: raw });
+        if (error || !data?.ok) {
+          return {
+            slug: normSlug(obj?.slug || ""),
+            phone: normPhone(obj?.phone || ""),
+            source: obj?.source || "unknown"
+          };
         }
 
-        return null;
-      }
-
-      async function resolveByPhone(phone){
-        const p = normPhone(phone);
-        if (!p) return null;
-
-        const tries = [
-          { phone:p, module:CFG.MODULE },
-          { phone:p, module:CFG.MODULE_LOWER },
-          { phone:p }
-        ];
-
-        for (const q of tries){
-          const { data, error } = await sb
-            .from(CFG.TABLE_SUBS)
-            .select("phone,slug,module")
-            .match(q)
-            .limit(1);
-
-          if (!error && Array.isArray(data) && data[0]){
-            return {
-              slug:normSlug(data[0].slug || ""),
-              phone:normPhone(data[0].phone || p),
-              module:String(data[0].module || CFG.MODULE).toUpperCase()
-            };
-          }
-        }
-
-        return null;
-      }
-
-      async function enrichIdentity(obj){
-        let s = normSlug(obj?.slug || "");
-        let p = normPhone(obj?.phone || "");
-
-        if (s && !p){
-          const sub = await resolveBySlug(s);
-          if (sub?.phone) {
-            s = sub.slug || s;
-            p = sub.phone;
-          }
-        }
-
-        if (p && !s){
-          const sub = await resolveByPhone(p);
-          if (sub?.slug) {
-            s = sub.slug;
-            p = sub.phone || p;
-          }
-        }
-
-        return { slug:s, phone:p, source:obj?.source || "unknown" };
+        return {
+          slug: normSlug(data.slug || obj?.slug || ""),
+          phone: normPhone(data.phone || obj?.phone || ""),
+          source: obj?.source || "rpc_resolve"
+        };
       }
 
       function allowedPath(pathname){
@@ -860,9 +794,14 @@
 
       function saveSession(obj){
         const t = Date.now();
-        const expires = t + CFG.SESSION_MAX_AGE_MS;
+
         const s = normSlug(obj?.slug || "");
         const p = normPhone(obj?.phone || "");
+        const accessUntilRaw = obj?.access_until || obj?.pin_access_until || null;
+        const parsedUntil = accessUntilRaw ? Date.parse(String(accessUntilRaw)) : NaN;
+        const expires = Number.isFinite(parsedUntil) && parsedUntil > Date.now()
+          ? parsedUntil
+          : t + CFG.SESSION_MAX_AGE_MS;
 
         const session = {
           slug:s,
@@ -876,11 +815,11 @@
           has_access:true,
           pin_access:true,
           verified_at:t,
-          validated_at:new Date(t).toISOString(),
+          validated_at:obj?.validated_at || new Date(t).toISOString(),
           access_until:expires,
           pin_access_until:expires,
           ts:t,
-          reason:"pin_ok"
+          reason:obj?.reason || "market_pin_ok"
         };
 
         const raw = JSON.stringify(session);
@@ -904,79 +843,6 @@
         return session;
       }
 
-      function parseVerifyPayload(raw, fallbackPhone){
-        const data = Array.isArray(raw) ? raw[0] : raw;
-        if (!data) return null;
-
-        if (typeof data === "object" && !Array.isArray(data)){
-          if (data.ok === true || data.access === true || data.access_ok === true){
-            return {
-              ok:true,
-              phone:normPhone(data.phone || data.p_phone || fallbackPhone || ""),
-              module:String(data.module || data.p_module || CFG.MODULE).toUpperCase(),
-              owner_id:data.owner_id || null
-            };
-          }
-
-          const vals = Object.values(data);
-          if (vals.length >= 3){
-            const okLike = vals[0] === true || vals[0] === "t" || vals[0] === "true" || vals[0] === 1;
-            if (okLike){
-              return {
-                ok:true,
-                module:String(vals[1] || CFG.MODULE).toUpperCase(),
-                phone:normPhone(vals[2] || fallbackPhone || ""),
-                owner_id:vals[4] || null
-              };
-            }
-          }
-        }
-
-        if (typeof data === "string"){
-          const txt = data.trim();
-          if (txt.startsWith("(") && txt.endsWith(")")){
-            const parts = txt.slice(1, -1).match(/(".*?"|[^,]+)/g) || [];
-            const clean = (v) => String(v || "").trim().replace(/^"|"$/g, "");
-            const okToken = clean(parts[0]);
-            const moduleToken = clean(parts[1]);
-            const phoneToken = clean(parts[2]);
-            const ownerToken = clean(parts[4]);
-
-            if (okToken === "t" || okToken === "true" || okToken === "1"){
-              return {
-                ok:true,
-                module:String(moduleToken || CFG.MODULE).toUpperCase(),
-                phone:normPhone(phoneToken || fallbackPhone || ""),
-                owner_id:ownerToken || null
-              };
-            }
-          }
-        }
-
-        return null;
-      }
-
-      async function verifyPin(phone, pin){
-        const p = normPhone(phone);
-        const code = String(pin || "").trim().replace(/\s+/g, "");
-        if (!p || !code) return null;
-
-        const tries = [
-          { p_phone:p, p_module:CFG.MODULE, p_pin:code },
-          { p_phone:p, p_module:CFG.MODULE_LOWER, p_pin:code }
-        ];
-
-        for (const body of tries){
-          const { data, error } = await sb.rpc(CFG.RPC_VERIFY_PIN, body);
-          if (error) continue;
-
-          const parsed = parseVerifyPayload(data, p);
-          if (parsed?.ok) return parsed;
-        }
-
-        return null;
-      }
-
       function showRecognized(source){
         mode = "recognized";
         el.identityBox.classList.add("hidden");
@@ -987,7 +853,7 @@
         el.heroSub.textContent = "Ta boutique est reconnue. Les identifiants restent cachés.";
         setNotice("Compte reconnu. Les identifiants restent cachés. Entre seulement ton code.", "blue");
         setStatus(source === "url"
-          ? "Contexte d’inscription récupéré puis caché de l’URL."
+          ? "Contexte récupéré puis caché de l’URL."
           : "Contexte sécurisé détecté sur ce téléphone.", "");
         setTimeout(() => { try { el.pin.focus(); } catch(_){} }, 150);
       }
@@ -999,8 +865,8 @@
         el.quickLinks.classList.add("hidden");
         el.accountState.textContent = "À renseigner";
         el.sessionState.textContent = "Fermée";
-        el.heroSub.textContent = "Si l’inscription n’a pas transmis le contexte, renseigne une seule fois.";
-        setNotice("Je ne vois pas encore ton inscription sur ce téléphone. Mets ton téléphone ou ton identifiant une seule fois, puis le code.", "gold");
+        el.heroSub.textContent = "Si le compte n’est pas encore transmis, renseigne une seule fois.";
+        setNotice("Je ne vois pas encore ton compte sur ce téléphone. Mets ton téléphone ou ton identifiant une seule fois, puis le code.", "gold");
         setStatus("Après validation, ce téléphone retiendra le compte. Les prochaines entrées demanderont seulement le code.", "warn");
         setTimeout(() => { try { el.identity.focus(); } catch(_){} }, 150);
       }
@@ -1030,10 +896,14 @@
           else p = normPhone(raw);
         }
 
-        const enriched = await enrichIdentity({ slug:s, phone:p, source:identity.source });
+        const enriched = await resolveIdentity({ slug:s, phone:p, source:identity.source });
         identity = enriched;
         rememberIdentity(enriched);
         return enriched;
+      }
+
+      function identityForRpc(id){
+        return normSlug(id?.slug || "") || normPhone(id?.phone || "") || "";
       }
 
       async function openMarket(){
@@ -1048,31 +918,50 @@
 
         el.btnOpen.disabled = true;
         el.btnOpen.textContent = "Vérification…";
-        setStatus("Vérification de ton accès MARKET…", "");
+        setStatus("Ouverture du coffre MARKET…", "");
 
         try {
           const id = await prepareIdentityFromManual();
+          const ident = identityForRpc(id);
 
-          if (!id.phone){
-            setStatus("Compte non retrouvé. L’inscription doit transmettre le téléphone ou le slug, sinon mets le téléphone une fois.", "err");
+          if (!ident){
+            setStatus("Compte non retrouvé. Mets ton téléphone ou ton identifiant MARKET une seule fois.", "err");
             showManual();
             return;
           }
 
-          const ok = await verifyPin(id.phone, code);
+          const { data, error } = await sb.rpc(CFG.RPC_OPEN, {
+            p_identity: ident,
+            p_pin: code
+          });
 
-          if (!ok?.ok){
-            setStatus("Code refusé ou accès MARKET introuvable. Vérifie le code.", "err");
+          if (error){
+            console.warn("MARKET RPC open error:", error);
+            setStatus("Impossible d’ouvrir le coffre maintenant. Recharge ou réessaie.", "err");
             return;
           }
 
-          const session = saveSession({
-            slug:id.slug,
-            phone:ok.phone || id.phone,
-            owner_id:ok.owner_id || null
-          });
+          if (!data?.ok){
+            const reason = String(data?.reason || "");
+            if (reason === "pin_refused"){
+              setStatus("Code refusé. Vérifie ton code d’accès MARKET.", "err");
+            } else if (reason === "market_identity_not_found"){
+              setStatus("Compte MARKET introuvable. Vérifie l’identifiant ou le téléphone.", "err");
+              showManual();
+            } else {
+              setStatus("Accès non ouvert : " + (reason || "vérification refusée"), "err");
+            }
+            return;
+          }
 
-          identity = { slug:session.slug, phone:session.phone, source:"pin_ok" };
+          const session = saveSession(data);
+
+          identity = {
+            slug: session.slug,
+            phone: session.phone,
+            source:"market_open_with_pin"
+          };
+
           cleanVisibleUrl();
 
           setNotice("Accès validé. Tu entres dans ton espace vendeur.", "");
@@ -1108,7 +997,7 @@
           }
 
           const rawIdentity = readIdentity();
-          const enriched = await enrichIdentity(rawIdentity);
+          const enriched = await resolveIdentity(rawIdentity);
           identity = enriched;
 
           if (identity.slug || identity.phone){
@@ -1159,4 +1048,5 @@
   </script>
 </body>
 </html>
+
 
