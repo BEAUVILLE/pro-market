@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <title>Je vends — Ma gestion</title>
   <meta name="theme-color" content="#07140f"/>
-  <meta name="description" content="Je vends — gestion légère de ma boutique, mes produits, mes notes et ma visibilité."/>
+  <meta name="description" content="Je vends — gestion légère de ma boutique, mes produits, mes notes et ma visibilité, sans exposer les identifiants."/>
 
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -20,7 +20,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-cockpit-mobile-20260501"></script>
+  <script src="./guard.js?v=market-cockpit-coffre-20260505"></script>
 
   <style>
     :root{
@@ -149,6 +149,7 @@
       font-weight:950;
       cursor:pointer;
       box-shadow:0 10px 26px rgba(0,0,0,.20);
+      text-align:center;
     }
 
     .btn.primary{
@@ -173,6 +174,12 @@
       background:rgba(245,158,11,.12);
       color:#fde68a;
       border-color:rgba(245,158,11,.24);
+    }
+
+    .btn.danger{
+      background:rgba(239,68,68,.10);
+      color:#fecaca;
+      border-color:rgba(239,68,68,.24);
     }
 
     .btn:disabled{opacity:.55;cursor:not-allowed}
@@ -202,6 +209,12 @@
       border-color:rgba(34,197,94,.25);
       background:rgba(34,197,94,.10);
       color:#bbf7d0;
+    }
+
+    .mode.lock{
+      border-color:rgba(239,68,68,.22);
+      background:rgba(239,68,68,.10);
+      color:#fecaca;
     }
 
     h1{
@@ -303,6 +316,10 @@
       padding:13px;
     }
 
+    a.task{transition:transform .15s ease, border-color .15s ease}
+    a.task:active{transform:scale(.99)}
+    a.task:hover{border-color:rgba(250,204,21,.24)}
+
     .task b{
       display:block;
       font-size:15px;
@@ -326,6 +343,7 @@
     .tag.ok{color:#bbf7d0;border-color:rgba(34,197,94,.28);background:rgba(34,197,94,.08)}
     .tag.warn{color:#fde68a;border-color:rgba(245,158,11,.28);background:rgba(245,158,11,.08)}
     .tag.info{color:#bfdbfe;border-color:rgba(96,165,250,.28);background:rgba(96,165,250,.08)}
+    .tag.danger{color:#fecaca;border-color:rgba(239,68,68,.28);background:rgba(239,68,68,.08)}
 
     .infoBox{
       display:grid;
@@ -368,6 +386,35 @@
         linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.018));
     }
 
+    .notice{
+      border:1px solid rgba(96,165,250,.24);
+      background:rgba(96,165,250,.10);
+      color:#dbeafe;
+      border-radius:18px;
+      padding:13px;
+      font-size:14px;
+      font-weight:850;
+      line-height:1.5;
+    }
+
+    .notice.ok{
+      color:#bbf7d0;
+      border-color:rgba(34,197,94,.24);
+      background:rgba(34,197,94,.10);
+    }
+
+    .notice.warn{
+      color:#fde68a;
+      border-color:rgba(245,158,11,.28);
+      background:rgba(245,158,11,.08);
+    }
+
+    .notice.danger{
+      color:#fecaca;
+      border-color:rgba(239,68,68,.28);
+      background:rgba(239,68,68,.08);
+    }
+
     .navBottom{
       position:fixed;
       left:0;
@@ -400,9 +447,11 @@
       font-size:11px;
       font-weight:900;
       border:1px solid transparent;
+      text-align:center;
     }
 
     .navItem .ico{font-size:18px;line-height:1}
+
     .navItem.active{
       color:#041b12;
       background:linear-gradient(135deg,var(--gold),var(--primary));
@@ -418,6 +467,16 @@
     }
 
     .loading{opacity:.70;pointer-events:none}
+
+    .lockedOnly{display:none!important}
+    body.locked .privateOnly{display:none!important}
+    body.locked .lockedOnly{display:inline-flex!important}
+    body.locked .task.lockedOnly{display:flex!important}
+
+    @media(min-width:900px){
+      body{padding-bottom:24px}
+      .navBottom{display:none}
+    }
   </style>
 </head>
 
@@ -429,16 +488,17 @@
         <div>
           <div class="eyebrow">JE VENDS</div>
           <div class="brand-title">Ma gestion</div>
-          <div class="brand-sub" id="topSub">Chargement de ta boutique…</div>
+          <div class="brand-sub" id="topSub">Chargement sécurisé…</div>
         </div>
       </div>
 
       <div class="top-actions">
         <button class="btn" id="btnReloadTop" type="button">🔄 Recharger</button>
-        <a class="btn info" id="topHome" href="./dashboard-pro.html">🏠 Accueil</a>
-        <a class="btn" id="topProducts" href="./produits.html">📦 Produits</a>
-        <a class="btn gold" id="topNotes" href="./produits.html#quickMarketNote">✍️ Notes</a>
-        <a class="btn" id="topMore" href="./boutique.html">⚙️ Plus</a>
+        <a class="btn info privateOnly" href="./cockpit.html">🏠 Accueil</a>
+        <a class="btn privateOnly" href="./produits.html">📦 Produits</a>
+        <a class="btn gold privateOnly" href="./produits.html#quickMarketNote">✍️ Notes</a>
+        <a class="btn privateOnly" href="./boutique.html">⚙️ Plus</a>
+        <a class="btn danger lockedOnly" href="./pin.html">🔑 Accès</a>
       </div>
     </section>
 
@@ -453,82 +513,92 @@
       </div>
 
       <div class="hero-actions">
-        <a class="btn info" id="actProducts" href="./produits.html">📦 Voir produits</a>
-        <a class="btn primary" id="actAdd" href="./produits.html#productForm">➕ Ajouter</a>
-        <a class="btn gold" id="actNotes" href="./produits.html#quickMarketNote">✍️ Note rapide</a>
-        <a class="btn" id="actPublic" href="./index.html">🌍 Vitrine</a>
+        <a class="btn info privateOnly" href="./produits.html">📦 Voir produits</a>
+        <a class="btn primary privateOnly" href="./produits.html#productForm">➕ Ajouter</a>
+        <a class="btn gold privateOnly" href="./produits.html#quickMarketNote">✍️ Note rapide</a>
+        <a class="btn privateOnly" id="actPublic" href="https://market.digiylyfe.com/">🌍 Vitrine</a>
+
+        <a class="btn primary lockedOnly" href="./pin.html">🔑 Ouvrir mon accès</a>
+        <a class="btn lockedOnly" href="https://market.digiylyfe.com/">🛍️ Galerie publique</a>
       </div>
 
-      <div class="stats">
+      <div class="stats privateOnly">
         <div class="stat"><div class="k">Produits visibles</div><div class="v" id="statActive">0</div></div>
         <div class="stat"><div class="k">Produits masqués</div><div class="v" id="statInactive">0</div></div>
         <div class="stat"><div class="k">En ligne</div><div class="v" id="statPublished">0</div></div>
         <div class="stat"><div class="k">Total</div><div class="v" id="statTotal">0</div></div>
       </div>
+
+      <div class="notice" id="statusNotice">Lecture de la session MARKET…</div>
     </section>
 
     <section class="grid">
       <section class="card panel">
         <h2>À faire maintenant</h2>
         <div class="muted">DIGIY te montre les gestes utiles sans t’obliger à chercher dans toute la boutique.</div>
-
         <div class="tasks" id="taskList"></div>
       </section>
 
       <section class="card panel">
         <h2>Repères boutique</h2>
-        <div class="muted">La trace reste simple : propriétaire, boutique, contact, visibilité.</div>
+        <div class="muted">La trace reste dans le coffre. L’écran montre seulement ce qui aide à travailler.</div>
 
         <div class="infoBox">
-          <div class="infoRow"><span>Identifiant</span><span id="infoSlug">—</span></div>
-          <div class="infoRow"><span>Téléphone</span><span id="infoPhone">—</span></div>
-          <div class="infoRow"><span>WhatsApp</span><span id="infoWhatsapp">—</span></div>
+          <div class="infoRow"><span>Boutique</span><span id="infoName">—</span></div>
           <div class="infoRow"><span>Ville</span><span id="infoCity">—</span></div>
           <div class="infoRow"><span>Activité</span><span id="infoCategory">—</span></div>
+          <div class="infoRow"><span>Contact client</span><span id="infoContact">—</span></div>
           <div class="infoRow"><span>Vitrine</span><span id="infoPublish">—</span></div>
+          <div class="infoRow"><span>Compte</span><span id="infoSecure">Compte sécurisé</span></div>
         </div>
       </section>
 
-      <section class="card panel quick">
+      <section class="card panel quick privateOnly">
         <h2>Note rapide MARKET</h2>
         <div class="muted">
           Une dépense ne doit pas attendre. Va directement écrire : vente, achat stock, livraison, client qui doit.
         </div>
         <div class="hero-actions" style="margin-top:12px">
-          <a class="btn gold" id="quickNoteBtn" href="./produits.html#quickMarketNote">✍️ Écrire une note</a>
-          <a class="btn info" id="quickPayBtn" href="https://pro-pay.digiylyfe.com/admin.html">💰 Voir Mon argent</a>
+          <a class="btn gold" href="./produits.html#quickMarketNote">✍️ Écrire une note</a>
+          <a class="btn info" href="https://pro-pay.digiylyfe.com/admin.html">💰 Voir Mon argent</a>
         </div>
       </section>
 
       <section class="card panel">
         <h2>Pages utiles</h2>
         <div class="tasks">
-          <a class="task" id="linkDashboard" href="./dashboard-pro.html">
-            <div><b>Accueil</b><div class="muted">Ce qui demande attention maintenant.</div></div>
-            <span class="tag info">OUVRIR</span>
-          </a>
-          <a class="task" id="linkProducts" href="./produits.html">
+          <a class="task privateOnly" href="./produits.html">
             <div><b>Produits</b><div class="muted">Liste, ajout, correction, masquage.</div></div>
             <span class="tag info">OUVRIR</span>
           </a>
-          <a class="task" id="linkMore" href="./boutique.html">
+          <a class="task privateOnly" href="./boutique.html">
             <div><b>Plus</b><div class="muted">Réglages, vitrine, WhatsApp Visio Live, visibilité.</div></div>
             <span class="tag info">OUVRIR</span>
+          </a>
+          <a class="task" href="https://market.digiylyfe.com/">
+            <div><b>Galerie publique</b><div class="muted">Voir l’espace public MARKET sans exposer le coffre vendeur.</div></div>
+            <span class="tag ok">PUBLIC</span>
+          </a>
+          <a class="task lockedOnly" href="./pin.html">
+            <div><b>Ouvrir mon accès</b><div class="muted">Entre ton code pour ouvrir l’espace vendeur.</div></div>
+            <span class="tag danger">PIN</span>
           </a>
         </div>
       </section>
     </section>
 
-    <div class="footer">DIGIY MARKET • Ma gestion légère • même chemin • même identifiant</div>
+    <div class="footer">DIGIY MARKET • Ma gestion légère • coffre sécurisé • zéro identifiant visible</div>
   </div>
 
   <nav class="navBottom" aria-label="Navigation MARKET">
     <div class="navInner">
-      <a class="navItem" id="navHome" href="./dashboard-pro.html"><span class="ico">🏠</span><span>Accueil</span></a>
-      <a class="navItem" id="navProducts" href="./produits.html"><span class="ico">📦</span><span>Produits</span></a>
-      <a class="navItem" id="navAdd" href="./produits.html#productForm"><span class="ico">➕</span><span>Ajouter</span></a>
-      <a class="navItem" id="navNotes" href="./produits.html#quickMarketNote"><span class="ico">✍️</span><span>Notes</span></a>
-      <a class="navItem active" id="navMore" href="./boutique.html"><span class="ico">⚙️</span><span>Plus</span></a>
+      <a class="navItem active" href="./cockpit.html"><span class="ico">🏠</span><span>Accueil</span></a>
+      <a class="navItem privateOnly" href="./produits.html"><span class="ico">📦</span><span>Produits</span></a>
+      <a class="navItem privateOnly" href="./produits.html#productForm"><span class="ico">➕</span><span>Ajouter</span></a>
+      <a class="navItem privateOnly" href="./produits.html#quickMarketNote"><span class="ico">✍️</span><span>Notes</span></a>
+      <a class="navItem privateOnly" href="./boutique.html"><span class="ico">⚙️</span><span>Plus</span></a>
+      <a class="navItem lockedOnly" href="./pin.html"><span class="ico">🔑</span><span>Accès</span></a>
+      <a class="navItem lockedOnly" href="https://market.digiylyfe.com/"><span class="ico">🛍️</span><span>Galerie</span></a>
     </div>
   </nav>
 
@@ -540,6 +610,16 @@
       const SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON;
       const $ = (id) => document.getElementById(id);
 
+      const CFG = {
+        MODULE: "MARKET",
+        MODULE_LOWER: "market",
+        SESSION_MAX_AGE_MS: 8 * 60 * 60 * 1000,
+        RPC_COCKPIT: "digiy_market_get_cockpit_by_slug",
+        RPC_PRODUCTS: "digiy_market_list_products_by_slug",
+        TABLE_SUBS: "digiy_subscriptions_public",
+        GALLERY_URL: "https://market.digiylyfe.com/"
+      };
+
       let ACCESS_SLUG = "";
       let ACCESS_PHONE = "";
       let ACCESS_GRANTED = false;
@@ -549,7 +629,13 @@
       let SB_CLIENT = null;
 
       function normSlug(v){
-        return String(v || "").trim().toLowerCase();
+        return String(v || "")
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, "-")
+          .replace(/[^a-z0-9-]/g, "")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "");
       }
 
       function normPhone(v){
@@ -558,11 +644,6 @@
         if (d.startsWith("221") && d.length === 12) return d;
         if (d.length === 9) return "221" + d;
         return d;
-      }
-
-      function displayPhone(v){
-        const d = normPhone(v);
-        return d ? "+" + d : "—";
       }
 
       function esc(str){
@@ -585,61 +666,55 @@
         return s === "true" || s === "1" || s === "ok" || s === "yes";
       }
 
-      function buildPath(base, opts){
-        const o = opts || {};
-        const u = new URL(base, location.href);
-        if (ACCESS_SLUG && o.slug !== false) u.searchParams.set("slug", ACCESS_SLUG);
-        if (ACCESS_PHONE && o.phone) u.searchParams.set("phone", ACCESS_PHONE);
-        return u.pathname + u.search + u.hash;
+      function alive(raw){
+        if (!raw) return false;
+        const n = Number(raw);
+        if (Number.isFinite(n) && n > Date.now()) return true;
+        const d = Date.parse(String(raw));
+        return Number.isFinite(d) && d > Date.now();
       }
 
-      function publicPath(){
-        return ACCESS_SLUG ? buildPath("./index.html", { slug:true, phone:false }) : "./index.html";
+      function fresh(raw){
+        if (!raw) return false;
+        const n = Number(raw);
+        if (Number.isFinite(n) && n > 0) return (Date.now() - n) <= CFG.SESSION_MAX_AGE_MS;
+        const d = Date.parse(String(raw));
+        return Number.isFinite(d) && (Date.now() - d) <= CFG.SESSION_MAX_AGE_MS;
       }
 
-      function payPath(){
-        const p = normPhone(ACCESS_PHONE || CURRENT?.phone || "");
-        const u = new URL("https://pro-pay.digiylyfe.com/admin.html");
-        if (p){
-          u.searchParams.set("slug", "pay-" + p);
-          u.searchParams.set("phone", p);
+      function safeJson(raw){
+        try { return JSON.parse(raw); } catch { return null; }
+      }
+
+      function getStored(keys){
+        for (const key of keys){
+          try {
+            const s = sessionStorage.getItem(key);
+            if (s) return s;
+          } catch(_){}
+          try {
+            const l = localStorage.getItem(key);
+            if (l) return l;
+          } catch(_){}
         }
-        return u.toString();
+        return "";
       }
 
-      function updateLinks(){
-        const map = {
-          topHome:["./dashboard-pro.html",{slug:true,phone:true}],
-          topProducts:["./produits.html",{slug:true,phone:true}],
-          topNotes:["./produits.html#quickMarketNote",{slug:true,phone:true}],
-          topMore:["./boutique.html",{slug:true,phone:true}],
-          actProducts:["./produits.html",{slug:true,phone:true}],
-          actAdd:["./produits.html#productForm",{slug:true,phone:true}],
-          actNotes:["./produits.html#quickMarketNote",{slug:true,phone:true}],
-          linkDashboard:["./dashboard-pro.html",{slug:true,phone:true}],
-          linkProducts:["./produits.html",{slug:true,phone:true}],
-          linkMore:["./boutique.html",{slug:true,phone:true}],
-          quickNoteBtn:["./produits.html#quickMarketNote",{slug:true,phone:true}],
-          navHome:["./dashboard-pro.html",{slug:true,phone:true}],
-          navProducts:["./produits.html",{slug:true,phone:true}],
-          navAdd:["./produits.html#productForm",{slug:true,phone:true}],
-          navNotes:["./produits.html#quickMarketNote",{slug:true,phone:true}],
-          navMore:["./boutique.html",{slug:true,phone:true}]
-        };
+      function setStored(key, val){
+        if (!val) return;
+        try { sessionStorage.setItem(key, val); } catch(_){}
+        try { localStorage.setItem(key, val); } catch(_){}
+      }
 
-        Object.entries(map).forEach(([id, cfg]) => {
-          const el = $(id);
-          if (el) el.href = buildPath(cfg[0], cfg[1]);
-        });
-
-        const publicEls = ["actPublic"];
-        publicEls.forEach(id => {
-          const el = $(id);
-          if (el) el.href = publicPath();
-        });
-
-        const pay = $("quickPayBtn");
-        if (pay) pay.href = payPath();
+      function cleanVisibleUrl(){
+        const p = new URLSearchParams(location.search);
+        const sensitive = [
+          "phone","tel","owner_phone","checkout_phone","subscription_phone",
+          "slug","market_slug","subscription_slug","pro_slug","module","from"
+        ];
+        const hasSensitive = sensitive.some(k => p.has(k));
+        if (!hasSensitive) return;
+        try { history.replaceState({}, document.title, location.pathname + location.hash); } catch(_){}
       }
 
       async function waitGuard(){
@@ -661,23 +736,68 @@
         }
       }
 
+      function readSessionObject(){
+        const keys = [
+          "DIGIY_MARKET_PIN_SESSION",
+          "DIGIY_MARKET_SESSION",
+          "DIGIY_SESSION_MARKET",
+          "DIGIY_PIN_SESSION",
+          "DIGIY_ACCESS",
+          "digiy_market_session"
+        ];
+
+        for (const key of keys){
+          const candidates = [];
+          try { candidates.push(sessionStorage.getItem(key)); } catch(_){}
+          try { candidates.push(localStorage.getItem(key)); } catch(_){}
+
+          for (const raw of candidates){
+            const obj = safeJson(raw);
+            if (!obj || typeof obj !== "object") continue;
+
+            const moduleName = String(obj.module || obj.module_code || "").trim().toUpperCase();
+            if (moduleName && moduleName !== CFG.MODULE) continue;
+
+            const ok =
+              truthy(obj.access) ||
+              truthy(obj.access_ok) ||
+              truthy(obj.ok) ||
+              truthy(obj.has_access) ||
+              truthy(obj.pin_access) ||
+              truthy(obj.verified);
+
+            const isAlive =
+              alive(obj.access_until) ||
+              alive(obj.pin_access_until) ||
+              alive(obj.expires_at) ||
+              fresh(obj.verified_at) ||
+              fresh(obj.validated_at) ||
+              fresh(obj.ts);
+
+            if (!ok || !isAlive) continue;
+
+            return obj;
+          }
+        }
+
+        return null;
+      }
+
       function resolveSlug(session){
-        const qs = new URLSearchParams(location.search);
-        return normSlug(qs.get("slug")) ||
+        const params = new URLSearchParams(location.search);
+        return normSlug(params.get("slug") || params.get("market_slug") || params.get("subscription_slug")) ||
           normSlug(session?.slug || session?.session?.slug || session?.identity?.slug) ||
           normSlug(window.DIGIY_GUARD?.state?.slug) ||
-          normSlug(sessionStorage.getItem("digiy_market_slug")) ||
-          normSlug(localStorage.getItem("digiy_market_last_slug")) ||
+          normSlug(getStored(["digiy_market_slug","digiy_market_last_slug","market_slug","digiy_last_slug"])) ||
           "";
       }
 
       function resolvePhone(session){
-        const qs = new URLSearchParams(location.search);
-        return normPhone(qs.get("phone")) ||
+        const params = new URLSearchParams(location.search);
+        return normPhone(params.get("phone") || params.get("tel") || params.get("owner_phone") || params.get("checkout_phone")) ||
           normPhone(session?.phone || session?.session?.phone || session?.identity?.phone) ||
           normPhone(window.DIGIY_GUARD?.state?.phone || window.DIGIY_GUARD?.state?.identity?.phone) ||
-          normPhone(sessionStorage.getItem("digiy_market_phone")) ||
-          normPhone(localStorage.getItem("digiy_market_last_phone")) ||
+          normPhone(getStored(["digiy_market_phone","digiy_market_last_phone","market_phone","digiy_last_phone","digiy_phone"])) ||
           "";
       }
 
@@ -692,7 +812,7 @@
         const flags = [
           st.access_ok, st.accessOk, st.has_access, st.hasAccess,
           st.pin_access, st.pinAccess, st.allowed, st.is_allowed,
-          st.isAllowed, st.ok,
+          st.isAllowed, st.ok, st.verified,
           sessionStorage.getItem("digiy_market_pin_access"),
           sessionStorage.getItem("digiy_market_access_ok"),
           sessionStorage.getItem("digiy_market_has_access"),
@@ -703,7 +823,7 @@
           localStorage.getItem("digiy_market_access")
         ];
 
-        if (flags.some(truthy)) return true;
+        const hasFlag = flags.some(truthy);
 
         const untils = [
           st.pin_access_until,
@@ -715,25 +835,22 @@
           localStorage.getItem("digiy_market_access_until")
         ];
 
-        for (const raw of untils){
-          if (!raw) continue;
-          const n = Number(raw);
-          if (Number.isFinite(n) && n > Date.now()) return true;
-          const d = Date.parse(String(raw));
-          if (Number.isFinite(d) && d > Date.now()) return true;
-        }
+        if (hasFlag && untils.some(alive)) return true;
+        if (hasFlag && (fresh(st.verified_at) || fresh(st.validated_at) || fresh(st.ts))) return true;
 
         return false;
       }
 
       function remember(){
         if (ACCESS_SLUG){
-          sessionStorage.setItem("digiy_market_slug", ACCESS_SLUG);
-          localStorage.setItem("digiy_market_last_slug", ACCESS_SLUG);
+          setStored("digiy_market_slug", ACCESS_SLUG);
+          setStored("digiy_market_last_slug", ACCESS_SLUG);
+          setStored("market_slug", ACCESS_SLUG);
         }
         if (ACCESS_PHONE){
-          sessionStorage.setItem("digiy_market_phone", ACCESS_PHONE);
-          localStorage.setItem("digiy_market_last_phone", ACCESS_PHONE);
+          setStored("digiy_market_phone", ACCESS_PHONE);
+          setStored("digiy_market_last_phone", ACCESS_PHONE);
+          setStored("market_phone", ACCESS_PHONE);
         }
       }
 
@@ -748,18 +865,73 @@
         return SB_CLIENT;
       }
 
-      async function rpc(name, args){
+      async function rpcTry(name, payloads){
         const sb = await client();
-        const { data, error } = await sb.rpc(name, args);
-        if (error) throw error;
+        let lastError = null;
+
+        for (const args of payloads){
+          const { data, error } = await sb.rpc(name, args);
+          if (!error) return data;
+          lastError = error;
+        }
+
+        if (lastError) throw lastError;
+        return null;
+      }
+
+      async function resolveMissingSlugByPhone(){
+        const p = normPhone(ACCESS_PHONE);
+        if (!p || ACCESS_SLUG) return;
+
+        try{
+          const sb = await client();
+          const tries = [
+            { phone:p, module:CFG.MODULE },
+            { phone:p, module:CFG.MODULE_LOWER },
+            { phone:p }
+          ];
+
+          for (const q of tries){
+            const { data, error } = await sb
+              .from(CFG.TABLE_SUBS)
+              .select("phone,slug,module")
+              .match(q)
+              .limit(1);
+
+            if (!error && Array.isArray(data) && data[0]){
+              ACCESS_SLUG = normSlug(data[0].slug || "");
+              ACCESS_PHONE = normPhone(data[0].phone || p);
+              remember();
+              return;
+            }
+          }
+        }catch(e){
+          console.warn("resolve phone warning", e);
+        }
+      }
+
+      function normalizePayload(payload){
+        const data = Array.isArray(payload) ? (payload[0] || {}) : (payload || {});
+        if (data && typeof data === "object" && data.ok === true && data.data && typeof data.data === "object") return data.data;
         return data;
       }
 
+      function pickProfile(payload){
+        const p = normalizePayload(payload);
+        return p.profile || p.shop || p.boutique || p.market || p.data || p || {};
+      }
+
+      function pickStats(payload){
+        const p = normalizePayload(payload);
+        return p.stats || p.metrics || {};
+      }
+
       function normalizedProducts(payload){
+        const p = normalizePayload(payload);
         const rows = Array.isArray(payload) ? payload :
-          Array.isArray(payload?.products) ? payload.products :
-          Array.isArray(payload?.items) ? payload.items :
-          Array.isArray(payload?.data) ? payload.data : [];
+          Array.isArray(p?.products) ? p.products :
+          Array.isArray(p?.items) ? p.items :
+          Array.isArray(p?.data) ? p.data : [];
 
         return rows.map(r => ({
           title: r?.title || r?.product_name || r?.name || "Produit",
@@ -796,31 +968,53 @@
         $("statTotal").textContent = String(s.total);
       }
 
-      function setBlocked(reason){
-        ACCESS_OK = false;
-        CURRENT = null;
-        PRODUCTS = [];
+      function statusNotice(message, tone){
+        const box = $("statusNotice");
+        if (!box) return;
+        box.className = "notice" + (tone ? " " + tone : "");
+        box.textContent = message;
+      }
 
-        $("modeBadge").className = "mode";
-        $("modeBadge").textContent = "Accès protégé";
-        $("topSub").textContent = ACCESS_SLUG ? "Identifiant repéré, accès fermé" : "Aucun accès ouvert";
-        $("heroTitle").textContent = "Ma boutique";
-        $("heroLead").textContent = reason || "Ouvre ton accès pour charger la vraie gestion MARKET.";
+      function cleanInternalLinks(){
+        const internal = [
+          ["a[href*='dashboard-pro.html']", "./cockpit.html"],
+          ["a[href*='cockpit.html']", "./cockpit.html"],
+          ["a[href*='produits.html#productForm']", "./produits.html#productForm"],
+          ["a[href*='produits.html#quickMarketNote']", "./produits.html#quickMarketNote"],
+          ["a[href*='produits.html']", "./produits.html"],
+          ["a[href*='boutique.html']", "./boutique.html"],
+          ["a[href*='pin.html']", "./pin.html"]
+        ];
 
-        $("infoSlug").textContent = ACCESS_SLUG || "—";
-        $("infoPhone").textContent = displayPhone(ACCESS_PHONE);
-        $("infoWhatsapp").textContent = "—";
-        $("infoCity").textContent = "—";
-        $("infoCategory").textContent = "—";
-        $("infoPublish").textContent = "—";
+        internal.forEach(([selector, clean]) => {
+          document.querySelectorAll(selector).forEach((a) => {
+            if (a.href && a.href.startsWith(location.origin)) a.href = clean;
+          });
+        });
+      }
 
-        setStats({ total_products:0, active_products:0, inactive_products:0, published_products:0 });
-        setTasks([
-          { level:"warn", tag:"ACCÈS", title:"Ouvrir l’accès", text:"Passe par ton code pour voir la vraie gestion.", href:"./pin.html" },
-          { level:"info", tag:"PRODUITS", title:"Préparer les produits", text:"Une fois l’accès ouvert, ajoute ou corrige tes produits.", href:"./produits.html" },
-          { level:"info", tag:"NOTES", title:"Garder les dépenses", text:"Les notes rapides MARKET vont vers Mon argent.", href:"./produits.html#quickMarketNote" }
-        ]);
-        updateLinks();
+      function publicTarget(){
+        const p = CURRENT?.profile || CURRENT?.shop || CURRENT?.boutique || CURRENT || {};
+        const u =
+          p.public_url ||
+          p.publicUrl ||
+          p.shop_url ||
+          p.boutique_url ||
+          CURRENT?.public_url ||
+          CURRENT?.publicUrl ||
+          "";
+
+        if (/^https:\/\//i.test(String(u || ""))) return u;
+        return CFG.GALLERY_URL;
+      }
+
+      function updatePublicLink(){
+        const actPublic = $("actPublic");
+        if (actPublic) actPublic.href = publicTarget();
+      }
+
+      function payPath(){
+        return "https://pro-pay.digiylyfe.com/admin.html";
       }
 
       function setTasks(items){
@@ -828,10 +1022,13 @@
         if (!box) return;
 
         box.innerHTML = items.map(item => {
-          const href = buildPath(item.href || "./dashboard-pro.html", { slug:true, phone:true });
-          const cls = item.level === "warn" ? "warn" : item.level === "ok" ? "ok" : "info";
+          const href = item.href || "./cockpit.html";
+          const cls = item.level === "warn" ? "warn" : item.level === "danger" ? "danger" : item.level === "ok" ? "ok" : "info";
+          const locked = item.locked ? " lockedOnly" : "";
+          const priv = item.private ? " privateOnly" : "";
+
           return `
-            <a class="task" href="${esc(href)}">
+            <a class="task${locked}${priv}" href="${esc(href)}">
               <div>
                 <b>${esc(item.title)}</b>
                 <div class="muted">${esc(item.text)}</div>
@@ -840,42 +1037,113 @@
             </a>
           `;
         }).join("");
+
+        cleanInternalLinks();
       }
 
-      function applyLive(data){
-        const p = data?.profile || {};
-        CURRENT = data || {};
+      function setBlocked(reason){
+        ACCESS_OK = false;
+        CURRENT = null;
+        PRODUCTS = [];
+
+        document.body.classList.add("locked");
+
+        $("modeBadge").className = "mode lock";
+        $("modeBadge").textContent = "Accès protégé";
+        $("topSub").textContent = "Compte sécurisé";
+        $("heroTitle").textContent = "Ma boutique";
+        $("heroLead").textContent = reason || "Ouvre ton accès pour charger la vraie gestion MARKET.";
+
+        $("infoName").textContent = "Espace vendeur sécurisé";
+        $("infoCity").textContent = "—";
+        $("infoCategory").textContent = "—";
+        $("infoContact").textContent = "Caché";
+        $("infoPublish").textContent = "Accès fermé";
+        $("infoSecure").textContent = "Identifiants cachés";
+
+        setStats({ total_products:0, active_products:0, inactive_products:0, published_products:0 });
+        statusNotice("Mode aperçu. Les portes privées restent fermées tant que l’accès n’est pas confirmé.", "warn");
+
+        setTasks([
+          {
+            level:"danger",
+            tag:"PIN",
+            title:"Ouvrir l’accès",
+            text:"Entre ton code pour voir la vraie gestion MARKET.",
+            href:"./pin.html",
+            locked:true
+          },
+          {
+            level:"info",
+            tag:"PUBLIC",
+            title:"Voir la galerie publique",
+            text:"La vitrine publique reste séparée du coffre vendeur.",
+            href:CFG.GALLERY_URL
+          }
+        ]);
+
+        updatePublicLink();
+        cleanInternalLinks();
+      }
+
+      function applyLive(payload){
+        const profile = pickProfile(payload);
+        const stats = pickStats(payload);
+
+        CURRENT = Object.assign({}, normalizePayload(payload), { profile });
         ACCESS_OK = true;
-        ACCESS_SLUG = normSlug(data?.slug || data?.workspace_slug || p.slug || p.workspace_slug || ACCESS_SLUG);
-        ACCESS_PHONE = normPhone(data?.phone || ACCESS_PHONE);
+
+        document.body.classList.remove("locked");
+
+        ACCESS_SLUG = normSlug(
+          CURRENT?.slug ||
+          CURRENT?.workspace_slug ||
+          profile?.slug ||
+          profile?.workspace_slug ||
+          ACCESS_SLUG
+        );
+
+        ACCESS_PHONE = normPhone(
+          CURRENT?.phone ||
+          profile?.phone ||
+          ACCESS_PHONE
+        );
+
         remember();
 
-        const shop = text(p.shop_name || p.business_name, "Ma boutique");
-        const city = text(p.city, "Ville à définir");
-        const cat = text(p.categories_text, "Ce que je vends");
-        const published = !!p.is_published;
-        const whatsapp = p.whatsapp || data?.phone || ACCESS_PHONE || "";
-        const address = text(p.address, "Adresse à définir");
+        const shop = text(
+          profile.shop_name ||
+          profile.business_name ||
+          profile.public_name ||
+          profile.name,
+          "Ma boutique"
+        );
+
+        const city = text(profile.city || profile.ville, "Ville à définir");
+        const cat = text(profile.categories_text || profile.category || profile.activity, "Ce que je vends");
+        const published = !!(profile.is_published ?? profile.published ?? CURRENT?.is_published);
+        const contactConfigured = !!(profile.whatsapp || profile.call_phone || profile.contact_url || profile.public_contact);
 
         $("modeBadge").className = "mode live";
         $("modeBadge").textContent = "Accès ouvert";
-        $("topSub").textContent = "Gestion légère chargée";
+        $("topSub").textContent = "Gestion chargée";
         $("heroTitle").textContent = shop;
         $("heroLead").textContent = published
           ? "Ta boutique est en ligne. Tu peux ajouter, corriger, noter et suivre ton activité sans te perdre."
           : "Ta boutique est prête. Ajoute tes produits, règle ta vitrine et garde tes dépenses dans Mon argent.";
 
-        $("infoSlug").textContent = ACCESS_SLUG || "—";
-        $("infoPhone").textContent = displayPhone(data?.phone || ACCESS_PHONE);
-        $("infoWhatsapp").textContent = displayPhone(whatsapp);
+        $("infoName").textContent = shop;
         $("infoCity").textContent = city;
         $("infoCategory").textContent = cat;
+        $("infoContact").textContent = contactConfigured ? "Configuré" : "À définir";
         $("infoPublish").textContent = published ? "En ligne" : "Hors ligne";
+        $("infoSecure").textContent = "Compte reconnu";
 
         document.title = shop + " — Ma gestion";
-        setStats(data?.stats || {});
 
-        const s = normalizeStats(data?.stats || {});
+        setStats(stats);
+
+        const s = normalizeStats(stats || {});
         const tasks = [];
 
         if (!published){
@@ -884,15 +1152,16 @@
             tag:"VITRINE",
             title:"Mettre la boutique en ligne",
             text:"Ta vitrine est encore hors ligne. Va dans Plus pour vérifier et publier.",
-            href:"./boutique.html"
+            href:"./boutique.html",
+            private:true
           });
         } else {
           tasks.push({
             level:"ok",
             tag:"VISIBLE",
             title:"Vitrine en ligne",
-            text:"Ta boutique peut être consultée publiquement avec son identifiant.",
-            href:"./index.html"
+            text:"Ta boutique peut être consultée publiquement sans exposer le coffre vendeur.",
+            href:publicTarget()
           });
         }
 
@@ -902,7 +1171,8 @@
             tag:"PRODUIT",
             title:"Ajouter ton premier produit visible",
             text:"Le client doit voir quelque chose rapidement : nom, prix, contact.",
-            href:"./produits.html#productForm"
+            href:"./produits.html#productForm",
+            private:true
           });
         } else {
           tasks.push({
@@ -910,7 +1180,8 @@
             tag:"PRODUITS",
             title:"Produits visibles",
             text:`${s.active} produit(s) visible(s). Continue à garder le catalogue propre.`,
-            href:"./produits.html"
+            href:"./produits.html",
+            private:true
           });
         }
 
@@ -919,60 +1190,91 @@
           tag:"ARGENT",
           title:"Écrire une note rapide",
           text:"Vente, livraison, achat stock, client qui doit : tout peut nourrir Mon argent.",
-          href:"./produits.html#quickMarketNote"
+          href:"./produits.html#quickMarketNote",
+          private:true
         });
 
         tasks.push({
           level:"info",
           tag:"PLUS",
-          title:"Régler WhatsApp Visio Live",
-          text:"Dans Plus, garde le contact, la vitrine et la visio client bien propres.",
-          href:"./boutique.html"
+          title:"Régler la boutique",
+          text:"Dans Plus, garde le contact, la vitrine et WhatsApp Visio Live bien propres.",
+          href:"./boutique.html",
+          private:true
         });
 
         setTasks(tasks);
-        updateLinks();
+
+        const payLinks = document.querySelectorAll("a[href*='pro-pay.digiylyfe.com']");
+        payLinks.forEach(a => { a.href = payPath(); });
+
+        updatePublicLink();
+        cleanInternalLinks();
+        statusNotice("Accès ouvert. Les identifiants restent dans le coffre, pas dans l’écran.", "ok");
+      }
+
+      async function loadCockpit(){
+        const payloads = [
+          { p_slug: ACCESS_SLUG },
+          { slug: ACCESS_SLUG }
+        ];
+
+        return await rpcTry(CFG.RPC_COCKPIT, payloads);
+      }
+
+      async function loadProducts(){
+        try{
+          const rows = await rpcTry(CFG.RPC_PRODUCTS, [
+            { p_slug: ACCESS_SLUG },
+            { slug: ACCESS_SLUG }
+          ]);
+
+          PRODUCTS = normalizedProducts(rows);
+        }catch(e){
+          console.warn("products read warning", e);
+          PRODUCTS = [];
+        }
       }
 
       async function boot(){
         document.body.classList.add("loading");
 
         try{
-          const session = await waitGuard();
+          cleanVisibleUrl();
+
+          const guardSession = await waitGuard();
+          const storedSession = readSessionObject();
+          const session = guardSession || storedSession || {};
+
           ACCESS_SLUG = resolveSlug(session);
           ACCESS_PHONE = resolvePhone(session);
-          ACCESS_GRANTED = resolveAccess(session);
+          ACCESS_GRANTED = resolveAccess(session) || resolveAccess(storedSession || {});
+          await resolveMissingSlugByPhone();
           remember();
-          updateLinks();
 
           if (!ACCESS_SLUG){
-            setBlocked("Aucun identifiant MARKET détecté. Passe par ton accès pour entrer proprement.");
+            setBlocked("Aucun compte MARKET reconnu. Passe par ton accès pour entrer proprement.");
             return;
           }
 
           if (!ACCESS_GRANTED){
-            setBlocked("Identifiant repéré, mais accès fermé. Ouvre avec ton code pour charger la vraie gestion.");
+            setBlocked("Compte reconnu, mais session fermée. Entre ton code pour ouvrir la vraie gestion.");
             return;
           }
 
-          const cockpit = await rpc("digiy_market_get_cockpit_by_slug", { p_slug: ACCESS_SLUG });
-          if (!cockpit?.ok){
-            setBlocked("Identifiant détecté, mais les vraies données ne sont pas ouvertes.");
+          const cockpit = await loadCockpit();
+          const normalized = normalizePayload(cockpit);
+
+          if (normalized?.ok === false){
+            setBlocked("Compte reconnu, mais les données ne sont pas ouvertes.");
             return;
           }
 
-          try{
-            const rows = await rpc("digiy_market_list_products_by_slug", { p_slug: ACCESS_SLUG });
-            PRODUCTS = normalizedProducts(rows);
-          }catch(e){
-            console.warn("products read warning", e);
-            PRODUCTS = [];
-          }
-
+          await loadProducts();
           applyLive(cockpit);
         }catch(e){
           console.error(e);
-          setBlocked("Impossible de charger la gestion pour le moment.");
+          setBlocked("Impossible de charger la gestion pour le moment. Recharge ou rouvre ton accès.");
         }finally{
           document.body.classList.remove("loading");
         }
@@ -980,10 +1282,11 @@
 
       $("btnReloadTop")?.addEventListener("click", boot);
 
-      updateLinks();
+      cleanInternalLinks();
       boot();
     })();
   </script>
 </body>
 </html>
+
 
