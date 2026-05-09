@@ -1268,6 +1268,17 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
           </div>
         </div>
 
+        <div class="field" style="margin-top:14px">
+          <div class="label">Coller le lien vitrine premium</div>
+          <input class="in" id="publicUrlSide" inputmode="url" placeholder="https://..."/>
+          <div class="help">Même champ que dans le formulaire principal. Colle ici le site officiel ou la vitrine premium du commerçant, puis enregistre.</div>
+        </div>
+
+        <div class="actions" style="margin-top:12px">
+          <button class="btn primary" id="btnSaveSide" type="button">💾 Enregistrer le lien</button>
+          <a class="btn gold" id="btnOpenPublicUrl" href="https://market.digiylyfe.com/" target="_blank" rel="noopener">🌍 Tester la vitrine</a>
+        </div>
+
         <div class="empty" id="previewBox">
           Aucun accès boutique détecté pour le moment. La page reste visible, mais les vrais réglages restent protégés.
         </div>
@@ -1299,7 +1310,7 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
 
       const EDITABLE_IDS = [
         "shopName","ownerName","city","categoriesText","whatsapp","zones","address",
-        "deliveryNote","paymentNote","description","coverUrl","photoUrl","publicUrl"
+        "deliveryNote","paymentNote","description","coverUrl","photoUrl","publicUrl","publicUrlSide"
       ];
 
       let ACCESS_SLUG = "";
@@ -1657,6 +1668,7 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
         $("coverUrl").value = "";
         $("photoUrl").value = "";
         $("publicUrl").value = "";
+        if ($("publicUrlSide")) $("publicUrlSide").value = "";
       }
 
       function getDraft(){
@@ -1674,7 +1686,7 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
           description: $("description").value.trim(),
           cover_url: cleanHttpsUrl($("coverUrl").value.trim()),
           photo_url: cleanHttpsUrl($("photoUrl").value.trim()),
-          public_url: cleanHttpsUrl($("publicUrl").value.trim())
+          public_url: cleanHttpsUrl(($("publicUrl").value || $("publicUrlSide")?.value || "").trim())
         };
       }
 
@@ -1818,6 +1830,8 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
         $("factDelivery").textContent = delivery;
         $("factPayment").textContent = payment;
         if ($("factPublicUrl")) $("factPublicUrl").textContent = publicUrl ? "Configuré" : "À définir";
+        if ($("btnPublic")) $("btnPublic").href = publicUrl || "https://market.digiylyfe.com/";
+        if ($("btnOpenPublicUrl")) $("btnOpenPublicUrl").href = publicUrl || "https://market.digiylyfe.com/";
 
         $("modeBadge").className = liveMode ? "mode live" : "mode";
         $("modeBadge").textContent = liveMode ? "Accès ouvert" : "Accès protégé";
@@ -1854,6 +1868,7 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
         $("coverUrl").value = getCoverUrl(p);
         $("photoUrl").value = getPhotoUrl(p);
         $("publicUrl").value = getPublicUrl(p);
+        if ($("publicUrlSide")) $("publicUrlSide").value = getPublicUrl(p);
 
         renderPublishState();
         applyStats(payload.stats || {});
@@ -1881,6 +1896,8 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
         $("factDelivery").textContent = delivery;
         $("factPayment").textContent = payment;
         if ($("factPublicUrl")) $("factPublicUrl").textContent = publicUrl ? "Configuré" : "À définir";
+        if ($("btnPublic")) $("btnPublic").href = publicUrl || "https://market.digiylyfe.com/";
+        if ($("btnOpenPublicUrl")) $("btnOpenPublicUrl").href = publicUrl || "https://market.digiylyfe.com/";
 
         renderPublishState();
       }
@@ -2076,7 +2093,20 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
         if (el) el.addEventListener("input", syncPreviewFromInputs);
       });
 
+      function syncPublicUrlInputs(sourceId){
+        const a = $("publicUrl");
+        const b = $("publicUrlSide");
+        if (!a || !b) return;
+        if (sourceId === "publicUrl") b.value = a.value;
+        if (sourceId === "publicUrlSide") a.value = b.value;
+        syncPreviewFromInputs();
+      }
+
+      if ($("publicUrl")) $("publicUrl").addEventListener("input", () => syncPublicUrlInputs("publicUrl"));
+      if ($("publicUrlSide")) $("publicUrlSide").addEventListener("input", () => syncPublicUrlInputs("publicUrlSide"));
+
       $("btnSave").addEventListener("click", saveProfile);
+      if ($("btnSaveSide")) $("btnSaveSide").addEventListener("click", saveProfile);
       $("btnReloadProfile").addEventListener("click", boot);
       $("btnReload").addEventListener("click", boot);
       $("btnPublish").addEventListener("click", () => setPublishState(true));
