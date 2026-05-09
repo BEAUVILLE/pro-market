@@ -1179,6 +1179,12 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
           </div>
         </div>
 
+        <div class="field" style="margin-top:12px">
+          <div class="label">Lien vitrine premium / site officiel</div>
+          <input class="in" id="publicUrl" inputmode="url" placeholder="https://..."/>
+          <div class="help">Optionnel. Colle ici la vitrine premium, le site officiel ou la page partenaire. Si le lien est rempli, le bouton “Voir ma vitrine” ouvrira ce site. Laisse vide si la boutique reste seulement dans MARKET.</div>
+        </div>
+
         <div class="actions">
           <button class="btn primary" id="btnSave" type="button">💾 Enregistrer mes changements</button>
           <button class="btn" id="btnReloadProfile" type="button">↻ Recharger mes infos</button>
@@ -1255,6 +1261,11 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
             <div class="k">Paiement</div>
             <div class="v" id="factPayment">À définir</div>
           </div>
+
+          <div class="mini">
+            <div class="k">Lien vitrine</div>
+            <div class="v" id="factPublicUrl">À définir</div>
+          </div>
         </div>
 
         <div class="empty" id="previewBox">
@@ -1288,7 +1299,7 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
 
       const EDITABLE_IDS = [
         "shopName","ownerName","city","categoriesText","whatsapp","zones","address",
-        "deliveryNote","paymentNote","description","coverUrl","photoUrl"
+        "deliveryNote","paymentNote","description","coverUrl","photoUrl","publicUrl"
       ];
 
       let ACCESS_SLUG = "";
@@ -1336,6 +1347,28 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
         return toText(profile?.photo_url, toText(profile?.logo_url, ""));
       }
 
+      function cleanHttpsUrl(v){
+        const s = String(v || "").trim();
+        if (!s) return "";
+        return /^https:\/\/[^\s]+$/i.test(s) ? s : "";
+      }
+
+      function getPublicUrl(profile){
+        return cleanHttpsUrl(
+          profile?.public_url ||
+          profile?.publicUrl ||
+          profile?.website_url ||
+          profile?.websiteUrl ||
+          profile?.site_url ||
+          profile?.siteUrl ||
+          profile?.shop_url ||
+          profile?.shopUrl ||
+          profile?.boutique_url ||
+          profile?.boutiqueUrl ||
+          ""
+        );
+      }
+
       function withSlug(base){
         /*
           Liens internes propres : le contexte privé est déjà en session/localStorage.
@@ -1349,8 +1382,8 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
       }
 
       function cleanPublicHref(profile){
-        const direct = String(profile?.public_url || profile?.publicUrl || "").trim();
-        if (/^https:\/\//i.test(direct)) return direct;
+        const direct = getPublicUrl(profile || {});
+        if (direct) return direct;
         return "https://market.digiylyfe.com/";
       }
 
@@ -1593,6 +1626,9 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
             categories_text: "",
             delivery_note: "",
             payment_note: "",
+            public_url: "",
+            website_url: "",
+            site_url: "",
             is_published: false,
             is_active: true,
             priority: 100
@@ -1620,6 +1656,7 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
         $("description").value = "";
         $("coverUrl").value = "";
         $("photoUrl").value = "";
+        $("publicUrl").value = "";
       }
 
       function getDraft(){
@@ -1635,8 +1672,9 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
           delivery_note: $("deliveryNote").value.trim(),
           payment_note: $("paymentNote").value.trim(),
           description: $("description").value.trim(),
-          cover_url: $("coverUrl").value.trim(),
-          photo_url: $("photoUrl").value.trim()
+          cover_url: cleanHttpsUrl($("coverUrl").value.trim()),
+          photo_url: cleanHttpsUrl($("photoUrl").value.trim()),
+          public_url: cleanHttpsUrl($("publicUrl").value.trim())
         };
       }
 
@@ -1753,6 +1791,7 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
         const whatsapp = p.whatsapp || payload.phone || "";
         const delivery = toText(p.delivery_note, "À définir");
         const payment = toText(p.payment_note, "À définir");
+        const publicUrl = getPublicUrl(p);
 
         const subtitle = liveMode
           ? (payload.is_blank
@@ -1778,6 +1817,7 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
         $("factCity").textContent = city;
         $("factDelivery").textContent = delivery;
         $("factPayment").textContent = payment;
+        if ($("factPublicUrl")) $("factPublicUrl").textContent = publicUrl ? "Configuré" : "À définir";
 
         $("modeBadge").className = liveMode ? "mode live" : "mode";
         $("modeBadge").textContent = liveMode ? "Accès ouvert" : "Accès protégé";
@@ -1813,6 +1853,7 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
         $("description").value = p.description || "";
         $("coverUrl").value = getCoverUrl(p);
         $("photoUrl").value = getPhotoUrl(p);
+        $("publicUrl").value = getPublicUrl(p);
 
         renderPublishState();
         applyStats(payload.stats || {});
@@ -1825,6 +1866,7 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
         const categories = draft.categories_text || "Ce que je vends";
         const delivery = draft.delivery_note || "À définir";
         const payment = draft.payment_note || "À définir";
+        const publicUrl = draft.public_url || "";
         const address = draft.address || "Adresse à définir";
         const whatsapp = draft.whatsapp;
 
@@ -1838,6 +1880,7 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
         $("factCity").textContent = city;
         $("factDelivery").textContent = delivery;
         $("factPayment").textContent = payment;
+        if ($("factPublicUrl")) $("factPublicUrl").textContent = publicUrl ? "Configuré" : "À définir";
 
         renderPublishState();
       }
@@ -1865,6 +1908,9 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
           whatsapp: draft.whatsapp,
           photo_url: draft.photo_url,
           cover_url: draft.cover_url,
+          public_url: draft.public_url,
+          website_url: draft.public_url,
+          site_url: draft.public_url,
           description: draft.description,
           categories_text: draft.categories_text,
           delivery_note: draft.delivery_note,
