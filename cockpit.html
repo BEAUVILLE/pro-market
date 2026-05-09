@@ -368,6 +368,12 @@
     .infoRow span:first-child{color:var(--muted)}
     .infoRow span:last-child{text-align:right;word-break:break-word}
 
+    .infoRow a{
+      color:#fde68a;
+      text-decoration:underline;
+      text-underline-offset:3px;
+    }
+
     .quick{
       border-color:rgba(250,204,21,.24);
       background:
@@ -539,6 +545,7 @@
           <div class="infoRow"><span>Activité</span><span id="infoCategory">—</span></div>
           <div class="infoRow"><span>Contact client</span><span id="infoContact">—</span></div>
           <div class="infoRow"><span>Vitrine</span><span id="infoPublish">—</span></div>
+          <div class="infoRow"><span>Lien vitrine</span><span id="infoPublicUrl">—</span></div>
           <div class="infoRow"><span>Compte</span><span id="infoSecure">Compte sécurisé</span></div>
         </div>
       </section>
@@ -972,19 +979,32 @@
         box.textContent = message;
       }
 
-      function publicTarget(){
+      function cleanHttpsUrl(v){
+        const s = String(v || "").trim();
+        if (!s) return "";
+        if (!/^https:\/\/[^\s]+$/i.test(s)) return "";
+        return s;
+      }
+
+      function externalVitrineUrl(){
         const p = CURRENT?.profile || CURRENT?.shop || CURRENT?.boutique || CURRENT || {};
-        const u =
+        return cleanHttpsUrl(
           p.public_url ||
           p.publicUrl ||
           p.shop_url ||
           p.boutique_url ||
+          p.website_url ||
+          p.site_url ||
           CURRENT?.public_url ||
           CURRENT?.publicUrl ||
-          "";
+          CURRENT?.website_url ||
+          CURRENT?.site_url ||
+          ""
+        );
+      }
 
-        if (/^https:\/\//i.test(String(u || ""))) return u;
-        return CFG.GALLERY_URL;
+      function publicTarget(){
+        return externalVitrineUrl() || CFG.GALLERY_URL;
       }
 
       function updatePublicLink(){
@@ -1030,6 +1050,7 @@
         $("infoCategory").textContent = "—";
         $("infoContact").textContent = "Caché";
         $("infoPublish").textContent = "Accès fermé";
+        $("infoPublicUrl").textContent = "À définir";
         $("infoSecure").textContent = "Identifiants cachés";
 
         setStats({});
@@ -1108,8 +1129,13 @@
         $("infoName").textContent = shop;
         $("infoCity").textContent = city;
         $("infoCategory").textContent = cat;
+        const premiumUrl = externalVitrineUrl();
+
         $("infoContact").textContent = contactConfigured ? "Configuré" : "À définir";
         $("infoPublish").textContent = published ? "En ligne" : "Hors ligne";
+        $("infoPublicUrl").innerHTML = premiumUrl
+          ? `<a href="${esc(premiumUrl)}" target="_blank" rel="noopener">Configuré</a>`
+          : "À définir";
         $("infoSecure").textContent = "Compte reconnu";
 
         document.title = shop + " — Ma gestion";
@@ -1135,6 +1161,25 @@
             title:"Vitrine en ligne",
             text:"Ta boutique peut être consultée publiquement sans exposer le coffre vendeur.",
             href:publicTarget()
+          });
+        }
+
+        if (premiumUrl){
+          tasks.push({
+            level:"ok",
+            tag:"SITE",
+            title:"Lien vitrine premium configuré",
+            text:"Le bouton Voir ma vitrine ouvre le site officiel renseigné dans Ma fiche.",
+            href:premiumUrl
+          });
+        } else {
+          tasks.push({
+            level:"info",
+            tag:"URL",
+            title:"Ajouter le lien vitrine premium",
+            text:"Dans Plus, colle l’URL du site officiel ou de la vitrine DIGIY premium. Laisse vide si la boutique n’a pas encore de site.",
+            href:"./boutique.html#publicUrl",
+            private:true
           });
         }
 
