@@ -3,101 +3,37 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <title>DIGIY MARKET — QR boutique</title>
+  <title>DIGIY MARKET — QR Astou Boutique</title>
 
   <style>
-    body{
-      margin:0;
-      font-family:Arial, sans-serif;
-      background:#07140f;
-      color:#ecfff4;
-      padding:16px;
-      text-align:center;
-    }
-    .card{
-      max-width:520px;
-      margin:auto;
-      background:rgba(255,255,255,.06);
-      border:1px solid rgba(255,255,255,.14);
-      border-radius:26px;
-      padding:22px;
-    }
-    h1{font-size:34px;margin:10px 0}
-    p{color:rgba(236,255,244,.75);line-height:1.5}
-    .qr{
-      background:white;
-      border-radius:22px;
-      padding:18px;
-      margin:18px auto;
-      color:#07140f;
-    }
-    .qr img{
-      width:100%;
-      max-width:340px;
-      border-radius:16px;
-    }
-    .btn{
-      display:block;
-      margin:10px 0;
-      padding:15px;
-      border-radius:18px;
-      background:#22c55e;
-      color:#041b12;
-      font-weight:900;
-      text-decoration:none;
-    }
-    .btn.gold{
-      background:#facc15;
-    }
-    .small{
-      font-size:13px;
-      color:rgba(236,255,244,.65);
-    }
+    body{margin:0;font-family:Arial,system-ui,sans-serif;background:#07140f;color:#ecfff4;padding:16px;text-align:center;font-weight:800}
+    .card{max-width:520px;margin:auto;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:26px;padding:22px;box-shadow:0 22px 70px rgba(0,0,0,.38)}
+    h1{font-size:34px;margin:10px 0;line-height:1}.top{color:#facc15;font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-weight:900}p{color:rgba(236,255,244,.75);line-height:1.5}.qr{background:white;border-radius:22px;padding:18px;margin:18px auto;color:#07140f}.qr img{width:100%;max-width:340px;border-radius:16px}.btn{display:block;margin:10px 0;padding:15px;border-radius:18px;background:#22c55e;color:#041b12;font-weight:900;text-decoration:none}.btn.gold{background:#facc15;color:#241a00}.btn.dark{background:rgba(255,255,255,.08);color:#ecfff4;border:1px solid rgba(255,255,255,.14)}.small{font-size:13px;color:rgba(236,255,244,.65);word-break:break-all}@media print{body{background:#fff;color:#111}.card{box-shadow:none;border:0}.btn,.small,.top,p{display:none}.qr{padding:0}.qr img{max-width:430px}}
   </style>
 </head>
-
 <body>
   <main class="card">
-    <div>🛍️ DIGIY MARKET · QR TERRAIN</div>
-
+    <div class="top">DIGIY MARKET · QR TERRAIN</div>
     <h1>Astou Boutique</h1>
-
-    <p>
-      Scanne le QR pour ouvrir directement la fiche boutique.
-      WhatsApp direct, produits, contact, sans téléphone visible dans l’URL.
-    </p>
-
+    <p>Scanne le QR pour ouvrir directement la fiche boutique. WhatsApp direct, produits, contact, sans téléphone visible dans l’URL.</p>
     <div class="qr">
-      <img
-        id="qrImg"
-        alt="QR Astou Boutique"
-        src=""
-      />
+      <img id="qrImg" alt="QR Astou Boutique" src="" />
       <strong>Astou Boutique</strong><br>
       <span>BY DIGIYLYFE</span>
     </div>
-
-    <a class="btn" id="openLink" href="#" target="_blank" rel="noopener">
-      🌍 Ouvrir la fiche boutique
-    </a>
-
-    <a class="btn gold" href="javascript:window.print()">
-      🖨️ Imprimer le QR
-    </a>
-
+    <a class="btn" id="openLink" href="#" target="_blank" rel="noopener">🌍 Ouvrir la fiche boutique</a>
+    <button class="btn gold" id="printBtn" type="button">🖨️ Imprimer le QR</button>
+    <a class="btn dark" href="./cockpit.html">← Retour cockpit</a>
     <p class="small" id="targetUrl"></p>
   </main>
 
   <script>
-    const ficheUrl = "https://market.digiylyfe.com/fiche.html?slug=astou-boutique";
-
-    const qrApi =
-      "https://api.qrserver.com/v1/create-qr-code/?size=520x520&margin=18&data="
-      + encodeURIComponent(ficheUrl);
-
+    const ficheUrl = "https://market.digiylyfe.com/fiche.html?slug=market-221771342889";
+    const qrApi = "https://api.qrserver.com/v1/create-qr-code/?size=520x520&margin=18&data=" + encodeURIComponent(ficheUrl);
     document.getElementById("qrImg").src = qrApi;
     document.getElementById("openLink").href = ficheUrl;
     document.getElementById("targetUrl").textContent = ficheUrl;
+    document.getElementById("printBtn").addEventListener("click", function(){ window.print(); });
   </script>
 </body>
 </html>
