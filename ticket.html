@@ -15,14 +15,91 @@
     window.DIGIY_LOGIN_URL = "./pin.html";
   </script>
 
+  <script>
+    /*
+      DIGIY MARKET — coffre ticket
+      Le ticket peut garder sale_id visible, mais retire les paramètres sensibles.
+    */
+    (function(){
+      "use strict";
+
+      const qs = new URLSearchParams(location.search);
+
+      function normSlug(v){
+        return String(v || "")
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g,"-")
+          .replace(/[^a-z0-9-]/g,"")
+          .replace(/-+/g,"-")
+          .replace(/^-|-$/g,"");
+      }
+
+      function normPhone(v){
+        const d = String(v || "").replace(/[^\d]/g,"");
+        if (!d) return "";
+        if (d.startsWith("221") && d.length === 12) return d;
+        if (d.length === 9) return "221" + d;
+        return d;
+      }
+
+      function storeBoth(key,value){
+        if (!value) return;
+        try{ sessionStorage.setItem(key,value); }catch(_){}
+        try{ localStorage.setItem(key,value); }catch(_){}
+      }
+
+      const incomingSlug =
+        normSlug(qs.get("slug")) ||
+        normSlug(qs.get("market_slug")) ||
+        normSlug(qs.get("subscription_slug")) ||
+        normSlug(qs.get("pro_slug"));
+
+      const incomingPhone =
+        normPhone(qs.get("phone")) ||
+        normPhone(qs.get("tel")) ||
+        normPhone(qs.get("owner_phone")) ||
+        normPhone(qs.get("checkout_phone")) ||
+        normPhone(qs.get("subscription_phone")) ||
+        normPhone(qs.get("market_phone"));
+
+      if (incomingSlug){
+        storeBoth("digiy_market_slug", incomingSlug);
+        storeBoth("digiy_market_last_slug", incomingSlug);
+        storeBoth("market_slug", incomingSlug);
+      }
+
+      if (incomingPhone){
+        storeBoth("digiy_market_phone", incomingPhone);
+        storeBoth("digiy_market_last_phone", incomingPhone);
+        storeBoth("market_phone", incomingPhone);
+      }
+
+      const sensitiveKeys = [
+        "phone","tel","owner_phone","checkout_phone","subscription_phone","market_phone",
+        "slug","market_slug","subscription_slug","pro_slug","module","from","owner","owner_id"
+      ];
+
+      const dirty = sensitiveKeys.some(k => qs.has(k));
+      if (dirty && window.history && typeof window.history.replaceState === "function"){
+        const keep = new URLSearchParams();
+        const saleId = qs.get("sale_id") || qs.get("id");
+        if (saleId) keep.set("sale_id", saleId);
+        const cleanUrl = location.pathname + (keep.toString() ? "?" + keep.toString() : "") + location.hash;
+        history.replaceState({}, document.title, cleanUrl);
+      }
+    })();
+  </script>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-ticket-coffre-20260505"></script>
+  <script src="./guard.js?v=market-ticket-gros-boutons-20260511"></script>
 
   <style>
     :root{
       --ink:#0f172a;
       --muted:#475569;
-      --line:#e2e8f0;
+      --soft:#64748b;
+      --line:#dbe4ef;
       --bg:#f8fafc;
       --card:#ffffff;
       --green:#16a34a;
@@ -32,72 +109,78 @@
       --nav:#07140f;
       --navText:#ecfff4;
       --shadow:0 18px 50px rgba(15,23,42,.12);
-      --navH:76px;
+      --r:20px;
     }
 
     *{box-sizing:border-box;margin:0;padding:0}
 
     body{
-      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       background:
-        radial-gradient(900px 420px at 10% -10%, rgba(34,197,94,.10), transparent 60%),
+        radial-gradient(900px 420px at 10% -10%, rgba(34,197,94,.12), transparent 60%),
+        radial-gradient(900px 420px at 110% 0%, rgba(250,204,21,.13), transparent 55%),
         linear-gradient(180deg,#f8fafc,#eef2f7);
       color:var(--ink);
-      padding:16px 16px calc(var(--navH) + env(safe-area-inset-bottom,0px) + 18px);
+      padding:14px;
       min-height:100vh;
+      font-size:17px;
+      font-weight:750;
     }
 
     a{color:inherit;text-decoration:none}
 
     .page{
-      max-width:480px;
+      max-width:620px;
       margin:0 auto;
       display:grid;
-      gap:12px;
+      gap:14px;
     }
 
     .top{
       display:flex;
       justify-content:space-between;
       align-items:center;
-      gap:10px;
-      padding:10px 2px;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      gap:12px;
+      padding:4px 2px;
+      flex-wrap:wrap;
     }
 
     .brand{
       display:flex;
-      gap:10px;
+      gap:12px;
       align-items:center;
       min-width:0;
     }
 
     .mark{
-      width:42px;
-      height:42px;
-      border-radius:15px;
+      width:54px;
+      height:54px;
+      border-radius:18px;
       display:grid;
       place-items:center;
       background:#07140f;
       color:#facc15;
       box-shadow:var(--shadow);
+      font-size:27px;
       flex:0 0 auto;
     }
 
     .brandTitle{
-      font-weight:950;
-      font-size:15px;
+      font-weight:1000;
+      font-size:clamp(24px,5vw,36px);
+      line-height:1.02;
       color:#07140f;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
+      letter-spacing:-.04em;
     }
 
     .brandSub{
-      margin-top:2px;
-      font-size:12px;
+      margin-top:4px;
+      font-size:14px;
       color:var(--muted);
-      font-weight:800;
+      font-weight:900;
     }
 
     .miniActions{
@@ -107,115 +190,23 @@
       justify-content:flex-end;
     }
 
-    .miniBtn{
-      min-height:38px;
+    .miniBtn,
+    button{
+      min-height:52px;
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      gap:7px;
+      gap:8px;
       border:1px solid var(--line);
       background:#fff;
       color:#0f172a;
-      border-radius:999px;
-      padding:9px 11px;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-      font-size:12px;
-      font-weight:900;
-      box-shadow:0 8px 18px rgba(15,23,42,.08);
-    }
-
-    .wrap{
-      width:100%;
-      background:var(--card);
-      border:1px solid var(--line);
       border-radius:16px;
-      padding:15px;
-      box-shadow:var(--shadow);
-      overflow:hidden;
-    }
-
-    .row{
-      display:flex;
-      justify-content:space-between;
-      gap:10px;
-      align-items:flex-start;
-    }
-
-    .h1{
-      font-weight:900;
-      font-size:18px;
-      line-height:1.2;
-      word-break:break-word;
-    }
-
-    .small{
-      font-size:12px;
-      color:var(--muted);
-      line-height:1.45;
-    }
-
-    .sep{
-      border-top:1px dashed var(--line);
-      margin:10px 0;
-    }
-
-    table{
-      width:100%;
-      border-collapse:collapse;
-    }
-
-    th,td{
-      font-size:12px;
-      padding:6px 0;
-      border-bottom:1px dotted var(--line);
-      vertical-align:top;
-    }
-
-    th{
-      color:var(--muted);
-      font-weight:800;
-      text-align:left;
-    }
-
-    td.r, th.r{text-align:right}
-
-    .tot td{
-      border-bottom:none;
-      font-weight:900;
-      font-size:14px;
-    }
-
-    .status{
-      display:inline-flex;
-      padding:5px 8px;
-      border-radius:999px;
-      background:#f1f5f9;
-      color:#334155;
-      font-size:11px;
-      font-weight:900;
-      white-space:nowrap;
-    }
-
-    .status.ok{background:#dcfce7;color:#166534}
-    .status.warn{background:#fef3c7;color:#92400e}
-    .status.bad{background:#fee2e2;color:#991b1b}
-
-    .actions{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-      margin-top:12px;
-    }
-
-    button{
-      min-height:44px;
-      padding:10px 12px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background:#fff;
-      font-weight:900;
+      padding:12px 15px;
+      font-size:15px;
+      font-weight:1000;
+      box-shadow:0 8px 18px rgba(15,23,42,.08);
       cursor:pointer;
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      font-family:inherit;
     }
 
     button.primary{
@@ -235,78 +226,161 @@
       cursor:not-allowed;
     }
 
-    .error{
-      margin-top:10px;
-      color:#b91c1c;
-      font-size:12px;
-      min-height:1.2em;
-      white-space:pre-line;
-      line-height:1.45;
-    }
-
-    .hint{
-      margin-top:10px;
-      padding:10px;
-      border-radius:12px;
-      background:#f8fafc;
+    .wrap{
+      width:100%;
+      background:var(--card);
       border:1px solid var(--line);
+      border-radius:24px;
+      padding:18px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .row{
+      display:flex;
+      justify-content:space-between;
+      gap:14px;
+      align-items:flex-start;
+      flex-wrap:wrap;
+    }
+
+    .h1{
+      font-weight:1000;
+      font-size:clamp(24px,5vw,34px);
+      line-height:1.08;
+      letter-spacing:-.03em;
+      word-break:break-word;
+    }
+
+    .small{
+      font-size:15px;
       color:var(--muted);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-      font-size:12px;
-      font-weight:750;
-      line-height:1.45;
+      line-height:1.5;
+      font-weight:850;
     }
 
-    .navBottom{
-      position:fixed;
-      left:0;
-      right:0;
-      bottom:0;
-      z-index:50;
-      padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
-      background:rgba(7,20,15,.94);
-      border-top:1px solid rgba(255,255,255,.10);
-      backdrop-filter:blur(16px);
-      -webkit-backdrop-filter:blur(16px);
-      font-family:Outfit,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+    .sep{
+      border-top:2px dashed var(--line);
+      margin:14px 0;
     }
 
-    .navInner{
-      max-width:760px;
-      margin:0 auto;
+    table{
+      width:100%;
+      border-collapse:collapse;
+    }
+
+    th,td{
+      font-size:15px;
+      padding:10px 0;
+      border-bottom:1px dotted var(--line);
+      vertical-align:top;
+    }
+
+    th{
+      color:var(--muted);
+      font-weight:1000;
+      text-align:left;
+    }
+
+    td{
+      font-weight:850;
+    }
+
+    td.r, th.r{text-align:right}
+
+    .tot td{
+      border-bottom:none;
+      font-weight:1000;
+      font-size:20px;
+      padding-top:12px;
+    }
+
+    .status{
+      display:inline-flex;
+      padding:8px 11px;
+      border-radius:999px;
+      background:#f1f5f9;
+      color:#334155;
+      font-size:13px;
+      font-weight:1000;
+      white-space:nowrap;
+    }
+
+    .status.ok{background:#dcfce7;color:#166534}
+    .status.warn{background:#fef3c7;color:#92400e}
+    .status.bad{background:#fee2e2;color:#991b1b}
+
+    .actions{
       display:grid;
-      grid-template-columns:repeat(5,1fr);
-      gap:6px;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:14px;
     }
 
-    .navItem{
-      min-height:56px;
-      border-radius:16px;
+    .doorGrid{
       display:grid;
-      place-items:center;
-      align-content:center;
-      gap:3px;
-      color:rgba(236,255,244,.70);
-      font-size:11px;
-      font-weight:900;
-      border:1px solid transparent;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+      margin-top:10px;
     }
 
-    .navItem .ico{
-      font-size:18px;
+    .door{
+      min-height:76px;
+      border-radius:18px;
+      border:1px solid var(--line);
+      background:#fff;
+      color:#0f172a;
+      display:flex;
+      flex-direction:column;
+      align-items:flex-start;
+      justify-content:center;
+      gap:4px;
+      padding:13px;
+      box-shadow:0 8px 18px rgba(15,23,42,.08);
+      font-weight:1000;
+    }
+
+    .door b{
+      font-size:24px;
       line-height:1;
     }
 
-    .navItem.more{
-      color:#041b12;
-      background:linear-gradient(135deg,#facc15,#22c55e);
-      border-color:rgba(250,204,21,.35);
+    .door span{
+      color:var(--muted);
+      font-size:13px;
+      font-weight:900;
     }
 
-    @media(max-width:420px){
-      body{padding-left:10px;padding-right:10px}
+    .error{
+      margin-top:12px;
+      color:#b91c1c;
+      font-size:14px;
+      min-height:1.2em;
+      white-space:pre-line;
+      line-height:1.45;
+      font-weight:900;
+    }
+
+    .hint{
+      margin-top:12px;
+      padding:13px;
+      border-radius:16px;
+      background:#f8fafc;
+      border:1px solid var(--line);
+      color:var(--muted);
+      font-size:14px;
+      font-weight:850;
+      line-height:1.5;
+    }
+
+    @media(max-width:520px){
+      body{padding:10px}
+      .miniActions{width:100%}
+      .miniBtn{flex:1}
       .actions{grid-template-columns:1fr}
-      .miniActions{display:none}
+      .doorGrid{grid-template-columns:1fr 1fr}
+      th,td{font-size:13px}
+      .small{font-size:14px}
     }
 
     @media print{
@@ -318,7 +392,7 @@
         max-width:none;
         display:block;
       }
-      .top,.actions,.error,.hint,.navBottom{
+      .top,.actions,.error,.hint,.doorGrid{
         display:none !important;
       }
       .wrap{
@@ -327,6 +401,8 @@
         box-shadow:none;
         max-width:none;
       }
+      th,td{font-size:12px}
+      .tot td{font-size:15px}
     }
   </style>
 </head>
@@ -346,6 +422,12 @@
         <a class="miniBtn" id="btnBack" href="./produits.html">📦 Produits</a>
         <a class="miniBtn" id="btnHome" href="./cockpit.html">🏠 Accueil</a>
       </div>
+    </div>
+
+    <div class="doorGrid">
+      <a class="door" id="doorProducts" href="./produits.html"><b>📦</b><span>Produits</span></a>
+      <a class="door" id="doorAdd" href="./produits.html#productForm"><b>➕</b><span>Ajouter</span></a>
+      <a class="door" id="doorNotes" href="./produits.html#quickMarketNote"><b>✍️</b><span>Notes</span></a>
     </div>
 
     <div class="wrap">
@@ -393,7 +475,7 @@
 
       <div class="sep"></div>
 
-      <div class="small" style="font-weight:900;margin-bottom:6px">Paiements</div>
+      <div class="small" style="font-weight:1000;margin-bottom:6px">Paiements</div>
       <div id="payments" class="small">—</div>
 
       <div class="actions">
@@ -408,16 +490,6 @@
       <div class="error" id="errorBox"></div>
     </div>
   </div>
-
-  <nav class="navBottom" aria-label="Navigation MARKET">
-    <div class="navInner">
-      <a class="navItem" id="navHome" href="./cockpit.html"><span class="ico">🏠</span><span>Accueil</span></a>
-      <a class="navItem" id="navProducts" href="./produits.html"><span class="ico">📦</span><span>Produits</span></a>
-      <a class="navItem" id="navAdd" href="./produits.html#productForm"><span class="ico">➕</span><span>Ajouter</span></a>
-      <a class="navItem" id="navNotes" href="./produits.html#quickMarketNote"><span class="ico">✍️</span><span>Notes</span></a>
-      <a class="navItem more" id="navMore" href="./boutique.html"><span class="ico">⚙️</span><span>Plus</span></a>
-    </div>
-  </nav>
 
   <script>
   (function(){
@@ -481,25 +553,6 @@
       return s.length > 10 ? `${s.slice(0,8)}…` : s;
     }
 
-    function cleanVisibleUrl(){
-      const params = new URLSearchParams(location.search);
-      const sensitive = [
-        "phone","tel","owner_phone","checkout_phone","subscription_phone",
-        "market_phone","slug","market_slug","subscription_slug","pro_slug",
-        "module","from"
-      ];
-
-      const dirty = sensitive.some(k => params.has(k));
-      if (!dirty) return;
-
-      const keep = new URLSearchParams();
-      const saleId = params.get("sale_id") || params.get("id");
-      if (saleId) keep.set("sale_id", saleId);
-
-      const clean = location.pathname + (keep.toString() ? "?" + keep.toString() : "") + location.hash;
-      try { history.replaceState({}, document.title, clean); } catch(_){}
-    }
-
     function buildPath(base){
       const u = new URL(base, location.href);
       u.search = "";
@@ -510,11 +563,9 @@
       const map = {
         btnBack:"./produits.html",
         btnHome:"./cockpit.html",
-        navHome:"./cockpit.html",
-        navProducts:"./produits.html",
-        navAdd:"./produits.html#productForm",
-        navNotes:"./produits.html#quickMarketNote",
-        navMore:"./boutique.html"
+        doorProducts:"./produits.html",
+        doorAdd:"./produits.html#productForm",
+        doorNotes:"./produits.html#quickMarketNote"
       };
 
       Object.entries(map).forEach(([id, path]) => {
@@ -613,7 +664,6 @@
       }
 
       updateLinks();
-      cleanVisibleUrl();
     }
 
     function getClient(){
@@ -748,7 +798,6 @@
 
       const ids = lines.map(l => l.product_id);
       const nameMap = await loadProductNames(ids);
-
       const tbody = $("lines");
       tbody.innerHTML = "";
 
@@ -838,7 +887,6 @@
     async function boot(){
       try{
         updateLinks();
-        cleanVisibleUrl();
         const session = await waitGuard();
         resolveContext(session);
         getClient();
@@ -858,3 +906,4 @@
   </script>
 </body>
 </html>
+
