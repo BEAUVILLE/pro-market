@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <meta name="theme-color" content="#07140f"/>
   <title>Je vends — Accès sécurisé</title>
-  <meta name="description" content="Je vends — accès MARKET sécurisé par RPC coffre, sans afficher les identifiants sensibles."/>
+  <meta name="theme-color" content="#07140f"/>
+  <meta name="description" content="Je vends — accès MARKET sécurisé, sans afficher les identifiants sensibles."/>
 
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -20,23 +20,107 @@
     window.DIGIY_PAY_URL = "https://commencer-a-payer.digiylyfe.com/";
   </script>
 
+  <script>
+    /*
+      DIGIY MARKET — porte PIN coffre
+      Accepte les anciens liens ?slug= / ?phone=, range le contexte,
+      puis nettoie la barre d’adresse. Rien de sensible ne reste visible.
+    */
+    (function(){
+      "use strict";
+
+      const qs = new URLSearchParams(location.search);
+
+      function normSlug(v){
+        return String(v || "")
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, "-")
+          .replace(/[^a-z0-9-]/g, "")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "");
+      }
+
+      function normPhone(v){
+        const d = String(v || "").replace(/[^\d]/g, "");
+        if (!d) return "";
+        if (d.startsWith("221") && d.length === 12) return d;
+        if (d.length === 9) return "221" + d;
+        return d;
+      }
+
+      function putBoth(key,value){
+        if (!value) return;
+        try{ sessionStorage.setItem(key,value); }catch(_){}
+        try{ localStorage.setItem(key,value); }catch(_){}
+      }
+
+      const incomingSlug =
+        normSlug(qs.get("slug")) ||
+        normSlug(qs.get("market_slug")) ||
+        normSlug(qs.get("subscription_slug")) ||
+        normSlug(qs.get("pro_slug"));
+
+      const incomingPhone =
+        normPhone(qs.get("phone")) ||
+        normPhone(qs.get("tel")) ||
+        normPhone(qs.get("owner_phone")) ||
+        normPhone(qs.get("checkout_phone")) ||
+        normPhone(qs.get("subscription_phone")) ||
+        normPhone(qs.get("market_phone")) ||
+        normPhone(qs.get("p_phone"));
+
+      if (incomingSlug){
+        putBoth("digiy_market_slug", incomingSlug);
+        putBoth("digiy_market_last_slug", incomingSlug);
+        putBoth("market_slug", incomingSlug);
+        putBoth("digiy_last_slug", incomingSlug);
+      }
+
+      if (incomingPhone){
+        putBoth("digiy_market_phone", incomingPhone);
+        putBoth("digiy_market_last_phone", incomingPhone);
+        putBoth("market_phone", incomingPhone);
+        putBoth("digiy_last_phone", incomingPhone);
+        putBoth("digiy_phone", incomingPhone);
+      }
+
+      const sensitiveKeys = [
+        "phone","tel","p_phone","owner_phone","checkout_phone","subscription_phone","market_phone","msisdn",
+        "slug","market_slug","subscription_slug","pro_slug","module","from","owner","owner_id"
+      ];
+
+      const hasSensitive = sensitiveKeys.some(k => qs.has(k));
+      if (hasSensitive && window.history && typeof window.history.replaceState === "function"){
+        const keep = new URLSearchParams();
+        const ret = qs.get("return");
+        const target = qs.get("target");
+        if (ret) keep.set("return", ret);
+        if (target) keep.set("target", target);
+        const clean = location.pathname + (keep.toString() ? "?" + keep.toString() : "") + location.hash;
+        history.replaceState({}, document.title, clean);
+      }
+    })();
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <style>
     :root{
       --bg:#07140f;
       --bg2:#040b08;
-      --line:rgba(255,255,255,.10);
+      --line:rgba(255,255,255,.11);
       --text:#ecfff4;
-      --muted:rgba(236,255,244,.72);
+      --muted:rgba(236,255,244,.74);
       --green:#22c55e;
       --green2:#16a34a;
       --gold:#facc15;
       --gold2:#f59e0b;
       --blue:#60a5fa;
       --red:#ef4444;
-      --shadow:0 22px 70px rgba(0,0,0,.40);
-      --radius:24px;
-      --max:590px;
-      --navH:78px;
+      --shadow:0 24px 76px rgba(0,0,0,.42);
+      --radius:26px;
+      --max:640px;
     }
 
     *{box-sizing:border-box}
@@ -47,13 +131,15 @@
       color:var(--text);
       font-family:Outfit,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       background:
-        radial-gradient(900px 520px at 10% -10%, rgba(34,197,94,.14), transparent 60%),
-        radial-gradient(900px 520px at 110% 0%, rgba(250,204,21,.10), transparent 55%),
+        radial-gradient(900px 520px at 10% -10%, rgba(34,197,94,.16), transparent 60%),
+        radial-gradient(900px 520px at 110% 0%, rgba(250,204,21,.12), transparent 55%),
         linear-gradient(180deg,var(--bg),var(--bg2));
       display:flex;
       align-items:center;
       justify-content:center;
-      padding:18px 16px calc(var(--navH) + env(safe-area-inset-bottom,0px) + 18px);
+      padding:16px;
+      font-size:17px;
+      font-weight:760;
     }
 
     a{color:inherit;text-decoration:none}
@@ -65,156 +151,196 @@
       border:1px solid var(--line);
       border-radius:var(--radius);
       background:
-        radial-gradient(560px 280px at 100% 0%, rgba(250,204,21,.10), transparent 58%),
-        linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.025));
+        radial-gradient(650px 320px at 100% 0%, rgba(250,204,21,.11), transparent 58%),
+        linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.025));
       box-shadow:var(--shadow);
       overflow:hidden;
     }
 
     .hero{
       padding:22px;
-      border-bottom:1px solid rgba(255,255,255,.07);
+      border-bottom:1px solid rgba(255,255,255,.08);
       display:grid;
-      gap:14px;
+      gap:15px;
     }
 
-    .brand{display:flex;align-items:center;gap:12px}
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:13px;
+    }
 
     .logo{
-      width:52px;height:52px;border-radius:17px;
-      display:grid;place-items:center;font-size:25px;
-      border:1px solid rgba(250,204,21,.24);
-      background:linear-gradient(135deg,rgba(34,197,94,.18),rgba(250,204,21,.13));
+      width:60px;
+      height:60px;
+      border-radius:20px;
+      display:grid;
+      place-items:center;
+      font-size:30px;
+      border:1px solid rgba(250,204,21,.25);
+      background:linear-gradient(135deg,rgba(34,197,94,.18),rgba(250,204,21,.14));
       flex:0 0 auto;
     }
 
     .eyebrow{
       color:var(--gold);
-      font-size:12px;
-      font-weight:950;
+      font-size:13px;
+      font-weight:1000;
       letter-spacing:.14em;
       text-transform:uppercase;
-      margin-bottom:3px;
+      margin-bottom:4px;
     }
 
-    h1{margin:0;font-size:clamp(25px,7vw,36px);line-height:1.04;letter-spacing:-.03em}
+    h1{
+      margin:0;
+      font-size:clamp(34px,8vw,52px);
+      line-height:1.0;
+      letter-spacing:-.05em;
+      font-weight:1000;
+    }
 
     .sub{
-      margin:6px 0 0;
+      margin:8px 0 0;
       color:var(--muted);
-      line-height:1.45;
-      font-size:14px;
-      font-weight:800;
+      line-height:1.5;
+      font-size:17px;
+      font-weight:900;
     }
 
-    .body{padding:20px;display:grid;gap:14px}
+    .body{
+      padding:20px;
+      display:grid;
+      gap:14px;
+    }
 
     .notice{
-      border:1px solid rgba(34,197,94,.24);
+      border:1px solid rgba(34,197,94,.25);
       background:rgba(34,197,94,.10);
       color:#bbf7d0;
-      border-radius:18px;
-      padding:13px 14px;
-      font-weight:900;
-      line-height:1.48;
+      border-radius:20px;
+      padding:14px;
+      font-weight:1000;
+      line-height:1.5;
+      font-size:16px;
     }
 
-    .notice.gold{border-color:rgba(250,204,21,.26);background:rgba(250,204,21,.10);color:#fff3bf}
-    .notice.blue{border-color:rgba(96,165,250,.26);background:rgba(96,165,250,.10);color:#dbeafe}
-    .notice.red{border-color:rgba(239,68,68,.26);background:rgba(239,68,68,.10);color:#fecaca}
+    .notice.gold{border-color:rgba(250,204,21,.28);background:rgba(250,204,21,.10);color:#fff3bf}
+    .notice.blue{border-color:rgba(96,165,250,.28);background:rgba(96,165,250,.10);color:#dbeafe}
+    .notice.red{border-color:rgba(239,68,68,.28);background:rgba(239,68,68,.10);color:#fecaca}
 
-    .field{display:grid;gap:7px}
+    .field{display:grid;gap:8px}
 
     label{
-      color:rgba(236,255,244,.88);
-      font-size:13px;
-      font-weight:950;
+      color:rgba(236,255,244,.90);
+      font-size:15px;
+      font-weight:1000;
     }
 
     input{
       width:100%;
-      min-height:54px;
-      border-radius:17px;
-      border:1px solid rgba(255,255,255,.13);
-      background:rgba(0,0,0,.18);
+      min-height:64px;
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(0,0,0,.20);
       color:var(--text);
-      padding:0 14px;
+      padding:0 16px;
       outline:none;
-      font-size:16px;
-      font-weight:800;
+      font-size:20px;
+      font-weight:1000;
     }
 
     input::placeholder{color:rgba(236,255,244,.38)}
 
     input:focus{
-      border-color:rgba(34,197,94,.55);
-      box-shadow:0 0 0 4px rgba(34,197,94,.12);
+      border-color:rgba(34,197,94,.58);
+      box-shadow:0 0 0 4px rgba(34,197,94,.13);
     }
 
-    .pinRow{display:flex;gap:10px}
-    .pinRow input{flex:1;text-align:center;letter-spacing:.22em;font-weight:950}
+    .pinRow{
+      display:flex;
+      gap:10px;
+    }
+
+    .pinRow input{
+      flex:1;
+      text-align:center;
+      letter-spacing:.22em;
+      font-size:27px;
+      font-weight:1000;
+    }
 
     .mini{
-      width:58px;min-height:54px;
-      border:1px solid rgba(255,255,255,.12);
-      border-radius:17px;
-      background:rgba(255,255,255,.06);
+      width:68px;
+      min-height:64px;
+      border:1px solid rgba(255,255,255,.13);
+      border-radius:20px;
+      background:rgba(255,255,255,.07);
       color:var(--text);
       cursor:pointer;
-      font-weight:950;
+      font-weight:1000;
+      font-size:22px;
     }
 
-    .actions{display:grid;gap:10px;margin-top:2px}
+    .actions{
+      display:grid;
+      gap:10px;
+      margin-top:2px;
+    }
 
-    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    @media(max-width:540px){.grid2{grid-template-columns:1fr}}
+    .grid2{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
 
     .btn{
-      min-height:54px;
-      border-radius:18px;
-      padding:12px 15px;
+      min-height:60px;
+      border-radius:20px;
+      padding:13px 16px;
       display:flex;
       align-items:center;
       justify-content:center;
-      gap:8px;
+      gap:9px;
       text-align:center;
       cursor:pointer;
-      font-weight:950;
-      background:rgba(255,255,255,.06);
+      font-weight:1000;
+      font-size:16px;
+      background:rgba(255,255,255,.07);
       color:var(--text);
-      border:1px solid rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.11);
+      box-shadow:0 12px 32px rgba(0,0,0,.22);
     }
 
     .btn.primary{background:linear-gradient(135deg,var(--green),var(--green2));color:#041b12;border-color:transparent}
     .btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#201302;border-color:transparent}
-    .btn.ghost{background:transparent;color:#fff3bf;border-color:rgba(250,204,21,.25)}
-    .btn.blue{background:rgba(96,165,250,.12);color:#dbeafe;border-color:rgba(96,165,250,.25)}
+    .btn.ghost{background:transparent;color:#fff3bf;border-color:rgba(250,204,21,.26)}
+    .btn.blue{background:rgba(96,165,250,.12);color:#dbeafe;border-color:rgba(96,165,250,.26)}
     .btn:disabled{opacity:.62;cursor:not-allowed}
 
     .status{
-      min-height:48px;
-      border-radius:17px;
-      border:1px solid rgba(255,255,255,.10);
-      background:rgba(0,0,0,.16);
+      min-height:52px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.11);
+      background:rgba(0,0,0,.17);
       color:var(--muted);
-      padding:12px 14px;
+      padding:13px 14px;
       line-height:1.48;
-      font-size:14px;
-      font-weight:850;
+      font-size:15px;
+      font-weight:900;
       white-space:pre-line;
     }
 
-    .status.ok{color:#bbf7d0;border-color:rgba(34,197,94,.26);background:rgba(34,197,94,.10)}
-    .status.err{color:#fecaca;border-color:rgba(239,68,68,.26);background:rgba(239,68,68,.10)}
-    .status.warn{color:#fde68a;border-color:rgba(250,204,21,.26);background:rgba(250,204,21,.09)}
+    .status.ok{color:#bbf7d0;border-color:rgba(34,197,94,.28);background:rgba(34,197,94,.10)}
+    .status.err{color:#fecaca;border-color:rgba(239,68,68,.28);background:rgba(239,68,68,.10)}
+    .status.warn{color:#fde68a;border-color:rgba(250,204,21,.28);background:rgba(250,204,21,.09)}
 
     .meta{
       display:grid;
       gap:8px;
-      padding:13px;
-      border-radius:18px;
-      background:rgba(0,0,0,.14);
-      border:1px solid rgba(255,255,255,.08);
+      padding:14px;
+      border-radius:20px;
+      background:rgba(0,0,0,.15);
+      border:1px solid rgba(255,255,255,.09);
     }
 
     .row{
@@ -223,63 +349,60 @@
       justify-content:space-between;
       gap:12px;
       color:var(--muted);
-      font-size:13px;
-      font-weight:850;
+      font-size:14px;
+      font-weight:950;
     }
 
-    .row b{color:var(--text);text-align:right}
+    .row b{
+      color:var(--text);
+      text-align:right;
+    }
+
+    .doorGrid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:10px;
+    }
+
+    .door{
+      min-height:78px;
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,.11);
+      background:rgba(255,255,255,.055);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:4px;
+      font-weight:1000;
+      color:rgba(236,255,244,.82);
+    }
+
+    .door b{
+      font-size:25px;
+      line-height:1;
+    }
+
+    .door span{
+      font-size:12px;
+      font-weight:1000;
+    }
+
     .hidden{display:none!important}
 
     .foot{
       color:var(--muted);
       text-align:center;
       padding:0 20px 20px;
-      font-size:12px;
-      font-weight:850;
+      font-size:13px;
+      font-weight:900;
     }
 
-    .navBottom{
-      position:fixed;
-      left:0;right:0;bottom:0;z-index:50;
-      padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
-      background:rgba(4,11,8,.92);
-      border-top:1px solid rgba(255,255,255,.10);
-      backdrop-filter:blur(16px);
-      -webkit-backdrop-filter:blur(16px);
-    }
-
-    .navInner{
-      max-width:760px;
-      margin:0 auto;
-      display:grid;
-      grid-template-columns:repeat(5,1fr);
-      gap:6px;
-    }
-
-    .navItem{
-      min-height:56px;
-      border-radius:16px;
-      display:grid;
-      place-items:center;
-      align-content:center;
-      gap:3px;
-      color:rgba(236,255,244,.70);
-      font-size:11px;
-      font-weight:950;
-      border:1px solid transparent;
-      text-align:center;
-    }
-
-    .navItem .ico{font-size:18px;line-height:1}
-    .navItem.active{
-      color:#041b12;
-      background:linear-gradient(135deg,var(--gold),var(--green));
-      border-color:rgba(250,204,21,.35);
-    }
-
-    @media(min-width:860px){
-      body{padding-bottom:18px}
-      .navBottom{display:none}
+    @media(max-width:560px){
+      body{padding:10px}
+      .grid2{grid-template-columns:1fr}
+      .doorGrid{grid-template-columns:repeat(2,1fr)}
+      .brand{align-items:flex-start}
     }
   </style>
 </head>
@@ -289,22 +412,22 @@
     <main class="card">
       <section class="hero">
         <div class="brand">
-          <div class="logo">🛍️</div>
+          <div class="logo">🔑</div>
           <div>
             <div class="eyebrow">JE VENDS</div>
-            <h1>Mon accès boutique</h1>
+            <h1>Mon accès</h1>
             <p class="sub" id="heroSub">Le coffre MARKET reconnaît ton compte sans l’afficher.</p>
           </div>
         </div>
       </section>
 
       <section class="body">
-        <div class="notice" id="noticeBox">Lecture de ton compte MARKET…</div>
+        <div class="notice gold" id="noticeBox">Lecture de ton compte MARKET…</div>
 
         <div id="identityBox" class="hidden">
           <div class="field">
             <label for="identity">Identifiant ou téléphone</label>
-            <input id="identity" type="text" inputmode="text" placeholder="Laisse vide si ton espace est déjà reconnu" autocomplete="off"/>
+            <input id="identity" type="text" inputmode="text" placeholder="Compte ou téléphone si nécessaire" autocomplete="off"/>
           </div>
         </div>
 
@@ -325,7 +448,14 @@
           <a class="btn blue" href="./cockpit.html">🧭 Ma gestion</a>
           <a class="btn" href="./produits.html">📦 Produits</a>
           <a class="btn gold" href="./produits.html#quickMarketNote">✍️ Notes</a>
-          <a class="btn" href="./boutique.html">⚙️ Plus</a>
+          <a class="btn" href="./boutique.html">⚙️ Boutique</a>
+        </div>
+
+        <div class="doorGrid">
+          <a class="door" href="./cockpit.html"><b>🧭</b><span>Gestion</span></a>
+          <a class="door" href="./produits.html"><b>📦</b><span>Produits</span></a>
+          <a class="door" href="./produits.html#productForm"><b>➕</b><span>Ajouter</span></a>
+          <a class="door" href="./boutique.html"><b>⚙️</b><span>Boutique</span></a>
         </div>
 
         <div id="status" class="status">Préparation…</div>
@@ -337,21 +467,10 @@
         </div>
       </section>
 
-      <div class="foot">DIGIYLYFE • Je vends • Accès sécurisé</div>
+      <div class="foot">DIGIYLYFE • Je vends • Accès sécurisé • session 8h</div>
     </main>
   </div>
 
-  <nav class="navBottom" aria-label="Navigation MARKET">
-    <div class="navInner">
-      <a class="navItem" href="./cockpit.html"><span class="ico">🧭</span><span>Accueil</span></a>
-      <a class="navItem" href="./produits.html"><span class="ico">📦</span><span>Produits</span></a>
-      <a class="navItem" href="./produits.html#productForm"><span class="ico">➕</span><span>Ajouter</span></a>
-      <a class="navItem" href="./produits.html#quickMarketNote"><span class="ico">✍️</span><span>Notes</span></a>
-      <a class="navItem active" href="./boutique.html"><span class="ico">🔑</span><span>Accès</span></a>
-    </div>
-  </nav>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     (() => {
       "use strict";
@@ -362,7 +481,6 @@
         SESSION_MAX_AGE_MS: 8 * 60 * 60 * 1000,
         RPC_RESOLVE: "digiy_market_resolve_identity",
         RPC_OPEN: "digiy_market_open_with_pin",
-
         SESSION_KEYS: [
           "DIGIY_MARKET_PIN_SESSION",
           "DIGIY_MARKET_SESSION",
@@ -373,7 +491,6 @@
           "digiy_access",
           "digiy_session"
         ],
-
         CONTEXT_KEYS: [
           "DIGIY_MARKET_CONTEXT",
           "digiy_market_context",
@@ -389,7 +506,6 @@
           "digiy_pay_context",
           "DIGIY_ACCESS"
         ],
-
         SLUG_KEYS: [
           "digiy_market_slug",
           "digiy_market_last_slug",
@@ -399,7 +515,6 @@
           "digiy_pro_slug",
           "digiy_slug"
         ],
-
         PHONE_KEYS: [
           "digiy_market_phone",
           "digiy_market_last_phone",
@@ -421,7 +536,6 @@
         notice: $("noticeBox"),
         identityBox: $("identityBox"),
         identity: $("identity"),
-        pinBox: $("pinBox"),
         pin: $("pin"),
         togglePin: $("togglePin"),
         btnOpen: $("btnOpen"),
@@ -440,7 +554,6 @@
       });
 
       let identity = { slug:"", phone:"", source:"none" };
-      let mode = "loading";
 
       function params(){
         return new URLSearchParams(location.search);
@@ -462,10 +575,6 @@
         if (digits.startsWith("221") && digits.length === 12) return digits;
         if (digits.length === 9) return "221" + digits;
         return digits;
-      }
-
-      function looksLikeSlug(value){
-        return /^market-[a-z0-9-]+$/i.test(String(value || "").trim());
       }
 
       function safeJson(raw){
@@ -686,26 +795,6 @@
         return { slug, phone, source:(slug || phone) ? "url" : "none" };
       }
 
-      function cleanVisibleUrl(){
-        const p = params();
-        const sensitiveKeys = [
-          "phone","tel","p_phone","owner_phone","checkout_phone","subscription_phone","market_phone","msisdn",
-          "slug","market_slug","subscription_slug","pro_slug","module","from"
-        ];
-
-        const hasSensitive = sensitiveKeys.some(k => p.has(k));
-        if (!hasSensitive) return;
-
-        const keep = new URLSearchParams();
-        const ret = p.get("return");
-        const target = p.get("target");
-        if (ret) keep.set("return", ret);
-        if (target) keep.set("target", target);
-
-        const cleaned = location.pathname + (keep.toString() ? "?" + keep.toString() : "") + location.hash;
-        try { history.replaceState({}, document.title, cleaned); } catch(_){}
-      }
-
       function readIdentity(){
         const fromUrl = readUrlIdentity();
         if (fromUrl.slug || fromUrl.phone) return fromUrl;
@@ -751,19 +840,29 @@
         const raw = normSlug(obj?.slug || "") || normPhone(obj?.phone || "") || "";
         if (!raw) return { slug:"", phone:"", source:obj?.source || "none" };
 
-        const { data, error } = await sb.rpc(CFG.RPC_RESOLVE, { p_identity: raw });
-        if (error || !data?.ok) {
-          return {
-            slug: normSlug(obj?.slug || ""),
-            phone: normPhone(obj?.phone || ""),
-            source: obj?.source || "unknown"
-          };
+        const tries = [
+          { p_identity: raw },
+          { p_phone: normPhone(raw) },
+          { p_slug: normSlug(raw) }
+        ];
+
+        for (const args of tries){
+          try{
+            const { data, error } = await sb.rpc(CFG.RPC_RESOLVE, args);
+            if (!error && data?.ok){
+              return {
+                slug: normSlug(data.slug || obj?.slug || ""),
+                phone: normPhone(data.phone || obj?.phone || ""),
+                source: obj?.source || "rpc_resolve"
+              };
+            }
+          }catch(_){}
         }
 
         return {
-          slug: normSlug(data.slug || obj?.slug || ""),
-          phone: normPhone(data.phone || obj?.phone || ""),
-          source: obj?.source || "rpc_resolve"
+          slug: normSlug(obj?.slug || ""),
+          phone: normPhone(obj?.phone || ""),
+          source: obj?.source || "unknown"
         };
       }
 
@@ -797,39 +896,36 @@
 
         const s = normSlug(obj?.slug || "");
         const p = normPhone(obj?.phone || "");
+
         const accessUntilRaw = obj?.access_until || obj?.pin_access_until || null;
         const parsedUntil = accessUntilRaw ? Date.parse(String(accessUntilRaw)) : NaN;
+
         const expires = Number.isFinite(parsedUntil) && parsedUntil > Date.now()
           ? parsedUntil
           : t + CFG.SESSION_MAX_AGE_MS;
 
         const session = {
-          slug:s,
-          phone:p,
-          owner_id: obj?.owner_id || null,
-          module:CFG.MODULE,
-          access:true,
-          access_ok:true,
-          ok:true,
-          verified:true,
-          has_access:true,
-          pin_access:true,
-          verified_at:t,
-          validated_at:obj?.validated_at || new Date(t).toISOString(),
-          access_until:expires,
-          pin_access_until:expires,
-          ts:t,
-          reason:obj?.reason || "market_pin_ok"
+          module: CFG.MODULE,
+          access: true,
+          access_ok: true,
+          has_access: true,
+          pin_access: true,
+          ok: true,
+          verified: true,
+          slug: s,
+          phone: p,
+          owner_id: obj?.owner_id || obj?.ownerId || null,
+          access_until: expires,
+          pin_access_until: expires,
+          expires_at: expires,
+          verified_at: t,
+          ts: t
         };
 
-        const raw = JSON.stringify(session);
-
         for (const key of CFG.SESSION_KEYS){
-          try { sessionStorage.setItem(key, raw); } catch(_){}
-          try { localStorage.setItem(key, raw); } catch(_){}
+          try{ sessionStorage.setItem(key, JSON.stringify(session)); }catch(_){}
+          try{ localStorage.setItem(key, JSON.stringify(session)); }catch(_){}
         }
-
-        rememberIdentity(session);
 
         storeBoth("digiy_market_pin_access", "true");
         storeBoth("digiy_market_access_ok", "true");
@@ -838,209 +934,196 @@
         storeBoth("digiy_market_pin_access_until", String(expires));
         storeBoth("digiy_market_access_until", String(expires));
 
-        try { window.DIGIY_ACCESS = Object.assign({}, window.DIGIY_ACCESS || {}, session); } catch(_){}
+        if (s){
+          storeBoth("digiy_market_slug", s);
+          storeBoth("digiy_market_last_slug", s);
+          storeBoth("market_slug", s);
+          storeBoth("digiy_last_slug", s);
+        }
+
+        if (p){
+          storeBoth("digiy_market_phone", p);
+          storeBoth("digiy_market_last_phone", p);
+          storeBoth("market_phone", p);
+          storeBoth("digiy_last_phone", p);
+          storeBoth("digiy_phone", p);
+        }
+
+        if (session.owner_id){
+          storeBoth("digiy_market_owner_id", String(session.owner_id));
+          storeBoth("DIGIY_PRO_ID", String(session.owner_id));
+        }
 
         return session;
       }
 
-      function showRecognized(source){
-        mode = "recognized";
-        el.identityBox.classList.add("hidden");
-        el.btnChange.classList.remove("hidden");
-        el.quickLinks.classList.remove("hidden");
-        el.accountState.textContent = "Compte reconnu";
-        el.sessionState.textContent = "Code demandé";
-        el.heroSub.textContent = "Ta boutique est reconnue. Les identifiants restent cachés.";
-        setNotice("Compte reconnu. Les identifiants restent cachés. Entre seulement ton code.", "blue");
-        setStatus(source === "url"
-          ? "Contexte récupéré puis caché de l’URL."
-          : "Contexte sécurisé détecté sur ce téléphone.", "");
-        setTimeout(() => { try { el.pin.focus(); } catch(_){} }, 150);
-      }
+      async function openWithPin(){
+        const pin = String(el.pin.value || "").trim();
 
-      function showManual(){
-        mode = "manual";
-        el.identityBox.classList.remove("hidden");
-        el.btnChange.classList.add("hidden");
-        el.quickLinks.classList.add("hidden");
-        el.accountState.textContent = "À renseigner";
-        el.sessionState.textContent = "Fermée";
-        el.heroSub.textContent = "Si le compte n’est pas encore transmis, renseigne une seule fois.";
-        setNotice("Je ne vois pas encore ton compte sur ce téléphone. Mets ton téléphone ou ton identifiant une seule fois, puis le code.", "gold");
-        setStatus("Après validation, ce téléphone retiendra le compte. Les prochaines entrées demanderont seulement le code.", "warn");
-        setTimeout(() => { try { el.identity.focus(); } catch(_){} }, 150);
-      }
-
-      function showAuto(){
-        mode = "auto";
-        el.identityBox.classList.add("hidden");
-        el.pinBox.classList.add("hidden");
-        el.btnChange.classList.add("hidden");
-        el.btnOpen.disabled = true;
-        el.btnOpen.textContent = "Ouverture…";
-        el.quickLinks.classList.remove("hidden");
-        el.accountState.textContent = "Compte reconnu";
-        el.sessionState.textContent = "Ouverte";
-        el.heroSub.textContent = "Session encore ouverte. DIGIY t’emmène directement dans MARKET.";
-        setNotice("Session encore ouverte. Ouverture de ton espace vendeur.", "");
-        setStatus("Accès reconnu pour cette session.", "ok");
-      }
-
-      async function prepareIdentityFromManual(){
-        let s = identity.slug;
-        let p = identity.phone;
-
-        if (mode === "manual"){
-          const raw = String(el.identity.value || "").trim();
-          if (looksLikeSlug(raw)) s = normSlug(raw);
-          else p = normPhone(raw);
+        if (!pin){
+          setStatus("Entre ton code d’accès.", "warn");
+          el.pin.focus();
+          return;
         }
 
-        const enriched = await resolveIdentity({ slug:s, phone:p, source:identity.source });
-        identity = enriched;
-        rememberIdentity(enriched);
-        return enriched;
-      }
+        const rawIdentity = String(el.identity.value || "").trim();
+        const id = rawIdentity
+          ? { slug:normSlug(rawIdentity), phone:normPhone(rawIdentity), source:"manual" }
+          : identity;
 
-      function identityForRpc(id){
-        return normSlug(id?.slug || "") || normPhone(id?.phone || "") || "";
-      }
+        const slug = normSlug(id.slug || "");
+        const phone = normPhone(id.phone || "");
+        const mainIdentity = slug || phone || "";
 
-      async function openMarket(){
-        if (mode === "auto") return;
-
-        const code = String(el.pin.value || "").trim();
-        if (!code){
-          setStatus("Entre ton code d’accès.", "warn");
-          try { el.pin.focus(); } catch(_){}
+        if (!mainIdentity){
+          setStatus("Compte non reconnu. Entre ton téléphone ou ton identifiant, puis recommence.", "err");
+          el.identityBox.classList.remove("hidden");
+          el.identity.focus();
           return;
         }
 
         el.btnOpen.disabled = true;
-        el.btnOpen.textContent = "Vérification…";
-        setStatus("Ouverture du coffre MARKET…", "");
+        setStatus("Vérification du code…", "warn");
 
-        try {
-          const id = await prepareIdentityFromManual();
-          const ident = identityForRpc(id);
+        const payloads = [
+          { p_identity: mainIdentity, p_pin: pin },
+          { p_slug: slug, p_pin: pin },
+          { p_phone: phone, p_pin: pin },
+          { p_slug: slug, p_phone: phone, p_pin: pin },
+          { p_module: CFG.MODULE, p_identity: mainIdentity, p_pin: pin },
+          { p_module: CFG.MODULE, p_slug: slug, p_phone: phone, p_pin: pin }
+        ];
 
-          if (!ident){
-            setStatus("Compte non retrouvé. Mets ton téléphone ou ton identifiant MARKET une seule fois.", "err");
-            showManual();
-            return;
-          }
+        let lastError = null;
 
-          const { data, error } = await sb.rpc(CFG.RPC_OPEN, {
-            p_identity: ident,
-            p_pin: code
-          });
+        try{
+          for (const payload of payloads){
+            const clean = {};
+            Object.entries(payload).forEach(([k,v]) => { if (v) clean[k] = v; });
 
-          if (error){
-            console.warn("MARKET RPC open error:", error);
-            setStatus("Impossible d’ouvrir le coffre maintenant. Recharge ou réessaie.", "err");
-            return;
-          }
+            try{
+              const { data, error } = await sb.rpc(CFG.RPC_OPEN, clean);
 
-          if (!data?.ok){
-            const reason = String(data?.reason || "");
-            if (reason === "pin_refused"){
-              setStatus("Code refusé. Vérifie ton code d’accès MARKET.", "err");
-            } else if (reason === "market_identity_not_found"){
-              setStatus("Compte MARKET introuvable. Vérifie l’identifiant ou le téléphone.", "err");
-              showManual();
-            } else {
-              setStatus("Accès non ouvert : " + (reason || "vérification refusée"), "err");
+              if (error){
+                lastError = error;
+                continue;
+              }
+
+              if (data?.ok === false){
+                lastError = new Error(data.reason || data.error || "Code refusé.");
+                continue;
+              }
+
+              const resolved = {
+                slug: normSlug(data?.slug || data?.workspace_slug || slug),
+                phone: normPhone(data?.phone || data?.market_phone || phone),
+                owner_id: data?.owner_id || data?.ownerId || data?.profile?.owner_id || null,
+                access_until: data?.access_until || data?.pin_access_until || data?.expires_at || null
+              };
+
+              if (!resolved.slug && !resolved.phone){
+                resolved.slug = slug;
+                resolved.phone = phone;
+              }
+
+              saveSession(resolved);
+              setStatus("✅ Accès ouvert. Redirection vers ta gestion…", "ok");
+              setNotice("Session ouverte pour 8 heures. Le compte reste dans le coffre.", "blue");
+              el.quickLinks.classList.remove("hidden");
+
+              setTimeout(() => { location.href = returnUrl(); }, 650);
+              return;
+            }catch(e){
+              lastError = e;
             }
-            return;
           }
 
-          const session = saveSession(data);
-
-          identity = {
-            slug: session.slug,
-            phone: session.phone,
-            source:"market_open_with_pin"
-          };
-
-          cleanVisibleUrl();
-
-          setNotice("Accès validé. Tu entres dans ton espace vendeur.", "");
-          setStatus("Session ouverte pour 8h. Les routes restent propres.", "ok");
-          el.accountState.textContent = "Compte reconnu";
-          el.sessionState.textContent = "Ouverte";
-          el.quickLinks.classList.remove("hidden");
-
-          setTimeout(() => {
-            location.replace(returnUrl());
-          }, 450);
-
-        } catch (e){
-          console.warn("MARKET PIN error:", e);
-          setStatus("Impossible de vérifier maintenant. Recharge ou réessaie dans quelques secondes.", "err");
-        } finally {
+          throw lastError || new Error("Code refusé.");
+        }catch(e){
+          console.error(e);
+          setStatus("❌ Code refusé ou accès indisponible. Vérifie ton code puis recommence.", "err");
+        }finally{
           el.btnOpen.disabled = false;
-          el.btnOpen.textContent = "🔓 Ouvrir mon espace";
         }
       }
 
+      function applyIdentityUI(){
+        if (identity.slug || identity.phone){
+          el.accountState.textContent = "Compte reconnu";
+          el.sessionState.textContent = "Code attendu";
+          el.identityBox.classList.add("hidden");
+          el.btnChange.classList.remove("hidden");
+          el.heroSub.textContent = "Compte reconnu. Entre seulement ton code.";
+          setNotice("Compte reconnu. Entre ton code pour ouvrir la session vendeur.", "gold");
+          setStatus("Prêt pour le code.", "");
+        } else {
+          el.accountState.textContent = "À renseigner";
+          el.sessionState.textContent = "En attente";
+          el.identityBox.classList.remove("hidden");
+          el.btnChange.classList.add("hidden");
+          el.heroSub.textContent = "Entre ton téléphone ou ton identifiant, puis ton code.";
+          setNotice("Aucun compte reconnu sur cet appareil. Entre l’identifiant ou le téléphone.", "blue");
+          setStatus("Compte à renseigner.", "warn");
+        }
+      }
+
+      function clearIdentity(){
+        identity = { slug:"", phone:"", source:"manual" };
+        el.identity.value = "";
+        el.identityBox.classList.remove("hidden");
+        el.btnChange.classList.add("hidden");
+        el.accountState.textContent = "À renseigner";
+        el.sessionState.textContent = "En attente";
+        setNotice("Tu peux entrer un autre compte.", "blue");
+        setStatus("Compte à renseigner.", "warn");
+        el.identity.focus();
+      }
+
       async function boot(){
-        try {
-          const live = readSession();
+        try{
+          setStatus("Préparation…", "warn");
 
-          if (live?.alive && (live.slug || live.phone)){
-            identity = { slug:live.slug || "", phone:live.phone || "", source:"session" };
+          const session = readSession();
+          if (session?.alive && (session.slug || session.phone)){
+            identity = { slug: session.slug, phone: session.phone, source: "session" };
             rememberIdentity(identity);
-            cleanVisibleUrl();
-            showAuto();
-            setTimeout(() => location.replace(returnUrl()), 650);
+            el.accountState.textContent = "Compte reconnu";
+            el.sessionState.textContent = "Déjà ouvert";
+            setNotice("Session encore ouverte. Tu peux aller directement dans ta gestion.", "blue");
+            setStatus("✅ Session active. Les portes sont ouvertes.", "ok");
+            el.quickLinks.classList.remove("hidden");
+            el.btnChange.classList.remove("hidden");
             return;
           }
 
-          const rawIdentity = readIdentity();
-          const enriched = await resolveIdentity(rawIdentity);
-          identity = enriched;
-
-          if (identity.slug || identity.phone){
-            rememberIdentity(identity);
-            cleanVisibleUrl();
-            showRecognized(rawIdentity.source);
-            return;
-          }
-
-          cleanVisibleUrl();
-          showManual();
-
-        } catch (e){
-          console.warn("MARKET boot warning:", e);
-          cleanVisibleUrl();
-          showManual();
+          const detected = readIdentity();
+          identity = await resolveIdentity(detected);
+          rememberIdentity(identity);
+          applyIdentityUI();
+        }catch(e){
+          console.error(e);
+          setNotice("Erreur de préparation. Tu peux entrer ton compte manuellement.", "red");
+          setStatus("Erreur de préparation.", "err");
+          el.identityBox.classList.remove("hidden");
         }
       }
 
       el.togglePin.addEventListener("click", () => {
-        const hidden = el.pin.type === "password";
-        el.pin.type = hidden ? "text" : "password";
-        el.togglePin.textContent = hidden ? "🙈" : "👁️";
+        const visible = el.pin.type === "text";
+        el.pin.type = visible ? "password" : "text";
+        el.togglePin.textContent = visible ? "👁️" : "🙈";
+        el.pin.focus();
       });
 
-      el.btnChange.addEventListener("click", () => {
-        identity = { slug:"", phone:"", source:"manual" };
-        el.identity.value = "";
-        el.pin.value = "";
-        showManual();
-      });
-
-      el.btnOpen.addEventListener("click", openMarket);
+      el.btnOpen.addEventListener("click", openWithPin);
+      el.btnChange.addEventListener("click", clearIdentity);
 
       el.pin.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") openMarket();
+        if (e.key === "Enter") openWithPin();
       });
 
       el.identity.addEventListener("keydown", (e) => {
-        if (e.key === "Enter"){
-          e.preventDefault();
-          try { el.pin.focus(); } catch(_){}
-        }
+        if (e.key === "Enter") el.pin.focus();
       });
 
       boot();
