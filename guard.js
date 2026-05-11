@@ -53,6 +53,11 @@
       "digiy_phone"
     ],
 
+    OWNER_KEYS: [
+      "digiy_market_owner_id",
+      "DIGIY_PRO_ID"
+    ],
+
     FLAGS: {
       PIN_ACCESS: "digiy_market_pin_access",
       ACCESS_OK: "digiy_market_access_ok",
@@ -75,6 +80,9 @@
       "market_slug",
       "subscription_slug",
       "pro_slug",
+      "owner",
+      "owner_id",
+      "source_slug",
       "module",
       "from"
     ]
@@ -230,7 +238,10 @@
 
     const keep = new URLSearchParams();
     const target = params.get("target");
+    const saleId = params.get("sale_id") || params.get("id");
+
     if (target) keep.set("target", target);
+    if (saleId && /ticket\.html$/i.test(location.pathname)) keep.set("sale_id", saleId);
 
     const clean =
       location.pathname +
@@ -274,7 +285,7 @@
     }
   }
 
-  function rememberIdentity(slug, phone) {
+  function rememberIdentity(slug, phone, ownerId) {
     const s = normSlug(slug);
     const p = normPhone(phone);
 
@@ -291,6 +302,11 @@
       writeStore("market_phone", p);
       writeStore("digiy_last_phone", p);
       writeStore("digiy_phone", p);
+    }
+
+    if (ownerId) {
+      writeStore("digiy_market_owner_id", ownerId);
+      writeStore("DIGIY_PRO_ID", ownerId);
     }
   }
 
@@ -334,13 +350,52 @@
       phone: normPhone(
         params.get("phone") ||
         params.get("tel") ||
+        params.get("p_phone") ||
         params.get("owner_phone") ||
         params.get("checkout_phone") ||
         params.get("market_phone") ||
         params.get("subscription_phone") ||
+        params.get("msisdn") ||
         ""
       )
     };
+  }
+
+  function extractNestedIdentity(obj, depth = 0) {
+    if (!obj || typeof obj !== "object" || depth > 4) {
+      return { slug: "", phone: "", owner_id: null };
+    }
+
+    const slugFields = ["slug", "market_slug", "subscription_slug", "pro_slug", "workspace_slug", "shop_slug", "boutique_slug"];
+    const phoneFields = ["phone", "market_phone", "p_phone", "owner_phone", "checkout_phone", "subscription_phone", "tel", "telephone", "whatsapp", "msisdn"];
+    const ownerFields = ["owner_id", "ownerId", "pro_id", "proId"];
+
+    let slug = "";
+    let phone = "";
+    let owner_id = null;
+
+    for (const key of slugFields) {
+      if (!slug && obj[key]) slug = normSlug(obj[key]);
+    }
+
+    for (const key of phoneFields) {
+      if (!phone && obj[key]) phone = normPhone(obj[key]);
+    }
+
+    for (const key of ownerFields) {
+      if (!owner_id && obj[key]) owner_id = obj[key];
+    }
+
+    if (slug || phone || owner_id) return { slug, phone, owner_id };
+
+    for (const value of Object.values(obj)) {
+      if (value && typeof value === "object") {
+        const found = extractNestedIdentity(value, depth + 1);
+        if (found.slug || found.phone || found.owner_id) return found;
+      }
+    }
+
+    return { slug: "", phone: "", owner_id: null };
   }
 
   function readSessionObject() {
@@ -359,8 +414,10 @@
         const obj = safeJson(raw);
         if (!obj || typeof obj !== "object" || !moduleMatches(obj)) continue;
 
-        const slug = normSlug(obj.slug || obj.market_slug || "");
-        const phone = normPhone(obj.phone || obj.market_phone || "");
+        const found = extractNestedIdentity(obj, 0);
+        const slug = found.slug || normSlug(obj.slug || obj.market_slug || "");
+        const phone = found.phone || normPhone(obj.phone || obj.market_phone || "");
+        const owner_id = found.owner_id || obj.owner_id || null;
 
         if (!slug && !phone) continue;
 
@@ -385,7 +442,7 @@
         return {
           slug,
           phone,
-          owner_id: obj.owner_id || null,
+          owner_id,
           access: true,
           access_until:
             parseTime(obj.access_until || obj.pin_access_until || obj.expires_at) ||
@@ -399,6 +456,7 @@
 
     const slug = normSlug(readMany(CFG.SLUG_KEYS));
     const phone = normPhone(readMany(CFG.PHONE_KEYS));
+    const owner_id = readMany(CFG.OWNER_KEYS) || null;
 
     const flag =
       truthy(readStore(CFG.FLAGS.PIN_ACCESS)) ||
@@ -414,7 +472,7 @@
       return {
         slug,
         phone,
-        owner_id: null,
+        owner_id,
         access: true,
         access_until: until,
         verified_at: Math.max(until - CFG.SESSION_MAX_AGE_MS, 0),
@@ -433,13 +491,20 @@
     const identity = s || p || "";
     if (!identity) return { slug: "", phone: "" };
 
-    const { data, error } = await rpc(CFG.RPC.RESOLVE_IDENTITY, {
-      p_identity: identity
-    });
+    const attempts = [
+      { p_identity: identity },
+      { p_slug: s },
+      { p_phone: p }
+    ].filter((args) => Object.values(args).some(Boolean));
 
-    if (!error && data?.ok) {
-      s = normSlug(data.slug || s);
-      p = normPhone(data.phone || p);
+    for (const args of attempts) {
+      const { data, error } = await rpc(CFG.RPC.RESOLVE_IDENTITY, args);
+
+      if (!error && data?.ok) {
+        s = normSlug(data.slug || data.workspace_slug || s);
+        p = normPhone(data.phone || data.market_phone || p);
+        return { slug: s, phone: p };
+      }
     }
 
     return { slug: s, phone: p };
@@ -448,8 +513,10 @@
   function saveSession(payload = {}) {
     const t = nowMs();
 
-    const slug = normSlug(payload.slug || state.slug || "");
-    const phone = normPhone(payload.phone || state.phone || "");
+    const slug = normSlug(payload.slug || payload.workspace_slug || state.slug || "");
+    const phone = normPhone(payload.phone || payload.market_phone || state.phone || "");
+    const ownerId = payload.owner_id || payload.ownerId || state.owner_id || null;
+
     const accessUntil =
       parseTime(payload.access_until || payload.pin_access_until || payload.expires_at) ||
       t + CFG.SESSION_MAX_AGE_MS;
@@ -458,7 +525,7 @@
       module: CFG.MODULE,
       slug,
       phone,
-      owner_id: payload.owner_id || state.owner_id || null,
+      owner_id: ownerId,
 
       access: true,
       access_ok: true,
@@ -471,6 +538,7 @@
       validated_at: payload.validated_at || new Date(t).toISOString(),
       access_until: accessUntil,
       pin_access_until: accessUntil,
+      expires_at: accessUntil,
       ts: t,
       reason: payload.reason || "market_session_ok"
     };
@@ -487,7 +555,7 @@
       } catch (_) {}
     }
 
-    rememberIdentity(slug, phone);
+    rememberIdentity(slug, phone, ownerId);
 
     writeStore(CFG.FLAGS.PIN_ACCESS, "true");
     writeStore(CFG.FLAGS.ACCESS_OK, "true");
@@ -499,7 +567,7 @@
     Object.assign(state, {
       slug,
       phone,
-      owner_id: session.owner_id,
+      owner_id: ownerId,
 
       access: true,
       access_ok: true,
@@ -531,12 +599,12 @@
     const slug = normSlug(identity.slug || "");
     const phone = normPhone(identity.phone || "");
 
-    if (slug || phone) rememberIdentity(slug, phone);
+    if (slug || phone) rememberIdentity(slug, phone, identity.owner_id || null);
 
     Object.assign(state, {
       slug,
       phone,
-      owner_id: null,
+      owner_id: identity.owner_id || null,
 
       access: false,
       access_ok: false,
@@ -570,6 +638,7 @@
 
     for (const key of CFG.SLUG_KEYS) removeStore(key);
     for (const key of CFG.PHONE_KEYS) removeStore(key);
+    for (const key of CFG.OWNER_KEYS) removeStore(key);
 
     try {
       delete window.DIGIY_ACCESS;
@@ -630,38 +699,65 @@
   }
 
   async function loginWithPin(identityInput, pinInput) {
-    const identity = String(identityInput || state.slug || state.phone || "").trim();
+    const identityRaw = String(identityInput || state.slug || state.phone || "").trim();
     const pin = String(pinInput || "").trim();
 
-    if (!identity) return { ok: false, error: "Compte MARKET introuvable." };
+    if (!identityRaw) return { ok: false, error: "Compte MARKET introuvable." };
     if (!pin) return { ok: false, error: "Code manquant." };
 
-    const { data, error } = await rpc(CFG.RPC.OPEN_WITH_PIN, {
-      p_identity: identity,
-      p_pin: pin
-    });
+    const slug = normSlug(identityRaw);
+    const phone = normPhone(identityRaw);
+    const identity = slug || phone || identityRaw;
 
-    if (error) return { ok: false, error: "Ouverture impossible.", detail: error };
+    const payloads = [
+      { p_identity: identity, p_pin: pin },
+      { p_slug: slug, p_pin: pin },
+      { p_phone: phone, p_pin: pin },
+      { p_slug: slug, p_phone: phone, p_pin: pin },
+      { p_module: CFG.MODULE, p_identity: identity, p_pin: pin },
+      { p_module: CFG.MODULE, p_slug: slug, p_phone: phone, p_pin: pin }
+    ];
 
-    if (!data?.ok) {
-      return {
-        ok: false,
-        error: data?.reason || "Accès refusé.",
-        detail: data || null
-      };
+    let lastError = null;
+
+    for (const payload of payloads) {
+      const clean = {};
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value) clean[key] = value;
+      });
+
+      if (!Object.keys(clean).some((key) => key !== "p_pin" && key !== "p_module")) continue;
+
+      const { data, error } = await rpc(CFG.RPC.OPEN_WITH_PIN, clean);
+
+      if (error) {
+        lastError = error;
+        continue;
+      }
+
+      if (!data?.ok) {
+        lastError = data || new Error("Accès refusé.");
+        continue;
+      }
+
+      const session = saveSession({
+        slug: data.slug || data.workspace_slug || slug,
+        phone: data.phone || data.market_phone || phone,
+        owner_id: data.owner_id || data.ownerId || data.profile?.owner_id || null,
+        access_until: data.access_until || data.pin_access_until || data.expires_at,
+        validated_at: data.validated_at,
+        reason: data.reason || "market_pin_ok",
+        source: "market_open_with_pin"
+      });
+
+      return { ok: true, ...session };
     }
 
-    const session = saveSession({
-      slug: data.slug,
-      phone: data.phone,
-      owner_id: data.owner_id || null,
-      access_until: data.access_until,
-      validated_at: data.validated_at,
-      reason: data.reason || "market_pin_ok",
-      source: "market_open_with_pin"
-    });
-
-    return { ok: true, ...session };
+    return {
+      ok: false,
+      error: lastError?.reason || lastError?.error || lastError?.message || "Accès refusé.",
+      detail: lastError || null
+    };
   }
 
   function logout() {
@@ -699,6 +795,12 @@
     return u.pathname + u.hash;
   }
 
+  function isAuthenticated() {
+    if (!state.access_ok) return false;
+    if (!state.access_until) return true;
+    return parseTime(state.access_until) > nowMs();
+  }
+
   window.DIGIY_GUARD = {
     state,
 
@@ -725,9 +827,7 @@
       return CFG.MODULE;
     },
 
-    isAuthenticated() {
-      return !!state.access_ok;
-    },
+    isAuthenticated,
 
     saveSession,
 
