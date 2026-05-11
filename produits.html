@@ -1055,6 +1055,25 @@
   let ACCESS_GRANTED = false;
   let CURRENT = null;
   let PRODUCTS = [];
+
+  const ASTOU_DEMO_PRODUCTS = [
+    {id:"demo-parure-royal", is_demo:true, title:"Parure de drap Royal", category:"Linge de maison", price_fcfa:25000, old_price_fcfa:30000, unit_label:"ensemble", description:"Motif doux, chambre élégante, toucher confortable. Démo premium Astou Boutique.", is_active:true, is_published:true, is_featured:true, product_position:1},
+    {id:"demo-drap-satin", is_demo:true, title:"Drap housse satin", category:"Linge de maison", price_fcfa:15000, old_price_fcfa:null, unit_label:"pièce", description:"Finition lumineuse, belle tenue, pratique au quotidien.", is_active:true, is_published:true, is_featured:false, product_position:2},
+    {id:"demo-serviette-luxe", is_demo:true, title:"Serviette éponge luxe", category:"Salle de bain", price_fcfa:5000, old_price_fcfa:null, unit_label:"pièce", description:"Absorbante, douce, disponible en plusieurs couleurs.", is_active:true, is_published:true, is_featured:true, product_position:3},
+    {id:"demo-peignoir-coton", is_demo:true, title:"Peignoir coton hôtel", category:"Salle de bain", price_fcfa:20000, old_price_fcfa:25000, unit_label:"pièce", description:"Confort hôtel, coupe simple et élégante.", is_active:true, is_published:true, is_featured:false, product_position:4},
+    {id:"demo-serviette-plage", is_demo:true, title:"Serviette plage XXL", category:"Plage & été", price_fcfa:7000, old_price_fcfa:null, unit_label:"pièce", description:"Grande taille, couleurs vivantes, esprit vacances.", is_active:true, is_published:true, is_featured:true, product_position:5},
+    {id:"demo-rideau-plage", is_demo:true, title:"Rideau plage léger", category:"Plage & maison", price_fcfa:15000, old_price_fcfa:null, unit_label:"pièce", description:"Voilage aérien pour terrasse, chambre ou cabane plage.", is_active:true, is_published:true, is_featured:false, product_position:6},
+    {id:"demo-fouta-tunisienne", is_demo:true, title:"Fouta tunisienne", category:"Plage & maison", price_fcfa:9000, old_price_fcfa:null, unit_label:"pièce", description:"Léger, utile, beau sur transat ou sac de plage.", is_active:true, is_published:true, is_featured:true, product_position:7},
+    {id:"demo-robe-fluide", is_demo:true, title:"Robe longue fluide", category:"Robes stylées", price_fcfa:22000, old_price_fcfa:null, unit_label:"pièce", description:"Coupe légère, belle présence, sortie ou bord de mer.", is_active:true, is_published:true, is_featured:true, product_position:8},
+    {id:"demo-robe-ete", is_demo:true, title:"Robe été légère", category:"Robes stylées", price_fcfa:18000, old_price_fcfa:null, unit_label:"pièce", description:"Fraîche, simple, élégante au quotidien.", is_active:true, is_published:true, is_featured:false, product_position:9}
+  ];
+
+  function shouldShowAstouDemo(){
+    const slug = String(ACCESS_SLUG || "").toLowerCase();
+    const shop = String(CURRENT?.profile?.shop_name || CURRENT?.profile?.business_name || "").toLowerCase();
+    return slug === "market-221771342889" || shop.includes("astou");
+  }
+
   let ACTIVE_FILTER = "all";
   let IS_SAVING = false;
   let IS_BUSY = false;
@@ -1567,6 +1586,11 @@
     const q = String($("searchInput").value || "").trim().toLowerCase();
     let rows = PRODUCTS.slice();
 
+    if (shouldShowAstouDemo()){
+      const existing = new Set(rows.map(r => String(r.id)));
+      ASTOU_DEMO_PRODUCTS.forEach(p => { if(!existing.has(String(p.id))) rows.push(p); });
+    }
+
     if (ACTIVE_FILTER === "active") rows = rows.filter(r => r.is_active);
     if (ACTIVE_FILTER === "inactive") rows = rows.filter(r => !r.is_active);
     if (ACTIVE_FILTER === "featured") rows = rows.filter(r => r.is_featured);
@@ -1617,6 +1641,7 @@
       const tags = [];
       tags.push(`<span class="tag ${p.is_active ? "ok" : "danger"}">${p.is_active ? "Visible" : "Masqué"}</span>`);
       if (p.is_published) tags.push('<span class="tag info">En ligne</span>');
+      if (p.is_demo) tags.push('<span class="tag warn">Démo premium</span>');
       if (p.is_featured) tags.push('<span class="tag warn">En avant</span>');
       if (p.category) tags.push(`<span class="tag info">${esc(p.category)}</span>`);
 
@@ -1642,8 +1667,9 @@
           ${p.description ? `<div class="desc">${esc(p.description)}</div>` : ""}
 
           <div class="productActions">
-            <button class="btn primary jsEdit" data-id="${esc(p.id)}" type="button">✏️ Corriger</button>
-            <button class="btn danger jsDisable" data-id="${esc(p.id)}" type="button" ${p.is_active ? "" : "disabled"}>${disableLabel}</button>
+            ${p.is_demo
+              ? `<a class="btn gold" href="https://wa.me/221771342889?text=${encodeURIComponent("Bonjour Astou Boutique, je veux voir ce produit en vidéo : " + (p.title || "produit"))}" target="_blank" rel="noopener">💬 Demander sur WhatsApp</a><span class="tag warn">Démo premium</span>`
+              : `<button class="btn primary jsEdit" data-id="${esc(p.id)}" type="button">✏️ Corriger</button><button class="btn danger jsDisable" data-id="${esc(p.id)}" type="button" ${p.is_active ? "" : "disabled"}>${disableLabel}</button>`}
           </div>
         </article>
       `;
