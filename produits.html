@@ -746,6 +746,96 @@
     .astouDemoHint{margin:0 16px 16px;padding:13px;border-radius:18px;border:1px solid rgba(34,197,94,.22);background:rgba(34,197,94,.08);color:#bbf7d0;font-size:13px;font-weight:900;line-height:1.45}
     @media(max-width:860px){.astouDemoHero{grid-template-columns:1fr}.astouProductCard{flex-basis:78%;max-width:330px}.astouProductPhoto{height:210px}}
 
+
+    /* WAOUH PRODUITS · cartes visuelles téléphone */
+    #productList.list{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+      gap:14px;
+    }
+
+    .product{
+      overflow:hidden;
+      padding:0 !important;
+      border-radius:26px !important;
+      border:1px solid rgba(250,204,21,.18) !important;
+      background:
+        radial-gradient(700px 260px at 100% 0%, rgba(250,204,21,.10), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.065), rgba(255,255,255,.025)) !important;
+      box-shadow:0 18px 46px rgba(0,0,0,.32) !important;
+    }
+
+    .productVisual{
+      height:230px;
+      display:grid;
+      place-items:center;
+      position:relative;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at 80% 10%, rgba(250,204,21,.20), transparent 34%),
+        radial-gradient(circle at 15% 90%, rgba(34,197,94,.16), transparent 36%),
+        linear-gradient(135deg,#123927,#07140f);
+      border-bottom:1px solid rgba(255,255,255,.10);
+    }
+
+    .productVisual img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+    }
+
+    .productEmoji{
+      font-size:68px;
+      filter:drop-shadow(0 16px 28px rgba(0,0,0,.38));
+    }
+
+    .productDemoRibbon{
+      position:absolute;
+      top:12px;
+      left:12px;
+      padding:8px 11px;
+      border-radius:999px;
+      background:rgba(250,204,21,.92);
+      color:#251a00;
+      font-size:12px;
+      font-weight:1000;
+      box-shadow:0 12px 26px rgba(0,0,0,.25);
+    }
+
+    .productInner{
+      padding:14px;
+      display:grid;
+      gap:11px;
+    }
+
+    .productName{
+      font-size:20px !important;
+      letter-spacing:-.02em;
+    }
+
+    .productActions .btn{
+      flex:1 1 auto;
+    }
+
+    @media(max-width:760px){
+      #productList.list{
+        display:flex;
+        overflow-x:auto;
+        scroll-snap-type:x mandatory;
+        -webkit-overflow-scrolling:touch;
+        scrollbar-width:none;
+        padding:4px 2px 12px;
+      }
+      #productList.list::-webkit-scrollbar{display:none}
+      #productList .product{
+        flex:0 0 82%;
+        max-width:340px;
+        scroll-snap-align:start;
+      }
+      .productVisual{height:245px}
+    }
+
     .loading{opacity:.72;pointer-events:none}
   </style>
 </head>
@@ -1190,6 +1280,19 @@
   function toText(v, fallback){
     const s = String(v || "").trim();
     return s || (fallback || "");
+  }
+
+
+  function productEmoji(p){
+    const s = String((p?.title || "") + " " + (p?.category || "")).toLowerCase();
+    if (s.includes("robe")) return "👗";
+    if (s.includes("drap") || s.includes("parure") || s.includes("linge")) return "🛏️";
+    if (s.includes("serviette")) return "🛁";
+    if (s.includes("peignoir")) return "🥼";
+    if (s.includes("rideau")) return "🪟";
+    if (s.includes("fouta")) return "🏖️";
+    if (s.includes("sac")) return "👜";
+    return "🛍️";
   }
 
   function money(v){
@@ -1649,6 +1752,11 @@
 
       return `
         <article class="product">
+          <div class="productVisual">
+            ${p.photo_url ? `<img src="${esc(p.photo_url)}" alt="${esc(p.title || "Produit")}" loading="lazy">` : `<div class="productEmoji">${productEmoji(p)}</div>`}
+            ${p.is_demo ? `<div class="productDemoRibbon">✨ Démo premium</div>` : ``}
+          </div>
+          <div class="productInner">
           <div class="productTop">
             <div>
               <div class="productName">${esc(p.title || "Produit")}</div>
@@ -1670,6 +1778,7 @@
             ${p.is_demo
               ? `<a class="btn gold" href="https://wa.me/221771342889?text=${encodeURIComponent("Bonjour Astou Boutique, je veux voir ce produit en vidéo : " + (p.title || "produit"))}" target="_blank" rel="noopener">💬 Demander sur WhatsApp</a><span class="tag warn">Démo premium</span>`
               : `<button class="btn primary jsEdit" data-id="${esc(p.id)}" type="button">✏️ Corriger</button><button class="btn danger jsDisable" data-id="${esc(p.id)}" type="button" ${p.is_active ? "" : "disabled"}>${disableLabel}</button>`}
+          </div>
           </div>
         </article>
       `;
@@ -2503,4 +2612,5 @@
 </script>
 </body>
 </html>
+
 
