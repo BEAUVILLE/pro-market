@@ -782,12 +782,22 @@
       width:100%;
       height:100%;
       object-fit:cover;
+      object-position:center;
       display:block;
     }
 
     .productEmoji{
       font-size:68px;
       filter:drop-shadow(0 16px 28px rgba(0,0,0,.38));
+    }
+
+
+    .productVisual::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(180deg,rgba(0,0,0,0) 42%,rgba(0,0,0,.22));
+      pointer-events:none;
     }
 
     .productDemoRibbon{
@@ -1147,15 +1157,15 @@
   let PRODUCTS = [];
 
   const ASTOU_DEMO_PRODUCTS = [
-    {id:"demo-parure-royal", is_demo:true, title:"Parure de drap Royal", category:"Linge de maison", price_fcfa:25000, old_price_fcfa:30000, unit_label:"ensemble", description:"Motif doux, chambre élégante, toucher confortable. Démo premium Astou Boutique.", is_active:true, is_published:true, is_featured:true, product_position:1},
-    {id:"demo-drap-satin", is_demo:true, title:"Drap housse satin", category:"Linge de maison", price_fcfa:15000, old_price_fcfa:null, unit_label:"pièce", description:"Finition lumineuse, belle tenue, pratique au quotidien.", is_active:true, is_published:true, is_featured:false, product_position:2},
-    {id:"demo-serviette-luxe", is_demo:true, title:"Serviette éponge luxe", category:"Salle de bain", price_fcfa:5000, old_price_fcfa:null, unit_label:"pièce", description:"Absorbante, douce, disponible en plusieurs couleurs.", is_active:true, is_published:true, is_featured:true, product_position:3},
-    {id:"demo-peignoir-coton", is_demo:true, title:"Peignoir coton hôtel", category:"Salle de bain", price_fcfa:20000, old_price_fcfa:25000, unit_label:"pièce", description:"Confort hôtel, coupe simple et élégante.", is_active:true, is_published:true, is_featured:false, product_position:4},
-    {id:"demo-serviette-plage", is_demo:true, title:"Serviette plage XXL", category:"Plage & été", price_fcfa:7000, old_price_fcfa:null, unit_label:"pièce", description:"Grande taille, couleurs vivantes, esprit vacances.", is_active:true, is_published:true, is_featured:true, product_position:5},
-    {id:"demo-rideau-plage", is_demo:true, title:"Rideau plage léger", category:"Plage & maison", price_fcfa:15000, old_price_fcfa:null, unit_label:"pièce", description:"Voilage aérien pour terrasse, chambre ou cabane plage.", is_active:true, is_published:true, is_featured:false, product_position:6},
-    {id:"demo-fouta-tunisienne", is_demo:true, title:"Fouta tunisienne", category:"Plage & maison", price_fcfa:9000, old_price_fcfa:null, unit_label:"pièce", description:"Léger, utile, beau sur transat ou sac de plage.", is_active:true, is_published:true, is_featured:true, product_position:7},
-    {id:"demo-robe-fluide", is_demo:true, title:"Robe longue fluide", category:"Robes stylées", price_fcfa:22000, old_price_fcfa:null, unit_label:"pièce", description:"Coupe légère, belle présence, sortie ou bord de mer.", is_active:true, is_published:true, is_featured:true, product_position:8},
-    {id:"demo-robe-ete", is_demo:true, title:"Robe été légère", category:"Robes stylées", price_fcfa:18000, old_price_fcfa:null, unit_label:"pièce", description:"Fraîche, simple, élégante au quotidien.", is_active:true, is_published:true, is_featured:false, product_position:9}
+    {id:"demo-parure-royal", is_demo:true, title:"Parure de drap Royal", category:"Linge de maison", price_fcfa:25000, old_price_fcfa:30000, unit_label:"ensemble", description:"Motif doux, chambre élégante, toucher confortable. Démo premium Astou Boutique.", is_active:true, is_published:true, is_featured:true, product_position:1, photo_url:"https://digiylyfe.net/wp-content/uploads/2026/05/ChatGPT-Image-11-mai-2026-22_54_37.png"},
+    {id:"demo-drap-satin", is_demo:true, title:"Drap housse satin", category:"Linge de maison", price_fcfa:15000, old_price_fcfa:null, unit_label:"pièce", description:"Finition lumineuse, belle tenue, pratique au quotidien.", is_active:true, is_published:true, is_featured:false, product_position:2, photo_url:"https://digiylyfe.net/wp-content/uploads/2026/05/ChatGPT-Image-11-mai-2026-22_54_37.png"},
+    {id:"demo-serviette-luxe", is_demo:true, title:"Serviette éponge luxe", category:"Salle de bain", price_fcfa:5000, old_price_fcfa:null, unit_label:"pièce", description:"Absorbante, douce, disponible en plusieurs couleurs.", is_active:true, is_published:true, is_featured:true, product_position:3, photo_url:"https://digiylyfe.net/wp-content/uploads/2026/05/ChatGPT-Image-11-mai-2026-22_54_37.png"},
+    {id:"demo-peignoir-coton", is_demo:true, title:"Peignoir coton hôtel", category:"Salle de bain", price_fcfa:20000, old_price_fcfa:25000, unit_label:"pièce", description:"Confort hôtel, coupe simple et élégante.", is_active:true, is_published:true, is_featured:false, product_position:4, photo_url:"https://digiylyfe.net/wp-content/uploads/2026/05/ChatGPT-Image-11-mai-2026-22_54_37.png"},
+    {id:"demo-serviette-plage", is_demo:true, title:"Serviette plage XXL", category:"Plage & été", price_fcfa:7000, old_price_fcfa:null, unit_label:"pièce", description:"Grande taille, couleurs vivantes, esprit vacances.", is_active:true, is_published:true, is_featured:true, product_position:5, photo_url:"https://digiylyfe.net/wp-content/uploads/2026/05/ChatGPT-Image-11-mai-2026-22_54_37.png"},
+    {id:"demo-rideau-plage", is_demo:true, title:"Rideau plage léger", category:"Plage & maison", price_fcfa:15000, old_price_fcfa:null, unit_label:"pièce", description:"Voilage aérien pour terrasse, chambre ou cabane plage.", is_active:true, is_published:true, is_featured:false, product_position:6, photo_url:"https://digiylyfe.net/wp-content/uploads/2026/05/ChatGPT-Image-11-mai-2026-22_54_37.png"},
+    {id:"demo-fouta-tunisienne", is_demo:true, title:"Fouta tunisienne", category:"Plage & maison", price_fcfa:9000, old_price_fcfa:null, unit_label:"pièce", description:"Léger, utile, beau sur transat ou sac de plage.", is_active:true, is_published:true, is_featured:true, product_position:7, photo_url:"https://digiylyfe.net/wp-content/uploads/2026/05/ChatGPT-Image-11-mai-2026-22_54_37.png"},
+    {id:"demo-robe-fluide", is_demo:true, title:"Robe longue fluide", category:"Robes stylées", price_fcfa:22000, old_price_fcfa:null, unit_label:"pièce", description:"Coupe légère, belle présence, sortie ou bord de mer.", is_active:true, is_published:true, is_featured:true, product_position:8, photo_url:"https://digiylyfe.net/wp-content/uploads/2026/05/ChatGPT-Image-11-mai-2026-22_54_37.png"},
+    {id:"demo-robe-ete", is_demo:true, title:"Robe été légère", category:"Robes stylées", price_fcfa:18000, old_price_fcfa:null, unit_label:"pièce", description:"Fraîche, simple, élégante au quotidien.", is_active:true, is_published:true, is_featured:false, product_position:9, photo_url:"https://digiylyfe.net/wp-content/uploads/2026/05/ChatGPT-Image-11-mai-2026-22_54_37.png"}
   ];
 
   function shouldShowAstouDemo(){
@@ -2612,5 +2622,6 @@
 </script>
 </body>
 </html>
+
 
 
