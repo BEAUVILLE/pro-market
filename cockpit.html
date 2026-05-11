@@ -19,29 +19,106 @@
     window.DIGIY_LOGIN_URL = "./pin.html";
   </script>
 
+  <script>
+    /*
+      DIGIY MARKET — coffre PRO cockpit
+      Accepte anciens liens ?slug= / ?phone=, range localement,
+      puis nettoie la barre d’adresse. Rien de sensible ne reste visible.
+    */
+    (function(){
+      "use strict";
+
+      const qs = new URLSearchParams(location.search);
+
+      function normSlug(v){
+        return String(v || "")
+          .trim()
+          .toLowerCase()
+          .replace(/\s+/g, "-")
+          .replace(/[^a-z0-9-]/g, "")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "");
+      }
+
+      function normPhone(v){
+        const d = String(v || "").replace(/[^\d]/g, "");
+        if (!d) return "";
+        if (d.startsWith("221") && d.length === 12) return d;
+        if (d.length === 9) return "221" + d;
+        return d;
+      }
+
+      function putBoth(key,value){
+        if (!value) return;
+        try{ sessionStorage.setItem(key,value); }catch(_){}
+        try{ localStorage.setItem(key,value); }catch(_){}
+      }
+
+      const incomingSlug =
+        normSlug(qs.get("slug")) ||
+        normSlug(qs.get("market_slug")) ||
+        normSlug(qs.get("subscription_slug")) ||
+        normSlug(qs.get("pro_slug"));
+
+      const incomingPhone =
+        normPhone(qs.get("phone")) ||
+        normPhone(qs.get("tel")) ||
+        normPhone(qs.get("owner_phone")) ||
+        normPhone(qs.get("checkout_phone")) ||
+        normPhone(qs.get("subscription_phone")) ||
+        normPhone(qs.get("market_phone"));
+
+      if (incomingSlug){
+        putBoth("digiy_market_slug", incomingSlug);
+        putBoth("digiy_market_last_slug", incomingSlug);
+        putBoth("market_slug", incomingSlug);
+        putBoth("digiy_last_slug", incomingSlug);
+      }
+
+      if (incomingPhone){
+        putBoth("digiy_market_phone", incomingPhone);
+        putBoth("digiy_market_last_phone", incomingPhone);
+        putBoth("market_phone", incomingPhone);
+        putBoth("digiy_last_phone", incomingPhone);
+        putBoth("digiy_phone", incomingPhone);
+      }
+
+      const sensitiveKeys = [
+        "slug","market_slug","subscription_slug","pro_slug",
+        "phone","tel","owner_phone","checkout_phone","subscription_phone","market_phone",
+        "owner","owner_id","module","from","source_slug"
+      ];
+
+      const hasSensitive = sensitiveKeys.some(k => qs.has(k));
+      if (hasSensitive && window.history && typeof window.history.replaceState === "function"){
+        sensitiveKeys.forEach(k => qs.delete(k));
+        const cleanSearch = qs.toString();
+        const cleanUrl = location.pathname + (cleanSearch ? "?" + cleanSearch : "") + location.hash;
+        window.history.replaceState(null, document.title, cleanUrl);
+      }
+    })();
+  </script>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-cockpit-coffre-20260505-2"></script>
+  <script src="./guard.js?v=market-cockpit-gros-boutons-20260511"></script>
 
   <style>
     :root{
       --bg:#07140f;
       --bg2:#05100c;
-      --line:rgba(255,255,255,.10);
-      --line2:rgba(255,255,255,.16);
+      --line:rgba(255,255,255,.11);
       --text:#ecfff4;
-      --muted:rgba(236,255,244,.72);
-      --soft:rgba(236,255,244,.56);
+      --muted:rgba(236,255,244,.76);
+      --soft:rgba(236,255,244,.58);
       --primary:#22c55e;
       --primary2:#16a34a;
       --gold:#facc15;
-      --gold2:#f59e0b;
       --info:#60a5fa;
       --danger:#ef4444;
       --warn:#f59e0b;
-      --shadow:0 18px 48px rgba(0,0,0,.34);
+      --shadow:0 20px 60px rgba(0,0,0,.38);
       --r:24px;
       --max:1120px;
-      --navH:76px;
     }
 
     *{box-sizing:border-box}
@@ -55,11 +132,13 @@
         radial-gradient(900px 520px at 110% 0%, rgba(250,204,21,.10), transparent 55%),
         linear-gradient(180deg,var(--bg),var(--bg2) 58%,#040b08 100%);
       color:var(--text);
-      padding:14px 14px calc(var(--navH) + env(safe-area-inset-bottom,0px) + 18px);
+      padding:12px;
+      font-size:17px;
+      font-weight:760;
     }
 
     a{color:inherit;text-decoration:none}
-    button{font:inherit}
+    button{font:inherit;touch-action:manipulation}
 
     .wrap{
       width:100%;
@@ -67,6 +146,7 @@
       margin:0 auto;
       display:grid;
       gap:14px;
+      padding-bottom:18px;
     }
 
     .card{
@@ -82,7 +162,7 @@
       justify-content:space-between;
       align-items:center;
       gap:12px;
-      padding:15px;
+      padding:16px;
       flex-wrap:wrap;
     }
 
@@ -94,39 +174,40 @@
     }
 
     .mark{
-      width:46px;
-      height:46px;
-      border-radius:16px;
+      width:54px;
+      height:54px;
+      border-radius:19px;
       display:grid;
       place-items:center;
       border:1px solid var(--line);
       background:linear-gradient(135deg,rgba(34,197,94,.18),rgba(250,204,21,.13));
-      font-size:22px;
+      font-size:27px;
       flex:0 0 auto;
     }
 
     .eyebrow{
       color:var(--gold);
-      font-size:12px;
+      font-size:13px;
       letter-spacing:.14em;
       text-transform:uppercase;
-      font-weight:950;
+      font-weight:1000;
       margin-bottom:3px;
     }
 
     .brand-title{
-      font-size:20px;
-      line-height:1.1;
+      font-size:clamp(24px,4vw,34px);
+      line-height:1.02;
       font-weight:1000;
       white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
+      letter-spacing:-.03em;
     }
 
     .brand-sub{
       color:var(--muted);
-      font-size:13px;
-      font-weight:800;
+      font-size:14px;
+      font-weight:900;
       margin-top:4px;
     }
 
@@ -134,12 +215,13 @@
       display:flex;
       gap:9px;
       flex-wrap:wrap;
+      justify-content:flex-end;
     }
 
     .btn{
-      min-height:44px;
-      padding:10px 13px;
-      border-radius:14px;
+      min-height:54px;
+      padding:13px 16px;
+      border-radius:17px;
       border:1px solid var(--line);
       background:rgba(255,255,255,.06);
       color:var(--text);
@@ -147,46 +229,23 @@
       align-items:center;
       justify-content:center;
       gap:8px;
-      font-weight:950;
+      font-weight:1000;
+      font-size:15px;
       cursor:pointer;
-      box-shadow:0 10px 26px rgba(0,0,0,.20);
+      box-shadow:0 12px 30px rgba(0,0,0,.22);
       text-align:center;
     }
 
-    .btn.primary{
-      background:linear-gradient(135deg,var(--primary),var(--primary2));
-      color:#041b12;
-      border-color:transparent;
-    }
-
-    .btn.gold{
-      background:rgba(250,204,21,.12);
-      color:var(--gold);
-      border-color:rgba(250,204,21,.24);
-    }
-
-    .btn.info{
-      background:rgba(96,165,250,.12);
-      color:#dbeafe;
-      border-color:rgba(96,165,250,.24);
-    }
-
-    .btn.warn{
-      background:rgba(245,158,11,.12);
-      color:#fde68a;
-      border-color:rgba(245,158,11,.24);
-    }
-
-    .btn.danger{
-      background:rgba(239,68,68,.10);
-      color:#fecaca;
-      border-color:rgba(239,68,68,.24);
-    }
-
+    .btn.primary{background:linear-gradient(135deg,var(--primary),var(--primary2));color:#041b12;border-color:transparent}
+    .btn.gold{background:rgba(250,204,21,.12);color:#fff1a8;border-color:rgba(250,204,21,.25)}
+    .btn.info{background:rgba(96,165,250,.12);color:#dbeafe;border-color:rgba(96,165,250,.25)}
+    .btn.warn{background:rgba(245,158,11,.12);color:#fde68a;border-color:rgba(245,158,11,.25)}
+    .btn.danger{background:rgba(239,68,68,.12);color:#fecaca;border-color:rgba(239,68,68,.25)}
+    .btn.ghost{background:rgba(255,255,255,.045);color:var(--muted)}
     .btn:disabled{opacity:.55;cursor:not-allowed}
 
     .hero{
-      padding:18px;
+      padding:20px;
       display:grid;
       gap:16px;
     }
@@ -197,13 +256,13 @@
       gap:8px;
       width:max-content;
       max-width:100%;
-      padding:8px 12px;
+      padding:10px 14px;
       border-radius:999px;
       border:1px solid rgba(250,204,21,.24);
       background:rgba(250,204,21,.10);
       color:#fff1a8;
-      font-size:12px;
-      font-weight:950;
+      font-size:13px;
+      font-weight:1000;
     }
 
     .mode.live{
@@ -220,175 +279,83 @@
 
     h1{
       margin:0;
-      font-size:clamp(30px,7vw,46px);
-      line-height:1.02;
-      letter-spacing:-.03em;
+      font-size:clamp(36px,7vw,60px);
+      line-height:1.0;
+      letter-spacing:-.05em;
+      font-weight:1000;
     }
 
     .lead{
       color:var(--muted);
-      font-size:15px;
+      font-size:18px;
       line-height:1.55;
-      font-weight:800;
+      font-weight:900;
       max-width:850px;
+      margin-top:10px;
     }
 
-    .hero-actions{
+    .bigActions{
       display:grid;
       gap:10px;
-      grid-template-columns:repeat(4,minmax(0,1fr));
+      grid-template-columns:repeat(5,minmax(0,1fr));
     }
 
-    @media(max-width:760px){
-      .hero-actions{grid-template-columns:1fr 1fr}
-      .top-actions{display:none}
-    }
-
-    .stats{
-      display:grid;
-      grid-template-columns:repeat(4,minmax(0,1fr));
-      gap:10px;
-    }
-
-    @media(max-width:760px){
-      .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
-    }
-
-    .stat{
-      border:1px solid var(--line);
-      border-radius:18px;
-      background:rgba(0,0,0,.16);
-      padding:13px;
-    }
-
-    .stat .k{
-      color:var(--muted);
-      font-size:12px;
-      font-weight:850;
-      line-height:1.25;
-      margin-bottom:7px;
-    }
-
-    .stat .v{
-      font-size:25px;
+    .actionDoor{
+      min-height:116px;
+      border-radius:22px;
+      border:1px solid rgba(255,255,255,.11);
+      background:rgba(255,255,255,.055);
+      color:var(--text);
+      display:flex;
+      flex-direction:column;
+      align-items:flex-start;
+      justify-content:center;
+      gap:7px;
+      padding:16px;
       font-weight:1000;
+      box-shadow:0 12px 30px rgba(0,0,0,.20);
+    }
+
+    .actionDoor .ico{
+      font-size:32px;
       line-height:1;
     }
 
-    .grid{
-      display:grid;
-      grid-template-columns:1fr;
-      gap:14px;
+    .actionDoor strong{
+      font-size:19px;
+      line-height:1.1;
     }
 
-    @media(min-width:920px){
-      .grid{grid-template-columns:1.08fr .92fr}
-    }
-
-    .panel{padding:16px}
-
-    .panel h2{
-      margin:0 0 8px;
-      font-size:20px;
-      letter-spacing:-.01em;
-    }
-
-    .muted{
+    .actionDoor span{
       color:var(--muted);
-      font-size:14px;
-      font-weight:800;
-      line-height:1.55;
-    }
-
-    .tasks{
-      display:grid;
-      gap:10px;
-      margin-top:12px;
-    }
-
-    .task{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:12px;
-      border:1px solid var(--line);
-      border-radius:18px;
-      background:rgba(0,0,0,.16);
-      padding:13px;
-    }
-
-    a.task{transition:transform .15s ease,border-color .15s ease}
-    a.task:active{transform:scale(.99)}
-    a.task:hover{border-color:rgba(250,204,21,.24)}
-
-    .task b{
-      display:block;
-      font-size:15px;
-      font-weight:1000;
-      margin-bottom:4px;
-    }
-
-    .tag{
-      display:inline-flex;
-      align-items:center;
-      white-space:nowrap;
-      border-radius:999px;
-      padding:7px 9px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.04);
-      color:var(--muted);
-      font-size:11px;
-      font-weight:950;
-    }
-
-    .tag.ok{color:#bbf7d0;border-color:rgba(34,197,94,.28);background:rgba(34,197,94,.08)}
-    .tag.warn{color:#fde68a;border-color:rgba(245,158,11,.28);background:rgba(245,158,11,.08)}
-    .tag.info{color:#bfdbfe;border-color:rgba(96,165,250,.28);background:rgba(96,165,250,.08)}
-    .tag.danger{color:#fecaca;border-color:rgba(239,68,68,.28);background:rgba(239,68,68,.08)}
-
-    .infoBox{
-      display:grid;
-      gap:9px;
-      margin-top:12px;
-    }
-
-    .infoRow{
-      display:flex;
-      justify-content:space-between;
-      gap:12px;
-      flex-wrap:wrap;
-      border:1px solid var(--line);
-      border-radius:16px;
-      background:rgba(0,0,0,.14);
-      padding:11px 12px;
       font-size:13px;
       font-weight:900;
+      line-height:1.35;
     }
 
-    .infoRow span:first-child{color:var(--muted)}
-    .infoRow span:last-child{text-align:right;word-break:break-word}
-
-    .infoRow a{
-      color:#fde68a;
-      text-decoration:underline;
-      text-underline-offset:3px;
+    .actionDoor.primary{
+      background:linear-gradient(135deg,rgba(34,197,94,.24),rgba(250,204,21,.14));
+      border-color:rgba(34,197,94,.25);
     }
 
-    .quick{
-      border-color:rgba(250,204,21,.24);
-      background:
-        radial-gradient(700px 320px at 100% 0%, rgba(250,204,21,.12), transparent 58%),
-        linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.018));
+    .actionDoor.gold{
+      background:rgba(250,204,21,.10);
+      border-color:rgba(250,204,21,.25);
+    }
+
+    .actionDoor.info{
+      background:rgba(96,165,250,.10);
+      border-color:rgba(96,165,250,.25);
     }
 
     .notice{
       border:1px solid rgba(96,165,250,.24);
       background:rgba(96,165,250,.10);
       color:#dbeafe;
-      border-radius:18px;
-      padding:13px;
-      font-size:14px;
-      font-weight:850;
+      border-radius:20px;
+      padding:14px;
+      font-size:16px;
+      font-weight:950;
       line-height:1.5;
     }
 
@@ -410,68 +377,204 @@
       background:rgba(239,68,68,.08);
     }
 
-    .navBottom{
-      position:fixed;
-      left:0;
-      right:0;
-      bottom:0;
-      z-index:50;
-      padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
-      background:rgba(4,11,8,.92);
-      border-top:1px solid rgba(255,255,255,.10);
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:10px;
+    }
+
+    .stat{
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:rgba(0,0,0,.16);
+      padding:15px;
+    }
+
+    .stat .k{
+      color:var(--muted);
+      font-size:13px;
+      font-weight:1000;
+      line-height:1.25;
+      margin-bottom:8px;
+    }
+
+    .stat .v{
+      font-size:31px;
+      font-weight:1000;
+      line-height:1;
+    }
+
+    .pageSwitch{
+      position:sticky;
+      top:8px;
+      z-index:40;
+      padding:10px;
+      border:1px solid rgba(255,255,255,.13);
+      border-radius:26px;
+      background:rgba(5,16,12,.90);
+      box-shadow:0 18px 48px rgba(0,0,0,.34);
       backdrop-filter:blur(16px);
-      -webkit-backdrop-filter:blur(16px);
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:8px;
     }
 
-    .navInner{
-      max-width:760px;
-      margin:0 auto;
-      display:grid;
-      grid-template-columns:repeat(5,1fr);
-      gap:6px;
-    }
-
-    .navItem{
-      min-height:56px;
-      border-radius:16px;
-      display:grid;
-      place-items:center;
-      align-content:center;
-      gap:3px;
-      color:rgba(236,255,244,.70);
-      font-size:11px;
-      font-weight:900;
-      border:1px solid transparent;
+    .pageBtn{
+      min-height:64px;
+      border-radius:19px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.055);
+      color:rgba(236,255,244,.82);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:4px;
+      cursor:pointer;
+      font-weight:1000;
+      font-size:13px;
       text-align:center;
     }
 
-    .navItem .ico{font-size:18px;line-height:1}
+    .pageBtn b{
+      font-size:24px;
+      line-height:1;
+    }
 
-    .navItem.active{
+    .pageBtn.active{
       color:#041b12;
-      background:linear-gradient(135deg,var(--gold),var(--primary));
-      border-color:rgba(250,204,21,.35);
+      background:linear-gradient(135deg,#facc15,#22c55e);
+      border-color:transparent;
+      box-shadow:0 12px 28px rgba(250,204,21,.18);
+    }
+
+    .panel{
+      display:none;
+      padding:18px;
+    }
+
+    .panel.active{
+      display:block;
+    }
+
+    .panel h2{
+      margin:0 0 8px;
+      font-size:clamp(27px,4vw,38px);
+      letter-spacing:-.03em;
+      line-height:1.04;
+      font-weight:1000;
+    }
+
+    .muted{
+      color:var(--muted);
+      font-size:16px;
+      font-weight:900;
+      line-height:1.55;
+    }
+
+    .tasks{
+      display:grid;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    .task{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:rgba(0,0,0,.16);
+      padding:15px;
+    }
+
+    .task b{
+      display:block;
+      font-size:18px;
+      font-weight:1000;
+      margin-bottom:5px;
+    }
+
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      white-space:nowrap;
+      border-radius:999px;
+      padding:8px 10px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      color:var(--muted);
+      font-size:12px;
+      font-weight:1000;
+    }
+
+    .tag.ok{color:#bbf7d0;border-color:rgba(34,197,94,.28);background:rgba(34,197,94,.08)}
+    .tag.warn{color:#fde68a;border-color:rgba(245,158,11,.28);background:rgba(245,158,11,.08)}
+    .tag.info{color:#bfdbfe;border-color:rgba(96,165,250,.28);background:rgba(96,165,250,.08)}
+    .tag.danger{color:#fecaca;border-color:rgba(239,68,68,.28);background:rgba(239,68,68,.08)}
+
+    .infoBox{
+      display:grid;
+      gap:9px;
+      margin-top:12px;
+    }
+
+    .infoRow{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      border:1px solid var(--line);
+      border-radius:18px;
+      background:rgba(0,0,0,.14);
+      padding:13px;
+      font-size:15px;
+      font-weight:1000;
+    }
+
+    .infoRow span:first-child{color:var(--muted)}
+    .infoRow span:last-child{text-align:right;word-break:break-word}
+    .infoRow a{color:#fde68a;text-decoration:underline;text-underline-offset:3px}
+
+    .quick{
+      border-color:rgba(250,204,21,.24);
+      background:
+        radial-gradient(700px 320px at 100% 0%, rgba(250,204,21,.12), transparent 58%),
+        linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.018));
     }
 
     .footer{
       text-align:center;
       color:var(--muted);
-      font-size:12px;
-      font-weight:800;
+      font-size:13px;
+      font-weight:900;
       padding:4px 0 0;
     }
 
     .loading{opacity:.70;pointer-events:none}
-
     .lockedOnly{display:none!important}
     body.locked .privateOnly{display:none!important}
     body.locked .lockedOnly{display:inline-flex!important}
     body.locked .task.lockedOnly{display:flex!important}
     body.locked .stats{display:none!important}
 
-    @media(min-width:900px){
-      body{padding-bottom:24px}
-      .navBottom{display:none}
+    @media(max-width:900px){
+      .top-actions{display:none}
+      .bigActions{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+
+    @media(max-width:620px){
+      body{padding:10px}
+      .actionDoor{min-height:104px}
+      .pageSwitch{grid-template-columns:repeat(4,1fr);gap:6px;padding:8px}
+      .pageBtn{min-height:58px;font-size:11px;border-radius:17px}
+      .pageBtn b{font-size:20px}
+    }
+
+    @media(max-width:420px){
+      .pageSwitch{grid-template-columns:repeat(2,1fr)}
     }
   </style>
 </head>
@@ -483,13 +586,13 @@
         <div class="mark">🛍️</div>
         <div>
           <div class="eyebrow">JE VENDS</div>
-          <div class="brand-title">Ma gestion</div>
+          <div class="brand-title" id="brandTitle">Ma gestion</div>
           <div class="brand-sub" id="topSub">Chargement sécurisé…</div>
         </div>
       </div>
 
       <div class="top-actions">
-        <button class="btn" id="btnReloadTop" type="button">🔄 Recharger</button>
+        <button class="btn ghost" id="btnReloadTop" type="button">🔄 Recharger</button>
         <a class="btn info privateOnly" href="./cockpit.html">🏠 Accueil</a>
         <a class="btn privateOnly" href="./produits.html">📦 Produits</a>
         <a class="btn gold privateOnly" href="./produits.html#quickMarketNote">✍️ Notes</a>
@@ -504,18 +607,47 @@
       <div>
         <h1 id="heroTitle">Ma boutique</h1>
         <div class="lead" id="heroLead">
-          Une vue légère pour agir vite : voir l’état, ajouter un produit, écrire une note, régler la boutique.
+          Une vue légère pour agir vite : ajouter, voir les produits, écrire une note, régler la boutique.
         </div>
       </div>
 
-      <div class="hero-actions">
-        <a class="btn info privateOnly" href="./produits.html">📦 Voir produits</a>
-        <a class="btn primary privateOnly" href="./produits.html#productForm">➕ Ajouter</a>
-        <a class="btn gold privateOnly" href="./produits.html#quickMarketNote">✍️ Note rapide</a>
-        <a class="btn privateOnly" id="actPublic" href="https://market.digiylyfe.com/">🌍 Vitrine</a>
+      <div class="bigActions">
+        <a class="actionDoor primary privateOnly" href="./produits.html#productForm">
+          <span class="ico">➕</span>
+          <strong>Ajouter</strong>
+          <span>Créer un produit vite.</span>
+        </a>
+        <a class="actionDoor info privateOnly" href="./produits.html">
+          <span class="ico">📦</span>
+          <strong>Produits</strong>
+          <span>Voir et corriger.</span>
+        </a>
+        <a class="actionDoor gold privateOnly" href="./produits.html#quickMarketNote">
+          <span class="ico">✍️</span>
+          <strong>Note</strong>
+          <span>Vente, stock, dette.</span>
+        </a>
+        <a class="actionDoor privateOnly" href="./boutique.html">
+          <span class="ico">⚙️</span>
+          <strong>Boutique</strong>
+          <span>Réglages et visio.</span>
+        </a>
+        <a class="actionDoor privateOnly" id="actPublic" href="https://market.digiylyfe.com/">
+          <span class="ico">🌍</span>
+          <strong>Vitrine</strong>
+          <span>Voir côté client.</span>
+        </a>
 
-        <a class="btn primary lockedOnly" href="./pin.html">🔑 Ouvrir mon accès</a>
-        <a class="btn lockedOnly" href="https://market.digiylyfe.com/">🛍️ Galerie publique</a>
+        <a class="actionDoor primary lockedOnly" href="./pin.html">
+          <span class="ico">🔑</span>
+          <strong>Ouvrir</strong>
+          <span>Entrer le code vendeur.</span>
+        </a>
+        <a class="actionDoor lockedOnly" href="https://market.digiylyfe.com/">
+          <span class="ico">🛍️</span>
+          <strong>Galerie</strong>
+          <span>Voir le public.</span>
+        </a>
       </div>
 
       <div class="stats privateOnly">
@@ -528,76 +660,77 @@
       <div class="notice" id="statusNotice">Lecture de la session MARKET…</div>
     </section>
 
-    <section class="grid">
-      <section class="card panel">
-        <h2>À faire maintenant</h2>
-        <div class="muted">DIGIY te montre les gestes utiles sans t’obliger à chercher dans toute la boutique.</div>
-        <div class="tasks" id="taskList"></div>
-      </section>
+    <div class="pageSwitch" aria-label="Portes rapides cockpit MARKET">
+      <button class="pageBtn active" type="button" data-view="todo"><b>✅</b><span>À faire</span></button>
+      <button class="pageBtn" type="button" data-view="repere"><b>🧭</b><span>Repères</span></button>
+      <button class="pageBtn" type="button" data-view="note"><b>✍️</b><span>Note</span></button>
+      <button class="pageBtn" type="button" data-view="pages"><b>🔗</b><span>Pages</span></button>
+    </div>
 
-      <section class="card panel">
-        <h2>Repères boutique</h2>
-        <div class="muted">La trace reste dans le coffre. L’écran montre seulement ce qui aide à travailler.</div>
+    <section class="card panel active" data-view-panel="todo">
+      <h2>À faire maintenant</h2>
+      <div class="muted">DIGIY te montre les gestes utiles sans t’obliger à chercher dans toute la boutique.</div>
+      <div class="tasks" id="taskList"></div>
+    </section>
 
-        <div class="infoBox">
-          <div class="infoRow"><span>Boutique</span><span id="infoName">—</span></div>
-          <div class="infoRow"><span>Ville</span><span id="infoCity">—</span></div>
-          <div class="infoRow"><span>Activité</span><span id="infoCategory">—</span></div>
-          <div class="infoRow"><span>Contact client</span><span id="infoContact">—</span></div>
-          <div class="infoRow"><span>Vitrine</span><span id="infoPublish">—</span></div>
-          <div class="infoRow"><span>Lien vitrine</span><span id="infoPublicUrl">—</span></div>
-          <div class="infoRow"><span>Compte</span><span id="infoSecure">Compte sécurisé</span></div>
-        </div>
-      </section>
+    <section class="card panel" data-view-panel="repere">
+      <h2>Repères boutique</h2>
+      <div class="muted">La trace reste dans le coffre. L’écran montre seulement ce qui aide à travailler.</div>
 
-      <section class="card panel quick privateOnly">
-        <h2>Note rapide MARKET</h2>
-        <div class="muted">
-          Une dépense ne doit pas attendre. Va directement écrire : vente, achat stock, livraison, client qui doit.
-        </div>
-        <div class="hero-actions" style="margin-top:12px">
-          <a class="btn gold" href="./produits.html#quickMarketNote">✍️ Écrire une note</a>
-          <a class="btn info" href="https://pro-pay.digiylyfe.com/admin.html">💰 Voir Mon argent</a>
-        </div>
-      </section>
+      <div class="infoBox">
+        <div class="infoRow"><span>Boutique</span><span id="infoName">—</span></div>
+        <div class="infoRow"><span>Ville</span><span id="infoCity">—</span></div>
+        <div class="infoRow"><span>Activité</span><span id="infoCategory">—</span></div>
+        <div class="infoRow"><span>Contact client</span><span id="infoContact">—</span></div>
+        <div class="infoRow"><span>Vitrine</span><span id="infoPublish">—</span></div>
+        <div class="infoRow"><span>Lien vitrine</span><span id="infoPublicUrl">—</span></div>
+        <div class="infoRow"><span>Compte</span><span id="infoSecure">Compte sécurisé</span></div>
+      </div>
+    </section>
 
-      <section class="card panel">
-        <h2>Pages utiles</h2>
-        <div class="tasks">
-          <a class="task privateOnly" href="./produits.html">
-            <div><b>Produits</b><div class="muted">Liste, ajout, correction, masquage.</div></div>
-            <span class="tag info">OUVRIR</span>
-          </a>
-          <a class="task privateOnly" href="./boutique.html">
-            <div><b>Plus</b><div class="muted">Réglages, vitrine, WhatsApp Visio Live, visibilité.</div></div>
-            <span class="tag info">OUVRIR</span>
-          </a>
-          <a class="task" href="https://market.digiylyfe.com/">
-            <div><b>Galerie publique</b><div class="muted">Voir l’espace public MARKET sans exposer le coffre vendeur.</div></div>
-            <span class="tag ok">PUBLIC</span>
-          </a>
-          <a class="task lockedOnly" href="./pin.html">
-            <div><b>Ouvrir mon accès</b><div class="muted">Entre ton code pour ouvrir l’espace vendeur.</div></div>
-            <span class="tag danger">PIN</span>
-          </a>
-        </div>
-      </section>
+    <section class="card panel quick privateOnly" data-view-panel="note">
+      <h2>Note rapide MARKET</h2>
+      <div class="muted">
+        Une dépense ne doit pas attendre. Va directement écrire : vente, achat stock, livraison, client qui doit.
+      </div>
+      <div class="bigActions" style="margin-top:12px;grid-template-columns:repeat(2,minmax(0,1fr))">
+        <a class="actionDoor gold" href="./produits.html#quickMarketNote">
+          <span class="ico">✍️</span>
+          <strong>Écrire</strong>
+          <span>Préparer la note.</span>
+        </a>
+        <a class="actionDoor info" href="https://pro-pay.digiylyfe.com/admin.html">
+          <span class="ico">💰</span>
+          <strong>Mon argent</strong>
+          <span>Voir la trace PAY.</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="card panel" data-view-panel="pages">
+      <h2>Pages utiles</h2>
+      <div class="tasks">
+        <a class="task privateOnly" href="./produits.html">
+          <div><b>Produits</b><div class="muted">Liste, ajout, correction, masquage.</div></div>
+          <span class="tag info">OUVRIR</span>
+        </a>
+        <a class="task privateOnly" href="./boutique.html">
+          <div><b>Boutique</b><div class="muted">Réglages, vitrine, WhatsApp Visio Live, visibilité.</div></div>
+          <span class="tag info">OUVRIR</span>
+        </a>
+        <a class="task" href="https://market.digiylyfe.com/">
+          <div><b>Galerie publique</b><div class="muted">Voir l’espace public MARKET sans exposer le coffre vendeur.</div></div>
+          <span class="tag ok">PUBLIC</span>
+        </a>
+        <a class="task lockedOnly" href="./pin.html">
+          <div><b>Ouvrir mon accès</b><div class="muted">Entre ton code pour ouvrir l’espace vendeur.</div></div>
+          <span class="tag danger">PIN</span>
+        </a>
+      </div>
     </section>
 
     <div class="footer">DIGIY MARKET • Ma gestion légère • coffre sécurisé • zéro identifiant visible</div>
   </div>
-
-  <nav class="navBottom" aria-label="Navigation MARKET">
-    <div class="navInner">
-      <a class="navItem active" href="./cockpit.html"><span class="ico">🏠</span><span>Accueil</span></a>
-      <a class="navItem privateOnly" href="./produits.html"><span class="ico">📦</span><span>Produits</span></a>
-      <a class="navItem privateOnly" href="./produits.html#productForm"><span class="ico">➕</span><span>Ajouter</span></a>
-      <a class="navItem privateOnly" href="./produits.html#quickMarketNote"><span class="ico">✍️</span><span>Notes</span></a>
-      <a class="navItem privateOnly" href="./boutique.html"><span class="ico">⚙️</span><span>Plus</span></a>
-      <a class="navItem lockedOnly" href="./pin.html"><span class="ico">🔑</span><span>Accès</span></a>
-      <a class="navItem lockedOnly" href="https://market.digiylyfe.com/"><span class="ico">🛍️</span><span>Galerie</span></a>
-    </div>
-  </nav>
 
   <script>
     (function(){
@@ -699,17 +832,6 @@
         if (!val) return;
         try { sessionStorage.setItem(key, val); } catch(_){}
         try { localStorage.setItem(key, val); } catch(_){}
-      }
-
-      function cleanVisibleUrl(){
-        const p = new URLSearchParams(location.search);
-        const sensitive = [
-          "phone","tel","owner_phone","checkout_phone","subscription_phone",
-          "slug","market_slug","subscription_slug","pro_slug","module","from"
-        ];
-        const hasSensitive = sensitive.some(k => p.has(k));
-        if (!hasSensitive) return;
-        try { history.replaceState({}, document.title, location.pathname + location.hash); } catch(_){}
       }
 
       async function waitGuard(){
@@ -1044,6 +1166,7 @@
         $("topSub").textContent = "Compte sécurisé";
         $("heroTitle").textContent = "Ma boutique";
         $("heroLead").textContent = reason || "Ouvre ton accès pour charger la vraie gestion MARKET.";
+        $("brandTitle").textContent = "Ma gestion";
 
         $("infoName").textContent = "Espace vendeur sécurisé";
         $("infoCity").textContent = "—";
@@ -1082,7 +1205,6 @@
         const stats = pickStats(payload);
 
         CURRENT = Object.assign({}, normalizePayload(payload), { profile });
-
         document.body.classList.remove("locked");
 
         ACCESS_SLUG = normSlug(
@@ -1093,9 +1215,7 @@
           ACCESS_SLUG
         );
 
-        if (ACCESS_SLUG && !ACCESS_SLUG.startsWith("market-")) {
-          ACCESS_SLUG = "";
-        }
+        if (ACCESS_SLUG && !ACCESS_SLUG.startsWith("market-")) ACCESS_SLUG = "";
 
         ACCESS_PHONE = normPhone(
           CURRENT?.phone ||
@@ -1121,6 +1241,7 @@
         $("modeBadge").className = "mode live";
         $("modeBadge").textContent = "Accès ouvert";
         $("topSub").textContent = "Gestion chargée";
+        $("brandTitle").textContent = "Ma gestion";
         $("heroTitle").textContent = shop;
         $("heroLead").textContent = published
           ? "Ta boutique est en ligne. Tu peux ajouter, corriger, noter et suivre ton activité sans te perdre."
@@ -1129,17 +1250,17 @@
         $("infoName").textContent = shop;
         $("infoCity").textContent = city;
         $("infoCategory").textContent = cat;
-        const premiumUrl = externalVitrineUrl();
-
         $("infoContact").textContent = contactConfigured ? "Configuré" : "À définir";
         $("infoPublish").textContent = published ? "En ligne" : "Hors ligne";
+
+        const premiumUrl = externalVitrineUrl();
         $("infoPublicUrl").innerHTML = premiumUrl
           ? `<a href="${esc(premiumUrl)}" target="_blank" rel="noopener">Configuré</a>`
           : "À définir";
+
         $("infoSecure").textContent = "Compte reconnu";
 
         document.title = shop + " — Ma gestion";
-
         setStats(stats);
 
         const s = normalizeStats(stats || {});
@@ -1150,7 +1271,7 @@
             level:"warn",
             tag:"VITRINE",
             title:"Mettre la boutique en ligne",
-            text:"Ta vitrine est encore hors ligne. Va dans Plus pour vérifier et publier.",
+            text:"Ta vitrine est encore hors ligne. Va dans Boutique pour vérifier et publier.",
             href:"./boutique.html",
             private:true
           });
@@ -1169,7 +1290,7 @@
             level:"ok",
             tag:"SITE",
             title:"Lien vitrine premium configuré",
-            text:"Le bouton Voir ma vitrine ouvre le site officiel renseigné dans Ma fiche.",
+            text:"Le bouton Voir ma vitrine ouvre le site officiel renseigné dans Boutique.",
             href:premiumUrl
           });
         } else {
@@ -1177,8 +1298,8 @@
             level:"info",
             tag:"URL",
             title:"Ajouter le lien vitrine premium",
-            text:"Dans Plus, colle l’URL du site officiel ou de la vitrine DIGIY premium. Laisse vide si la boutique n’a pas encore de site.",
-            href:"./boutique.html#publicUrl",
+            text:"Dans Boutique, colle l’URL du site officiel ou de la vitrine DIGIY premium.",
+            href:"./boutique.html",
             private:true
           });
         }
@@ -1214,9 +1335,9 @@
 
         tasks.push({
           level:"info",
-          tag:"PLUS",
+          tag:"BOUTIQUE",
           title:"Régler la boutique",
-          text:"Dans Plus, garde le contact, la vitrine et WhatsApp Visio Live bien propres.",
+          text:"Garde le contact, la vitrine et WhatsApp Visio Live bien propres.",
           href:"./boutique.html",
           private:true
         });
@@ -1239,7 +1360,6 @@
             { p_slug: ACCESS_SLUG },
             { slug: ACCESS_SLUG }
           ]);
-
           PRODUCTS = normalizedProducts(rows);
         }catch(e){
           console.warn("products read warning", e);
@@ -1251,8 +1371,6 @@
         document.body.classList.add("loading");
 
         try{
-          cleanVisibleUrl();
-
           const guardSession = await waitGuard();
           const storedSession = readSessionObject();
           const session = guardSession || storedSession || {};
@@ -1292,8 +1410,24 @@
         }
       }
 
-      $("btnReloadTop")?.addEventListener("click", boot);
+      function setupViews(){
+        document.querySelectorAll("[data-view]").forEach(btn => {
+          btn.addEventListener("click", () => {
+            const view = btn.getAttribute("data-view") || "todo";
 
+            document.querySelectorAll("[data-view-panel]").forEach(panel => {
+              panel.classList.toggle("active", panel.getAttribute("data-view-panel") === view);
+            });
+
+            document.querySelectorAll("[data-view]").forEach(b => {
+              b.classList.toggle("active", b.getAttribute("data-view") === view);
+            });
+          });
+        });
+      }
+
+      $("btnReloadTop")?.addEventListener("click", boot);
+      setupViews();
       boot();
     })();
   </script>
