@@ -240,6 +240,11 @@
     .btn.gold{background:rgba(250,204,21,.12);color:#fff1a8;border-color:rgba(250,204,21,.25)}
     .btn.info{background:rgba(96,165,250,.12);color:#dbeafe;border-color:rgba(96,165,250,.25)}
     .btn.warn{background:rgba(245,158,11,.12);color:#fde68a;border-color:rgba(245,158,11,.25)}
+    .btn.payBtn{
+      background:linear-gradient(135deg,#facc15,#22c55e);
+      color:#041b12;
+      border-color:transparent;
+    }
     .btn.danger{background:rgba(239,68,68,.12);color:#fecaca;border-color:rgba(239,68,68,.25)}
     .btn.ghost{background:rgba(255,255,255,.045);color:var(--muted)}
     .btn:disabled{opacity:.55;cursor:not-allowed}
@@ -346,6 +351,16 @@
     .actionDoor.info{
       background:rgba(96,165,250,.10);
       border-color:rgba(96,165,250,.25);
+    }
+
+    .actionDoor.payDoor{
+      background:linear-gradient(135deg,rgba(250,204,21,.22),rgba(34,197,94,.18));
+      border-color:rgba(250,204,21,.34);
+      color:var(--text);
+    }
+
+    .actionDoor.payDoor strong{
+      color:#fff8dc;
     }
 
     .notice{
@@ -573,25 +588,6 @@
       .pageBtn b{font-size:20px}
     }
 
-    
-    .activePayFusion{
-      border-color:rgba(34,197,94,.24);
-      background:
-        radial-gradient(700px 320px at right top, rgba(34,197,94,.12), transparent 55%),
-        linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.018));
-    }
-
-    .activePayFusion .actionDoor{
-      min-height:124px;
-    }
-
-    @media(max-width:760px){
-      .activePayFusion .bigActions{
-        grid-template-columns:1fr !important;
-      }
-    }
-
-
     @media(max-width:420px){
       .pageSwitch{grid-template-columns:repeat(2,1fr)}
     }
@@ -615,6 +611,7 @@
         <a class="btn info privateOnly" href="./cockpit.html">🏠 Accueil</a>
         <a class="btn privateOnly" href="./produits.html">📦 Produits</a>
         <a class="btn gold privateOnly" href="./produits.html#quickMarketNote">✍️ Notes</a>
+        <button class="btn payBtn privateOnly" id="btnPayTop" type="button">💰 Mon argent</button>
         <a class="btn privateOnly" href="./boutique.html">⚙️ Plus</a>
         <a class="btn danger lockedOnly" href="./pin.html">🔑 Accès</a>
       </div>
@@ -646,6 +643,12 @@
           <strong>Note</strong>
           <span>Vente, stock, dette.</span>
         </a>
+
+        <button class="actionDoor payDoor privateOnly" id="btnPayDoor" type="button">
+          <span class="ico">💰</span>
+          <strong>Mon argent</strong>
+          <span>PAY sécurisé : ventes, dettes, stock, dépenses.</span>
+        </button>
         <a class="actionDoor privateOnly" href="./boutique.html">
           <span class="ico">⚙️</span>
           <strong>Boutique</strong>
@@ -758,63 +761,6 @@
       </div>
     </section>
 
-    
-    <section class="card panel quick privateOnly activePayFusion" data-pay-fusion="1">
-      <h2>💰 MARKET connecté à Mon Argent</h2>
-      <div class="muted">
-        La boutique continue son travail normalement.
-        DIGIY prépare derrière les traces utiles : vente, stock, dette, livraison, acompte.
-        Le vendeur clique plus qu’il n’écrit.
-      </div>
-
-      <div class="bigActions" style="margin-top:14px;grid-template-columns:repeat(3,minmax(0,1fr))">
-        <a class="actionDoor gold" href="./produits.html#quickMarketNote">
-          <span class="ico">✍️</span>
-          <strong>Note rapide</strong>
-          <span>Préparer une trace métier.</span>
-        </a>
-
-        <a class="actionDoor primary" href="https://pro-pay.digiylyfe.com/admin.html">
-          <span class="ico">💰</span>
-          <strong>Mon argent</strong>
-          <span>Voir les mouvements liés à MARKET.</span>
-        </a>
-
-        <a class="actionDoor info" href="./qr.html">
-          <span class="ico">▦</span>
-          <strong>QR boutique</strong>
-          <span>Faire entrer le client directement.</span>
-        </a>
-      </div>
-
-      <div class="tasks" style="margin-top:14px">
-        <div class="task">
-          <div>
-            <b>🛍️ Vente enregistrée</b>
-            <div class="muted">Une vente peut nourrir automatiquement PAY sans transformer MARKET en comptabilité lourde.</div>
-          </div>
-          <span class="tag ok">PAY</span>
-        </div>
-
-        <div class="task">
-          <div>
-            <b>📦 Stock et achats</b>
-            <div class="muted">Le vendeur garde une trace simple : achat stock, emballage, livraison ou dette client.</div>
-          </div>
-          <span class="tag info">TRACE</span>
-        </div>
-
-        <div class="task">
-          <div>
-            <b>🤝 Relation directe</b>
-            <div class="muted">DIGIY protège la relation client : visibilité, QR, WhatsApp et paiement direct.</div>
-          </div>
-          <span class="tag warn">0%</span>
-        </div>
-      </div>
-    </section>
-
-
     <div class="footer">DIGIY MARKET • Ma gestion légère • coffre sécurisé • zéro identifiant visible</div>
   </div>
 
@@ -832,7 +778,9 @@
         RPC_COCKPIT: "digiy_market_get_cockpit_by_slug",
         RPC_PRODUCTS: "digiy_market_list_products_by_slug",
         RPC_RESOLVE: "digiy_market_resolve_identity",
-        GALLERY_URL: "https://market.digiylyfe.com/"
+        GALLERY_URL: "https://market.digiylyfe.com/",
+        PAY_ADMIN_URL: "https://pro-pay.digiylyfe.com/admin.html",
+        ABOS_URL: "https://commencer-a-payer.digiylyfe.com/"
       };
 
       let ACCESS_SLUG = "";
@@ -1496,6 +1444,81 @@
         }
       }
 
+
+      function hasPayAccess(){
+        const directFlags = [
+          "digiy_pay_access_ok",
+          "digiy_pay_has_access",
+          "digiy_pay_access",
+          "DIGIY_PAY_ACCESS_OK",
+          "DIGIY_PAY_HAS_ACCESS"
+        ];
+
+        for (const key of directFlags){
+          if (truthy(getStored([key]))) return true;
+        }
+
+        const sessions = [
+          "DIGIY_PAY_SESSION",
+          "DIGIY_PAY_PIN_SESSION",
+          "DIGIY_SESSION_PAY",
+          "digiy_pay_session",
+          "DIGIY_ACCESS",
+          "digiy_access"
+        ];
+
+        for (const key of sessions){
+          const obj = safeJson(getStored([key]));
+          if (!obj || typeof obj !== "object") continue;
+
+          const mod = String(obj.module || obj.module_code || "").trim().toUpperCase();
+          if (mod && mod !== "PAY") continue;
+
+          const ok =
+            truthy(obj.access) ||
+            truthy(obj.access_ok) ||
+            truthy(obj.ok) ||
+            truthy(obj.has_access) ||
+            truthy(obj.verified) ||
+            truthy(obj.pin_access);
+
+          const valid =
+            alive(obj.access_until) ||
+            alive(obj.pin_access_until) ||
+            alive(obj.expires_at) ||
+            alive(obj.valid_until);
+
+          if (ok && valid) return true;
+        }
+
+        return false;
+      }
+
+      function paySubscriptionUrl(){
+        const u = new URL(CFG.ABOS_URL);
+        u.searchParams.set("module", "PAY");
+        u.searchParams.set("from_module", "MARKET");
+        u.searchParams.set("return", CFG.PAY_ADMIN_URL);
+
+        if (ACCESS_SLUG) u.searchParams.set("source_slug", ACCESS_SLUG);
+        if (ACCESS_PHONE) u.searchParams.set("phone", ACCESS_PHONE);
+
+        return u.toString();
+      }
+
+      function openPaySecure(){
+        if (hasPayAccess()){
+          location.href = CFG.PAY_ADMIN_URL;
+          return;
+        }
+        location.href = paySubscriptionUrl();
+      }
+
+      function setupPayDoor(){
+        $("btnPayDoor")?.addEventListener("click", openPaySecure);
+        $("btnPayTop")?.addEventListener("click", openPaySecure);
+      }
+
       function setupViews(){
         document.querySelectorAll("[data-view]").forEach(btn => {
           btn.addEventListener("click", () => {
@@ -1514,12 +1537,16 @@
 
       $("btnReloadTop")?.addEventListener("click", boot);
       setupViews();
+      setupPayDoor();
       boot();
     })();
   </script>
 </body>
 </html>
 </html>
+
+
+
 
 
 
