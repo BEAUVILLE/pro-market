@@ -1445,7 +1445,7 @@
       }
 
 
-      function hasPayAccess(){
+      function hasPayAccessLocal(){
         const directFlags = [
           "digiy_pay_access_ok",
           "digiy_pay_has_access",
@@ -1494,6 +1494,27 @@
         return false;
       }
 
+      async function hasPayAccessServer(){
+        const phone = normPhone(ACCESS_PHONE);
+        if (!phone) return false;
+
+        try{
+          const data = await rpcTry("digiy_has_access", [
+            { p_phone: phone, p_module: "PAY" },
+            { phone: phone, module: "PAY" }
+          ]);
+
+          if (data === true) return true;
+          if (Array.isArray(data) && data.length) return truthy(data[0]?.access_ok || data[0]?.has_access || data[0]?.ok || data[0]?.active);
+          if (data && typeof data === "object") return truthy(data.access_ok || data.has_access || data.ok || data.active || data.is_active);
+
+          return false;
+        }catch(e){
+          console.warn("PAY access server check warning:", e);
+          return false;
+        }
+      }
+
       function paySubscriptionUrl(){
         const u = new URL(CFG.ABOS_URL);
         u.searchParams.set("module", "PAY");
@@ -1506,12 +1527,27 @@
         return u.toString();
       }
 
-      function openPaySecure(){
-        if (hasPayAccess()){
-          location.href = CFG.PAY_ADMIN_URL;
-          return;
+      async function openPaySecure(){
+        const btn1 = $("btnPayDoor");
+        const btn2 = $("btnPayTop");
+        const old1 = btn1?.innerHTML;
+        const old2 = btn2?.innerHTML;
+
+        try{
+          if (btn1) btn1.classList.add("loading");
+          if (btn2) btn2.textContent = "Vérification PAY…";
+
+          if (hasPayAccessLocal() || await hasPayAccessServer()){
+            location.href = CFG.PAY_ADMIN_URL;
+            return;
+          }
+
+          location.href = paySubscriptionUrl();
+        }finally{
+          if (btn1 && old1) btn1.innerHTML = old1;
+          if (btn2 && old2) btn2.innerHTML = old2;
+          if (btn1) btn1.classList.remove("loading");
         }
-        location.href = paySubscriptionUrl();
       }
 
       function setupPayDoor(){
@@ -1544,6 +1580,9 @@
 </body>
 </html>
 </html>
+
+
+
 
 
 
