@@ -4,20 +4,27 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <meta name="theme-color" content="#07140f"/>
-  <meta name="description" content="Ancienne entrée MARKET redirigée proprement vers la gestion cockpit."/>
-  <title>Je vends — Redirection</title>
+  <meta name="description" content="Entrée MARKET protégée : gestion vendeur, cockpit et porte PAY sécurisée par abonnement."/>
+  <title>Je vends — Dashboard MARKET</title>
 
   <script>
     /*
-      DIGIY MARKET — ancienne entrée neutralisée
-      Rôle : ranger les anciens paramètres, nettoyer l'URL, ouvrir cockpit.html.
-      Le vrai tableau de bord est cockpit.html.
+      DIGIY MARKET — dashboard léger + porte PAY protégée
+      Rôle :
+      - ranger les anciens paramètres,
+      - nettoyer l'URL,
+      - ouvrir cockpit.html,
+      - envoyer vers PAY seulement si l'accès PAY est reconnu,
+      - sinon ouvrir commencer à payer avec module PAY.
     */
     (function(){
       "use strict";
 
       window.DIGIY_MODULE = "MARKET";
       window.DIGIY_LOGIN_URL = "./pin.html";
+
+      var ABOS_URL = "https://commencer-a-payer.digiylyfe.com/";
+      var PAY_ADMIN_URL = "https://pro-pay.digiylyfe.com/admin.html";
 
       var qs = new URLSearchParams(location.search);
 
@@ -43,6 +50,110 @@
         if (!value) return;
         try{ sessionStorage.setItem(key, value); }catch(_){}
         try{ localStorage.setItem(key, value); }catch(_){}
+      }
+
+      function getAny(keys){
+        for (var i=0;i<keys.length;i++){
+          try{
+            var s = sessionStorage.getItem(keys[i]);
+            if (s) return s;
+          }catch(_){}
+          try{
+            var l = localStorage.getItem(keys[i]);
+            if (l) return l;
+          }catch(_){}
+        }
+        return "";
+      }
+
+      function safeJson(raw){
+        try{ return JSON.parse(raw); }catch(_){ return null; }
+      }
+
+      function truthy(v){
+        if (v === true || v === 1) return true;
+        var s = String(v == null ? "" : v).trim().toLowerCase();
+        return s === "true" || s === "1" || s === "ok" || s === "yes" || s === "active";
+      }
+
+      function alive(raw){
+        if (!raw) return false;
+        var n = Number(raw);
+        if (isFinite(n) && n > Date.now()) return true;
+        var d = Date.parse(String(raw));
+        return isFinite(d) && d > Date.now();
+      }
+
+      function getMarketSlug(){
+        return normSlug(getAny(["digiy_market_slug","digiy_market_last_slug","market_slug","digiy_last_slug"]));
+      }
+
+      function getMarketPhone(){
+        return normPhone(getAny(["digiy_market_phone","digiy_market_last_phone","market_phone","digiy_last_phone","digiy_phone"]));
+      }
+
+      function hasPayAccess(){
+        var directFlags = [
+          "digiy_pay_access_ok",
+          "digiy_pay_has_access",
+          "digiy_pay_access",
+          "DIGIY_PAY_ACCESS_OK",
+          "DIGIY_PAY_HAS_ACCESS"
+        ];
+
+        for (var i=0;i<directFlags.length;i++){
+          if (truthy(getAny([directFlags[i]]))) return true;
+        }
+
+        var sessions = [
+          "DIGIY_PAY_SESSION",
+          "DIGIY_PAY_PIN_SESSION",
+          "DIGIY_SESSION_PAY",
+          "digiy_pay_session",
+          "DIGIY_ACCESS",
+          "digiy_access"
+        ];
+
+        for (var j=0;j<sessions.length;j++){
+          var obj = safeJson(getAny([sessions[j]]));
+          if (!obj || typeof obj !== "object") continue;
+
+          var mod = String(obj.module || obj.module_code || "").trim().toUpperCase();
+          if (mod && mod !== "PAY") continue;
+
+          var ok =
+            truthy(obj.access) ||
+            truthy(obj.access_ok) ||
+            truthy(obj.ok) ||
+            truthy(obj.has_access) ||
+            truthy(obj.verified) ||
+            truthy(obj.pin_access);
+
+          var valid =
+            alive(obj.access_until) ||
+            alive(obj.pin_access_until) ||
+            alive(obj.expires_at) ||
+            alive(obj.valid_until);
+
+          if (ok && valid) return true;
+        }
+
+        return false;
+      }
+
+      function paySubscriptionUrl(){
+        var u = new URL(ABOS_URL);
+        u.searchParams.set("module", "PAY");
+        u.searchParams.set("from_module", "MARKET");
+        u.searchParams.set("return", PAY_ADMIN_URL);
+
+        var slug = getMarketSlug();
+        var phone = getMarketPhone();
+
+        if (slug) u.searchParams.set("source_slug", slug);
+        if (phone) u.searchParams.set("phone", phone);
+
+        return u.toString();
       }
 
       var slug = normSlug(
@@ -94,7 +205,19 @@
         location.href = "./pin.html";
       };
 
-      setTimeout(window.__DIGIY_GO_COCKPIT__, 90);
+      window.__DIGIY_GO_PAY__ = function(){
+        if (hasPayAccess()){
+          location.href = PAY_ADMIN_URL;
+          return;
+        }
+        location.href = paySubscriptionUrl();
+      };
+
+      window.__DIGIY_GO_PAY_SUBSCRIBE__ = function(){
+        location.href = paySubscriptionUrl();
+      };
+
+      setTimeout(window.__DIGIY_GO_COCKPIT__, 900);
     })();
   </script>
 
@@ -214,6 +337,19 @@
       border-color:rgba(250,204,21,.25);
     }
 
+    .pay{
+      background:linear-gradient(135deg,#facc15,#22c55e);
+      color:#041b12;
+      border-color:transparent;
+      box-shadow:0 16px 34px rgba(250,204,21,.18);
+    }
+
+    .soft{
+      background:rgba(34,197,94,.10);
+      color:#bbf7d0;
+      border-color:rgba(34,197,94,.25);
+    }
+
     .foot{
       font-size:13px;
       color:rgba(236,255,244,.58);
@@ -227,11 +363,11 @@
     <div class="mark">🛍️</div>
     <div class="eyebrow">JE VENDS</div>
 
-    <h1>Cockpit d’abord</h1>
+    <h1>Dashboard MARKET</h1>
 
     <p>
-      Cette ancienne entrée MARKET est gardée seulement comme porte propre.
-      Elle range les anciens paramètres puis ouvre la vraie gestion.
+      Cette porte range les anciens paramètres, ouvre la vraie gestion,
+      et protège Mon Argent : sans abonnement PAY reconnu, le vendeur passe par commencer à payer.
     </p>
 
     <div class="actions">
@@ -242,10 +378,20 @@
       <button class="gold" type="button" onclick="window.__DIGIY_GO_PIN__ && window.__DIGIY_GO_PIN__()">
         🔑 Ouvrir mon accès
       </button>
+
+      <button class="pay" type="button" onclick="window.__DIGIY_GO_PAY__ && window.__DIGIY_GO_PAY__()">
+        💰 Mon argent sécurisé
+      </button>
+
+      <button class="soft" type="button" onclick="window.__DIGIY_GO_PAY_SUBSCRIBE__ && window.__DIGIY_GO_PAY_SUBSCRIBE__()">
+        🧾 Activer PAY
+      </button>
     </div>
 
-    <div class="foot">DIGIY MARKET • ancienne entrée neutralisée • cockpit d’abord</div>
+    <div class="foot">DIGIY MARKET • cockpit d’abord • PAY protégé par abonnement</div>
   </main>
 </body>
 </html>
+
+
 
