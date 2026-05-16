@@ -573,6 +573,25 @@
       .pageBtn b{font-size:20px}
     }
 
+    
+    .activePayFusion{
+      border-color:rgba(34,197,94,.24);
+      background:
+        radial-gradient(700px 320px at right top, rgba(34,197,94,.12), transparent 55%),
+        linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.018));
+    }
+
+    .activePayFusion .actionDoor{
+      min-height:124px;
+    }
+
+    @media(max-width:760px){
+      .activePayFusion .bigActions{
+        grid-template-columns:1fr !important;
+      }
+    }
+
+
     @media(max-width:420px){
       .pageSwitch{grid-template-columns:repeat(2,1fr)}
     }
@@ -738,6 +757,63 @@
         </a>
       </div>
     </section>
+
+    
+    <section class="card panel quick privateOnly activePayFusion" data-pay-fusion="1">
+      <h2>💰 MARKET connecté à Mon Argent</h2>
+      <div class="muted">
+        La boutique continue son travail normalement.
+        DIGIY prépare derrière les traces utiles : vente, stock, dette, livraison, acompte.
+        Le vendeur clique plus qu’il n’écrit.
+      </div>
+
+      <div class="bigActions" style="margin-top:14px;grid-template-columns:repeat(3,minmax(0,1fr))">
+        <a class="actionDoor gold" href="./produits.html#quickMarketNote">
+          <span class="ico">✍️</span>
+          <strong>Note rapide</strong>
+          <span>Préparer une trace métier.</span>
+        </a>
+
+        <a class="actionDoor primary" href="https://pro-pay.digiylyfe.com/admin.html">
+          <span class="ico">💰</span>
+          <strong>Mon argent</strong>
+          <span>Voir les mouvements liés à MARKET.</span>
+        </a>
+
+        <a class="actionDoor info" href="./qr.html">
+          <span class="ico">▦</span>
+          <strong>QR boutique</strong>
+          <span>Faire entrer le client directement.</span>
+        </a>
+      </div>
+
+      <div class="tasks" style="margin-top:14px">
+        <div class="task">
+          <div>
+            <b>🛍️ Vente enregistrée</b>
+            <div class="muted">Une vente peut nourrir automatiquement PAY sans transformer MARKET en comptabilité lourde.</div>
+          </div>
+          <span class="tag ok">PAY</span>
+        </div>
+
+        <div class="task">
+          <div>
+            <b>📦 Stock et achats</b>
+            <div class="muted">Le vendeur garde une trace simple : achat stock, emballage, livraison ou dette client.</div>
+          </div>
+          <span class="tag info">TRACE</span>
+        </div>
+
+        <div class="task">
+          <div>
+            <b>🤝 Relation directe</b>
+            <div class="muted">DIGIY protège la relation client : visibilité, QR, WhatsApp et paiement direct.</div>
+          </div>
+          <span class="tag warn">0%</span>
+        </div>
+      </div>
+    </section>
+
 
     <div class="footer">DIGIY MARKET • Ma gestion légère • coffre sécurisé • zéro identifiant visible</div>
   </div>
@@ -1444,6 +1520,9 @@
 </body>
 </html>
 </html>
+
+
+
 
 
 
