@@ -106,8 +106,21 @@
   }
 
   function qty(text){
-    const m=norm(text).match(/\b(\d+)\s+(?:x\s+)?([a-z0-9\- ]{2,})/);
-    return m ? Number(m[1]) || 1 : 1;
+    const t = norm(text);
+
+    // Priorité au mot "stock" : "stock 4"
+    let m = t.match(/\bstock\s+(\d+)\b);
+    if(m) return Number(m[1]) || 1;
+
+    // Quantité explicite : "quantité 3" ou "quantite 3"
+    m = t.match(/\bquantite\s+(\d+)\b|\bquantité\s+(\d+)\b/);
+    if(m) return Number(m[1] || m[2]) || 1;
+
+    // Format court : "2 x" ou "x 2"
+    m = t.match(/\b(\d+)\s*x\b|\bx\s*(\d+)\b/);
+    if(m) return Number(m[1] || m[2]) || 1;
+
+    return 1;
   }
 
   function routeDraft(title,href,note){
@@ -127,7 +140,14 @@
     if(/\b(boutique|identite|identité|profil|contact|visibilite|visibilité)\b/.test(t)) return routeDraft('🏪 Ouvrir ma boutique','./boutique.html','Régler identité et visibilité.');
 
     if(/\b(pay|argent|paiement|acompte|solde|dette|depense|dépense|recette)\b/.test(t)){
-      return {type:'payment',title:'💰 Préparer Mon Argent',href:'https://pro-pay.digiylyfe.com/admin.html',amount:money(original),date:parseDate(original),note:original};
+      return {
+        type:'payment',
+        title:'💰 Préparer Mon Argent',
+        href:'https://pro-pay.digiylyfe.com/admin.html',
+        amount:money(original),
+        date:parseDate(original),
+        note:original
+      };
     }
 
     if(/\b(ajoute|ajouter|nouveau produit|produit|article|prix|stock|publier|publie|photo)\b/.test(t)){
@@ -186,7 +206,7 @@
         id:Date.now(),
         date:new Date().toISOString(),
         type:d.type||'note',
-        title:d.title||'Note MARKET',
+        title:d.title||'Note vendeur',
         client:d.client||'Client',
         product:d.product||'',
         qty:Number(d.qty||0),
@@ -241,7 +261,7 @@
       return;
     }
 
-    box.innerHTML=`<strong>${esc(d.title)}</strong><span>Client : ${esc(d.client||'Client')}</span><span>Contact : ${d.contact?'renseigné':'—'}</span><span>Date : ${esc(d.date||'à préciser')}</span><span>Montant : ${d.amount?esc(d.amount.toLocaleString('fr-FR'))+' F':'—'}</span><em>Valide pour garder la note dans MARKET.</em>`;
+    box.innerHTML=`<strong>${esc(d.title)}</strong><span>Client : ${esc(d.client||'Client')}</span><span>Contact : ${d.contact?'renseigné':'—'}</span><span>Date : ${esc(d.date||'à préciser')}</span><span>Montant : ${d.amount?esc(d.amount.toLocaleString('fr-FR'))+' F':'—'}</span><em>Valide pour garder la note vendeur.</em>`;
   }
 
   function executeDraft(){
@@ -259,7 +279,7 @@
     }
 
     if(d.type==='order' || d.type==='note'){
-      toast('📝 Note MARKET gardée dans le logiciel.');
+      toast('📝 Note vendeur gardée dans le logiciel.');
       try{
         if(typeof window.renderNotes==='function') window.renderNotes();
         if(typeof window.showPanel==='function') window.showPanel('notes');
@@ -376,7 +396,7 @@
     panel.innerHTML=`
       <summary>
         <span>
-          <span class="digiy-market-ear-title">🎙️ Mes oreilles MARKET</span>
+          <span class="digiy-market-ear-title">🎙️ Mes oreilles · Je vends</span>
           <span class="digiy-market-ear-sub">Tu parles ou tu écris. DIGIY met en forme. Le pro valide.</span>
         </span>
         <span class="digiy-market-ear-chevron">⌄</span>
@@ -439,5 +459,10 @@
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',inject);
   else inject();
 
-  window.DIGIY_OREILLE_METIER_MARKET={BUILD,parse,renderDraft,executeDraft};
+  window.DIGIY_OREILLE_METIER_MARKET={
+    BUILD,
+    parse,
+    renderDraft,
+    executeDraft
+  };
 })();
