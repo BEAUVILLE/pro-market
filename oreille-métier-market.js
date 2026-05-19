@@ -123,8 +123,9 @@
     if(/\b(session|acces|accès|nettoyer|code pin|pin)\b/.test(t)) return routeDraft('🛡️ Ouvrir ma session','./session.html','Contrôler l’accès sans afficher les identifiants.');
     if(/\b(gestion|cockpit|tableau|vendeur)\b/.test(t)) return routeDraft('🛍️ Ouvrir ma gestion','./cockpit.html','Retour à la page de travail vendeur.');
     if(/\b(produits?|articles?|stock|marchandises?)\b/.test(t) && !/\d/.test(t)) return routeDraft('📦 Ouvrir mes produits','./produits.html','Gérer les articles, prix et stock.');
+    if(/\b(fiche|ma fiche|qr|maps|google maps|tiktok|facebook|photo vitrine|vitrine)\b/.test(t)) return routeDraft('🪪 Ouvrir ma fiche','./fiche.html','Photo, QR, liens publics et réseaux.');
     if(/\b(boutique|identite|identité|profil|contact|visibilite|visibilité)\b/.test(t)) return routeDraft('🏪 Ouvrir ma boutique','./boutique.html','Régler identité et visibilité.');
-    if(/\b(qr|code qr|partager|lien client)\b/.test(t)) return routeDraft('🔳 Ouvrir mon QR','./qr.html','Partager la boutique ou la fiche.');
+
     if(/\b(pay|argent|paiement|acompte|solde|dette|depense|dépense|recette)\b/.test(t)){
       return {type:'payment',title:'💰 Préparer Mon Argent',href:'https://pro-pay.digiylyfe.com/admin.html',amount:money(original),date:parseDate(original),note:original};
     }
@@ -386,7 +387,7 @@
           <button class="digiy-market-chip green" type="button" data-market-example="Client veut deux sacs prix 15000 livraison demain">🛒 Demande client</button>
           <button class="digiy-market-chip" type="button" data-market-example="Ajouter produit sac à 15000 stock 4">📦 Produit</button>
           <button class="digiy-market-chip gold" type="button" data-market-example="Vente reçue 15000">💰 Recette</button>
-          <button class="digiy-market-chip" type="button" data-market-example="Ouvrir ma boutique">🏪 Boutique</button>
+          <button class="digiy-market-chip" type="button" data-market-example="Ouvrir ma fiche">🪪 Ma fiche</button>
           <button class="digiy-market-chip" type="button" data-market-example="Ouvrir mes produits">📦 Produits</button>
           <button class="digiy-market-chip gold" type="button" data-market-example="Note client livraison demain">📝 Note</button>
         </div>
