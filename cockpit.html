@@ -1814,8 +1814,83 @@
   initVoiceAlerts();
 })();
 </script>
+<script src="./oreille-metier-market.js?v=market-ear-v1-20260519"></script>
+
+<script>
+/* DIGIY MARKET — petit renfort moule : nettoyer liens internes */
+(function(){
+  "use strict";
+  const SENSITIVE_KEYS=[
+    "phone","tel","p_phone","owner_phone","owner_id","slug",
+    "market_phone","market_slug","business_phone","whatsapp","msisdn",
+    "subscription_phone","checkout_phone","subscription_slug","pro_slug","source_slug",
+    "pin","pin4","token","session_token",
+    "module","return","redirect","redirect_url","url","from","v"
+  ];
+  function cleanLinks(){
+    try{
+      document.querySelectorAll("a[href]").forEach(a=>{
+        const href=a.getAttribute("href")||"";
+        if(!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) return;
+        const u=new URL(href,location.href);
+        if(u.origin!==location.origin) return;
+        SENSITIVE_KEYS.forEach(k=>u.searchParams.delete(k));
+        const file=u.pathname.split("/").pop()||"index.html";
+        a.setAttribute("href","./"+file+(u.search||"")+(u.hash||""));
+      });
+    }catch(_){}
+  }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",cleanLinks);
+  else cleanLinks();
+})();
+</script>
+
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
