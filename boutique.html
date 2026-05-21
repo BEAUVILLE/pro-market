@@ -1824,6 +1824,12 @@ Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le 
       window.DIGIY_MARKET_BOUTIQUE = { setView, boot };
 
       setupEvents();
+
+      const initialView = (location.hash || "").replace("#", "");
+      if (["identity","contact","live","visibility","preview"].includes(initialView)) {
+        setView(initialView);
+      }
+
       boot();
     })();
   </script>
