@@ -415,11 +415,9 @@
     const p = normPhone(phone);
     if (!p) return false;
 
-    // 1. Vérité principale : rail ABOS central.
     const abosOk = await checkAccessFromAbos(p);
     if (abosOk) return true;
 
-    // 2. Secours transition : ancien rail.
     const legacyOk = await checkAccessLegacy(p);
     if (legacyOk) return true;
 
@@ -438,7 +436,6 @@
     }
 
     if (p) {
-      // Session d'abord pour ne pas exposer durablement le téléphone.
       writeSessionOnly("digiy_market_phone", p);
       writeSessionOnly("digiy_market_last_phone", p);
       writeSessionOnly("market_phone", p);
