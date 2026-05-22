@@ -1,6 +1,8 @@
 // guard.js — DIGIY MARKET PRO
 // Version coffre sûre : aucune redirection brutale, aucune fuite phone/slug dans l'URL.
-// Le guard lit la session 8h ouverte par pin.html via digiy_market_open_with_pin.
+// Session locale 8h ouverte par pin.html via digiy_market_open_with_pin.
+// Rail ABOS : digiy_has_module_access_from_abos(phone, "MARKET") d'abord.
+// Secours transition : digiy_has_access(phone, "MARKET").
 // Si la session n'est pas ouverte, les pages affichent leur coque protégée.
 
 (() => {
@@ -17,6 +19,9 @@
       "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3",
 
     MODULE: "MARKET",
+    MODULE_LOWER: "market",
+    MODULE_ALIASES: ["MARKET", "market", "DIGIY_MARKET", "MARKET_PRO"],
+
     SESSION_MAX_AGE_MS: 8 * 60 * 60 * 1000,
 
     PIN_PATH: "./pin.html",
@@ -24,7 +29,9 @@
 
     RPC: {
       RESOLVE_IDENTITY: "digiy_market_resolve_identity",
-      OPEN_WITH_PIN: "digiy_market_open_with_pin"
+      OPEN_WITH_PIN: "digiy_market_open_with_pin",
+      HAS_MODULE_ACCESS_FROM_ABOS: "digiy_has_module_access_from_abos",
+      HAS_ACCESS_LEGACY: "digiy_has_access"
     },
 
     SESSION_KEYS: [
@@ -119,12 +126,17 @@
     const clean = String(value || "")
       .trim()
       .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
       .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9-]/g, "")
+      .replace(/[^a-z0-9-_]/g, "")
       .replace(/-+/g, "-")
-      .replace(/^-|-$/g, "");
+      .replace(/^[-_]+|[-_]+$/g, "");
 
-    if (clean && !clean.startsWith("market-")) return "";
+    if (!clean) return "";
+
+    // MARKET accepte prioritairement market-*,
+    // mais ne casse pas les anciens identifiants si le terrain les utilise déjà.
     return clean;
   }
 
@@ -143,10 +155,20 @@
   function parseTime(value) {
     if (!value) return 0;
 
-    const n = Number(value);
-    if (Number.isFinite(n) && n > 0) return n;
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return value > 0 && value < 100000000000 ? value * 1000 : value;
+    }
 
-    const d = Date.parse(String(value));
+    const s = String(value || "").trim();
+    if (!s) return 0;
+
+    if (/^\d+$/.test(s)) {
+      const n = Number(s);
+      if (!Number.isFinite(n) || n <= 0) return 0;
+      return n < 100000000000 ? n * 1000 : n;
+    }
+
+    const d = Date.parse(s);
     return Number.isFinite(d) ? d : 0;
   }
 
@@ -162,7 +184,7 @@
   function truthy(value) {
     if (value === true || value === 1) return true;
     const s = String(value == null ? "" : value).trim().toLowerCase();
-    return s === "true" || s === "1" || s === "ok" || s === "yes";
+    return s === "true" || s === "t" || s === "1" || s === "ok" || s === "yes";
   }
 
   function safeJson(raw) {
@@ -183,7 +205,8 @@
       ""
     ).trim().toUpperCase();
 
-    return !m || m === CFG.MODULE;
+    if (!m) return true;
+    return CFG.MODULE_ALIASES.map((x) => String(x).toUpperCase()).includes(m);
   }
 
   function readStore(key) {
@@ -209,6 +232,14 @@
 
     try {
       localStorage.setItem(key, String(value));
+    } catch (_) {}
+  }
+
+  function writeSessionOnly(key, value) {
+    if (value == null || value === "") return;
+
+    try {
+      sessionStorage.setItem(key, String(value));
     } catch (_) {}
   }
 
@@ -265,11 +296,13 @@
         auth: {
           persistSession: false,
           autoRefreshToken: false,
-          detectSessionInUrl: false
+          detectSessionInUrl: false,
+          storageKey: "digiy-market-guard-auth"
         }
       }
     );
 
+    window.sb = supabaseClient;
     return supabaseClient;
   }
 
@@ -285,6 +318,114 @@
     }
   }
 
+  function boolFromRpcData(data) {
+    const raw = Array.isArray(data) ? data[0] : data;
+
+    if (raw === true) return true;
+    if (raw === 1) return true;
+
+    if (typeof raw === "string") {
+      const txt = raw.trim().toLowerCase();
+
+      if (txt === "true" || txt === "t" || txt === "1" || txt === "yes" || txt === "ok") {
+        return true;
+      }
+
+      if (txt.startsWith("(")) {
+        const first = txt.replace(/^\(/, "").split(",")[0];
+        const token = String(first || "").trim().replace(/^"|"$/g, "").toLowerCase();
+        if (token === "t" || token === "true" || token === "1") return true;
+      }
+
+      return false;
+    }
+
+    if (raw && typeof raw === "object") {
+      if (raw.ok === true) return true;
+      if (raw.access === true) return true;
+      if (raw.access_ok === true) return true;
+      if (raw.has_access === true) return true;
+      if (raw.allowed === true) return true;
+      if (raw.active === true) return true;
+      if (raw.is_active === true) return true;
+      if (raw.subscribed === true) return true;
+      if (raw.valid === true) return true;
+
+      const vals = Object.values(raw);
+      if (vals.some((v) => v === true || v === 1 || v === "t" || v === "true")) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  function buildAccessPayloads(phone) {
+    const p = normPhone(phone);
+    const payloads = [];
+
+    CFG.MODULE_ALIASES.forEach((moduleCode) => {
+      payloads.push({ p_phone: p, p_module: moduleCode });
+      payloads.push({ phone: p, module: moduleCode });
+      payloads.push({ input_phone: p, input_module: moduleCode });
+    });
+
+    return payloads;
+  }
+
+  async function tryRpcBoolean(name, payloads) {
+    for (const payload of payloads) {
+      const clean = {};
+      Object.entries(payload || {}).forEach(([key, value]) => {
+        if (value) clean[key] = value;
+      });
+
+      if (!Object.keys(clean).length) continue;
+
+      const { data, error } = await rpc(name, clean);
+      if (error) continue;
+
+      if (boolFromRpcData(data)) return true;
+    }
+
+    return false;
+  }
+
+  async function checkAccessFromAbos(phone) {
+    const p = normPhone(phone);
+    if (!p) return false;
+
+    return tryRpcBoolean(
+      CFG.RPC.HAS_MODULE_ACCESS_FROM_ABOS,
+      buildAccessPayloads(p)
+    );
+  }
+
+  async function checkAccessLegacy(phone) {
+    const p = normPhone(phone);
+    if (!p) return false;
+
+    return tryRpcBoolean(
+      CFG.RPC.HAS_ACCESS_LEGACY,
+      buildAccessPayloads(p)
+    );
+  }
+
+  async function checkAccess(phone) {
+    const p = normPhone(phone);
+    if (!p) return false;
+
+    // 1. Vérité principale : rail ABOS central.
+    const abosOk = await checkAccessFromAbos(p);
+    if (abosOk) return true;
+
+    // 2. Secours transition : ancien rail.
+    const legacyOk = await checkAccessLegacy(p);
+    if (legacyOk) return true;
+
+    return false;
+  }
+
   function rememberIdentity(slug, phone, ownerId) {
     const s = normSlug(slug);
     const p = normPhone(phone);
@@ -297,17 +438,28 @@
     }
 
     if (p) {
-      writeStore("digiy_market_phone", p);
-      writeStore("digiy_market_last_phone", p);
-      writeStore("market_phone", p);
-      writeStore("digiy_last_phone", p);
-      writeStore("digiy_phone", p);
+      // Session d'abord pour ne pas exposer durablement le téléphone.
+      writeSessionOnly("digiy_market_phone", p);
+      writeSessionOnly("digiy_market_last_phone", p);
+      writeSessionOnly("market_phone", p);
+      writeSessionOnly("digiy_last_phone", p);
+      writeSessionOnly("digiy_phone", p);
+
+      try {
+        localStorage.removeItem("digiy_market_phone");
+        localStorage.removeItem("digiy_market_last_phone");
+        localStorage.removeItem("market_phone");
+        localStorage.removeItem("digiy_last_phone");
+        localStorage.removeItem("digiy_phone");
+      } catch (_) {}
     }
 
     if (ownerId) {
       writeStore("digiy_market_owner_id", ownerId);
       writeStore("DIGIY_PRO_ID", ownerId);
     }
+
+    window.DIGIY_MARKET_HUB_PHONE = p || "";
   }
 
   function sessionView() {
@@ -366,8 +518,29 @@
       return { slug: "", phone: "", owner_id: null };
     }
 
-    const slugFields = ["slug", "market_slug", "subscription_slug", "pro_slug", "workspace_slug", "shop_slug", "boutique_slug"];
-    const phoneFields = ["phone", "market_phone", "p_phone", "owner_phone", "checkout_phone", "subscription_phone", "tel", "telephone", "whatsapp", "msisdn"];
+    const slugFields = [
+      "slug",
+      "market_slug",
+      "subscription_slug",
+      "pro_slug",
+      "workspace_slug",
+      "shop_slug",
+      "boutique_slug"
+    ];
+
+    const phoneFields = [
+      "phone",
+      "market_phone",
+      "p_phone",
+      "owner_phone",
+      "checkout_phone",
+      "subscription_phone",
+      "tel",
+      "telephone",
+      "whatsapp",
+      "msisdn"
+    ];
+
     const ownerFields = ["owner_id", "ownerId", "pro_id", "proId"];
 
     let slug = "";
@@ -455,7 +628,10 @@
     }
 
     const slug = normSlug(readMany(CFG.SLUG_KEYS));
-    const phone = normPhone(readMany(CFG.PHONE_KEYS));
+    const phone =
+      normPhone(readMany(CFG.PHONE_KEYS)) ||
+      normPhone(window.DIGIY_MARKET_HUB_PHONE || "");
+
     const owner_id = readMany(CFG.OWNER_KEYS) || null;
 
     const flag =
@@ -642,6 +818,7 @@
 
     try {
       delete window.DIGIY_ACCESS;
+      delete window.DIGIY_MARKET_HUB_PHONE;
     } catch (_) {}
   }
 
@@ -660,7 +837,9 @@
 
     const fromUrl = readUrlIdentity();
     const storedSlug = normSlug(readMany(CFG.SLUG_KEYS));
-    const storedPhone = normPhone(readMany(CFG.PHONE_KEYS));
+    const storedPhone =
+      normPhone(readMany(CFG.PHONE_KEYS)) ||
+      normPhone(window.DIGIY_MARKET_HUB_PHONE || "");
 
     let slug = fromUrl.slug || storedSlug || "";
     let phone = fromUrl.phone || storedPhone || "";
@@ -700,7 +879,7 @@
 
   async function loginWithPin(identityInput, pinInput) {
     const identityRaw = String(identityInput || state.slug || state.phone || "").trim();
-    const pin = String(pinInput || "").trim();
+    const pin = String(pinInput || "").trim().replace(/\s+/g, "");
 
     if (!identityRaw) return { ok: false, error: "Compte MARKET introuvable." };
     if (!pin) return { ok: false, error: "Code manquant." };
@@ -740,10 +919,27 @@
         continue;
       }
 
+      const finalSlug = normSlug(data.slug || data.workspace_slug || slug);
+      const finalPhone = normPhone(data.phone || data.market_phone || phone);
+      const ownerId = data.owner_id || data.ownerId || data.profile?.owner_id || null;
+
+      const accessOk = await checkAccess(finalPhone);
+
+      if (!accessOk) {
+        return {
+          ok: false,
+          error: "Abonnement MARKET inactif.",
+          detail: {
+            source: "abos_then_legacy",
+            phone: finalPhone ? "resolved" : "missing"
+          }
+        };
+      }
+
       const session = saveSession({
-        slug: data.slug || data.workspace_slug || slug,
-        phone: data.phone || data.market_phone || phone,
-        owner_id: data.owner_id || data.ownerId || data.profile?.owner_id || null,
+        slug: finalSlug,
+        phone: finalPhone,
+        owner_id: ownerId,
         access_until: data.access_until || data.pin_access_until || data.expires_at,
         validated_at: data.validated_at,
         reason: data.reason || "market_pin_ok",
@@ -802,6 +998,7 @@
   }
 
   window.DIGIY_GUARD = {
+    VERSION: "market-guard-abos-central-v1-20260522",
     state,
 
     ready,
@@ -832,6 +1029,10 @@
     saveSession,
 
     loginWithPin,
+
+    checkAccess,
+    checkAccessFromAbos,
+    checkAccessLegacy,
 
     clearSession() {
       clearSessionsOnly();
@@ -871,7 +1072,11 @@
       location.href = CFG.PAY_PATH;
     },
 
-    buildCleanInternalPath
+    buildCleanInternalPath,
+
+    getSb() {
+      return client();
+    }
   };
 
   cleanVisibleUrl();
