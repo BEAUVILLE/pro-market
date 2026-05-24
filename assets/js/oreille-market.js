@@ -1,709 +1,122 @@
-/* ==========================================================================
-   DIGIYLYFE — OREILLE MARKET V1
-   Fichier : assets/js/oreille-market.js
-   Version : 2026-05-24 · produit + prix + stock + client + livraison
-   Dépendance : assets/js/oreille-metier-core.js
+/* DIGIYLYFE — OREILLE MARKET
+   Le vendeur parle ou clique. DIGIY formule. Le vendeur valide. MARKET range.
+   Rien n’est publié, vendu, promis ou confirmé automatiquement.
+*/
+(function(){
+  'use strict';
+  var VERSION='oreille-market-grand-paves-20260524';
+  var CLIENTS_KEY='DIGIY_MARKET_CLIENTS_LOCAL_V1';
 
-   Doctrine :
-   L’Oreille écoute.
-   DIGIY formule.
-   Le vendeur valide.
-   MARKET range.
-   Aucun produit, prix, stock, paiement ou engagement n’est publié automatiquement.
-   ========================================================================== */
+  var GUIDE='Bienvenue dans Oreille MARKET DIGIYLYFE. Ici, le vendeur peut parler ou cliquer pour préparer un produit, une annonce, une commande, un paiement, une livraison, un retrait ou un message client. MARKET aide à préciser le produit, le prix, le stock, le client, le téléphone, le lieu, le mode cash ou Wave, la preuve et le statut. Mais MARKET ne publie jamais seul une annonce, ne promet jamais un stock, ne confirme jamais un paiement et ne vend jamais à la place du professionnel. Le vendeur vérifie, corrige et valide. L’Oreille prépare. DIGIY formule. MARKET range. Le terrain garde la main.';
 
-(function () {
-  "use strict";
-
-  var VERSION = "oreille-market-v1-20260524";
-  var CLIENTS_KEY = "DIGIY_MARKET_CLIENTS_LOCAL_V1";
-
-  var MARKET_GUIDE =
-    "Bienvenue dans Oreille MARKET DIGIYLYFE. " +
-    "Ici, le vendeur peut parler ou cliquer pour préparer une annonce, une commande ou un message client. " +
-    "MARKET aide à préciser le produit, le prix, le stock, le client ou la source, le téléphone, le lieu de retrait ou livraison, le mode de paiement, la preuve et le statut. " +
-    "Mais MARKET ne publie jamais seul une annonce, ne promet jamais un stock, ne confirme jamais un paiement et ne vend jamais à la place du professionnel. " +
-    "Le vendeur vérifie le prix, la disponibilité, le client, la preuve et le message avant de publier, copier ou ranger. " +
-    "L’Oreille prépare. DIGIY formule. Le vendeur relit. Le vendeur valide. MARKET range. " +
-    "Le terrain garde la main.";
-
-  var MARKET_TEMPLATES = [
-    "🛍️ Nouveau produit — produit · prix · stock · lieu · photo/preuve · contact.",
-    "💬 Message client — client · téléphone · produit · question · réponse prête.",
-    "📦 Commande reçue — client · téléphone · produit · quantité · prix · statut.",
-    "🚚 Livraison / retrait — client · téléphone · lieu · heure · détail.",
-    "💰 Paiement — montant · mode cash/Wave/autre · client · produit · preuve.",
-    "🏷️ Promo / arrivage — produit · prix · durée · stock · message.",
-    "📸 Photo produit — produit · détail · couleur/taille · preuve visuelle.",
-    "📉 Stock faible — produit · quantité restante · action utile.",
-    "✅ Produit disponible — produit · prix · stock · contact · lieu.",
-    "⚠️ Doute / brouillon — garder en note, ne pas publier sans validation."
+  var TEMPLATES=[
+    '🛍️ Nouveau produit — produit · prix · stock · lieu · photo/preuve · contact.',
+    '💬 Message client — client · téléphone · produit · question · réponse prête.',
+    '📦 Commande reçue — client · téléphone · produit · quantité · prix · statut.',
+    '🚚 Livraison / retrait — client · téléphone · lieu · heure · détail.',
+    '💰 Paiement — montant · mode cash/Wave/autre · client · produit · preuve.',
+    '🏷️ Promo / arrivage — produit · prix · durée · stock · message.',
+    '📸 Photo produit — produit · détail · couleur/taille · preuve visuelle.',
+    '📉 Stock faible — produit · quantité restante · action utile.',
+    '✅ Produit disponible — produit · prix · stock · contact · lieu.',
+    '⚠️ Brouillon — garder la trace sans publier, vendre ou promettre.'
   ];
 
-  var MARKET_CONFIG = {
-    module: "MARKET",
-    title: "Oreille MARKET",
-    subtitle: "Produit · prix · stock · client · téléphone · retrait/livraison · statut.",
-    storagePrefix: "DIGIY_OREILLE_METIER",
-    guideText: MARKET_GUIDE,
-    templates: MARKET_TEMPLATES
+  var CONFIG={
+    module:'MARKET',
+    title:'Oreille MARKET',
+    subtitle:'Produit · prix · stock · client · téléphone · retrait/livraison · statut.',
+    storagePrefix:'DIGIY_OREILLE_METIER',
+    guideText:GUIDE,
+    templates:TEMPLATES
   };
 
-  function ready(fn) {
-    if (document.readyState === "loading") {
-      document.addEventListener("DOMContentLoaded", fn);
-    } else {
-      fn();
+  function ready(fn){document.readyState==='loading'?document.addEventListener('DOMContentLoaded',fn):fn();}
+  function core(){return window.DigiyOreilleMetier||null;}
+  function norm(v){var c=core();return c&&c.normalizeText?c.normalizeText(v):String(v||'').replace(/\s+/g,' ').trim();}
+  function low(v){return norm(v).toLowerCase();}
+  function findTarget(){return document.querySelector('#digiy-oreille-market')||document.querySelector('[data-digiy-oreille-market]')||document.querySelector('[data-digiy-market-oreille]')||document.querySelector('#digiy-oreille-metier')||document.querySelector('[data-digiy-oreille]');}
+
+  function field(text,labels){
+    var clean=norm(text);
+    for(var i=0;i<labels.length;i++){
+      var label=labels[i];
+      var re=new RegExp('(?:^|[\\s;,.|—-])'+label+'\\s*[:\\-]?\\s*([^;|\\n]+?)(?=\\s+(?:produit|article|client|source|nom|tel|tél|telephone|téléphone|prix|tarif|montant|stock|quantité|quantite|lieu|endroit|adresse|livraison|retrait|heure|date|mode|paiement|preuve|photo|détail|detail|statut|message|question|réponse|reponse)\\s*[:\\-]|$)','i');
+      var m=clean.match(re);if(m&&m[1])return norm(m[1]);
     }
+    return '';
+  }
+  function phone(text){var clean=norm(text);var e=clean.match(/(?:tel|tél|telephone|téléphone|phone|numéro|numero|whatsapp)\s*[:\-]?\s*((?:\+?\d[\d\s().-]{6,}\d))/i);if(e&&e[1])return norm(e[1]);var any=clean.match(/(?:\+?\d[\d\s().-]{7,}\d)/);return any?norm(any[0]):'';}
+  function product(text){var x=field(text,['produit','article','marchandise','objet']);if(x)return x;var m=norm(text).match(/\b(?:vente|vendre|commande|réserver|reserver|acheter|achat|produit)\s+([A-Za-zÀ-ÿ0-9][A-Za-zÀ-ÿ0-9\s'.-]{1,55})/i);return m?norm(m[1]).replace(/\b(?:prix|stock|quantité|quantite|cash|wave|fcfa|cfa|livraison|retrait)\b.*$/i,'').trim():'';}
+  function client(text){var x=field(text,['client','source','nom','personne']);if(x)return x;var m=norm(text).match(/\b(?:client|pour|avec|chez)\s+([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s'.-]{1,40})/i);return m?norm(m[1]).replace(/\b(?:tel|produit|prix|stock|quantité|quantite|livraison|retrait|cash|wave)\b.*$/i,'').trim():'';}
+  function price(text){var x=field(text,['prix','tarif','montant']);if(x)return x;var m=norm(text).match(/\b(\d[\d\s.,]*)\s*(fcfa|f\s*cfa|xof|cfa|€|eur|euro|euros)\b/i);return m?norm(m[1]+' '+(m[2]||'')):'';}
+  function qty(text){var x=field(text,['quantité','quantite','stock','nombre']);if(x)return x;var m=norm(text).match(/\b(\d{1,4})\s*(pièces|pieces|pcs|unités|unites|articles|stock)?\b/i);return m?m[1]:'';}
+  function place(text){return field(text,['lieu','endroit','adresse','zone','retrait','livraison','point retrait','point de retrait']);}
+  function payMode(text){var x=field(text,['mode','paiement','mode paiement']);if(x)return x;var t=low(text);if(/wave|wav/.test(t))return 'Wave';if(/cash|espèce|espece|liquide/.test(t))return 'cash';if(/orange money|om\b/.test(t))return 'Orange Money';if(/virement|banque|carte|mobile money|autre/.test(t))return 'autre';return '';}
+  function proof(text){var x=field(text,['preuve','photo','reçu','recu','capture']);if(x)return x;return /photo|preuve|capture|reçu|recu/i.test(text)?'à vérifier':'';}
+  function detail(text){return field(text,['détail','detail','description','message','question','réponse','reponse','note','taille','couleur','marque']);}
+  function status(text){var t=low(text);if(/disponible|en stock|stock ok|reste/.test(t))return 'disponible à vérifier';if(/rupture|plus de stock|indisponible|épuisé|epuise/.test(t))return 'stock indisponible';if(/commande|commandé|commande reçue|commande recue|réservé|reserve/.test(t))return 'commande à vérifier';if(/livraison|livrer|retrait|à retirer|a retirer/.test(t))return 'livraison/retrait à organiser';if(/payé|paye|paiement|wave|cash|reçu|recu/.test(t))return 'paiement à vérifier';if(/publier|annonce|promo|arrivage/.test(t))return 'annonce à préparer';return 'brouillon market';}
+
+  function draft(text){
+    var clean=norm(text);
+    var d={module:'MARKET',raw_text:clean,product:product(clean),price:price(clean),quantity:qty(clean),client_name:client(clean),client_phone:phone(clean),location:place(clean),payment_mode:payMode(clean),detail:detail(clean),proof:proof(clean),status:status(clean),created_at:new Date().toISOString(),warning:'À vérifier par le vendeur avant publication, vente ou promesse client.'};
+    d.missing=[];
+    if(!d.product)d.missing.push('produit');
+    if(!d.price)d.missing.push('prix');
+    if(!d.quantity)d.missing.push('stock/quantité');
+    if(!d.client_name)d.missing.push('client/source');
+    if(!d.client_phone)d.missing.push('téléphone');
+    if(!d.location)d.missing.push('lieu retrait/livraison');
+    if(!d.payment_mode)d.missing.push('mode cash/Wave/autre');
+    if(!d.detail)d.missing.push('détail');
+    if(!d.proof)d.missing.push('preuve/photo');
+    return d;
+  }
+  function line(label,value){return ' · '+label+' : '+(value||'à préciser');}
+  function format(d){
+    if(!d||!d.raw_text)return 'MARKET · Note vide : préciser produit, prix, stock, client, téléphone, lieu, mode, détail et preuve avant validation.';
+    var missing=d.missing&&d.missing.length?'Manque : '+d.missing.join(', ')+'. ':'Trace complète à vérifier. ';
+    var warning='MARKET ne publie pas seul. Le vendeur doit vérifier prix, stock, client, preuve et message avant publication ou réponse.';
+    if(d.status==='paiement à vérifier')warning='Paiement à vérifier avant de compter l’argent comme reçu ou de confirmer la commande.';
+    if(d.status==='stock indisponible')warning='Stock à vérifier avant d’annoncer une disponibilité au client.';
+    return 'MARKET · Trace préparée — '+line('Produit',d.product)+line('Prix',d.price)+line('Stock/quantité',d.quantity)+line('Client/source',d.client_name)+line('Téléphone',d.client_phone)+line('Lieu retrait/livraison',d.location)+line('Mode',d.payment_mode||'cash / Wave / autre à choisir')+line('Détail',d.detail)+line('Preuve/photo',d.proof||'à vérifier')+line('Statut',d.status)+'. '+missing+warning+' Texte d’origine : '+d.raw_text;
+  }
+  function formulate(text){return format(draft(text));}
+
+  function getClients(){try{var a=JSON.parse(localStorage.getItem(CLIENTS_KEY)||'[]');return Array.isArray(a)?a:[];}catch(_){return [];}}
+  function setClients(list){try{localStorage.setItem(CLIENTS_KEY,JSON.stringify((list||[]).slice(0,200)));}catch(_){}}
+  function upsertClient(d){if(!d||(!d.client_name&&!d.client_phone))return null;var list=getClients();var phone=norm(d.client_phone);var name=norm(d.client_name)||'Client sans nom';var found=null;if(phone)found=list.find(function(c){return norm(c.phone)===phone;});if(!found&&name)found=list.find(function(c){return low(c.name)===low(name);});var now=new Date().toISOString();if(found){found.name=found.name||name;found.phone=found.phone||phone;found.last_product=d.product||found.last_product||'';found.last_price=d.price||found.last_price||'';found.last_quantity=d.quantity||found.last_quantity||'';found.last_location=d.location||found.last_location||'';found.last_payment_mode=d.payment_mode||found.last_payment_mode||'';found.last_status=d.status||found.last_status||'';found.updated_at=now;}else{found={id:'market_client_'+Date.now(),name:name,phone:phone,last_product:d.product||'',last_price:d.price||'',last_quantity:d.quantity||'',last_location:d.location||'',last_payment_mode:d.payment_mode||'',last_status:d.status||'brouillon market',notes:'',created_at:now,updated_at:now};list.unshift(found);}setClients(list);return found;}
+
+  function injectStrongStyles(){
+    var old=document.getElementById('digiyOreilleMarketStrongStyles');if(old)old.remove();
+    var s=document.createElement('style');s.id='digiyOreilleMarketStrongStyles';
+    s.textContent=`
+      .digiy-oreille-box{border-radius:30px!important;padding:18px!important;background:#fff8e8!important;color:#182014!important;box-shadow:0 18px 42px rgba(0,0,0,.22)!important}
+      .digiy-oreille-head strong{font-size:1.70rem!important;line-height:1.02!important;font-weight:1000!important;letter-spacing:-.055em!important;color:#102015!important}
+      .digiy-oreille-head span{font-size:1.10rem!important;font-weight:1000!important;line-height:1.32!important;color:#51472f!important}
+      .digiy-oreille-actions{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important;margin:15px 0!important}
+      .digiy-oreille-actions button{width:100%!important;min-height:70px!important;border-radius:22px!important;padding:13px 10px!important;font-size:1.10rem!important;font-weight:1000!important;line-height:1.08!important;text-align:center!important;box-shadow:0 10px 24px rgba(32,24,8,.12)!important}
+      .digiy-oreille-status{font-size:1.08rem!important;font-weight:1000!important;line-height:1.34!important;padding:14px 15px!important;border-radius:20px!important}
+      .digiy-oreille-text{min-height:138px!important;font-size:1.08rem!important;font-weight:1000!important;line-height:1.44!important;border-radius:22px!important;padding:15px!important}
+      .digiy-market-help{font-size:1.04rem!important;font-weight:1000!important;line-height:1.34!important;border-radius:20px!important;padding:14px!important;background:rgba(250,204,21,.16)!important;color:#25351f!important}
+      .digiy-oreille-templates{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important;max-height:none!important;overflow:visible!important;padding:0!important;border:0!important;background:transparent!important;scroll-snap-type:none!important}
+      .digiy-oreille-template{min-height:104px!important;width:100%!important;border-radius:24px!important;padding:16px 17px!important;font-size:1.16rem!important;font-weight:1000!important;line-height:1.20!important;letter-spacing:-.02em!important;white-space:normal!important;overflow:visible!important;background:linear-gradient(160deg,#fffdf4,#fff0b8)!important;color:#102015!important;border:2px solid rgba(15,107,66,.20)!important;box-shadow:0 14px 30px rgba(32,24,8,.12)!important}
+      .digiy-market-client-mini{font-size:1.04rem!important;font-weight:1000!important;line-height:1.34!important;border-radius:20px!important;padding:14px!important}
+      .digiy-oreille-note{min-height:96px!important;border-radius:24px!important;padding:16px 17px!important;font-size:1.08rem!important;font-weight:1000!important;line-height:1.34!important}
+      .digiy-oreille-note b{font-size:1.25rem!important;font-weight:1000!important}
+      .digiy-oreille-note span,.digiy-oreille-note div{font-size:1.06rem!important;font-weight:1000!important;line-height:1.34!important}
+      @media(max-width:760px){.digiy-oreille-actions{grid-template-columns:repeat(2,minmax(0,1fr))!important}.digiy-oreille-templates{grid-template-columns:1fr!important}.digiy-oreille-template{min-height:98px!important;font-size:1.12rem!important}.digiy-oreille-actions button{min-height:66px!important;font-size:1.06rem!important}}
+      @media(max-width:430px){.digiy-oreille-box{padding:15px!important}.digiy-oreille-head strong{font-size:1.52rem!important}.digiy-oreille-head span{font-size:1.02rem!important}.digiy-oreille-template{min-height:94px!important;font-size:1.08rem!important;padding:15px!important}.digiy-oreille-actions button{min-height:64px!important;font-size:1.03rem!important}.digiy-oreille-text{font-size:1.03rem!important}}
+    `;
+    document.head.appendChild(s);
   }
 
-  function normalizeText(value) {
-    return String(value || "")
-      .replace(/\s+/g, " ")
-      .replace(/\s+([,.!?;:])/g, "$1")
-      .trim();
-  }
-
-  function lower(value) {
-    return normalizeText(value).toLowerCase();
-  }
-
-  function findMountTarget() {
-    return (
-      document.querySelector("#digiy-oreille-market") ||
-      document.querySelector("[data-digiy-oreille-market]") ||
-      document.querySelector("[data-digiy-market-oreille]") ||
-      document.querySelector("#digiy-oreille-metier") ||
-      document.querySelector("[data-digiy-oreille]")
-    );
-  }
-
-  function extractField(text, labels) {
-    var clean = normalizeText(text);
-
-    for (var i = 0; i < labels.length; i += 1) {
-      var label = labels[i];
-
-      var re = new RegExp(
-        "(?:^|[\\s;,.|—-])" +
-          label +
-          "\\s*[:\\-]?\\s*([^;|\\n]+?)(?=\\s+(?:produit|article|client|source|nom|tel|tél|telephone|téléphone|prix|tarif|montant|stock|quantité|quantite|lieu|endroit|adresse|livraison|retrait|heure|date|mode|paiement|preuve|photo|détail|detail|statut|message|question|réponse|reponse)\\s*[:\\-]|$)",
-        "i"
-      );
-
-      var match = clean.match(re);
-      if (match && match[1]) return normalizeText(match[1]);
-    }
-
-    return "";
-  }
-
-  function extractPhone(text) {
-    var clean = normalizeText(text);
-    var explicit = clean.match(/(?:tel|tél|telephone|téléphone|phone|numéro|numero)\s*[:\-]?\s*((?:\+?\d[\d\s().-]{6,}\d))/i);
-    if (explicit && explicit[1]) return normalizeText(explicit[1]);
-
-    var any = clean.match(/(?:\+?\d[\d\s().-]{7,}\d)/);
-    return any ? normalizeText(any[0]) : "";
-  }
-
-  function extractClientName(text) {
-    var explicit = extractField(text, ["client", "source", "nom", "personne"]);
-    if (explicit) return explicit;
-
-    var clean = normalizeText(text);
-    var match = clean.match(/\b(?:client|pour|avec|chez)\s+([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s'.-]{1,40})/i);
-
-    if (match && match[1]) {
-      var candidate = normalizeText(match[1])
-        .replace(/\b(?:tel|produit|prix|stock|quantité|quantite|livraison|retrait|cash|wave)\b.*$/i, "")
-        .trim();
-
-      if (candidate && candidate.length <= 45) return candidate;
-    }
-
-    return "";
-  }
-
-  function extractProduct(text) {
-    var explicit = extractField(text, ["produit", "article", "marchandise", "objet"]);
-    if (explicit) return explicit;
-
-    var clean = normalizeText(text);
-    var match = clean.match(/\b(?:vente|vendre|commande|réserver|reserver|acheter|achat)\s+([A-Za-zÀ-ÿ0-9][A-Za-zÀ-ÿ0-9\s'.-]{1,50})/i);
-
-    if (match && match[1]) {
-      var candidate = normalizeText(match[1])
-        .replace(/\b(?:prix|stock|quantité|quantite|cash|wave|fcfa|cfa|livraison|retrait)\b.*$/i, "")
-        .trim();
-
-      if (candidate && candidate.length <= 60) return candidate;
-    }
-
-    return "";
-  }
-
-  function extractPrice(text) {
-    var explicit = extractField(text, ["prix", "tarif", "montant"]);
-    if (explicit) return explicit;
-
-    var clean = normalizeText(text);
-    var match = clean.match(/\b(\d[\d\s.,]*)\s*(fcfa|f\s*cfa|xof|cfa|€|eur|euro|euros)\b/i);
-
-    if (match && match[1]) {
-      return normalizeText(match[1] + " " + (match[2] || ""));
-    }
-
-    return "";
-  }
-
-  function extractQuantity(text) {
-    var explicit = extractField(text, ["quantité", "quantite", "stock", "nombre"]);
-    if (explicit) return explicit;
-
-    var clean = normalizeText(text);
-    var match = clean.match(/\b(\d{1,4})\s*(pièces|pieces|pcs|unités|unites|articles|stock)?\b/i);
-
-    if (match && match[1]) {
-      var n = Number(match[1]);
-      if (n > 0 && n < 10000) return String(n);
-    }
-
-    return "";
-  }
-
-  function extractLocation(text) {
-    return extractField(text, [
-      "lieu",
-      "endroit",
-      "adresse",
-      "zone",
-      "retrait",
-      "livraison",
-      "point retrait",
-      "point de retrait"
-    ]);
-  }
-
-  function extractDate(text) {
-    var explicit = extractField(text, ["date", "jour"]);
-    if (explicit) return explicit;
-
-    var clean = normalizeText(text);
-
-    var numeric = clean.match(/\b(\d{1,2}[\/.-]\d{1,2}(?:[\/.-]\d{2,4})?)\b/);
-    if (numeric && numeric[1]) return numeric[1];
-
-    var natural = clean.match(/\b(aujourd'hui|demain|après-demain|apres-demain|lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)\b/i);
-    if (natural && natural[1]) return natural[1];
-
-    return "";
-  }
-
-  function extractTime(text) {
-    var explicit = extractField(text, ["heure", "horaire"]);
-    if (explicit) return explicit;
-
-    var clean = normalizeText(text);
-    var match = clean.match(/\b(\d{1,2}\s*h(?:\s*\d{2})?|\d{1,2}:\d{2})\b/i);
-    return match && match[1] ? normalizeText(match[1]) : "";
-  }
-
-  function extractPaymentMode(text) {
-    var explicit = extractField(text, ["mode", "paiement", "mode paiement"]);
-    if (explicit) return explicit;
-
-    var t = lower(text);
-
-    if (/wave|wav/.test(t)) return "Wave";
-    if (/cash|espèce|espece|liquide/.test(t)) return "cash";
-    if (/orange money|om\b/.test(t)) return "Orange Money";
-    if (/virement|banque|carte|chèque|cheque|autre|mobile money/.test(t)) return "autre";
-
-    return "";
-  }
-
-  function extractProof(text) {
-    var proof = extractField(text, ["preuve", "photo", "reçu", "recu", "capture"]);
-    if (proof) return proof;
-
-    var t = lower(text);
-    if (/photo|preuve|capture|reçu|recu/.test(t)) return "à vérifier";
-    return "";
-  }
-
-  function extractDetail(text) {
-    return extractField(text, [
-      "détail",
-      "detail",
-      "description",
-      "message",
-      "question",
-      "réponse",
-      "reponse",
-      "note",
-      "taille",
-      "couleur",
-      "marque"
-    ]);
-  }
-
-  function guessStatus(text) {
-    var t = lower(text);
-
-    if (/disponible|en stock|stock ok|reste/.test(t)) return "disponible à vérifier";
-    if (/rupture|plus de stock|indisponible|épuisé|epuise/.test(t)) return "stock indisponible";
-    if (/commande|commandé|commande reçue|commande recue|réservé|reserve/.test(t)) return "commande à vérifier";
-    if (/livraison|livrer|retrait|à retirer|a retirer/.test(t)) return "livraison/retrait à organiser";
-    if (/payé|paye|paiement|wave|cash|reçu|recu/.test(t)) return "paiement à vérifier";
-    if (/publier|annonce|promo|arrivage/.test(t)) return "annonce à préparer";
-
-    return "brouillon market";
-  }
-
-  function missingFields(draft) {
-    var missing = [];
-
-    if (!draft.product) missing.push("produit");
-    if (!draft.price) missing.push("prix");
-    if (!draft.quantity) missing.push("stock/quantité");
-    if (!draft.client_name) missing.push("client/source");
-    if (!draft.client_phone) missing.push("téléphone");
-    if (!draft.location) missing.push("lieu retrait/livraison");
-    if (!draft.payment_mode) missing.push("mode cash/Wave/autre");
-    if (!draft.detail) missing.push("détail");
-    if (!draft.proof) missing.push("preuve/photo");
-
-    return missing;
-  }
-
-  function buildMarketDraft(text) {
-    var clean = normalizeText(text);
-
-    var draft = {
-      module: "MARKET",
-      raw_text: clean,
-      product: extractProduct(clean),
-      price: extractPrice(clean),
-      quantity: extractQuantity(clean),
-      client_name: extractClientName(clean),
-      client_phone: extractPhone(clean),
-      location: extractLocation(clean),
-      date: extractDate(clean),
-      time: extractTime(clean),
-      payment_mode: extractPaymentMode(clean),
-      detail: extractDetail(clean),
-      proof: extractProof(clean),
-      status: guessStatus(clean),
-      created_at: new Date().toISOString(),
-      warning: "À vérifier par le vendeur avant publication, vente ou promesse client."
-    };
-
-    draft.missing = missingFields(draft);
-    return draft;
-  }
-
-  function formatMarketDraftMessage(draft) {
-    if (!draft || !draft.raw_text) {
-      return "MARKET · Note vide : préciser produit, prix, stock, client, téléphone, lieu, mode, détail et preuve avant validation.";
-    }
-
-    var productPart = "Produit : " + (draft.product || "à préciser");
-    var pricePart = "Prix : " + (draft.price || "à préciser");
-    var quantityPart = "Stock/quantité : " + (draft.quantity || "à préciser");
-    var clientPart = "Client/source : " + (draft.client_name || "à préciser");
-    var phonePart = "Téléphone : " + (draft.client_phone || "à préciser");
-    var locationPart = "Lieu retrait/livraison : " + (draft.location || "à préciser");
-    var datePart = "Date : " + (draft.date || "à préciser si utile");
-    var timePart = "Heure : " + (draft.time || "à préciser si utile");
-    var modePart = "Mode : " + (draft.payment_mode || "cash / Wave / autre à choisir");
-    var detailPart = "Détail : " + (draft.detail || "à préciser");
-    var proofPart = "Preuve/photo : " + (draft.proof || "à vérifier");
-    var statusPart = "Statut : " + (draft.status || "brouillon market");
-
-    var missing =
-      draft.missing && draft.missing.length
-        ? "Manque : " + draft.missing.join(", ") + ". "
-        : "Trace complète à vérifier. ";
-
-    var warning =
-      "MARKET ne publie pas seul. Le vendeur doit vérifier prix, stock, client, preuve et message avant publication ou réponse.";
-
-    if (draft.status === "paiement à vérifier") {
-      warning = "Paiement à vérifier avant de compter l’argent comme reçu ou de confirmer la commande.";
-    }
-
-    if (draft.status === "stock indisponible") {
-      warning = "Stock à vérifier avant d’annoncer une disponibilité au client.";
-    }
-
-    return (
-      "MARKET · Trace préparée — " +
-      productPart +
-      " · " +
-      pricePart +
-      " · " +
-      quantityPart +
-      " · " +
-      clientPart +
-      " · " +
-      phonePart +
-      " · " +
-      locationPart +
-      " · " +
-      datePart +
-      " · " +
-      timePart +
-      " · " +
-      modePart +
-      " · " +
-      detailPart +
-      " · " +
-      proofPart +
-      " · " +
-      statusPart +
-      ". " +
-      missing +
-      warning +
-      " Texte d’origine : " +
-      draft.raw_text
-    );
-  }
-
-  function formulateMarketDeep(text) {
-    return formatMarketDraftMessage(buildMarketDraft(text));
-  }
-
-  function getClients() {
-    try {
-      var raw = localStorage.getItem(CLIENTS_KEY) || "[]";
-      var parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch (_err) {
-      return [];
-    }
-  }
-
-  function setClients(clients) {
-    try {
-      localStorage.setItem(CLIENTS_KEY, JSON.stringify((clients || []).slice(0, 200)));
-    } catch (_err) {}
-  }
-
-  function upsertClientFromDraft(draft) {
-    if (!draft || (!draft.client_name && !draft.client_phone)) return null;
-
-    var clients = getClients();
-    var phone = normalizeText(draft.client_phone);
-    var name = normalizeText(draft.client_name) || "Client sans nom";
-    var found = null;
-
-    if (phone) {
-      found = clients.find(function (c) {
-        return normalizeText(c.phone) === phone;
-      });
-    }
-
-    if (!found && name) {
-      found = clients.find(function (c) {
-        return lower(c.name) === lower(name);
-      });
-    }
-
-    var now = new Date().toISOString();
-
-    if (found) {
-      found.name = found.name || name;
-      found.phone = found.phone || phone;
-      found.last_product = draft.product || found.last_product || "";
-      found.last_price = draft.price || found.last_price || "";
-      found.last_quantity = draft.quantity || found.last_quantity || "";
-      found.last_location = draft.location || found.last_location || "";
-      found.last_payment_mode = draft.payment_mode || found.last_payment_mode || "";
-      found.last_status = draft.status || found.last_status || "";
-      found.updated_at = now;
-    } else {
-      found = {
-        id: "market_client_" + Date.now(),
-        name: name,
-        phone: phone,
-        last_product: draft.product || "",
-        last_price: draft.price || "",
-        last_quantity: draft.quantity || "",
-        last_location: draft.location || "",
-        last_payment_mode: draft.payment_mode || "",
-        last_status: draft.status || "brouillon market",
-        notes: "",
-        created_at: now,
-        updated_at: now
-      };
-
-      clients.unshift(found);
-    }
-
-    setClients(clients);
-    return found;
-  }
-
-  function injectMarketStyles() {
-    if (document.getElementById("digiyOreilleMarketStyles")) return;
-
-    var style = document.createElement("style");
-    style.id = "digiyOreilleMarketStyles";
-    style.textContent =
-      ".digiy-market-help{" +
-        "margin:10px 0 0;" +
-        "border:1px dashed rgba(83,58,26,.24);" +
-        "border-radius:16px;" +
-        "background:rgba(250,204,21,.13);" +
-        "padding:10px;" +
-        "color:#25351f;" +
-        "font-weight:950;" +
-        "line-height:1.32;" +
-        "font-size:14px;" +
-      "}" +
-
-      ".digiy-market-help b{color:#6b4e09;font-weight:1000}" +
-
-      ".digiy-oreille-templates{" +
-        "display:grid!important;" +
-        "grid-template-columns:repeat(2,minmax(0,1fr))!important;" +
-        "gap:7px!important;" +
-        "max-height:220px!important;" +
-        "overflow-y:auto!important;" +
-        "padding-right:5px!important;" +
-        "scroll-snap-type:y proximity!important;" +
-        "-webkit-overflow-scrolling:touch!important;" +
-        "border:1px solid rgba(83,58,26,.18)!important;" +
-        "border-radius:18px!important;" +
-        "background:rgba(255,255,255,.38)!important;" +
-        "padding:8px!important;" +
-      "}" +
-
-      ".digiy-oreille-template{" +
-        "min-height:52px!important;" +
-        "display:flex!important;" +
-        "align-items:center!important;" +
-        "justify-content:flex-start!important;" +
-        "border-radius:14px!important;" +
-        "font-size:12px!important;" +
-        "font-weight:1000!important;" +
-        "line-height:1.14!important;" +
-        "padding:8px!important;" +
-        "letter-spacing:-.01em!important;" +
-        "scroll-snap-align:start!important;" +
-        "overflow:hidden!important;" +
-      "}" +
-
-      ".digiy-market-client-mini{" +
-        "margin-top:10px;" +
-        "border:1px solid rgba(24,32,20,.14);" +
-        "border-radius:16px;" +
-        "background:#fffdf4;" +
-        "padding:10px;" +
-        "font-weight:900;" +
-        "color:#182014;" +
-        "line-height:1.32;" +
-        "font-size:14px;" +
-      "}" +
-
-      ".digiy-market-client-mini b{" +
-        "display:block;" +
-        "margin-bottom:4px;" +
-        "color:#14532d;" +
-        "font-weight:1000;" +
-      "}" +
-
-      "@media(min-width:760px){" +
-        ".digiy-oreille-templates{max-height:245px!important;}" +
-        ".digiy-oreille-template{min-height:56px!important;font-size:12.5px!important;}" +
-      "}" +
-
-      "@media(max-width:360px){" +
-        ".digiy-oreille-templates{max-height:205px!important;}" +
-        ".digiy-oreille-template{min-height:49px!important;font-size:11.5px!important;}" +
-      "}";
-
-    document.head.appendChild(style);
-  }
-
-  function addMarketHelp(target) {
-    if (!target || target.querySelector(".digiy-market-help")) return;
-
-    var status = target.querySelector(".digiy-oreille-status");
-    if (!status) return;
-
-    var help = document.createElement("div");
-    help.className = "digiy-market-help";
-    help.innerHTML =
-      "<b>MARKET demande une trace complète.</b><br>" +
-      "Produit · prix · stock · client/source · téléphone · retrait/livraison · mode cash/Wave/autre · preuve. " +
-      "Aucune annonce ou promesse client n’est validée sans le vendeur.";
-
-    status.insertAdjacentElement("afterend", help);
-  }
-
-  function addClientPreview(target) {
-    if (!target || target.querySelector(".digiy-market-client-mini")) return;
-
-    var notes = target.querySelector(".digiy-oreille-notes");
-    if (!notes) return;
-
-    var box = document.createElement("div");
-    box.className = "digiy-market-client-mini";
-    box.innerHTML =
-      "<b>📇 Fichier client MARKET local</b>" +
-      "<span>Quand tu ranges une commande avec nom ou téléphone, MARKET garde une trace client sur cet appareil.</span>";
-
-    notes.insertAdjacentElement("beforebegin", box);
-  }
-
-  function patchInstanceButtons(target, core) {
-    if (!target) return;
-
-    target.addEventListener(
-      "click",
-      function (event) {
-        var actionEl = event.target.closest("[data-action]");
-        if (!actionEl) return;
-
-        var action = actionEl.getAttribute("data-action");
-        var textArea = target.querySelector(".digiy-oreille-text");
-        var status = target.querySelector(".digiy-oreille-status");
-
-        if (!textArea) return;
-
-        if (action === "formulate") {
-          window.setTimeout(function () {
-            textArea.value = formulateMarketDeep(textArea.value);
-            if (status) status.textContent = "Trace MARKET préparée. Complète les champs manquants puis valide.";
-          }, 0);
-        }
-
-        if (action === "save") {
-          window.setTimeout(function () {
-            var draft = buildMarketDraft(textArea.value);
-            upsertClientFromDraft(draft);
-
-            if (status) {
-              status.textContent =
-                draft.missing && draft.missing.length
-                  ? "Trace rangée en brouillon. Il manque : " + draft.missing.join(", ") + "."
-                  : "Trace rangée. Client local mis à jour si nom ou téléphone présent.";
-            }
-
-            if (core && typeof core.showToast === "function") {
-              core.showToast("MARKET rangé en brouillon");
-            }
-          }, 0);
-        }
-      },
-      true
-    );
-  }
-
-  function exposeMarketApi(core) {
-    window.DigiyOreilleMARKET = {
-      version: VERSION,
-      config: MARKET_CONFIG,
-      templates: MARKET_TEMPLATES.slice(),
-      guideText: MARKET_GUIDE,
-      clientsKey: CLIENTS_KEY,
-
-      detect: function (text) {
-        return buildMarketDraft(text);
-      },
-
-      formulate: function (text) {
-        return formulateMarketDeep(text);
-      },
-
-      getClients: getClients,
-      setClients: setClients,
-
-      saveDraft: function (text) {
-        var draft = buildMarketDraft(text);
-        var message = formatMarketDraftMessage(draft);
-
-        upsertClientFromDraft(draft);
-
-        if (!core || typeof core.saveNote !== "function") return null;
-
-        return core.saveNote(MARKET_CONFIG, message, {
-          market_draft: draft,
-          order: draft,
-          annonce: draft
-        });
-      },
-
-      speakGuide: function () {
-        if (core && typeof core.speak === "function") core.speak(MARKET_GUIDE);
-      },
-
-      stopVoice: function () {
-        if (core && typeof core.stopVoice === "function") core.stopVoice();
-      }
-    };
-  }
-
-  function mountMarketOreille(core) {
-    var target = findMountTarget();
-
-    exposeMarketApi(core);
-    injectMarketStyles();
-
-    if (!target) {
-      console.info("[DIGIY Oreille MARKET] Aucun conteneur trouvé. Ajoute <div id=\"digiy-oreille-market\"></div> pour afficher l’oreille.");
-      return;
-    }
-
-    if (target.getAttribute("data-digiy-oreille-mounted") === "1") return;
-
-    target.setAttribute("data-digiy-oreille-mounted", "1");
-
-    var instance = core.mount({
-      target: target,
-      module: MARKET_CONFIG.module,
-      title: MARKET_CONFIG.title,
-      subtitle: MARKET_CONFIG.subtitle,
-      storagePrefix: MARKET_CONFIG.storagePrefix,
-      guideText: MARKET_CONFIG.guideText,
-      templates: MARKET_CONFIG.templates
-    });
-
-    window.DigiyOreilleMARKET.instance = instance || null;
-
-    addMarketHelp(target);
-    addClientPreview(target);
-    patchInstanceButtons(target, core);
-
-    console.info("[DIGIY Oreille MARKET] montée avec succès.");
-  }
-
-  function bootMarketOreille() {
-    var tries = 0;
-    var maxTries = 30;
-
-    function attempt() {
-      tries += 1;
-
-      var core = window.DigiyOreilleMetier;
-
-      if (core && typeof core.mount === "function") {
-        mountMarketOreille(core);
-        return;
-      }
-
-      if (tries >= maxTries) {
-        console.warn("[DIGIY Oreille MARKET] Core introuvable. Vérifie que oreille-metier-core.js est chargé avant oreille-market.js.");
-        return;
-      }
-
-      window.setTimeout(attempt, 100);
-    }
-
-    attempt();
-  }
-
-  ready(bootMarketOreille);
+  function addHelp(target){if(!target||target.querySelector('.digiy-market-help'))return;var status=target.querySelector('.digiy-oreille-status');if(!status)return;var help=document.createElement('div');help.className='digiy-market-help';help.innerHTML='<b>MARKET demande une trace complète.</b><br>Produit · prix · stock · client/source · téléphone · retrait/livraison · mode cash/Wave/autre · preuve. Aucune annonce ou promesse client n’est validée sans le vendeur.';status.insertAdjacentElement('afterend',help);}
+  function addPreview(target){if(!target||target.querySelector('.digiy-market-client-mini'))return;var notes=target.querySelector('.digiy-oreille-notes');if(!notes)return;var box=document.createElement('div');box.className='digiy-market-client-mini';box.innerHTML='<b>📇 Fichier client MARKET local</b><span>Quand tu ranges une commande avec nom ou téléphone, MARKET garde une trace client sur cet appareil.</span>';notes.insertAdjacentElement('beforebegin',box);}
+  function patchButtons(target,c){if(!target)return;target.addEventListener('click',function(e){var a=e.target.closest('[data-action]');if(!a)return;var action=a.getAttribute('data-action');var text=target.querySelector('.digiy-oreille-text');var statusBox=target.querySelector('.digiy-oreille-status');if(!text)return;if(action==='formulate'){setTimeout(function(){text.value=formulate(text.value);if(statusBox)statusBox.textContent='Trace MARKET préparée. Complète les champs manquants puis valide.';},0);}if(action==='save'){setTimeout(function(){var d=draft(text.value);upsertClient(d);if(statusBox)statusBox.textContent=d.missing&&d.missing.length?'Trace rangée en brouillon. Il manque : '+d.missing.join(', ')+'.':'Trace rangée. Client local mis à jour si nom ou téléphone présent.';if(c&&typeof c.showToast==='function')c.showToast('MARKET rangé en brouillon');},0);}},true);}
+
+  function expose(c){window.DigiyOreilleMARKET={version:VERSION,config:CONFIG,templates:TEMPLATES.slice(),guideText:GUIDE,clientsKey:CLIENTS_KEY,detect:draft,formulate:formulate,getClients:getClients,setClients:setClients,saveDraft:function(text){var d=draft(text);var msg=format(d);upsertClient(d);return c&&c.saveNote?c.saveNote(CONFIG,msg,{market_draft:d,order:d,annonce:d}):null;},speakGuide:function(){if(c&&c.speak)c.speak(GUIDE);},stopVoice:function(){if(c&&c.stopVoice)c.stopVoice();}};}
+  function mount(c){var target=findTarget();expose(c);if(!target){console.info('[DIGIY Oreille MARKET] Aucun conteneur trouvé.');return;}if(target.getAttribute('data-digiy-oreille-mounted')==='1')return;target.setAttribute('data-digiy-oreille-mounted','1');var inst=c.mount({target:target,module:CONFIG.module,title:CONFIG.title,subtitle:CONFIG.subtitle,storagePrefix:CONFIG.storagePrefix,guideText:CONFIG.guideText,templates:CONFIG.templates});window.DigiyOreilleMARKET.instance=inst||null;addHelp(target);addPreview(target);patchButtons(target,c);injectStrongStyles();console.info('[DIGIY Oreille MARKET] montée grand pavés.');}
+  function boot(){var tries=0;function attempt(){tries++;var c=core();if(c&&typeof c.mount==='function'){mount(c);return;}if(tries>=30){console.warn('[DIGIY Oreille MARKET] Core introuvable.');return;}setTimeout(attempt,100);}attempt();}
+  ready(boot);
 })();
