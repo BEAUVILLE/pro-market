@@ -46,5 +46,49 @@
   function saveProductDraft(product){ return push("product_drafts", product || {}, 80); }
   function rememberProfile(profile){ return set("profile", profile || {}); }
 
-  window.DIGIY_MARKET_MEMORY = {get,set,push,remove,snapshot,writeRoot,readRoot,saveNote,saveProductDraft,rememberProfile};
+  function injectMarketGoPaves(){
+    try{
+      var path = String(location.pathname || "").toLowerCase();
+      if(path.indexOf("hub") === -1 && !/\/$/.test(path)) return;
+      var grid = document.querySelector(".tileGrid");
+      if(!grid) return;
+
+      if(!document.getElementById("doorDigiyGoMarket")){
+        var go = document.createElement("a");
+        go.id = "doorDigiyGoMarket";
+        go.className = "tile primary metierTileClair";
+        go.href = "./action.html";
+        go.innerHTML = '<div class="tileTop"><div class="tileIcon">🎙️</div><div class="tileTag">GO</div></div><div><b>DIGIY GO MARKET</b><span>Le vendeur parle. MARKET prépare l’offre.</span></div>';
+        var before = document.getElementById("goCockpit") || grid.firstElementChild;
+        if(before) grid.insertBefore(go, before);
+        else grid.appendChild(go);
+      }
+
+      if(!document.getElementById("doorMarketPayTransition")){
+        var pay = document.createElement("a");
+        pay.id = "doorMarketPayTransition";
+        pay.className = "tile pay";
+        pay.href = "./pay-transition.html";
+        pay.innerHTML = '<div class="tileTop"><div class="tileIcon">💳</div><div class="tileTag">PAY</div></div><div><b>Vente vers PAY</b><span>Argent réel seulement. PAY valide.</span></div>';
+        var payDoor = document.getElementById("goPay");
+        if(payDoor && payDoor.parentNode) payDoor.parentNode.insertBefore(pay, payDoor);
+        else grid.appendChild(pay);
+      }
+    }catch(e){
+      console.warn("[DIGIY MARKET] pavés GO/PAY non injectés", e && e.message ? e.message : e);
+    }
+  }
+
+  function bootMarketGoPaves(){
+    injectMarketGoPaves();
+    setTimeout(injectMarketGoPaves, 500);
+  }
+
+  window.DIGIY_MARKET_MEMORY = {get,set,push,remove,snapshot,writeRoot,readRoot,saveNote,saveProductDraft,rememberProfile,injectMarketGoPaves};
+
+  if(document.readyState === "loading"){
+    document.addEventListener("DOMContentLoaded", bootMarketGoPaves);
+  }else{
+    bootMarketGoPaves();
+  }
 })();
