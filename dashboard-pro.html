@@ -4,395 +4,2018 @@
   <meta charset="utf-8"/>
   <meta name="robots" content="noindex,nofollow"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>Je vends — Ma boutique</title>
   <meta name="theme-color" content="#07140f"/>
-  <meta name="description" content="Entrée MARKET protégée : gestion vendeur, cockpit et porte PAY sécurisée par abonnement."/>
-  <title>Je vends — Dashboard MARKET</title>
+  <meta name="description" content="Réglages de ta boutique DIGIY MARKET : identité, contact, WhatsApp Visio Live et visibilité publique."/>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800;900&display=swap" rel="stylesheet"/>
+
+  <script>
+    window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
+    window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+    window.DIGIY_MODULE = "MARKET";
+    window.DIGIY_LOGIN_URL = "./pin.html";
+  </script>
 
   <script>
     /*
-      DIGIY MARKET — dashboard léger + porte PAY protégée
-      Rôle :
-      - ranger les anciens paramètres,
-      - nettoyer l'URL,
-      - ouvrir cockpit.html,
-      - envoyer vers PAY seulement si l'accès PAY est reconnu,
-      - sinon ouvrir commencer à payer avec module PAY.
+      DIGIY MARKET — coffre PRO boutique
+      Accepte les anciens liens ?slug= / ?phone=, mémorise le contexte,
+      puis nettoie l'URL visible. Rien de sensible ne reste en façade téléphone.
     */
     (function(){
       "use strict";
 
-      window.DIGIY_MODULE = "MARKET";
-      window.DIGIY_LOGIN_URL = "./pin.html";
-
-      var ABOS_URL = "https://commencer-a-payer.digiylyfe.com/";
-      var PAY_ADMIN_URL = "https://pro-pay.digiylyfe.com/admin.html";
-
-      var qs = new URLSearchParams(location.search);
+      const qs = new URLSearchParams(location.search);
 
       function normSlug(v){
         return String(v || "")
           .trim()
           .toLowerCase()
-          .replace(/\s+/g,"-")
-          .replace(/[^a-z0-9-]/g,"")
-          .replace(/-+/g,"-")
-          .replace(/^-|-$/g,"");
+          .replace(/\s+/g, "-")
+          .replace(/[^a-z0-9-]/g, "")
+          .replace(/-+/g, "-")
+          .replace(/^-|-$/g, "");
       }
 
       function normPhone(v){
-        var d = String(v || "").replace(/[^\d]/g,"");
+        const d = String(v || "").replace(/[^\d]/g, "");
         if (!d) return "";
-        if (d.indexOf("221") === 0 && d.length === 12) return d;
+        if (d.startsWith("221") && d.length === 12) return d;
         if (d.length === 9) return "221" + d;
         return d;
       }
 
-      function storeBoth(key, value){
+      function putBoth(key, value){
         if (!value) return;
         try{ sessionStorage.setItem(key, value); }catch(_){}
         try{ localStorage.setItem(key, value); }catch(_){}
       }
 
-      function getAny(keys){
-        for (var i=0;i<keys.length;i++){
-          try{
-            var s = sessionStorage.getItem(keys[i]);
-            if (s) return s;
-          }catch(_){}
-          try{
-            var l = localStorage.getItem(keys[i]);
-            if (l) return l;
-          }catch(_){}
-        }
-        return "";
+      const incomingSlug =
+        normSlug(qs.get("slug")) ||
+        normSlug(qs.get("market_slug")) ||
+        normSlug(qs.get("subscription_slug")) ||
+        normSlug(qs.get("pro_slug"));
+
+      const incomingPhone =
+        normPhone(qs.get("phone")) ||
+        normPhone(qs.get("tel")) ||
+        normPhone(qs.get("owner_phone")) ||
+        normPhone(qs.get("checkout_phone")) ||
+        normPhone(qs.get("subscription_phone")) ||
+        normPhone(qs.get("market_phone"));
+
+      if (incomingSlug){
+        putBoth("digiy_market_slug", incomingSlug);
+        putBoth("digiy_market_last_slug", incomingSlug);
+        putBoth("market_slug", incomingSlug);
+        putBoth("digiy_last_slug", incomingSlug);
       }
 
-      function safeJson(raw){
-        try{ return JSON.parse(raw); }catch(_){ return null; }
+      if (incomingPhone){
+        putBoth("digiy_market_phone", incomingPhone);
+        putBoth("digiy_market_last_phone", incomingPhone);
+        putBoth("market_phone", incomingPhone);
+        putBoth("digiy_last_phone", incomingPhone);
+        putBoth("digiy_phone", incomingPhone);
       }
 
-      function truthy(v){
-        if (v === true || v === 1) return true;
-        var s = String(v == null ? "" : v).trim().toLowerCase();
-        return s === "true" || s === "1" || s === "ok" || s === "yes" || s === "active";
+      const sensitiveKeys = [
+        "slug","market_slug","subscription_slug","pro_slug",
+        "phone","tel","owner_phone","checkout_phone","subscription_phone","market_phone",
+        "owner","owner_id","module","from","source_slug"
+      ];
+
+      const hasSensitive = sensitiveKeys.some(k => qs.has(k));
+      if (hasSensitive && window.history && typeof window.history.replaceState === "function"){
+        sensitiveKeys.forEach(k => qs.delete(k));
+        const cleanSearch = qs.toString();
+        const cleanUrl = location.pathname + (cleanSearch ? "?" + cleanSearch : "") + location.hash;
+        window.history.replaceState(null, document.title, cleanUrl);
       }
-
-      function alive(raw){
-        if (!raw) return false;
-        var n = Number(raw);
-        if (isFinite(n) && n > Date.now()) return true;
-        var d = Date.parse(String(raw));
-        return isFinite(d) && d > Date.now();
-      }
-
-      function getMarketSlug(){
-        return normSlug(getAny(["digiy_market_slug","digiy_market_last_slug","market_slug","digiy_last_slug"]));
-      }
-
-      function getMarketPhone(){
-        return normPhone(getAny(["digiy_market_phone","digiy_market_last_phone","market_phone","digiy_last_phone","digiy_phone"]));
-      }
-
-      function hasPayAccess(){
-        var directFlags = [
-          "digiy_pay_access_ok",
-          "digiy_pay_has_access",
-          "digiy_pay_access",
-          "DIGIY_PAY_ACCESS_OK",
-          "DIGIY_PAY_HAS_ACCESS"
-        ];
-
-        for (var i=0;i<directFlags.length;i++){
-          if (truthy(getAny([directFlags[i]]))) return true;
-        }
-
-        var sessions = [
-          "DIGIY_PAY_SESSION",
-          "DIGIY_PAY_PIN_SESSION",
-          "DIGIY_SESSION_PAY",
-          "digiy_pay_session",
-          "DIGIY_ACCESS",
-          "digiy_access"
-        ];
-
-        for (var j=0;j<sessions.length;j++){
-          var obj = safeJson(getAny([sessions[j]]));
-          if (!obj || typeof obj !== "object") continue;
-
-          var mod = String(obj.module || obj.module_code || "").trim().toUpperCase();
-          if (mod && mod !== "PAY") continue;
-
-          var ok =
-            truthy(obj.access) ||
-            truthy(obj.access_ok) ||
-            truthy(obj.ok) ||
-            truthy(obj.has_access) ||
-            truthy(obj.verified) ||
-            truthy(obj.pin_access);
-
-          var valid =
-            alive(obj.access_until) ||
-            alive(obj.pin_access_until) ||
-            alive(obj.expires_at) ||
-            alive(obj.valid_until);
-
-          if (ok && valid) return true;
-        }
-
-        return false;
-      }
-
-      function paySubscriptionUrl(){
-        var u = new URL(ABOS_URL);
-        u.searchParams.set("module", "PAY");
-        u.searchParams.set("from_module", "MARKET");
-        u.searchParams.set("return", PAY_ADMIN_URL);
-
-        var slug = getMarketSlug();
-        var phone = getMarketPhone();
-
-        if (slug) u.searchParams.set("source_slug", slug);
-        if (phone) u.searchParams.set("phone", phone);
-
-        return u.toString();
-      }
-
-      var slug = normSlug(
-        qs.get("slug") ||
-        qs.get("market_slug") ||
-        qs.get("subscription_slug") ||
-        qs.get("pro_slug") ||
-        ""
-      );
-
-      var phone = normPhone(
-        qs.get("phone") ||
-        qs.get("tel") ||
-        qs.get("p_phone") ||
-        qs.get("owner_phone") ||
-        qs.get("checkout_phone") ||
-        qs.get("subscription_phone") ||
-        qs.get("market_phone") ||
-        qs.get("msisdn") ||
-        ""
-      );
-
-      if (slug){
-        storeBoth("digiy_market_slug", slug);
-        storeBoth("digiy_market_last_slug", slug);
-        storeBoth("market_slug", slug);
-        storeBoth("digiy_last_slug", slug);
-      }
-
-      if (phone){
-        storeBoth("digiy_market_phone", phone);
-        storeBoth("digiy_market_last_phone", phone);
-        storeBoth("market_phone", phone);
-        storeBoth("digiy_last_phone", phone);
-        storeBoth("digiy_phone", phone);
-      }
-
-      try{
-        if (location.search){
-          history.replaceState({}, document.title, location.pathname + location.hash);
-        }
-      }catch(_){}
-
-      window.__DIGIY_GO_COCKPIT__ = function(){
-        location.replace("./cockpit.html");
-      };
-
-      window.__DIGIY_GO_PIN__ = function(){
-        location.href = "./pin.html";
-      };
-
-      window.__DIGIY_GO_PAY__ = function(){
-        if (hasPayAccess()){
-          location.href = PAY_ADMIN_URL;
-          return;
-        }
-        location.href = paySubscriptionUrl();
-      };
-
-      window.__DIGIY_GO_PAY_SUBSCRIBE__ = function(){
-        location.href = paySubscriptionUrl();
-      };
-
-      setTimeout(window.__DIGIY_GO_COCKPIT__, 900);
     })();
   </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./guard.js?v=market-guard-20260531"></script>
 
   <style>
     :root{
       --bg:#07140f;
       --bg2:#040b08;
-      --line:rgba(255,255,255,.12);
+      --line:rgba(255,255,255,.11);
       --text:#ecfff4;
-      --muted:rgba(236,255,244,.74);
+      --muted:rgba(236,255,244,.76);
       --gold:#facc15;
-      --green:#22c55e;
-      --green2:#16a34a;
-      --shadow:0 24px 70px rgba(0,0,0,.38);
+      --primary:#22c55e;
+      --primary2:#16a34a;
+      --warn:#f59e0b;
+      --danger:#ef4444;
+      --info:#60a5fa;
+      --shadow:0 20px 60px rgba(0,0,0,.38);
+      --radius:24px;
+      --max:1180px;
     }
 
     *{box-sizing:border-box}
 
     html,body{
       margin:0;
+      padding:0;
       min-height:100%;
-    }
-
-    body{
-      min-height:100dvh;
-      display:grid;
-      place-items:center;
-      padding:16px;
       background:
-        radial-gradient(780px 420px at 10% -10%,rgba(34,197,94,.16),transparent 60%),
-        radial-gradient(760px 420px at 110% 0%,rgba(250,204,21,.10),transparent 55%),
-        linear-gradient(180deg,var(--bg),var(--bg2));
+        radial-gradient(900px 520px at 10% -10%, rgba(34,197,94,.14), transparent 60%),
+        radial-gradient(900px 520px at 110% 0%, rgba(250,204,21,.10), transparent 55%),
+        linear-gradient(180deg,var(--bg),#05100c 55%,var(--bg2) 100%);
       color:var(--text);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      font-family:"Outfit",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      font-size:17px;
+      font-weight:750;
     }
 
-    main{
-      width:min(100%,560px);
-      border:1px solid var(--line);
-      border-radius:28px;
-      background:rgba(255,255,255,.05);
-      box-shadow:var(--shadow);
-      padding:24px;
+    body{padding:14px}
+    a{color:inherit;text-decoration:none}
+    button,input,textarea{font:inherit}
+    button{touch-action:manipulation}
+
+    .wrap{
+      width:100%;
+      max-width:var(--max);
+      margin:auto;
       display:grid;
       gap:14px;
-      text-align:center;
+      padding-bottom:18px;
     }
 
-    .mark{
-      width:66px;
-      height:66px;
-      margin:auto;
-      border-radius:23px;
+    .card{
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.018));
+      box-shadow:var(--shadow);
+      overflow:hidden;
+    }
+
+    .topbar{
+      padding:16px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      min-width:0;
+    }
+
+    .brand-mark{
+      width:52px;
+      height:52px;
+      border-radius:18px;
       display:grid;
       place-items:center;
-      background:rgba(250,204,21,.12);
-      border:1px solid rgba(250,204,21,.28);
-      font-size:34px;
+      background:linear-gradient(135deg,rgba(34,197,94,.18),rgba(250,204,21,.15));
+      border:1px solid rgba(255,255,255,.12);
+      font-size:25px;
+      flex:0 0 auto;
     }
 
     .eyebrow{
       color:var(--gold);
       font-size:13px;
-      font-weight:1000;
-      letter-spacing:.16em;
+      letter-spacing:.14em;
       text-transform:uppercase;
-    }
-
-    h1{
-      margin:0;
-      font-size:clamp(32px,9vw,50px);
-      line-height:1.0;
-      letter-spacing:-.05em;
       font-weight:1000;
     }
 
-    p{
-      margin:0;
-      color:var(--muted);
-      font-size:17px;
-      font-weight:900;
-      line-height:1.55;
+    .brand-title{
+      font-size:clamp(24px,4vw,34px);
+      line-height:1.02;
+      font-weight:1000;
+      letter-spacing:-.03em;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
 
-    .actions{
-      display:grid;
-      gap:10px;
+    .brand-sub{
+      color:var(--muted);
+      font-size:14px;
+      font-weight:900;
       margin-top:4px;
     }
 
-    a,button{
-      min-height:58px;
-      border-radius:18px;
-      border:1px solid var(--line);
+    .top-actions{
       display:flex;
+      gap:9px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+
+    .btn{
+      min-height:52px;
+      padding:12px 15px;
+      border-radius:16px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.06);
+      color:var(--text);
+      display:inline-flex;
       align-items:center;
       justify-content:center;
       gap:8px;
-      text-decoration:none;
-      font-weight:1000;
-      font-size:16px;
-      color:var(--text);
-      background:rgba(255,255,255,.07);
-      font:inherit;
       cursor:pointer;
+      font-weight:1000;
+      font-size:15px;
+      box-shadow:0 12px 30px rgba(0,0,0,.22);
     }
 
-    .primary{
-      background:linear-gradient(135deg,var(--green),var(--green2));
-      color:#041b12;
-      border-color:transparent;
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+    .btn.primary{background:linear-gradient(135deg,var(--primary),var(--primary2));color:#041b12;border-color:transparent}
+    .btn.gold{background:rgba(250,204,21,.12);color:#fff1a8;border-color:rgba(250,204,21,.25)}
+    .btn.warn{background:rgba(245,158,11,.12);color:#fde68a;border-color:rgba(245,158,11,.25)}
+    .btn.danger{background:rgba(239,68,68,.12);color:#fecaca;border-color:rgba(239,68,68,.25)}
+    .btn.info{background:rgba(96,165,250,.12);color:#bfdbfe;border-color:rgba(96,165,250,.25)}
+    .btn.ghost{background:rgba(255,255,255,.045);color:var(--muted)}
+
+    .routeMini{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      width:100%;
+      justify-content:flex-end;
+      margin-top:2px;
     }
 
-    .gold{
-      background:rgba(250,204,21,.12);
+    .routeMini a{
+      min-height:42px;
+      padding:10px 13px;
+      border-radius:999px;
+      border:1px solid rgba(250,204,21,.24);
+      background:rgba(250,204,21,.08);
       color:#fff1a8;
-      border-color:rgba(250,204,21,.25);
+      font-size:13px;
+      font-weight:1000;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:7px;
     }
 
-    .pay{
-      background:linear-gradient(135deg,#facc15,#22c55e);
-      color:#041b12;
-      border-color:transparent;
-      box-shadow:0 16px 34px rgba(250,204,21,.18);
-    }
-
-    .soft{
+    .routeMini a.hub{
+      border-color:rgba(34,197,94,.26);
       background:rgba(34,197,94,.10);
       color:#bbf7d0;
-      border-color:rgba(34,197,94,.25);
     }
 
-    .foot{
+    .pageSwitch{
+      position:sticky;
+      top:8px;
+      z-index:40;
+      padding:10px;
+      border:1px solid rgba(255,255,255,.13);
+      border-radius:26px;
+      background:rgba(5,16,12,.90);
+      box-shadow:0 18px 48px rgba(0,0,0,.34);
+      backdrop-filter:blur(16px);
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:8px;
+    }
+
+    .pageBtn{
+      min-height:64px;
+      border-radius:19px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.055);
+      color:rgba(236,255,244,.82);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:4px;
+      cursor:pointer;
+      font-weight:1000;
       font-size:13px;
-      color:rgba(236,255,244,.58);
+      text-align:center;
+    }
+
+    .pageBtn b{
+      font-size:24px;
+      line-height:1;
+    }
+
+    .pageBtn.active{
+      color:#041b12;
+      background:linear-gradient(135deg,#facc15,#22c55e);
+      border-color:transparent;
+      box-shadow:0 12px 28px rgba(250,204,21,.18);
+    }
+
+    .hero{
+      padding:20px;
+      display:grid;
+      gap:18px;
+    }
+
+    .heroGrid{
+      display:grid;
+      grid-template-columns:1.08fr .92fr;
+      gap:16px;
+      align-items:start;
+    }
+
+    .mode{
+      width:max-content;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid rgba(250,204,21,.24);
+      background:rgba(250,204,21,.10);
+      color:#fff1a8;
+      font-size:13px;
+      font-weight:1000;
+    }
+
+    .mode.live{
+      border-color:rgba(34,197,94,.24);
+      background:rgba(34,197,94,.10);
+      color:#bbf7d0;
+    }
+
+    h1{
+      margin:10px 0 0;
+      font-size:clamp(34px,6vw,56px);
+      line-height:1.0;
+      letter-spacing:-.04em;
+      font-weight:1000;
+    }
+
+    .subtitle{
+      color:var(--muted);
+      font-size:18px;
       font-weight:900;
+      line-height:1.55;
+      max-width:72ch;
+      margin-top:10px;
+    }
+
+    .pills{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+      margin-top:16px;
+    }
+
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:10px 13px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.18);
+      color:var(--muted);
+      font-size:13px;
+      font-weight:1000;
+    }
+
+    .miniGrid{
+      display:grid;
+      gap:10px;
+    }
+
+    .mini{
+      padding:14px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.16);
+    }
+
+    .mini .k{
+      color:var(--muted);
+      font-size:13px;
+      font-weight:1000;
+      margin-bottom:7px;
+    }
+
+    .mini .v{
+      font-size:17px;
+      font-weight:1000;
+      line-height:1.45;
+      word-break:break-word;
+    }
+
+    .guideAudioBox{
+      position:relative;
+      border:1px solid rgba(250,204,21,.42);
+      border-radius:22px;
+      padding:15px;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at top right,rgba(250,204,21,.18),transparent 38%),
+        radial-gradient(circle at bottom left,rgba(34,197,94,.14),transparent 42%),
+        linear-gradient(180deg,rgba(250,204,21,.095),rgba(34,197,94,.065) 62%,rgba(0,0,0,.10));
+      box-shadow:0 18px 42px rgba(0,0,0,.24),0 0 0 1px rgba(250,204,21,.055) inset;
+    }
+
+    .guideAudioTop{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:14px;
+      flex-wrap:wrap;
+    }
+
+    .guideAudioLead{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      margin-bottom:8px;
+      padding:7px 12px;
+      border-radius:999px;
+      background:rgba(250,204,21,.16);
+      border:1px solid rgba(250,204,21,.40);
+      color:#fff1a8;
+      font-size:12px;
+      font-weight:1000;
+    }
+
+    .pulse{
+      width:8px;
+      height:8px;
+      border-radius:999px;
+      background:var(--gold);
+      box-shadow:0 0 14px rgba(250,204,21,.75);
+      animation:marketAudioPulse 1.5s ease-in-out infinite;
+    }
+
+    .guideAudioTitle{
+      font-size:19px;
+      font-weight:1000;
+      line-height:1.2;
+      color:#fff8db;
+    }
+
+    .guideAudioText{
+      margin-top:7px;
+      color:#e9f7ee;
+      font-size:15px;
+      line-height:1.55;
+      font-weight:900;
+      max-width:620px;
+    }
+
+    .guideAudioHint{
+      margin-top:8px;
+      color:#fff1a8;
+      font-size:13px;
+      font-weight:1000;
+    }
+
+    .guideAudioActions{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    .guideAudioProgressWrap{
+      height:6px;
+      margin-top:13px;
+      border-radius:999px;
+      background:rgba(255,255,255,.12);
+      overflow:hidden;
+    }
+
+    .guideAudioProgress{
+      width:0%;
+      height:100%;
+      background:linear-gradient(90deg,#facc15,#22c55e);
+      transition:width .2s linear;
+    }
+
+    @keyframes marketAudioPulse{
+      0%,100%{transform:scale(1);opacity:1}
+      50%{transform:scale(1.25);opacity:.72}
+    }
+
+    .panel{
+      display:none;
+      padding:18px;
+    }
+
+    .panel.active{
+      display:block;
+    }
+
+    .panel h2{
+      margin:0;
+      font-size:clamp(28px,4vw,40px);
+      line-height:1.03;
+      letter-spacing:-.03em;
+      font-weight:1000;
+    }
+
+    .muted{
+      color:var(--muted);
+      font-size:16px;
+      font-weight:900;
+      line-height:1.55;
+      margin-top:8px;
+    }
+
+    .grid2{
+      display:grid;
+      gap:12px;
+      margin-top:14px;
+    }
+
+    @media(min-width:760px){
+      .grid2{grid-template-columns:1fr 1fr}
+    }
+
+    .field{
+      display:grid;
+      gap:7px;
+    }
+
+    .label{
+      color:var(--muted);
+      font-size:14px;
+      font-weight:1000;
+      letter-spacing:.02em;
+    }
+
+    .in,textarea{
+      width:100%;
+      padding:14px 15px;
+      border-radius:17px;
+      border:1px solid rgba(255,255,255,.13);
+      background:rgba(0,0,0,.14);
+      color:var(--text);
+      font-size:17px;
+      font-weight:900;
+      outline:none;
+      font-family:inherit;
+    }
+
+    .in:focus,textarea:focus{
+      border-color:rgba(34,197,94,.42);
+      box-shadow:0 0 0 3px rgba(34,197,94,.10);
+    }
+
+    .in:disabled,textarea:disabled{
+      opacity:.68;
+      cursor:not-allowed;
+    }
+
+    textarea{
+      min-height:120px;
+      resize:vertical;
+    }
+
+    .actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+
+    .msg{
+      margin-top:12px;
+      font-weight:1000;
+      font-size:16px;
+      line-height:1.5;
+    }
+
+    .msg.ok{color:#86efac}
+    .msg.bad{color:#fca5a5}
+    .msg.warn{color:#fde68a}
+
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:12px;
+      margin-top:14px;
+    }
+
+    .stat{
+      padding:14px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.16);
+    }
+
+    .stat .k{
+      color:var(--muted);
+      font-size:13px;
+      font-weight:1000;
+      margin-bottom:7px;
+    }
+
+    .stat .v{
+      font-size:28px;
+      font-weight:1000;
+      line-height:1;
+    }
+
+    .stateRow{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      padding:16px;
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.16);
+      margin-top:14px;
+    }
+
+    .stateText{
+      font-weight:1000;
+      font-size:18px;
+      line-height:1.45;
+    }
+
+    .checklist{
+      margin-top:14px;
+      padding:14px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.16);
+      display:grid;
+      gap:8px;
+    }
+
+    .checkitem{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      color:var(--muted);
+      font-size:16px;
+      font-weight:1000;
+      line-height:1.45;
+    }
+
+    .checkitem.ok{color:#bbf7d0}
+    .checkitem.bad{color:#fde68a}
+
+    .emptyAction{
+      display:none;
+      margin-top:12px;
+      padding:16px;
+      border-radius:20px;
+      border:1px solid rgba(250,204,21,.22);
+      background:rgba(250,204,21,.08);
+      line-height:1.55;
+    }
+
+    .emptyAction strong{
+      display:block;
+      color:var(--gold);
+      font-size:18px;
+      font-weight:1000;
+      margin-bottom:5px;
+    }
+
+    .emptyAction p{
+      margin:0 0 12px;
+      color:var(--muted);
+      font-weight:900;
+      font-size:15px;
+    }
+
+    .liveBox{
+      border-color:rgba(250,204,21,.24);
+      background:
+        radial-gradient(900px 360px at 100% 0%, rgba(250,204,21,.12), transparent 55%),
+        linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));
+    }
+
+    .liveBadge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      width:max-content;
+      max-width:100%;
+      padding:10px 14px;
+      border-radius:999px;
+      border:1px solid rgba(250,204,21,.28);
+      background:rgba(250,204,21,.11);
+      color:#fff1a8;
+      font-size:13px;
+      font-weight:1000;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+
+    .liveTitle{
+      margin:12px 0 8px;
+      font-size:clamp(30px,5vw,48px);
+      line-height:1.02;
+      letter-spacing:-.04em;
+      font-weight:1000;
+    }
+
+    .liveText{
+      color:var(--muted);
+      font-size:18px;
+      font-weight:900;
+      line-height:1.6;
+      max-width:76ch;
+    }
+
+    .liveChips{
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-top:14px;
+    }
+
+    .liveChip{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      padding:9px 11px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(0,0,0,.16);
+      color:var(--muted);
+      font-size:13px;
+      font-weight:1000;
+    }
+
+    .liveCopy{
+      width:100%;
+      min-height:140px;
+      border-radius:17px;
+      border:1px solid rgba(255,255,255,.10);
+      background:rgba(255,255,255,.045);
+      color:var(--text);
+      padding:14px;
+      font-size:15px;
+      font-weight:900;
+      line-height:1.55;
+      resize:vertical;
+      outline:none;
+      margin-top:14px;
+    }
+
+    .help{
+      color:rgba(236,255,244,.64);
+      font-size:13px;
+      font-weight:900;
+      line-height:1.45;
+    }
+
+    .footer{
+      text-align:center;
+      color:var(--muted);
+      font-size:13px;
+      font-weight:900;
+      padding:6px 0 2px;
+    }
+
+    .loading{
+      opacity:.72;
+      pointer-events:none;
+    }
+
+    @media(max-width:980px){
+      .heroGrid{grid-template-columns:1fr}
+    }
+
+    @media(max-width:760px){
+      body{padding:10px}
+      .pageSwitch{
+        grid-template-columns:repeat(5,1fr);
+        gap:6px;
+        padding:8px;
+      }
+      .pageBtn{
+        min-height:58px;
+        border-radius:17px;
+        font-size:11px;
+      }
+      .pageBtn b{font-size:20px}
+      .top-actions,.actions,.guideAudioActions{width:100%}
+      .top-actions > *, .actions > *, .guideAudioActions > *{flex:1 1 auto}
+      .stats{grid-template-columns:repeat(2,1fr)}
+    }
+
+    @media(max-width:430px){
+      .pageSwitch{grid-template-columns:repeat(3,1fr)}
     }
   </style>
 </head>
 
 <body>
-  <main>
-    <div class="mark">🛍️</div>
-    <div class="eyebrow">JE VENDS</div>
+  <div class="wrap">
+    <section class="card topbar">
+      <div class="brand">
+        <div class="brand-mark">🛍️</div>
+        <div class="brand-copy">
+          <div class="eyebrow">JE VENDS</div>
+          <div class="brand-title" id="brandTitle">Ma boutique</div>
+          <div class="brand-sub" id="topSub">Boutons rapides · pas besoin de scroller</div>
+        </div>
+      </div>
 
-    <h1>Dashboard MARKET</h1>
+      <div class="top-actions">
+        <button class="btn ghost" id="btnReload" type="button">🔄 Recharger</button>
+        <a class="btn info" id="btnDashboard" href="./cockpit.html">🏠 Accueil</a>
+        <a class="btn" id="btnProducts" href="./produits.html">📦 Produits</a>
+        <a class="btn primary" id="btnFirstProductTop" href="./produits.html#productForm" style="display:none">➕ Ajouter</a>
+        <a class="btn gold" id="btnPin" href="./pin.html">🔑 Accès</a>
+        <a class="btn" id="btnPublic" href="https://market.digiylyfe.com/" target="_blank" rel="noopener">🌍 Vitrine</a>
+      </div>
 
-    <p>
-      Cette porte range les anciens paramètres, ouvre la vraie gestion,
-      et protège Mon Argent : sans abonnement PAY reconnu, le vendeur passe par commencer à payer.
-    </p>
+      <nav class="routeMini" aria-label="Navigation DIGIY">
+        <a href="https://digiylyfe.com/" rel="noopener noreferrer">🌍 Site</a>
+        <a class="hub" id="btnGlobalHub" href="https://pro-espace.digiylyfe.com/" rel="noopener noreferrer">🧭 HUB</a>
+        <a href="https://tarifs.digiylyfe.com/" target="_blank" rel="noopener noreferrer">📦 Tarifs</a>
+      </nav>
+    </section>
 
-    <div class="actions">
-      <button class="primary" type="button" onclick="window.__DIGIY_GO_COCKPIT__ && window.__DIGIY_GO_COCKPIT__()">
-        🧭 Ouvrir ma gestion
-      </button>
+    <section class="card hero">
+      <div class="heroGrid">
+        <div>
+          <div class="mode" id="modeBadge">Accès protégé</div>
+          <h1 id="shopNameHero">Ma boutique</h1>
+          <div class="subtitle" id="shopSubtitle">
+            Ici tu règles ce que les clients voient : nom, activité, contact, visio WhatsApp et visibilité.
+          </div>
 
-      <button class="gold" type="button" onclick="window.__DIGIY_GO_PIN__ && window.__DIGIY_GO_PIN__()">
-        🔑 Ouvrir mon accès
-      </button>
+          <div class="pills">
+            <div class="pill" id="pillCategories">🏷️ Ce que je vends</div>
+            <div class="pill" id="pillCity">📍 Ma zone</div>
+            <div class="pill" id="pillPublish">🌍 Hors ligne</div>
+          </div>
+        </div>
 
-      <button class="pay" type="button" onclick="window.__DIGIY_GO_PAY__ && window.__DIGIY_GO_PAY__()">
-        💰 Mon argent sécurisé
-      </button>
+        <div class="miniGrid">
+          <div class="mini">
+            <div class="k">Compte</div>
+            <div class="v" id="miniSlug">Compte sécurisé</div>
+          </div>
+          <div class="mini">
+            <div class="k">Accès</div>
+            <div class="v" id="miniPhone">Identifiants cachés</div>
+          </div>
+          <div class="mini">
+            <div class="k">Contact client</div>
+            <div class="v" id="miniWhatsapp">—</div>
+          </div>
+          <div class="mini">
+            <div class="k">Adresse / repère</div>
+            <div class="v" id="miniAddress">—</div>
+          </div>
+        </div>
+      </div>
 
-      <button class="soft" type="button" onclick="window.__DIGIY_GO_PAY_SUBSCRIBE__ && window.__DIGIY_GO_PAY_SUBSCRIBE__()">
-        🧾 Activer PAY
-      </button>
+      <div class="guideAudioBox" aria-label="Explication audio Je vends">
+        <div class="guideAudioTop">
+          <div>
+            <div class="guideAudioLead"><span class="pulse"></span> Conseil DIGIY · écoute d'abord</div>
+            <div class="guideAudioTitle">🎧 Comprendre ta boutique avant de régler</div>
+            <div class="guideAudioText">
+              Une voix explique comment remplir ta boutique, guider le client, montrer tes produits et garder tes ventes directes.
+            </div>
+            <div class="guideAudioHint">👉 45 secondes pour comprendre avant de publier.</div>
+          </div>
+          <div class="guideAudioActions">
+            <button class="btn gold" id="btnMarketBoutiqueAudio" type="button">🎧 Écouter DIGIY</button>
+            <button class="btn danger" id="btnMarketBoutiqueAudioStop" type="button">⏹ Stop</button>
+          </div>
+        </div>
+        <div class="guideAudioProgressWrap" aria-hidden="true">
+          <div class="guideAudioProgress" id="marketBoutiqueAudioProgress"></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="pageSwitch" id="pageSwitch" aria-label="Portes rapides boutique MARKET">
+      <button class="pageBtn active" type="button" data-view="identity"><b>🏷️</b><span>Identité</span></button>
+      <button class="pageBtn" type="button" data-view="contact"><b>📍</b><span>Contact</span></button>
+      <button class="pageBtn" type="button" data-view="live"><b>🎥</b><span>Visio</span></button>
+      <button class="pageBtn" type="button" data-view="visibility"><b>🌍</b><span>Publier</span></button>
+      <button class="pageBtn" type="button" data-view="preview"><b>👁️</b><span>Résumé</span></button>
     </div>
 
-    <div class="foot">DIGIY MARKET • cockpit d’abord • PAY protégé par abonnement</div>
-  </main>
+    <section class="card panel active" data-view-panel="identity">
+      <h2>Nom & activité</h2>
+      <div class="muted">Pose ce que le client doit comprendre tout de suite : qui tu es et ce que tu vends.</div>
+
+      <div class="grid2">
+        <div class="field">
+          <div class="label">Nom de la boutique</div>
+          <input class="in" id="shopName" placeholder="Ex : Astou Market"/>
+        </div>
+        <div class="field">
+          <div class="label">Nom du responsable</div>
+          <input class="in" id="ownerName" placeholder="Ex : Astou"/>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="field">
+          <div class="label">Ce que tu vends</div>
+          <input class="in" id="categoriesText" placeholder="Ex : Cosmétiques / Produits naturels"/>
+        </div>
+        <div class="field">
+          <div class="label">Ville</div>
+          <input class="in" id="city" placeholder="Ex : Saly"/>
+        </div>
+      </div>
+
+      <div class="field" style="margin-top:12px">
+        <div class="label">Présentation courte</div>
+        <textarea id="description" placeholder="Ex : Boutique locale, produits utiles, propres et faciles à commander."></textarea>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" id="btnSave" type="button">💾 Enregistrer</button>
+        <button class="btn" type="button" data-view="contact">📍 Continuer contact</button>
+      </div>
+      <div class="msg" id="msgProfile">Prêt.</div>
+    </section>
+
+    <section class="card panel" data-view-panel="contact">
+      <h2>Ville, contact & infos utiles</h2>
+      <div class="muted">Le client doit pouvoir te joindre sans détour. Les identifiants restent cachés côté pro.</div>
+
+      <div class="grid2">
+        <div class="field">
+          <div class="label">Compte</div>
+          <input class="in" id="linkedPhone" readonly value="Compte sécurisé"/>
+        </div>
+        <div class="field">
+          <div class="label">WhatsApp client</div>
+          <input class="in" id="whatsapp" placeholder="Ex : 221771342889"/>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="field">
+          <div class="label">Zones servies / quartier</div>
+          <input class="in" id="zones" placeholder="Ex : Saly centre, Ngaparou"/>
+        </div>
+        <div class="field">
+          <div class="label">Adresse / repère</div>
+          <input class="in" id="address" placeholder="Ex : Saly centre"/>
+        </div>
+      </div>
+
+      <div class="grid2">
+        <div class="field">
+          <div class="label">Livraison / info utile</div>
+          <input class="in" id="deliveryNote" placeholder="Ex : Livraison locale selon zone"/>
+        </div>
+        <div class="field">
+          <div class="label">Paiement / info utile</div>
+          <input class="in" id="paymentNote" placeholder="Ex : Wave / espèces"/>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" id="btnSaveContact" type="button">💾 Enregistrer</button>
+        <button class="btn" type="button" data-view="live">🎥 Continuer visio</button>
+      </div>
+      <div class="msg" id="msgContact">Prêt.</div>
+    </section>
+
+    <section class="card panel liveBox" data-view-panel="live" id="whatsappVisioLive">
+      <div class="liveBadge">🎥 WhatsApp Visio Live by DIGIY</div>
+      <h2 class="liveTitle">Voir le produit en direct, sans trajet inutile.</h2>
+      <div class="liveText">
+        Le client peut regarder, poser ses questions et confirmer avec la boutique. <b>Moins de distance, plus de confiance.</b>
+      </div>
+
+      <div class="liveChips">
+        <span class="liveChip">📹 Vidéo en direct</span>
+        <span class="liveChip">💬 Conseil commerçant</span>
+        <span class="liveChip">🛵 Livraison selon zone</span>
+      </div>
+
+      <textarea class="liveCopy" id="liveCopyText" readonly>WhatsApp Visio Live by DIGIY
+Voir les produits en vidéo, comme si vous étiez sur place.
+
+Malgré la distance, vous gagnez du temps, vous évitez un trajet inutile et vous recevez les conseils du commerçant avant de choisir.
+
+Vous regardez, vous choisissez, vous confirmez directement avec la boutique. Le paiement reste direct au commerçant. Selon votre zone, une livraison locale peut être organisée.</textarea>
+
+      <div class="actions">
+        <button class="btn primary" id="btnLiveWhatsTest" type="button">🎥 Tester la visio</button>
+        <button class="btn" id="btnLiveCopy" type="button">📋 Copier le texte</button>
+        <button class="btn gold" id="btnLiveAudio" type="button">🎧 Écouter la visio</button>
+      </div>
+      <div class="msg" id="msgLiveDigiy">Prêt.</div>
+    </section>
+
+    <section class="card panel" data-view-panel="visibility">
+      <h2>Mettre en ligne</h2>
+      <div class="muted" id="sideLead">Avant de sortir au public, assure-toi que la boutique est lisible, joignable et crédible.</div>
+
+      <div class="stateRow">
+        <div class="stateText" id="publishState">Chargement…</div>
+        <div class="actions" style="margin-top:0">
+          <button class="btn primary" id="btnPublish" type="button">🌍 Mettre en ligne</button>
+          <button class="btn warn" id="btnUnpublish" type="button">🙈 Retirer</button>
+        </div>
+      </div>
+
+      <div class="checklist" id="readinessBox">
+        <div class="checkitem bad" id="checkName">• Le nom de la boutique manque</div>
+        <div class="checkitem bad" id="checkContact">• Le contact manque</div>
+        <div class="checkitem bad" id="checkPlace">• La ville ou l’adresse manque</div>
+        <div class="checkitem bad" id="checkContent">• Il faut dire clairement ce que tu vends</div>
+      </div>
+
+      <div class="field" style="margin-top:14px">
+        <div class="label">Lien vitrine premium / site officiel</div>
+        <input class="in" id="publicUrl" inputmode="url" placeholder="https://..."/>
+        <div class="help">Optionnel. Si ce lien est rempli, le bouton “Voir ma vitrine” ouvrira cette vitrine premium.</div>
+      </div>
+
+      <div class="actions">
+        <button class="btn primary" id="btnSavePublicUrl" type="button">💾 Enregistrer le lien</button>
+        <a class="btn gold" id="btnOpenPublicUrl" href="https://market.digiylyfe.com/" target="_blank" rel="noopener">🌍 Tester la vitrine</a>
+      </div>
+
+      <div class="msg" id="msgPublish">Prêt.</div>
+    </section>
+
+    <section class="card panel" data-view-panel="preview">
+      <h2>Résumé rapide</h2>
+      <div class="muted">Une lecture simple pour vérifier avant de publier.</div>
+
+      <div class="stats">
+        <div class="stat"><div class="k">Produits total</div><div class="v" id="statTotal">0</div></div>
+        <div class="stat"><div class="k">Actifs</div><div class="v" id="statActive">0</div></div>
+        <div class="stat"><div class="k">En pause</div><div class="v" id="statInactive">0</div></div>
+        <div class="stat"><div class="k">Visibles</div><div class="v" id="statPublishedProducts">0</div></div>
+      </div>
+
+      <div class="miniGrid" style="margin-top:14px">
+        <div class="mini"><div class="k">Boutique</div><div class="v" id="factShop">Ma boutique</div></div>
+        <div class="mini"><div class="k">Ville</div><div class="v" id="factCity">À définir</div></div>
+        <div class="mini"><div class="k">Livraison</div><div class="v" id="factDelivery">À définir</div></div>
+        <div class="mini"><div class="k">Paiement</div><div class="v" id="factPayment">À définir</div></div>
+        <div class="mini"><div class="k">Lien vitrine</div><div class="v" id="factPublicUrl">À définir</div></div>
+      </div>
+
+      <div class="emptyAction" id="emptyProductsBox">
+        <strong>Ta boutique est en ligne, mais elle attend ses premiers produits.</strong>
+        <p>Commence simple : nom du produit, prix, disponibilité et WhatsApp. La photo peut venir plus tard.</p>
+        <a class="btn primary" id="btnFirstProductSide" href="./produits.html#productForm">➕ Ajouter mon premier produit</a>
+      </div>
+
+      <div class="actions">
+        <button class="btn" type="button" data-view="identity">🏷️ Corriger identité</button>
+        <button class="btn" type="button" data-view="visibility">🌍 Publier</button>
+        <a class="btn primary" href="./produits.html">📦 Mes produits</a>
+      </div>
+    </section>
+
+    <div class="footer" id="footerText">DIGIY MARKET • Ma boutique</div>
+  </div>
+
+  <script>
+    (function(){
+      "use strict";
+
+      const SUPABASE_URL = window.DIGIY_SUPABASE_URL;
+      const SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON_KEY || window.DIGIY_SUPABASE_ANON;
+      const $ = (id) => document.getElementById(id);
+
+      const EDITABLE_IDS = [
+        "shopName","ownerName","city","categoriesText","whatsapp","zones","address",
+        "deliveryNote","paymentNote","description","publicUrl"
+      ];
+
+      let sb = null;
+      let ACCESS_SLUG = "";
+      let ACCESS_PHONE = "";
+      let ACCESS_OK = false;
+      let ACCESS_GRANTED = false;
+      let CURRENT_COCKPIT = null;
+      let CURRENT_PUBLISHED = false;
+      let CURRENT_PRIORITY = 100;
+      let UI_BUSY = false;
+      let UI_FORM_LOCKED = true;
+
+      function makeClient(){
+        if (sb) return sb;
+        if (!window.supabase || !SUPABASE_URL || !SUPABASE_ANON_KEY){
+          throw new Error("supabase_config_missing");
+        }
+        sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+          auth:{ persistSession:false, autoRefreshToken:false, detectSessionInUrl:false }
+        });
+        return sb;
+      }
+
+      function normSlug(v){ return String(v || "").trim().toLowerCase(); }
+
+      function normPhone(v){
+        const d = String(v || "").replace(/[^\d]/g, "");
+        if (!d) return "";
+        if (d.startsWith("221") && d.length === 12) return d;
+        if (d.length === 9) return "221" + d;
+        return d;
+      }
+
+      function toText(v, fallback){
+        const s = String(v || "").trim();
+        return s || (fallback || "");
+      }
+
+      function cleanHttpsUrl(v){
+        const s = String(v || "").trim();
+        if (!s) return "";
+        return /^https:\/\/[^\s]+$/i.test(s) ? s : "";
+      }
+
+      function getShopName(profile){
+        return toText(profile?.shop_name, toText(profile?.business_name, "Ma boutique"));
+      }
+
+      function publicUrlCacheKey(){
+        return "digiy_market_public_url_" + (ACCESS_SLUG || "pending");
+      }
+
+      function readCachedPublicUrl(){
+        try{
+          return cleanHttpsUrl(sessionStorage.getItem(publicUrlCacheKey()) || localStorage.getItem(publicUrlCacheKey()) || "");
+        }catch(_){ return ""; }
+      }
+
+      function rememberPublicUrl(url){
+        const clean = cleanHttpsUrl(url);
+        try{
+          if (clean){
+            sessionStorage.setItem(publicUrlCacheKey(), clean);
+            localStorage.setItem(publicUrlCacheKey(), clean);
+          } else {
+            sessionStorage.removeItem(publicUrlCacheKey());
+            localStorage.removeItem(publicUrlCacheKey());
+          }
+        }catch(_){}
+      }
+
+      function getPublicUrl(profile){
+        const fromDb = cleanHttpsUrl(
+          profile?.public_url ||
+          profile?.publicUrl ||
+          profile?.website_url ||
+          profile?.websiteUrl ||
+          profile?.site_url ||
+          profile?.siteUrl ||
+          profile?.shop_url ||
+          profile?.shopUrl ||
+          profile?.boutique_url ||
+          profile?.boutiqueUrl ||
+          ""
+        );
+        return fromDb || readCachedPublicUrl();
+      }
+
+      function cleanPublicHref(profile){
+        return getPublicUrl(profile || {}) || "https://market.digiylyfe.com/";
+      }
+
+      function isTruthyLike(v){
+        if (v === true || v === 1) return true;
+        const s = String(v == null ? "" : v).trim().toLowerCase();
+        return s === "true" || s === "1" || s === "yes" || s === "ok";
+      }
+
+      function setView(view){
+        const target = view || "identity";
+
+        document.querySelectorAll("[data-view-panel]").forEach(panel => {
+          panel.classList.toggle("active", panel.getAttribute("data-view-panel") === target);
+        });
+
+        document.querySelectorAll("[data-view]").forEach(btn => {
+          btn.classList.toggle("active", btn.getAttribute("data-view") === target);
+        });
+
+        const labels = {
+          identity:"Nom & activité",
+          contact:"Contact",
+          live:"WhatsApp vidéo",
+          visibility:"Mettre en ligne",
+          preview:"Résumé"
+        };
+
+        const brandTitle = $("brandTitle");
+        const topSub = $("topSub");
+        if (brandTitle) brandTitle.textContent = labels[target] || "Ma boutique";
+        if (topSub) topSub.textContent = "Boutons rapides · pas besoin de scroller";
+      }
+
+      function setNavLinks(){
+        const publicUrl = cleanPublicHref(CURRENT_COCKPIT?.profile || {});
+        $("btnDashboard").href = "./cockpit.html";
+        $("btnProducts").href = "./produits.html";
+        $("btnPin").href = "./pin.html";
+        $("btnPublic").href = publicUrl;
+        $("btnOpenPublicUrl").href = publicUrl;
+        if ($("btnFirstProductTop")) $("btnFirstProductTop").href = "./produits.html#productForm";
+        if ($("btnFirstProductSide")) $("btnFirstProductSide").href = "./produits.html#productForm";
+      }
+
+      function setPinButtonVisibility(){
+        const btn = $("btnPin");
+        if (!btn) return;
+        btn.style.display = ACCESS_GRANTED ? "none" : "";
+      }
+
+      function setMsgProfile(txt, type){
+        const el = $("msgProfile");
+        if (!el) return;
+        el.textContent = txt;
+        el.className = "msg " + (type || "");
+      }
+
+      function setMsgContact(txt, type){
+        const el = $("msgContact");
+        if (!el) return;
+        el.textContent = txt;
+        el.className = "msg " + (type || "");
+      }
+
+      function setMsgPublish(txt, type){
+        const el = $("msgPublish");
+        if (!el) return;
+        el.textContent = txt;
+        el.className = "msg " + (type || "");
+      }
+
+      function refreshInteractivity(){
+        EDITABLE_IDS.forEach(id => {
+          const el = $(id);
+          if (el) el.disabled = UI_BUSY || UI_FORM_LOCKED;
+        });
+
+        ["btnSave","btnSaveContact","btnSavePublicUrl","btnPublish","btnUnpublish","btnReload"].forEach(id => {
+          const el = $(id);
+          if (el) el.disabled = UI_BUSY || (id !== "btnReload" && UI_FORM_LOCKED);
+        });
+      }
+
+      function setBusy(isBusy){
+        UI_BUSY = !!isBusy;
+        document.body.classList.toggle("loading", UI_BUSY);
+        refreshInteractivity();
+      }
+
+      function setFormDisabled(disabled){
+        UI_FORM_LOCKED = !!disabled;
+        refreshInteractivity();
+      }
+
+      async function waitGuardIfAny(){
+        try{
+          const guard = window.DIGIY_GUARD;
+          if (!guard) return;
+          if (guard.ready && typeof guard.ready.then === "function") {
+            await guard.ready;
+            return;
+          }
+          if (typeof guard.ready === "function") {
+            const maybePromise = guard.ready();
+            if (maybePromise && typeof maybePromise.then === "function") await maybePromise;
+          }
+        }catch(e){
+          console.warn("guard ready warning:", e);
+        }
+      }
+
+      function resolvePhone(){
+        const fromGuard = normPhone(window.DIGIY_GUARD?.state?.phone);
+        if (fromGuard) return fromGuard;
+
+        const keys = ["digiy_market_phone","digiy_market_last_phone","market_phone","digiy_last_phone","digiy_phone"];
+        for (const key of keys){
+          try{
+            const p = normPhone(sessionStorage.getItem(key) || localStorage.getItem(key));
+            if (p) return p;
+          }catch(_){}
+        }
+        return "";
+      }
+
+      function resolveSlug(){
+        const fromGuard = normSlug(window.DIGIY_GUARD?.state?.slug);
+        if (fromGuard) return fromGuard;
+
+        const keys = ["digiy_market_slug","digiy_market_last_slug","market_slug","digiy_last_slug"];
+        for (const key of keys){
+          try{
+            const s = normSlug(sessionStorage.getItem(key) || localStorage.getItem(key));
+            if (s) return s;
+          }catch(_){}
+        }
+        return "";
+      }
+
+      function resolveAccessGranted(){
+        const guard = window.DIGIY_GUARD || {};
+        const st = (typeof guard.getSession === "function" ? guard.getSession() : null) || guard.state || {};
+
+        if (typeof guard.isAuthenticated === "function") {
+          try { if (guard.isAuthenticated()) return true; } catch (_) {}
+        }
+
+        const directFlags = [
+          st.access_ok, st.accessOk, st.has_access, st.hasAccess, st.access,
+          st.pin_access, st.pinAccess, st.allowed, st.is_allowed, st.isAllowed, st.ok
+        ];
+        if (directFlags.some(isTruthyLike)) return true;
+
+        const sessionFlags = [
+          sessionStorage.getItem("digiy_market_pin_access"),
+          sessionStorage.getItem("digiy_market_access_ok"),
+          sessionStorage.getItem("digiy_market_has_access"),
+          sessionStorage.getItem("digiy_market_access"),
+          localStorage.getItem("digiy_market_pin_access"),
+          localStorage.getItem("digiy_market_access_ok"),
+          localStorage.getItem("digiy_market_has_access"),
+          localStorage.getItem("digiy_market_access")
+        ];
+        if (sessionFlags.some(isTruthyLike)) return true;
+
+        const untilValues = [
+          sessionStorage.getItem("digiy_market_pin_access_until"),
+          sessionStorage.getItem("digiy_market_access_until"),
+          localStorage.getItem("digiy_market_pin_access_until"),
+          localStorage.getItem("digiy_market_access_until"),
+          st.pin_access_until, st.access_until, st.expires_at
+        ];
+
+        for (const raw of untilValues){
+          if (!raw) continue;
+          const n = Number(raw);
+          if (Number.isFinite(n) && n > Date.now()) return true;
+          const d = Date.parse(String(raw));
+          if (Number.isFinite(d) && d > Date.now()) return true;
+        }
+        return false;
+      }
+
+      function rememberAccess(){
+        if (ACCESS_SLUG){
+          sessionStorage.setItem("digiy_market_slug", ACCESS_SLUG);
+          localStorage.setItem("digiy_market_last_slug", ACCESS_SLUG);
+        }
+        if (ACCESS_PHONE){
+          sessionStorage.setItem("digiy_market_phone", ACCESS_PHONE);
+          localStorage.setItem("digiy_market_last_phone", ACCESS_PHONE);
+        }
+      }
+
+      function blockedCockpit(reason){
+        return {
+          ok:false,
+          reason:reason || "",
+          slug:ACCESS_SLUG || "",
+          workspace_slug:ACCESS_SLUG || "",
+          phone:ACCESS_PHONE || "",
+          is_blank:false,
+          profile:{
+            shop_name:"",
+            business_name:"",
+            owner_name:"",
+            city:"",
+            zones:"",
+            address:"",
+            whatsapp:"",
+            description:"",
+            categories_text:"",
+            delivery_note:"",
+            payment_note:"",
+            public_url:"",
+            is_published:false,
+            is_active:true,
+            priority:100
+          },
+          stats:{
+            total_products:0,
+            active_products:0,
+            inactive_products:0,
+            published_products:0
+          }
+        };
+      }
+
+      function resetForm(){
+        ["shopName","ownerName","city","categoriesText","whatsapp","zones","address","deliveryNote","paymentNote","description","publicUrl"].forEach(id => {
+          const el = $(id);
+          if (el) el.value = "";
+        });
+        $("linkedPhone").value = "Compte sécurisé";
+      }
+
+      function getDraft(){
+        return {
+          shop_name: $("shopName").value.trim(),
+          owner_name: $("ownerName").value.trim(),
+          city: $("city").value.trim(),
+          categories_text: $("categoriesText").value.trim(),
+          linked_phone: normPhone(ACCESS_PHONE),
+          whatsapp: normPhone($("whatsapp").value.trim()) || normPhone(ACCESS_PHONE),
+          zones: $("zones").value.trim(),
+          address: $("address").value.trim(),
+          delivery_note: $("deliveryNote").value.trim(),
+          payment_note: $("paymentNote").value.trim(),
+          description: $("description").value.trim(),
+          public_url: cleanHttpsUrl($("publicUrl").value.trim())
+        };
+      }
+
+      function getPublishIssues(draft){
+        const d = draft || getDraft();
+        const issues = [];
+        if (!d.shop_name) issues.push("Le nom de la boutique manque");
+        if (!(d.whatsapp || d.linked_phone)) issues.push("Le contact manque");
+        if (!(d.city || d.address)) issues.push("La ville ou l’adresse manque");
+        if (!(d.categories_text || d.description)) issues.push("Il faut dire clairement ce que tu vends");
+        return issues;
+      }
+
+      function renderReadiness(draft){
+        const d = draft || getDraft();
+        const checks = [
+          {id:"checkName", ok:!!d.shop_name, okText:"• Le nom de la boutique est prêt", badText:"• Le nom de la boutique manque"},
+          {id:"checkContact", ok:!!(d.whatsapp || d.linked_phone), okText:"• Le contact est prêt", badText:"• Le contact manque"},
+          {id:"checkPlace", ok:!!(d.city || d.address), okText:"• La zone est prête", badText:"• La ville ou l’adresse manque"},
+          {id:"checkContent", ok:!!(d.categories_text || d.description), okText:"• On comprend bien ce que tu vends", badText:"• Il faut dire clairement ce que tu vends"}
+        ];
+
+        checks.forEach(item => {
+          const el = $(item.id);
+          if (!el) return;
+          el.className = "checkitem " + (item.ok ? "ok" : "bad");
+          el.textContent = item.ok ? item.okText : item.badText;
+        });
+
+        const issues = getPublishIssues(d);
+        $("sideLead").textContent = issues.length === 0
+          ? "Ta fiche est assez claire pour être visible. Tu peux la mettre en ligne."
+          : "Avant la mise en ligne, complète les points ci-dessous pour que le client comprenne tout de suite.";
+
+        return issues;
+      }
+
+      function normalizeStats(stats){
+        const total = Number(stats?.total_products ?? stats?.products_total ?? 0) || 0;
+        const active = Number(stats?.active_products ?? stats?.products_active ?? 0) || 0;
+        const inactive = Number(stats?.inactive_products ?? stats?.products_inactive ?? Math.max(total - active, 0)) || 0;
+        const published = Number(stats?.published_products ?? stats?.products_published ?? 0) || 0;
+        return { total, active, inactive, published };
+      }
+
+      function applyStats(stats){
+        const s = normalizeStats(stats || {});
+        $("statTotal").textContent = String(s.total);
+        $("statActive").textContent = String(s.active);
+        $("statInactive").textContent = String(s.inactive);
+        $("statPublishedProducts").textContent = String(s.published);
+
+        const showFirstProduct = ACCESS_OK && s.total === 0;
+        $("emptyProductsBox").style.display = showFirstProduct ? "block" : "none";
+        $("btnFirstProductTop").style.display = showFirstProduct ? "inline-flex" : "none";
+      }
+
+      function renderPublishState(){
+        const issues = renderReadiness();
+        const status = CURRENT_PUBLISHED
+          ? "En ligne • visible publiquement"
+          : "Hors ligne • encore en préparation";
+
+        $("publishState").textContent = issues.length === 0
+          ? status
+          : `${status} • fiche encore à compléter`;
+      }
+
+      function applyCockpit(data, liveMode){
+        const payload = data || blockedCockpit();
+        const p = payload.profile || {};
+
+        CURRENT_COCKPIT = payload;
+        CURRENT_PUBLISHED = !!p.is_published;
+        CURRENT_PRIORITY = Number(p.priority || payload.priority || 100) || 100;
+        ACCESS_PHONE = normPhone(payload.phone || ACCESS_PHONE);
+        ACCESS_SLUG = normSlug(payload.slug || payload.workspace_slug || ACCESS_SLUG);
+
+        rememberAccess();
+        setNavLinks();
+        setPinButtonVisibility();
+
+        const shop = getShopName(p);
+        const city = toText(p.city, "Ville à définir");
+        const categories = toText(p.categories_text, "Ce que je vends");
+        const address = toText(p.address, "Adresse à définir");
+        const whatsapp = p.whatsapp || payload.phone || "";
+        const delivery = toText(p.delivery_note, "À définir");
+        const payment = toText(p.payment_note, "À définir");
+        const publicUrl = getPublicUrl(p);
+
+        $("shopNameHero").textContent = shop;
+        $("shopSubtitle").textContent = liveMode
+          ? (payload.is_blank
+            ? "Ta boutique est prête à être remplie. Mets ton nom, ton contact, ta zone et ce que tu vends."
+            : "Ta vraie boutique est chargée. Tu peux ajuster identité, contact et visibilité.")
+          : (ACCESS_SLUG
+            ? "Ton accès est repéré, mais il n’est pas encore ouvert."
+            : "Ouvre ton accès pour modifier les vrais réglages.");
+
+        $("pillCategories").textContent = "🏷️ " + categories;
+        $("pillCity").textContent = "📍 " + city;
+        $("pillPublish").textContent = "🌍 " + (p.is_published ? "En ligne" : "Hors ligne");
+        $("miniSlug").textContent = "Compte sécurisé";
+        $("miniPhone").textContent = "Identifiants cachés";
+        $("miniWhatsapp").textContent = normPhone(whatsapp) ? "Configuré" : "À définir";
+        $("miniAddress").textContent = address;
+
+        $("factShop").textContent = shop;
+        $("factCity").textContent = city;
+        $("factDelivery").textContent = delivery;
+        $("factPayment").textContent = payment;
+        $("factPublicUrl").textContent = publicUrl ? "Configuré" : "À définir";
+
+        $("modeBadge").className = liveMode ? "mode live" : "mode";
+        $("modeBadge").textContent = liveMode ? "Accès ouvert" : "Accès protégé";
+
+        document.title = liveMode ? `${shop} — Réglages` : "Ma boutique — Réglages";
+
+        resetForm();
+        $("shopName").value = p.shop_name || p.business_name || "";
+        $("ownerName").value = p.owner_name || "";
+        $("city").value = p.city || "";
+        $("categoriesText").value = p.categories_text || "";
+        $("linkedPhone").value = "Compte sécurisé";
+        $("whatsapp").value = p.whatsapp || normPhone(payload.phone || ACCESS_PHONE || "");
+        $("zones").value = p.zones || "";
+        $("address").value = p.address || "";
+        $("deliveryNote").value = p.delivery_note || "";
+        $("paymentNote").value = p.payment_note || "";
+        $("description").value = p.description || "";
+        $("publicUrl").value = publicUrl;
+        if (publicUrl) rememberPublicUrl(publicUrl);
+
+        renderPublishState();
+        applyStats(payload.stats || {});
+        syncPreviewFromInputs();
+      }
+
+      function syncPreviewFromInputs(){
+        const draft = getDraft();
+        const shop = draft.shop_name || "Ma boutique";
+        const city = draft.city || "Ville à définir";
+        const categories = draft.categories_text || "Ce que je vends";
+        const delivery = draft.delivery_note || "À définir";
+        const payment = draft.payment_note || "À définir";
+        const publicUrl = draft.public_url || "";
+
+        $("shopNameHero").textContent = shop;
+        $("pillCategories").textContent = "🏷️ " + categories;
+        $("pillCity").textContent = "📍 " + city;
+        $("pillPublish").textContent = "🌍 " + (CURRENT_PUBLISHED ? "En ligne" : "Hors ligne");
+        $("miniWhatsapp").textContent = normPhone(draft.whatsapp) ? "Configuré" : "À définir";
+        $("miniAddress").textContent = draft.address || "Adresse à définir";
+        $("factShop").textContent = shop;
+        $("factCity").textContent = city;
+        $("factDelivery").textContent = delivery;
+        $("factPayment").textContent = payment;
+        $("factPublicUrl").textContent = publicUrl ? "Configuré" : "À définir";
+        $("btnPublic").href = publicUrl || "https://market.digiylyfe.com/";
+        $("btnOpenPublicUrl").href = publicUrl || "https://market.digiylyfe.com/";
+        renderPublishState();
+      }
+
+      async function fetchCockpit(){
+        if (!ACCESS_SLUG) return { ok:false, reason:"missing_slug" };
+        const client = makeClient();
+        const { data, error } = await client.rpc("digiy_market_get_cockpit_by_slug", { p_slug: ACCESS_SLUG });
+        if (error) throw error;
+        return data || { ok:false, reason:"empty_response" };
+      }
+
+      async function persistDraft(publishedState){
+        const draft = getDraft();
+        const payload = {
+          shop_name: draft.shop_name,
+          owner_name: draft.owner_name,
+          city: draft.city,
+          zones: draft.zones,
+          address: draft.address,
+          whatsapp: draft.whatsapp,
+          public_url: draft.public_url,
+          website_url: draft.public_url,
+          site_url: draft.public_url,
+          description: draft.description,
+          categories_text: draft.categories_text,
+          delivery_note: draft.delivery_note,
+          payment_note: draft.payment_note,
+          priority: CURRENT_PRIORITY,
+          is_published: !!publishedState,
+          is_active: true
+        };
+
+        rememberPublicUrl(draft.public_url);
+
+        const client = makeClient();
+        const { data, error } = await client.rpc("digiy_market_save_profile", {
+          p_slug: ACCESS_SLUG,
+          p_payload: payload
+        });
+
+        if (error) throw error;
+        if (!data?.ok) throw new Error(data?.reason || data?.error || "market_save_profile_error");
+        return data;
+      }
+
+      async function saveProfile(targetMsg){
+        if (!ACCESS_OK || !ACCESS_SLUG){
+          const msg = "⚠️ Ouvre d’abord ton accès pour enregistrer la vraie boutique.";
+          setMsgProfile(msg, "bad");
+          setMsgContact(msg, "bad");
+          setMsgPublish(msg, "bad");
+          return;
+        }
+
+        try{
+          setBusy(true);
+          const where = targetMsg || "profile";
+          if (where === "contact") setMsgContact("⏳ Enregistrement en cours…", "warn");
+          else if (where === "publish") setMsgPublish("⏳ Enregistrement en cours…", "warn");
+          else setMsgProfile("⏳ Enregistrement en cours…", "warn");
+
+          const wantedPublicUrl = getDraft().public_url;
+          await persistDraft(CURRENT_PUBLISHED);
+          await loadLiveCockpit();
+
+          const msg = wantedPublicUrl
+            ? "✅ Changements enregistrés. Lien vitrine gardé."
+            : "✅ Changements enregistrés.";
+
+          if (where === "contact") setMsgContact(msg, "ok");
+          else if (where === "publish") setMsgPublish(msg, "ok");
+          else setMsgProfile(msg, "ok");
+        }catch(e){
+          console.error(e);
+          const msg = "❌ Impossible d’enregistrer pour le moment.";
+          setMsgProfile(msg, "bad");
+          setMsgContact(msg, "bad");
+          setMsgPublish(msg, "bad");
+        }finally{
+          setBusy(false);
+        }
+      }
+
+      async function setPublishState(nextState){
+        if (!ACCESS_OK || !ACCESS_SLUG){
+          setMsgPublish("⚠️ Ouvre d’abord ton accès pour changer la visibilité.", "bad");
+          return;
+        }
+
+        const draft = getDraft();
+        const issues = getPublishIssues(draft);
+
+        if (nextState && issues.length){
+          setMsgPublish("⚠️ Mise en ligne bloquée : " + issues.join(" • "), "warn");
+          renderReadiness(draft);
+          return;
+        }
+
+        try{
+          setBusy(true);
+          setMsgPublish("⏳ Mise à jour en cours…", "warn");
+
+          await persistDraft(!!nextState);
+          const client = makeClient();
+          const { data, error } = await client.rpc("digiy_market_set_publish_by_slug", {
+            p_slug: ACCESS_SLUG,
+            p_is_published: !!nextState
+          });
+
+          if (error) throw error;
+          if (!data?.ok) throw new Error(data?.reason || data?.error || "market_publish_error");
+
+          CURRENT_PUBLISHED = !!nextState;
+          setMsgPublish(nextState ? "✅ Ta boutique est maintenant en ligne." : "✅ Ta boutique a été retirée du public.", "ok");
+          await loadLiveCockpit();
+        }catch(e){
+          console.error(e);
+          setMsgPublish("❌ Impossible de changer la visibilité pour le moment.", "bad");
+        }finally{
+          setBusy(false);
+        }
+      }
+
+      async function loadLiveCockpit(){
+        const data = await fetchCockpit();
+
+        if (!data?.ok){
+          ACCESS_OK = false;
+          applyCockpit(blockedCockpit(data?.reason || "not_ok"), false);
+          setFormDisabled(true);
+          setMsgProfile("⚠️ L’identifiant est repéré, mais l’accès n’est pas ouvert.", "warn");
+          setMsgContact("Accès non ouvert.", "warn");
+          setMsgPublish("Accès non ouvert.", "warn");
+          return;
+        }
+
+        ACCESS_OK = true;
+        ACCESS_PHONE = normPhone(data.phone || ACCESS_PHONE);
+        ACCESS_SLUG = normSlug(data.slug || data.workspace_slug || ACCESS_SLUG);
+        rememberAccess();
+        applyCockpit(data, true);
+        setFormDisabled(false);
+      }
+
+      async function boot(){
+        try{
+          setBusy(true);
+          await waitGuardIfAny();
+
+          ACCESS_PHONE = resolvePhone();
+          ACCESS_SLUG = resolveSlug();
+          ACCESS_GRANTED = resolveAccessGranted();
+
+          rememberAccess();
+          setNavLinks();
+          setPinButtonVisibility();
+
+          if (!ACCESS_SLUG){
+            ACCESS_OK = false;
+            applyCockpit(blockedCockpit("missing_slug"), false);
+            setFormDisabled(true);
+            setMsgProfile("Aucun compte boutique détecté. La coque reste visible.", "warn");
+            setMsgContact("Aucun compte détecté.", "warn");
+            setMsgPublish("Aucun compte détecté.", "warn");
+            return;
+          }
+
+          if (!ACCESS_GRANTED){
+            ACCESS_OK = false;
+            applyCockpit(blockedCockpit("access_not_open"), false);
+            setFormDisabled(true);
+            setMsgProfile("⚠️ Accès non ouvert. Passe par ton PIN pour ouvrir les vrais réglages.", "warn");
+            setMsgContact("Accès non ouvert.", "warn");
+            setMsgPublish("Accès non ouvert.", "warn");
+            return;
+          }
+
+          await loadLiveCockpit();
+
+          if (ACCESS_OK){
+            setMsgProfile(CURRENT_COCKPIT?.is_blank ? "✅ Boutique prête à être remplie." : "✅ Ta boutique réelle est bien chargée.", "ok");
+            setMsgContact("Prêt.", "");
+            setMsgPublish(CURRENT_PUBLISHED ? "La boutique est déjà en ligne." : "La boutique est encore hors ligne.", "");
+          }
+        }catch(e){
+          console.error(e);
+          ACCESS_OK = false;
+          applyCockpit(blockedCockpit("boot_error"), false);
+          setFormDisabled(true);
+          setMsgProfile("❌ Impossible de charger la vraie boutique pour le moment.", "bad");
+          setMsgContact("Erreur de chargement.", "bad");
+          setMsgPublish("Erreur de chargement.", "bad");
+        }finally{
+          setBusy(false);
+        }
+      }
+
+      function setupEvents(){
+        document.querySelectorAll("[data-view]").forEach(btn => {
+          btn.addEventListener("click", () => setView(btn.getAttribute("data-view") || "identity"));
+        });
+
+        EDITABLE_IDS.forEach(id => {
+          const el = $(id);
+          if (el) el.addEventListener("input", syncPreviewFromInputs);
+        });
+
+        $("btnSave").addEventListener("click", () => saveProfile("profile"));
+        $("btnSaveContact").addEventListener("click", () => saveProfile("contact"));
+        $("btnSavePublicUrl").addEventListener("click", () => saveProfile("publish"));
+        $("btnReload").addEventListener("click", boot);
+        $("btnPublish").addEventListener("click", () => setPublishState(true));
+        $("btnUnpublish").addEventListener("click", () => setPublishState(false));
+
+        refreshInteractivity();
+        setNavLinks();
+        setPinButtonVisibility();
+      }
+
+      window.DIGIY_MARKET_BOUTIQUE = { setView, boot };
+
+      setupEvents();
+
+      const initialView = (location.hash || "").replace("#", "");
+      if (["identity","contact","live","visibility","preview"].includes(initialView)) {
+        setView(initialView);
+      }
+
+      boot();
+    })();
+  </script>
+
+  <script>
+    (function(){
+      "use strict";
+
+      const AUDIO_TEXT = "Bienvenue dans Je vends, la boutique DIGIY. Ici, tu règles ce que les clients vont voir : le nom de ta boutique, ta ville, ton WhatsApp, ce que tu vends, tes infos utiles et ta visibilité. DIGIY MARKET fonctionne comme une galerie marchande : plusieurs boutiques peuvent être vues, mais le client contacte directement le commerçant. Remplis d'abord ta boutique, ajoute ensuite tes produits avec leur prix, puis utilise les notes rapides pour une vente, un stock, une livraison ou un client qui doit. Quand la note est prête, elle peut aller vers Mon argent. Le paiement reste direct au commerçant, avec zéro commission DIGIY.";
+      const btnPlay = document.getElementById("btnMarketBoutiqueAudio");
+      const btnStop = document.getElementById("btnMarketBoutiqueAudioStop");
+      const progress = document.getElementById("marketBoutiqueAudioProgress");
+      let playing = false;
+      let timer = null;
+
+      function getVoice(){
+        try{
+          const voices = window.speechSynthesis.getVoices() || [];
+          return voices.find(v => /^fr/i.test(v.lang || "") && /audrey|amelie|hortense|julie|thomas|paul|french/i.test(v.name || ""))
+            || voices.find(v => /^fr/i.test(v.lang || ""))
+            || null;
+        }catch(_){ return null; }
+      }
+
+      function stopAudio(){
+        try{ window.speechSynthesis.cancel(); }catch(_){}
+        clearInterval(timer);
+        timer = null;
+        playing = false;
+        if(btnPlay) btnPlay.textContent = "🎧 Écouter DIGIY";
+        if(progress) progress.style.width = "0%";
+      }
+
+      function playAudio(){
+        if(!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)){
+          alert("Audio indisponible sur ce navigateur.");
+          return;
+        }
+        if(playing){ stopAudio(); return; }
+        stopAudio();
+
+        const utter = new SpeechSynthesisUtterance(AUDIO_TEXT);
+        utter.lang = "fr-FR";
+        utter.rate = 0.86;
+        utter.pitch = 1.04;
+        utter.volume = 1;
+
+        const voice = getVoice();
+        if(voice) utter.voice = voice;
+
+        const duration = Math.max(12000, AUDIO_TEXT.split(/\s+/).length * 430);
+        let elapsed = 0;
+
+        utter.onstart = function(){
+          playing = true;
+          if(btnPlay) btnPlay.textContent = "⏸️ Lecture en cours";
+          if(progress) progress.style.width = "0%";
+          timer = setInterval(function(){
+            elapsed += 250;
+            if(progress) progress.style.width = Math.min(96, (elapsed / duration) * 100) + "%";
+          }, 250);
+        };
+
+        utter.onend = function(){
+          if(progress) progress.style.width = "100%";
+          setTimeout(stopAudio, 260);
+        };
+        utter.onerror = stopAudio;
+        window.speechSynthesis.speak(utter);
+      }
+
+      if(btnPlay) btnPlay.addEventListener("click", playAudio);
+      if(btnStop) btnStop.addEventListener("click", stopAudio);
+      if(window.speechSynthesis && typeof window.speechSynthesis.onvoiceschanged !== "undefined"){
+        window.speechSynthesis.onvoiceschanged = getVoice;
+      }
+      window.addEventListener("beforeunload", stopAudio);
+      document.addEventListener("visibilitychange", function(){ if(document.hidden) stopAudio(); });
+    })();
+  </script>
+
+  <script>
+    (function(){
+      "use strict";
+
+      const $ = (id) => document.getElementById(id);
+      const liveText = "Bienvenue dans le Live DIGIY. Avec WhatsApp Visio Live by DIGIY, le client peut voir les produits en direct, en vidéo, comme s’il était sur place. Malgré la distance, il gagne du temps, évite un trajet inutile et reçoit les conseils du commerçant avant de choisir. Le client regarde, choisit et confirme directement avec la boutique. Le paiement reste direct au commerçant. Selon la zone, une livraison locale peut être organisée.";
+
+      function normPhone(v){
+        const d = String(v || "").replace(/[^\d]/g, "");
+        if (!d) return "";
+        if (d.startsWith("221") && d.length === 12) return d;
+        if (d.length === 9) return "221" + d;
+        return d;
+      }
+
+      function getPhone(){
+        const direct = normPhone($("whatsapp")?.value || "");
+        if (direct) return direct;
+        const fromSession = normPhone(sessionStorage.getItem("digiy_market_phone"));
+        if (fromSession) return fromSession;
+        const fromLocal = normPhone(localStorage.getItem("digiy_market_last_phone"));
+        if (fromLocal) return fromLocal;
+        return "";
+      }
+
+      function setLiveMsg(txt, type){
+        const el = $("msgLiveDigiy");
+        if(!el) return;
+        el.textContent = txt;
+        el.className = "msg " + (type || "");
+      }
+
+      async function copyLiveText(){
+        const val = $("liveCopyText")?.value || "";
+        try{
+          await navigator.clipboard.writeText(val);
+          setLiveMsg("✅ Texte WhatsApp Visio Live copié.", "ok");
+        }catch(_){
+          const area = $("liveCopyText");
+          if(area){ area.focus(); area.select(); }
+          setLiveMsg("⚠️ Copie automatique impossible. Le texte est sélectionné.", "warn");
+        }
+      }
+
+      function openLiveWhatsApp(){
+        const phone = getPhone();
+        if(!phone){
+          setLiveMsg("⚠️ Ajoute ton WhatsApp avant de tester la visio live.", "warn");
+          return;
+        }
+        const text = encodeURIComponent("Bonjour, je viens de DIGIY MARKET. Je souhaite voir les produits en WhatsApp Visio Live by DIGIY, en vidéo, comme si j’étais sur place, avant de confirmer mon choix.");
+        window.open("https://wa.me/" + phone + "?text=" + text, "_blank", "noopener,noreferrer");
+        setLiveMsg("✅ WhatsApp Visio Live ouvert avec le message prêt.", "ok");
+      }
+
+      let playing = false;
+
+      function stopAudio(){
+        try{ window.speechSynthesis.cancel(); }catch(_){}
+        playing = false;
+        const btn = $("btnLiveAudio");
+        if(btn) btn.textContent = "🎧 Écouter la visio";
+      }
+
+      function playAudio(){
+        if(!("speechSynthesis" in window) || !("SpeechSynthesisUtterance" in window)){
+          setLiveMsg("⚠️ Audio non disponible sur ce navigateur.", "warn");
+          return;
+        }
+        if(playing){ stopAudio(); return; }
+        stopAudio();
+
+        const utter = new SpeechSynthesisUtterance(liveText);
+        utter.lang = "fr-FR";
+        utter.rate = 0.82;
+        utter.pitch = 1;
+        utter.volume = 1;
+        utter.onstart = function(){
+          playing = true;
+          const btn = $("btnLiveAudio");
+          if(btn) btn.textContent = "■ Arrêter";
+          setLiveMsg("🎧 Lecture du Live DIGIY…", "ok");
+        };
+        utter.onend = function(){
+          stopAudio();
+          setLiveMsg("✅ Audio terminé.", "ok");
+        };
+        utter.onerror = function(){
+          stopAudio();
+          setLiveMsg("⚠️ Lecture audio interrompue.", "warn");
+        };
+        window.speechSynthesis.speak(utter);
+      }
+
+      $("btnLiveCopy")?.addEventListener("click", copyLiveText);
+      $("btnLiveWhatsTest")?.addEventListener("click", openLiveWhatsApp);
+      $("btnLiveAudio")?.addEventListener("click", playAudio);
+      window.addEventListener("beforeunload", stopAudio);
+      document.addEventListener("visibilitychange", function(){ if(document.hidden) stopAudio(); });
+    })();
+  </script>
 </body>
 </html>
+
 
 
 
