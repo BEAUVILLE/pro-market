@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
+  <meta name="robots" content="noindex,nofollow"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <title>DIGIY MARKET — QR Astou Boutique</title>
 
@@ -10,6 +11,17 @@
     .card{max-width:520px;margin:auto;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:26px;padding:22px;box-shadow:0 22px 70px rgba(0,0,0,.38)}
     h1{font-size:34px;margin:10px 0;line-height:1}.top{color:#facc15;font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-weight:900}p{color:rgba(236,255,244,.75);line-height:1.5}.qr{background:white;border-radius:22px;padding:18px;margin:18px auto;color:#07140f}.qr img{width:100%;max-width:340px;border-radius:16px}.btn{display:block;margin:10px 0;padding:15px;border-radius:18px;background:#22c55e;color:#041b12;font-weight:900;text-decoration:none}.btn.gold{background:#facc15;color:#241a00}.btn.dark{background:rgba(255,255,255,.08);color:#ecfff4;border:1px solid rgba(255,255,255,.14)}.small{font-size:13px;color:rgba(236,255,244,.65);word-break:break-all}@media print{body{background:#fff;color:#111}.card{box-shadow:none;border:0}.btn,.small,.top,p{display:none}.qr{padding:0}.qr img{max-width:430px}}
   </style>
+<script>
+  window.DIGIY_MODULE       = "MARKET";
+  window.DIGIY_ABOS_MODULE  = "MARKET";
+  window.DIGIY_MODULE_LABEL = "Je vends";
+  window.DIGIY_LOGIN_URL    = "./pin.html";
+  window.DIGIY_SUPABASE_URL      = window.DIGIY_SUPABASE_URL || "https://wesqmwjjtsefyjnluosj.supabase.co";
+  window.DIGIY_SUPABASE_ANON_KEY = window.DIGIY_SUPABASE_ANON_KEY || "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
+  window.DIGIY_SUPABASE_ANON     = window.DIGIY_SUPABASE_ANON_KEY;
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./guard.js?v=market-guard-20260531"></script>
 </head>
 <body>
   <main class="card">
@@ -28,7 +40,17 @@
   </main>
 
   <script>
-    const ficheUrl = "https://market.digiylyfe.com/fiche.html?slug=market-221771342889";
+    function getSlug(){
+  try{
+    return localStorage.getItem("digiy_market_slug") ||
+           localStorage.getItem("digiy_market_last_slug") ||
+           localStorage.getItem("market_slug") || "";
+  }catch(_){ return ""; }
+}
+const slug = getSlug();
+const ficheUrl = slug
+  ? "https://market.digiylyfe.com/fiche.html?slug=" + encodeURIComponent(slug)
+  : "https://market.digiylyfe.com/fiche.html";
     const qrApi = "https://api.qrserver.com/v1/create-qr-code/?size=520x520&margin=18&data=" + encodeURIComponent(ficheUrl);
     document.getElementById("qrImg").src = qrApi;
     document.getElementById("openLink").href = ficheUrl;
@@ -37,3 +59,4 @@
   </script>
 </body>
 </html>
+
