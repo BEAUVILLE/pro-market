@@ -4,7 +4,7 @@
   <meta charset="utf-8"/>
   <meta name="robots" content="noindex,nofollow"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>Je vends — Ma gestion</title>
+  <title>Je vends — Gestion MARKET</title>
   <meta name="theme-color" content="#07140f"/>
   <meta name="description" content="Je vends — accueil vendeur MARKET, produits, notes, boutique et visibilité sans exposer les identifiants."/>
 
@@ -648,7 +648,7 @@
       <div class="top-actions">
         <button class="btn ghost" id="btnReloadTop" type="button">🔄 Recharger</button>
         <a class="btn info privateOnly" href="./cockpit.html">🏠 Accueil</a>
-        <a class="btn privateOnly" href="./produits.html">📦 Produits</a>
+        <a class="btn primary privateOnly" href="./action.html">🎙️ ACTION</a><a class="btn privateOnly" href="./produits.html">📦 Produits</a>
         <a class="btn gold privateOnly" href="./produits.html#quickMarketNote">✍️ Notes</a>
         <button class="btn payBtn privateOnly" id="btnPayTop" type="button">💰 Mon argent</button>
         <a class="btn privateOnly" href="./boutique.html">⚙️ Plus</a>
@@ -1846,8 +1846,416 @@
 })();
 </script>
 <script src="./oreille-metier-market.js?v=market-ear-20260521"></script>
+
+<script>
+(function(){
+  "use strict";
+  function readRoot(){
+    try{return JSON.parse(localStorage.getItem("digiy_market_memory_v1")||"{}")||{}}catch(_){return{}}
+  }
+  function esc(v){return String(v??"").replace(/[&<>"']/g,function(m){return({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m])})}
+  function latestDraft(){
+    try{
+      var mem=window.DIGIY_MARKET_MEMORY;
+      if(mem && typeof mem.readProductDrafts==="function"){
+        var rows=mem.readProductDrafts();
+        if(rows && rows[0]) return rows[0];
+      }
+    }catch(_){}
+    var root=readRoot();
+    if(root.product_drafts && root.product_drafts[0]) return root.product_drafts[0];
+    try{
+      var rows=JSON.parse(localStorage.getItem("DIGIY_MARKET_ACTION_DRAFTS")||"[]");
+      if(rows[0]) return rows[0];
+    }catch(_){}
+    try{return JSON.parse(localStorage.getItem("DIGIY_MARKET_GO_LATEST")||"null")}catch(_){}
+    return null;
+  }
+  function mount(){
+    if(document.getElementById("digiyLatestMarketAction")) return;
+    var d=latestDraft();
+    var card=document.createElement("section");
+    card.id="digiyLatestMarketAction";
+    card.className="card";
+    card.style.padding="16px";
+    card.innerHTML =
+      '<div class="eyebrow">🎙️ Dernière ACTION MARKET</div>'+
+      (d ?
+        '<h2 style="margin:6px 0 8px;font-size:26px;line-height:1.05">Offre préparée</h2>'+
+        '<p style="color:var(--muted);font-weight:900;line-height:1.45;margin:0 0 12px">'+
+          '<b>'+esc(d.product||"Produit MARKET")+'</b> · '+esc(d.price||d.amount||"prix à confirmer")+
+          ' · stock '+esc(d.stock||d.quantity||"à vérifier")+
+          ' · '+esc(d.status||"brouillon")+
+        '</p>'
+        :
+        '<h2 style="margin:6px 0 8px;font-size:26px;line-height:1.05">Aucun brouillon action</h2>'+
+        '<p style="color:var(--muted);font-weight:900;line-height:1.45;margin:0 0 12px">Prépare une offre dans ACTION MARKET.</p>'
+      )+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'+
+        '<a class="btn primary" href="./action.html">🎙️ ACTION MARKET</a>'+
+        '<a class="btn gold" href="./pay-transition.html">💳 Vers PAY</a>'+
+      '</div>';
+    var target=document.querySelector(".hero") || document.querySelector(".wrap") || document.body;
+    if(target.parentNode) target.parentNode.insertBefore(card, target.nextSibling);
+    else document.body.prepend(card);
+  }
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded", mount); else mount();
+})();
+</script>
+
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
