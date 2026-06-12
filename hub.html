@@ -4,12 +4,12 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 
-  <title>Je vends — HUB MARKET</title>
+  <title>Je vends — Menu MARKET</title>
 
   <meta name="theme-color" content="#1e7a46"/>
-  <meta name="description" content="DIGIY MARKET PRO — HUB mobile terrain en pavés : vendre, produits, boutique, visibilité, PAY, session."/>
+  <meta name="description" content="DIGIY MARKET PRO — menu vendeur compact : vendre, produits, boutique, fiche, QR, PAY, session."/>
   <meta name="robots" content="noindex,nofollow,noarchive,nosnippet"/>
-  <meta name="digiy-build" content="market-hub-rail-porte-oreille-lexique-wolof-20260607"/>
+  <meta name="digiy-build" content="market-menu-compact-plus-pay-ok-20260612"/>
 
   <script>
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
@@ -20,17 +20,16 @@
     window.DIGIY_MODULE = "MARKET";
     window.DIGIY_ABOS_MODULE = "MARKET";
     window.DIGIY_LOGIN_URL = "./pin.html";
+    window.DIGIY_PAY_URL = "https://pay.digiylyfe.com/";
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./assets/js/digiy-abos-access.js?v=abos-20260522"></script>
-
   <script src="./guard.js?v=market-guard-20260531"></script>
   <script src="./assets/js/digiy-module-bridge.js?v=bridge-20260521" defer></script>
   <script src="./assets/js/digiy-market-memory.js?v=market-memory-20260521" defer></script>
-  <!-- <script src="./assets/js/oreille-metier-market.js"></script> -->
-  
-<link rel="preload" as="image" href="https://digiylyfe.net/wp-content/uploads/2026/05/metier-pro-1.png"/>
+
+  <link rel="preload" as="image" href="https://digiylyfe.net/wp-content/uploads/2026/05/metier-pro-1.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet"/>
@@ -42,21 +41,19 @@
       --bg3:#0e4226;
       --bar:rgba(8,50,24,.96);
       --gold:#c4973f;
+      --gold2:#fff0a8;
       --green:#22c55e;
-      --blue:#8b8cff;
       --line:rgba(255,255,255,.18);
       --text:#f0fff5;
-      --muted:rgba(240,255,245,.76);
+      --muted:rgba(240,255,245,.78);
       --shadow:0 16px 40px rgba(0,0,0,.22);
       --r:18px;
       --max:960px;
       --hdrH:52px;
       --barH:78px;
     }
-
     *{box-sizing:border-box}
     html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
-
     body{
       margin:0;
       min-height:100dvh;
@@ -68,71 +65,60 @@
         radial-gradient(600px 390px at 16% 0%,rgba(74,222,128,.18),transparent 58%),
         radial-gradient(420px 280px at 92% 8%,rgba(196,151,63,.15),transparent 52%),
         linear-gradient(180deg,var(--bg) 0%,var(--bg2) 60%,var(--bg3) 100%);
-      padding:
-        calc(var(--hdrH) + 14px)
-        12px
-        calc(var(--barH) + env(safe-area-inset-bottom,0px) + 18px);
+      padding:calc(var(--hdrH) + 12px) 10px calc(var(--barH) + env(safe-area-inset-bottom,0px) + 14px);
     }
-
     a{color:inherit;text-decoration:none}
     button{font:inherit;color:inherit;cursor:pointer}
 
     .topHeader{
       position:fixed;
-      top:0;
-      left:0;
-      right:0;
+      top:0;left:0;right:0;
       height:var(--hdrH);
       z-index:100;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:10px;
-      padding:0 14px;
+      gap:8px;
+      padding:0 12px;
       background:var(--bar);
       border-bottom:1px solid rgba(196,151,63,.26);
       backdrop-filter:blur(18px);
       -webkit-backdrop-filter:blur(18px);
     }
-
     .hdrBack{
       min-height:36px;
       display:inline-flex;
       align-items:center;
-      justify-content:center;
-      color:rgba(240,255,245,.72);
-      font-size:14px;
+      color:rgba(240,255,245,.74);
+      font-size:13px;
       font-weight:1000;
       white-space:nowrap;
     }
-
     .hdrTitle{
-      font-size:12px;
+      font-size:11px;
       font-weight:1000;
-      letter-spacing:.16em;
+      letter-spacing:.14em;
       text-transform:uppercase;
-      color:var(--gold);
+      color:var(--gold2);
       white-space:nowrap;
     }
-
     .hdrPill{
       min-height:32px;
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      padding:6px 10px;
+      padding:6px 9px;
       border-radius:999px;
       border:1px solid var(--line);
       background:rgba(255,255,255,.08);
       color:var(--muted);
-      font-size:12px;
+      font-size:11px;
       font-weight:1000;
       white-space:nowrap;
-      max-width:38vw;
+      max-width:34vw;
       overflow:hidden;
       text-overflow:ellipsis;
     }
-
     .hdrPill.ok{color:#bbf7d0;border-color:rgba(34,197,94,.38);background:rgba(34,197,94,.12)}
     .hdrPill.warn{color:#fde68a;border-color:rgba(245,158,11,.38);background:rgba(245,158,11,.12)}
 
@@ -140,192 +126,135 @@
       width:min(var(--max),100%);
       margin:0 auto;
       display:grid;
-      gap:16px;
+      gap:10px;
     }
-
-    .hubHead{padding:2px 2px 4px}
-
+    .hero{
+      display:grid;
+      gap:6px;
+      padding:2px 2px 0;
+    }
     .eyebrow{
-      color:#fff0a8;
+      color:var(--gold2);
       font-size:12px;
-      letter-spacing:.16em;
+      letter-spacing:.14em;
       text-transform:uppercase;
       font-weight:1000;
-      margin-bottom:8px;
     }
-
     h1{
-      margin:0 0 8px;
-      font-size:clamp(34px,8.5vw,54px);
+      margin:0;
+      font-size:clamp(31px,8vw,48px);
       font-weight:1000;
       line-height:.94;
       letter-spacing:-.05em;
     }
-
-    .hubSub{
+    .sub{
       color:var(--muted);
-      font-size:17px;
+      font-size:15px;
       font-weight:1000;
-      line-height:1.38;
+      line-height:1.30;
       max-width:760px;
     }
 
-    .rule{
-      margin-top:10px;
-      padding:12px 14px;
-      border-radius:18px;
-      border:1px dashed rgba(255,255,255,.22);
-      background:rgba(5,31,17,.32);
-      color:rgba(240,255,245,.90);
-      font-size:14px;
-      font-weight:1000;
-      line-height:1.35;
-    }
-
-    .rule b{color:#fff0a8}
-
-    .group{display:grid;gap:8px}
-
-    .groupLabel{
-      font-size:11px;
-      font-weight:1000;
-      letter-spacing:.14em;
-      text-transform:uppercase;
-      color:rgba(240,255,245,.50);
-      padding:0 2px;
-    }
-
-    .tileGrid{
+    .quickGrid{
       display:grid;
-      grid-template-columns:repeat(4,minmax(0,1fr));
-      gap:9px;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:8px;
     }
-
-    .tile{
-      min-height:136px;
+    .quick{
+      min-height:86px;
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.09);
+      box-shadow:var(--shadow);
+      padding:12px;
       display:flex;
       flex-direction:column;
       justify-content:space-between;
-      gap:12px;
-      padding:14px;
-      border-radius:var(--r);
-      border:1px solid rgba(255,255,255,.15);
-      background:rgba(255,255,255,.09);
-      box-shadow:var(--shadow);
-      transition:transform .12s ease,background .12s ease,border-color .12s ease;
+      gap:6px;
       -webkit-tap-highlight-color:transparent;
     }
+    .quick.hot{background:linear-gradient(180deg,rgba(34,197,94,.20),rgba(255,255,255,.09));border-color:rgba(34,197,94,.34)}
+    .quick.gold{background:linear-gradient(180deg,rgba(196,151,63,.20),rgba(255,255,255,.09));border-color:rgba(196,151,63,.40)}
+    .quick .ico{font-size:25px;line-height:1}
+    .quick b{font-size:18px;line-height:1.02;font-weight:1000;color:#fff}
+    .quick span{font-size:12px;line-height:1.18;font-weight:1000;color:rgba(240,255,245,.74)}
 
-    .tile:hover{transform:translateY(-1px);background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.25)}
-    .tile:active{transform:none}
-
-    .tileTop{
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
+    .sectionTitle{
+      margin:2px 0 0;
+      font-size:11px;
+      font-weight:1000;
+      letter-spacing:.13em;
+      text-transform:uppercase;
+      color:rgba(240,255,245,.56);
+      padding:0 2px;
+    }
+    .tileGrid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
       gap:8px;
     }
-
+    .tile{
+      min-height:106px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      gap:8px;
+      padding:12px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.15);
+      background:rgba(255,255,255,.08);
+      box-shadow:0 12px 28px rgba(0,0,0,.17);
+      -webkit-tap-highlight-color:transparent;
+    }
+    .tile.pay{border-color:rgba(196,151,63,.48);background:linear-gradient(180deg,rgba(196,151,63,.19),rgba(255,255,255,.09))}
+    .tile.gold{border-color:rgba(196,151,63,.38);background:rgba(196,151,63,.12)}
+    .tile.blue{border-color:rgba(139,140,255,.32);background:rgba(139,140,255,.12)}
+    .tileTop{display:flex;justify-content:space-between;align-items:flex-start;gap:7px}
     .tileIcon{
-      width:48px;
-      height:48px;
-      border-radius:15px;
+      width:42px;height:42px;
+      border-radius:14px;
       display:grid;
       place-items:center;
-      background:rgba(255,255,255,.08);
+      background:rgba(255,255,255,.09);
       border:1px solid rgba(255,255,255,.14);
-      font-size:25px;
-      flex:0 0 auto;
+      font-size:22px;
     }
-
     .tileTag{
-      min-height:27px;
+      min-height:24px;
       display:inline-flex;
       align-items:center;
       justify-content:center;
-      padding:5px 8px;
+      padding:4px 7px;
       border-radius:999px;
       border:1px solid rgba(255,255,255,.14);
       background:rgba(255,255,255,.08);
-      color:#fff0a8;
-      font-size:10px;
+      color:var(--gold2);
+      font-size:8.5px;
       font-weight:1000;
-      letter-spacing:.08em;
+      letter-spacing:.07em;
       text-transform:uppercase;
       white-space:nowrap;
     }
-
     .tile b{
       display:block;
-      font-size:20px;
-      font-weight:1000;
-      line-height:1.06;
-      letter-spacing:-.025em;
+      font-size:18px;
+      line-height:1.04;
+      letter-spacing:-.02em;
       color:#fff;
+      font-weight:1000;
     }
-
     .tile span{
       display:block;
-      margin-top:5px;
+      margin-top:4px;
+      font-size:12px;
+      line-height:1.18;
       color:var(--muted);
-      font-size:14px;
       font-weight:1000;
-      line-height:1.28;
-    }
-
-    .tile.primary{border-color:rgba(34,197,94,.38);background:rgba(34,197,94,.14)}
-    .tile.primary .tileIcon{background:rgba(34,197,94,.16);border-color:rgba(34,197,94,.28)}
-    .tile.gold{border-color:rgba(196,151,63,.42);background:rgba(196,151,63,.12)}
-    .tile.gold .tileIcon,.tile.pay .tileIcon{background:rgba(196,151,63,.15);border-color:rgba(196,151,63,.30)}
-    .tile.blue{border-color:rgba(139,140,255,.32);background:rgba(139,140,255,.12)}
-    .tile.pay{border-color:rgba(196,151,63,.48);background:linear-gradient(180deg,rgba(196,151,63,.18),rgba(255,255,255,.08))}
-    .tile.pay .tileTag{color:var(--gold);border-color:rgba(196,151,63,.35);background:rgba(196,151,63,.12)}
-
-    .tileLogoImg{
-      width:96px;
-      height:96px;
-      object-fit:contain;
-      border-radius:24px;
-      background:#fff;
-      padding:8px;
-      box-shadow:0 12px 26px rgba(0,0,0,.24);
-      border:1px solid rgba(196,151,63,.34);
-      flex:0 0 auto;
-    }
-
-    .blasonTile{
-      min-height:168px!important;
-      border-color:rgba(196,151,63,.62)!important;
-      background:linear-gradient(180deg,rgba(255,240,168,.30),rgba(255,255,255,.15))!important;
-    }
-
-    .blasonTile b{color:#fffdf3!important}
-    .blasonTile span{color:rgba(255,248,220,.94)!important}
-    .blasonTile .tileTag{
-      color:#3a2a05!important;
-      border-color:rgba(196,151,63,.40)!important;
-      background:#fff0a8!important;
-    }
-
-    .metierTileClair{
-      border-color:rgba(255,240,168,.48)!important;
-      background:linear-gradient(180deg,rgba(255,240,168,.22),rgba(255,255,255,.14))!important;
-    }
-
-    .metierTileClair b{color:#fffdf3!important}
-    .metierTileClair span{color:rgba(255,248,220,.92)!important}
-    .metierTileClair .tileIcon{
-      background:#fff7d6!important;
-      color:#171717!important;
-      border-color:rgba(196,151,63,.38)!important;
-      box-shadow:0 10px 22px rgba(0,0,0,.14);
     }
 
     .bottomBar{
       position:fixed;
-      left:0;
-      right:0;
-      bottom:0;
+      left:0;right:0;bottom:0;
       height:var(--barH);
       z-index:100;
       padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
@@ -334,388 +263,242 @@
       backdrop-filter:blur(18px);
       -webkit-backdrop-filter:blur(18px);
     }
-
     .bottomInner{
       width:min(100%,760px);
       height:100%;
       margin:0 auto;
       display:grid;
-      grid-template-columns:repeat(6,1fr);
+      grid-template-columns:repeat(5,1fr);
       gap:6px;
     }
-
-    .bottomInner a{
+    .bottomInner a,.bottomInner button{
       min-height:58px;
       border-radius:16px;
       display:grid;
       place-items:center;
       align-content:center;
       gap:3px;
-      color:rgba(240,255,245,.56);
+      color:rgba(240,255,245,.62);
       font-size:11px;
       font-weight:1000;
       text-align:center;
       border:1px solid rgba(255,255,255,.06);
       background:rgba(255,255,255,.04);
     }
-
     .bottomInner a.active{
       color:#052215;
       background:linear-gradient(135deg,#22c55e,#fff0a8);
       border-color:rgba(34,197,94,.32);
     }
+    .bi{font-size:19px;line-height:1}
 
-    .bottomInner .bi{font-size:19px;line-height:1}
-
-    @media(max-width:860px){.tileGrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-
-    @media(max-width:520px){
-      body{padding:calc(var(--hdrH) + 12px) 10px calc(var(--barH) + env(safe-area-inset-bottom,0px) + 16px);font-size:19px}
-      .topHeader{padding:0 10px;gap:7px}
-      .hdrBack{font-size:13px}
-      .hdrTitle{font-size:11px;letter-spacing:.12em}
-      .hdrPill{font-size:11px;padding:6px 8px;max-width:34vw}
-      h1{font-size:34px}
-      .hubSub{font-size:16px}
-      .tile{min-height:132px;padding:13px}
-      .tileIcon{width:46px;height:46px;font-size:24px}
-      .tileLogoImg{width:92px;height:92px;border-radius:22px}
-      .tile b{font-size:19px;line-height:1.05}
-      .tile span{font-size:13.5px;line-height:1.25}
-      .tileTag{font-size:9px;padding:4px 7px}
+    .plusPanel{
+      position:fixed;
+      inset:0;
+      z-index:250;
+      display:none;
+      background:rgba(3,18,10,.96);
+      padding:calc(var(--hdrH) + 14px) 12px calc(var(--barH) + 18px);
+      overflow:auto;
     }
-
-    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.tile{transition:none}}
-  
-    /* ══ LECTEUR DIGIY — MARKET ══ */
-    .digiyReader{
+    .plusPanel.open{display:block}
+    .plusInner{
+      width:min(var(--max),100%);
+      margin:0 auto;
       display:grid;
-      gap:12px;
-      padding:16px;
-      border-radius:24px;
-      border:1px solid rgba(250,204,21,.34);
-      background:
-        radial-gradient(520px 190px at 100% 0%,rgba(250,204,21,.18),transparent 70%),
-        linear-gradient(135deg,rgba(34,197,94,.18),rgba(196,151,63,.12));
-      box-shadow:var(--shadow);
+      gap:10px;
     }
-    .digiyReaderTop{
+    .plusHead{
       display:flex;
+      align-items:center;
       justify-content:space-between;
-      align-items:flex-start;
-      gap:12px;
-      flex-wrap:wrap;
+      gap:10px;
     }
-    .digiyReaderKicker{
-      color:#fff0a8;
-      font-size:11px;
-      font-weight:1000;
-      letter-spacing:.14em;
-      text-transform:uppercase;
-      margin-bottom:6px;
-    }
-    .digiyReader h2{
+    .plusHead h2{
       margin:0;
-      color:#fff;
-      font-size:clamp(25px,6vw,38px);
-      line-height:.98;
-      letter-spacing:-.045em;
-      font-weight:1000;
+      font-size:clamp(32px,8vw,48px);
+      line-height:.94;
+      letter-spacing:-.05em;
     }
-    .digiyReaderText{
-      color:rgba(240,255,245,.84);
-      font-size:15px;
-      font-weight:950;
-      line-height:1.45;
-      max-width:760px;
-    }
-    .digiyReaderActions{
-      display:flex;
-      gap:9px;
-      flex-wrap:wrap;
-    }
-    .digiyReaderActions button{
-      min-height:52px;
+    .closePlus{
+      min-width:44px;
+      height:44px;
       border-radius:999px;
       border:1px solid rgba(255,255,255,.16);
       background:rgba(255,255,255,.08);
-      color:#f0fff5;
-      padding:0 15px;
-      font:inherit;
-      font-size:14px;
+      color:var(--text);
       font-weight:1000;
-      cursor:pointer;
     }
-    .digiyReaderActions .main{
+    .plusGrid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:8px;
+    }
+    .plusLink{
+      min-height:76px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.08);
+      padding:12px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:1000;
+    }
+    .plusLink .pico{font-size:24px}
+    .plusLink b{display:block;font-size:17px;line-height:1.05}
+    .plusLink span{display:block;margin-top:3px;font-size:12px;line-height:1.2;color:var(--muted)}
+    .reader{
+      margin-top:4px;
+      border:1px solid rgba(250,204,21,.28);
+      border-radius:20px;
+      background:rgba(250,204,21,.10);
+      padding:12px;
+      display:grid;
+      gap:8px;
+    }
+    .reader p{
+      margin:0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.35;
+      font-weight:1000;
+    }
+    .readerActions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+    }
+    .readerActions button{
+      min-height:50px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.08);
+      color:var(--text);
+      font-weight:1000;
+    }
+    .readerActions .play{
       background:linear-gradient(135deg,#22c55e,#c4973f);
       color:#102014;
-      border-color:rgba(250,204,21,.36);
-      box-shadow:0 12px 28px rgba(0,0,0,.18);
-    }
-    .digiyReaderActions .stop{
-      background:rgba(251,113,133,.12);
-      color:#fecaca;
-      border-color:rgba(251,113,133,.32);
-    }
-    .digiyReaderStatus{
-      min-height:20px;
-      color:#fff0a8;
-      font-size:13px;
-      font-weight:1000;
-    }
-    @media(max-width:520px){
-      .digiyReaderActions{display:grid;grid-template-columns:1fr 1fr}
-      .digiyReaderActions button{width:100%}
     }
 
+    @media(max-width:520px){
+      .quickGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+      .quick{min-height:82px;padding:10px}
+      .quick b{font-size:16px}
+      .quick span{font-size:11px}
+      .tileGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .tile{min-height:100px}
+      .tile b{font-size:17px}
+      .plusGrid{grid-template-columns:1fr}
+    }
+    @media(max-width:370px){
+      .quickGrid{grid-template-columns:1fr}
+      .quick{min-height:70px}
+    }
   </style>
 </head>
 
 <body>
   <header class="topHeader">
-    <a class="hdrBack" id="hdrBack" href="./cockpit.html">← Gestion</a>
-    <div class="hdrTitle">HUB MARKET</div>
+    <a class="hdrBack" href="./cockpit.html">← Gestion</a>
+    <div class="hdrTitle">JE VENDS</div>
     <div class="hdrPill warn" id="sessionPill">session…</div>
   </header>
 
   <main class="wrap">
-    <section class="hubHead">
-      <div class="eyebrow">🛍️ JE VENDS</div>
-      <h1>Toutes tes portes.</h1>
-      <div class="hubSub" id="hubSub">
-        Chaque pavé ouvre un geste clair : gérer, publier, vendre, noter, encaisser, partager.
-      </div>
-      <div class="rule">
-        <b>Index</b> = porte courte. <b>HUB</b> = navigation. <b>Cockpit</b> = gestion vendeur. <b>Oreille MARKET</b> = parole rangée dans le logiciel.
+    <section class="hero">
+      <div class="eyebrow">🛍️ MARKET PRO</div>
+      <h1>Vendre vite.</h1>
+      <div class="sub">Le vendeur touche, parle, prépare ses produits, partage sa boutique et ouvre PAY si besoin.</div>
+    </section>
+
+    <section aria-label="Départ rapide MARKET">
+      <div class="sectionTitle">Départ rapide</div>
+      <div class="quickGrid">
+        <a class="quick hot" href="./cockpit.html">
+          <span class="ico">🛍️</span>
+          <b>Gérer</b>
+          <span>vente · client</span>
+        </a>
+        <a class="quick gold" href="./oreille.html?mode=vente">
+          <span class="ico">🎙️</span>
+          <b>Parler</b>
+          <span>produit · prix</span>
+        </a>
+        <a class="quick" href="./produits.html">
+          <span class="ico">📦</span>
+          <b>Produits</b>
+          <span>stock · photos</span>
+        </a>
       </div>
     </section>
 
-    <section class="digiyReader" aria-label="Lecteur DIGIY MARKET">
-      <div class="digiyReaderTop">
-        <div>
-          <div class="digiyReaderKicker">🎧 Lecteur DIGIY · MARKET</div>
-          <h2>Comprendre le module.</h2>
-        </div>
-        <div class="digiyReaderActions">
-          <button class="main" id="digiyMarketAudioPlay" type="button">▶ Écouter</button>
-          <button class="stop" id="digiyMarketAudioStop" type="button">⏹ Stop</button>
-        </div>
-      </div>
-      <div class="digiyReaderText" id="digiyMarketAudioText">
-        MARKET aide le vendeur à gérer sa boutique, ses produits, ses prix, son stock, sa fiche, son QR,
-        ses notes clients, le lexique Wolof terrain et ses traces vers PAY. Le vendeur parle ou clique,
-        DIGIY prépare, le terrain valide.
-      </div>
-      <div class="digiyReaderStatus" id="digiyMarketAudioStatus">Prêt à lire · indications courtes</div>
-    </section>
-
-
-    <section class="group" aria-label="Travail MARKET">
-      <div class="groupLabel">Action immédiate</div>
+    <section aria-label="Portes utiles MARKET">
+      <div class="sectionTitle">Portes utiles</div>
       <div class="tileGrid">
-        <a class="tile gold blasonTile" href="https://digiylyfe.com/" aria-label="DIGIYLYFE Métiers pro">
-          <div class="tileTop">
-            <img
-              class="tileLogoImg"
-              src="https://digiylyfe.net/wp-content/uploads/2026/05/metier-pro-1.png"
-              alt="DIGIYLYFE — Métiers pro"
-              loading="lazy"
-              decoding="async"
-            />
-            <div class="tileTag">DIGIY</div>
-          </div>
-          <div>
-            <b>Métiers pro</b>
-            <span>Le blason commun des portes métier.</span>
-          </div>
+        <a class="tile gold" href="./boutique.html#preview">
+          <div class="tileTop"><div class="tileIcon">🏪</div><div class="tileTag">Boutique</div></div>
+          <div><b>Boutique</b><span>Vitrine client.</span></div>
         </a>
-
-        <a class="tile primary metierTileClair" id="goCockpit" href="./cockpit.html">
-          <div class="tileTop">
-            <div class="tileIcon">🛍️</div>
-            <div class="tileTag">Gestion</div>
-          </div>
-          <div>
-            <b>Ma gestion</b>
-            <span>Vendre, suivre, noter, piloter.</span>
-          </div>
+        <a class="tile" href="./fiche.html">
+          <div class="tileTop"><div class="tileIcon">🪪</div><div class="tileTag">Fiche</div></div>
+          <div><b>Fiche</b><span>Contact, QR, réseaux.</span></div>
         </a>
-
-        <a class="tile gold" id="goAdminBoutique" href="./boutique.html#identity">
-          <div class="tileTop">
-            <div class="tileIcon">⚙️</div>
-            <div class="tileTag">Admin</div>
-          </div>
-          <div>
-            <b>Admin boutique</b>
-            <span>Nom, contact, ville, WhatsApp, publication.</span>
-          </div>
+        <a class="tile" href="./qr.html">
+          <div class="tileTop"><div class="tileIcon">🔳</div><div class="tileTag">QR</div></div>
+          <div><b>QR</b><span>Partager vite.</span></div>
         </a>
-
-        <a class="tile gold" id="goProduits" href="./produits.html">
-          <div class="tileTop">
-            <div class="tileIcon">📦</div>
-            <div class="tileTag">Stock</div>
-          </div>
-          <div>
-            <b>Mes produits</b>
-            <span>Prix, stock, photos, publication.</span>
-          </div>
+        <a class="tile pay" href="https://pay.digiylyfe.com/">
+          <div class="tileTop"><div class="tileIcon">💳</div><div class="tileTag">PAY</div></div>
+          <div><b>Mon argent</b><span>Ouvrir PAY.</span></div>
         </a>
-
-        <a class="tile blue" id="goBoutique" href="./boutique.html#preview">
-          <div class="tileTop">
-            <div class="tileIcon">🏪</div>
-            <div class="tileTag">Boutique</div>
-          </div>
-          <div>
-            <b>Présentation boutique</b>
-            <span>Résumé, visibilité, vitrine client.</span>
-          </div>
+        <a class="tile blue" href="https://market.digiylyfe.com/">
+          <div class="tileTop"><div class="tileIcon">🌍</div><div class="tileTag">Public</div></div>
+          <div><b>Client</b><span>Voir MARKET public.</span></div>
         </a>
-
-        <a class="tile" id="goFiche" href="./fiche.html">
-          <div class="tileTop">
-            <div class="tileIcon">🪪</div>
-            <div class="tileTag">Fiche</div>
-          </div>
-          <div>
-            <b>Ma fiche</b>
-            <span>Photo, QR, Maps, TikTok, Facebook.</span>
-          </div>
-        </a>
-      </div>
-    </section>
-
-    <section class="group" aria-label="Visibilité MARKET">
-      <div class="groupLabel">Visibilité · client</div>
-      <div class="tileGrid">
-        <a class="tile" id="goQr" href="./qr.html">
-          <div class="tileTop">
-            <div class="tileIcon">🔳</div>
-            <div class="tileTag">QR</div>
-          </div>
-          <div>
-            <b>Mon QR</b>
-            <span>Partager la boutique ou la fiche.</span>
-          </div>
-        </a>
-
-        <a class="tile" id="goPublic" href="https://market.digiylyfe.com/">
-          <div class="tileTop">
-            <div class="tileIcon">🌍</div>
-            <div class="tileTag">Public</div>
-          </div>
-          <div>
-            <b>Côté client</b>
-            <span>Voir MARKET côté public.</span>
-          </div>
-        </a>
-
-        <a class="tile" id="goNotes" href="./cockpit.html#notes">
-          <div class="tileTop">
-            <div class="tileIcon">📝</div>
-            <div class="tileTag">Notes</div>
-          </div>
-          <div>
-            <b>Notes rapides</b>
-            <span>Trace client, vente, demande.</span>
-          </div>
-        </a>
-
-        <a class="tile gold" id="goOreille" href="./oreille.html">
-          <div class="tileTop">
-            <div class="tileIcon">🎙️</div>
-            <div class="tileTag">Oreille</div>
-          </div>
-          <div>
-            <b>Oreille MARKET</b>
-            <span>Dicter produit, prix, client, livraison.</span>
-          </div>
-        </a>
-
-        <a class="tile gold" id="goLexiqueMarket" href="https://market.digiylyfe.com/lexique-market.html?v=lexique-market-v2-mobile-20260607">
-          <div class="tileTop">
-            <div class="tileIcon">🇸🇳</div>
-            <div class="tileTag">Wolof</div>
-          </div>
-          <div>
-            <b>Lexique Wolof MARKET</b>
-            <span>Accueil, prix, stock, commande, livraison, paiement.</span>
-          </div>
-        </a>
-
-        <a class="tile pay" id="goPay" href="https://pro-pay.digiylyfe.com/admin.html">
-          <div class="tileTop">
-            <div class="tileIcon">💰</div>
-            <div class="tileTag">PAY</div>
-          </div>
-          <div>
-            <b>Mon argent</b>
-            <span>Recettes, dettes, dépenses.</span>
-          </div>
-        </a>
-      </div>
-    </section>
-
-    <section class="group" aria-label="Accès MARKET">
-      <div class="groupLabel">Accès · session</div>
-      <div class="tileGrid">
-        <a class="tile blue" id="goSession" href="./session.html">
-          <div class="tileTop">
-            <div class="tileIcon">🛡️</div>
-            <div class="tileTag">Session</div>
-          </div>
-          <div>
-            <b>Ma session</b>
-            <span>État d’accès, nettoyage local.</span>
-          </div>
-        </a>
-
-        <a class="tile" id="goPin" href="./pin.html">
-          <div class="tileTop">
-            <div class="tileIcon">🔐</div>
-            <div class="tileTag">PIN</div>
-          </div>
-          <div>
-            <b>Mon accès</b>
-            <span>Ouvrir ou renouveler l’accès.</span>
-          </div>
-        </a>
-
-        <a class="tile" id="goSite" href="https://digiylyfe.com/">
-          <div class="tileTop">
-            <div class="tileIcon">🌍</div>
-            <div class="tileTag">Site</div>
-          </div>
-          <div>
-            <b>Site DIGIY</b>
-            <span>Maison publique DIGIYLYFE.</span>
-          </div>
-        </a>
-
-        <a class="tile blue" id="goHubGeneral" href="https://digiy-hub.digiylyfe.com/">
-          <div class="tileTop">
-            <div class="tileIcon">🧭</div>
-            <div class="tileTag">HUB</div>
-          </div>
-          <div>
-            <b>HUB général</b>
-            <span>Retour aux portes DIGIY.</span>
-          </div>
+        <a class="tile gold" href="https://market.digiylyfe.com/lexique-market.html?v=lexique-market-v2-mobile-20260607">
+          <div class="tileTop"><div class="tileIcon">🇸🇳</div><div class="tileTag">Wolof</div></div>
+          <div><b>Wolof</b><span>Prix, stock, commande.</span></div>
         </a>
       </div>
     </section>
   </main>
 
+  <section class="plusPanel" id="plusPanel" aria-label="Plus MARKET">
+    <div class="plusInner">
+      <div class="plusHead">
+        <h2>Plus MARKET.</h2>
+        <button class="closePlus" id="closePlus" type="button">×</button>
+      </div>
+
+      <div class="plusGrid">
+        <a class="plusLink" href="./boutique.html#identity"><span class="pico">⚙️</span><span><b>Admin boutique</b><span>Nom, contact, ville, publication.</span></span></a>
+        <a class="plusLink" href="./cockpit.html#notes"><span class="pico">📝</span><span><b>Notes rapides</b><span>Trace client, vente, demande.</span></span></a>
+        <a class="plusLink" href="./session.html"><span class="pico">🛡️</span><span><b>Session</b><span>État d’accès.</span></span></a>
+        <a class="plusLink" href="./pin.html"><span class="pico">🔐</span><span><b>PIN</b><span>Ouvrir ou renouveler l’accès.</span></span></a>
+        <a class="plusLink" href="https://digiylyfe.com/"><span class="pico">🦅</span><span><b>Métiers pro</b><span>Maison publique DIGIYLYFE.</span></span></a>
+        <a class="plusLink" href="https://digiy-hub.digiylyfe.com/"><span class="pico">🧭</span><span><b>HUB général</b><span>Retour aux portes DIGIY.</span></span></a>
+      </div>
+
+      <div class="reader">
+        <b>🎧 Comprendre MARKET</b>
+        <p>MARKET aide le vendeur à gérer sa boutique, ses produits, ses prix, son stock, sa fiche, son QR et ses traces vers PAY. Le logiciel prépare. Le vendeur valide.</p>
+        <div class="readerActions">
+          <button class="play" id="playReader" type="button">▶ Écouter</button>
+          <button id="stopReader" type="button">⏹ Stop</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <nav class="bottomBar" aria-label="Navigation rapide MARKET">
     <div class="bottomInner">
-      <a class="active" href="./hub.html"><span class="bi">🧭</span><span>HUB</span></a>
-      <a href="./cockpit.html"><span class="bi">🛍️</span><span>Gestion</span></a>
+      <a class="active" href="./hub.html"><span class="bi">🧭</span><span>Menu</span></a>
+      <a href="./cockpit.html"><span class="bi">🛍️</span><span>Gérer</span></a>
       <a href="./produits.html"><span class="bi">📦</span><span>Produits</span></a>
-      <a href="./fiche.html"><span class="bi">🪪</span><span>Fiche</span></a>
-      <a href="./oreille.html"><span class="bi">🎙️</span><span>Oreille</span></a>
-      <a href="https://market.digiylyfe.com/lexique-market.html?v=lexique-market-v2-mobile-20260607"><span class="bi">🇸🇳</span><span>Wolof</span></a>
+      <a href="./oreille.html?mode=vente"><span class="bi">🎙️</span><span>Parler</span></a>
+      <button id="openPlus" type="button"><span class="bi">☰</span><span>Plus</span></button>
     </div>
   </nav>
 
@@ -732,22 +515,19 @@
       ];
 
       const $ = id => document.getElementById(id);
+      const plus = $("plusPanel");
 
       function cleanVisibleUrl(){
         try{
           const url = new URL(location.href);
           let changed = false;
-
           SENSITIVE_KEYS.forEach((key) => {
             if(url.searchParams.has(key)){
               url.searchParams.delete(key);
               changed = true;
             }
           });
-
-          if(changed){
-            history.replaceState({}, document.title, url.pathname + url.search + url.hash);
-          }
+          if(changed) history.replaceState({}, document.title, url.pathname + url.search + url.hash);
         }catch(_){}
       }
 
@@ -756,12 +536,9 @@
           document.querySelectorAll("a[href]").forEach((link) => {
             const href = link.getAttribute("href") || "";
             if(!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) return;
-
             const url = new URL(href, location.href);
             if(url.origin !== location.origin) return;
-
             SENSITIVE_KEYS.forEach((key) => url.searchParams.delete(key));
-
             const file = url.pathname.split("/").pop() || "index.html";
             link.setAttribute("href","./" + file + (url.search || "") + (url.hash || ""));
           });
@@ -772,21 +549,16 @@
         try{
           const guard = window.DIGIY_GUARD;
           if(!guard) return {};
-
           if(typeof guard.ready === "function"){
             const out = guard.ready({ redirect:false, preserve_validation:true });
             if(out && typeof out.then === "function") await out;
           }else if(guard.ready && typeof guard.ready.then === "function"){
             await guard.ready;
           }
-
-          if(typeof guard.getSession === "function"){
-            return guard.getSession() || guard.state || {};
-          }
-
+          if(typeof guard.getSession === "function") return guard.getSession() || guard.state || {};
           return guard.state || {};
         }catch(e){
-          console.warn("[MARKET HUB] guard", e);
+          console.warn("[MARKET MENU] guard", e);
           return {};
         }
       }
@@ -794,36 +566,59 @@
       function updatePill(state){
         const el = $("sessionPill");
         if(!el) return;
-
         const ok = !!(state && (state.access_ok || state.access || state.pin_session_ok));
-
-        if(ok){
-          el.textContent = state.pin_session_ok ? "session ouverte" : "accès ouvert";
-          el.className = "hdrPill ok";
-          return;
-        }
-
-        el.textContent = "accès à vérifier";
-        el.className = "hdrPill warn";
+        el.textContent = ok ? (state.pin_session_ok ? "session ouverte" : "accès ouvert") : "accès à vérifier";
+        el.className = "hdrPill " + (ok ? "ok" : "warn");
       }
 
-      function updateHubSub(state){
-        const el = $("hubSub");
-        if(!el) return;
-        const ok = !!(state && (state.access_ok || state.access || state.pin_session_ok));
-        el.textContent = ok
-          ? "Compte reconnu. Ouvre le bon pavé : gestion, produits, boutique, notes ou argent."
-          : "Accès à vérifier. Les portes restent visibles, mais le PIN protège la boutique.";
+      function openPlus(){
+        if(plus) plus.classList.add("open");
       }
+      function closePlus(){
+        if(plus) plus.classList.remove("open");
+      }
+
+      const READER_TEXT =
+        "Bienvenue dans MARKET. Ici, le vendeur garde ses produits, ses prix, son stock, sa boutique, sa fiche et son QR au même endroit. " +
+        "Gérer ouvre le cockpit vendeur. Produits ouvre le stock et les photos. Parler ouvre Oreille MARKET pour dicter produit, prix, client, livraison ou paiement. " +
+        "PAY reste le module argent central. MARKET prépare, le vendeur vérifie et valide.";
+
+      function canSpeak(){ return "speechSynthesis" in window; }
+      function pickVoice(){
+        if(!canSpeak()) return null;
+        const voices = window.speechSynthesis.getVoices() || [];
+        return voices.find(v => /^fr/i.test(v.lang || "") && /FR/i.test(v.lang || "")) ||
+               voices.find(v => /^fr/i.test(v.lang || "")) ||
+               voices[0] || null;
+      }
+      function stopSpeech(){
+        if(canSpeak()) window.speechSynthesis.cancel();
+      }
+      function speak(){
+        if(!canSpeak()) return;
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(READER_TEXT);
+        u.lang = "fr-FR";
+        u.rate = 0.86;
+        u.pitch = 1.02;
+        const voice = pickVoice();
+        if(voice) u.voice = voice;
+        window.speechSynthesis.speak(u);
+      }
+
+      $("openPlus")?.addEventListener("click", openPlus);
+      $("closePlus")?.addEventListener("click", closePlus);
+      plus?.addEventListener("click", e => { if(e.target === plus) closePlus(); });
+      document.addEventListener("keydown", e => { if(e.key === "Escape") closePlus(); });
+      $("playReader")?.addEventListener("click", speak);
+      $("stopReader")?.addEventListener("click", stopSpeech);
+      window.addEventListener("pagehide", stopSpeech);
 
       async function boot(){
         cleanVisibleUrl();
         cleanInternalLinks();
-
         const state = await waitGuard();
         updatePill(state || {});
-        updateHubSub(state || {});
-
         cleanVisibleUrl();
         cleanInternalLinks();
       }
@@ -831,111 +626,6 @@
       boot();
     })();
   </script>
-
-<script>
-/* ══ DIGIY VOICE — MARKET ══ */
-(function(){
-  "use strict";
-
-  var SPEAK =
-    "Bienvenue dans MARKET, le module Je vends de Di-ji-laïf. " +
-    "Ici, le vendeur garde ses produits, ses prix, son stock, sa boutique, sa fiche et son QR au même endroit. " +
-    "Ma gestion sert à vendre, suivre, noter et piloter. Mes produits sert à préparer les prix, les photos, le stock et la publication. Admin boutique garde le nom, la ville, le contact et Ouatsap. " +
-    "Oreille MARKET permet de parler ou d’écrire peu : produit, prix, client, téléphone, livraison, paiement ou preuve. DIGIY prépare une trace claire, mais le vendeur vérifie et valide. " +
-    "La fiche et le QR donnent une porte propre au client. Le lexique Wolof MARKET aide pour accueil, prix, stock, commande, livraison et paiement. PAY reste le cerveau argent : recette, dette client, dépense ou encaissement doivent laisser une trace. " +
-    "Règle importante : MARKET ne publie pas seul un produit, ne promet pas un stock, ne valide pas un prix et ne confirme pas un paiement à la place du vendeur. Le logiciel prépare. Le terrain garde la main.";
-
-  var play = document.getElementById("digiyMarketAudioPlay");
-  var stop = document.getElementById("digiyMarketAudioStop");
-  var status = document.getElementById("digiyMarketAudioStatus");
-
-  function digiySpeakText(text){
-    return String(text || "")
-      .replace(/\bWave\b/g, "Wéïv")
-      .replace(/\bWhatsApp\b/g, "Ouatsap")
-      .replace(/\bDIGIYLYFE\b/g, "Di-ji-laïf");
-  }
-
-  function setStatus(message){
-    if(status) status.textContent = message;
-  }
-
-  function canSpeak(){
-    return "speechSynthesis" in window;
-  }
-
-  function pickVoice(){
-    if(!canSpeak()) return null;
-    var voices = window.speechSynthesis.getVoices() || [];
-    return voices.find(function(v){ return /^fr/i.test(v.lang || "") && /FR/i.test(v.lang || ""); })
-        || voices.find(function(v){ return /^fr/i.test(v.lang || ""); })
-        || voices[0]
-        || null;
-  }
-
-  function stopSpeech(){
-    if(canSpeak()) window.speechSynthesis.cancel();
-    if(play) play.textContent = "▶ Écouter";
-    setStatus("Lecture arrêtée");
-  }
-
-  function speak(){
-    if(!canSpeak()){
-      setStatus("Lecture vocale non disponible ici");
-      return;
-    }
-
-    if(window.speechSynthesis.paused){
-      window.speechSynthesis.resume();
-      if(play) play.textContent = "⏸ Pause";
-      setStatus("▶ Reprise…");
-      return;
-    }
-
-    if(window.speechSynthesis.speaking){
-      window.speechSynthesis.pause();
-      if(play) play.textContent = "▶ Reprendre";
-      setStatus("⏸ En pause");
-      return;
-    }
-
-    stopSpeech();
-
-    var u = new SpeechSynthesisUtterance(digiySpeakText(SPEAK));
-    u.lang = "fr-FR";
-    u.rate = 0.86;
-    u.pitch = 1.02;
-    u.volume = 1;
-
-    var voice = pickVoice();
-    if(voice) u.voice = voice;
-
-    u.onstart = function(){
-      if(play) play.textContent = "⏸ Pause";
-      setStatus("▶ DIGIY explique MARKET…");
-    };
-    u.onend = function(){
-      if(play) play.textContent = "▶ Écouter";
-      setStatus("✓ Lecture terminée");
-    };
-    u.onerror = function(){
-      if(play) play.textContent = "▶ Écouter";
-      setStatus("Lecture interrompue");
-    };
-
-    window.speechSynthesis.speak(u);
-  }
-
-  if(play) play.addEventListener("click", speak);
-  if(stop) stop.addEventListener("click", stopSpeech);
-
-  if(canSpeak()){
-    window.speechSynthesis.onvoiceschanged = pickVoice;
-  }
-
-  window.addEventListener("pagehide", stopSpeech);
-})();
-</script>
 </body>
 </html>
 
