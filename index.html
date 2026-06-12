@@ -4,24 +4,32 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 
-  <title>Je vends — Entrée MARKET</title>
+  <title>Je vends — Menu MARKET</title>
 
   <meta name="theme-color" content="#1e7a46"/>
-  <meta name="description" content="DIGIY MARKET PRO — porte courte vers le HUB vendeur, avec secours anti-404."/>
+  <meta name="description" content="DIGIY MARKET PRO — menu vendeur compact : vendre, produits, boutique, fiche, QR, PAY, session."/>
   <meta name="robots" content="noindex,nofollow,noarchive,nosnippet"/>
-  <meta name="digiy-build" content="market-index-porte-hub-anti-404-20260519"/>
+  <meta name="digiy-build" content="market-menu-compact-plus-pay-ok-20260612"/>
 
   <script>
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
     window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
     window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+    window.DIGIY_SUPABASE_KEY = window.DIGIY_SUPABASE_ANON_KEY;
+
     window.DIGIY_MODULE = "MARKET";
+    window.DIGIY_ABOS_MODULE = "MARKET";
     window.DIGIY_LOGIN_URL = "./pin.html";
+    window.DIGIY_PAY_URL = "https://pay.digiylyfe.com/";
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./assets/js/digiy-abos-access.js?v=abos-20260522"></script>
   <script src="./guard.js?v=market-guard-20260531"></script>
+  <script src="./assets/js/digiy-module-bridge.js?v=bridge-20260521" defer></script>
+  <script src="./assets/js/digiy-market-memory.js?v=market-memory-20260521" defer></script>
 
+  <link rel="preload" as="image" href="https://digiylyfe.net/wp-content/uploads/2026/05/metier-pro-1.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet"/>
@@ -31,25 +39,24 @@
       --bg:#1e7a46;
       --bg2:#155a34;
       --bg3:#0e4226;
+      --bar:rgba(8,50,24,.96);
       --gold:#c4973f;
+      --gold2:#fff0a8;
       --green:#22c55e;
       --line:rgba(255,255,255,.18);
       --text:#f0fff5;
       --muted:rgba(240,255,245,.78);
-      --shadow:0 18px 46px rgba(0,0,0,.24);
-      --r:26px;
-      --max:760px;
+      --shadow:0 16px 40px rgba(0,0,0,.22);
+      --r:18px;
+      --max:960px;
+      --hdrH:52px;
+      --barH:78px;
     }
-
     *{box-sizing:border-box}
-    html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
-
+    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
     body{
       margin:0;
       min-height:100dvh;
-      display:grid;
-      place-items:center;
-      padding:16px;
       color:var(--text);
       font-family:Outfit,system-ui,-apple-system,"Segoe UI",sans-serif;
       font-size:19px;
@@ -58,214 +65,446 @@
         radial-gradient(600px 390px at 16% 0%,rgba(74,222,128,.18),transparent 58%),
         radial-gradient(420px 280px at 92% 8%,rgba(196,151,63,.15),transparent 52%),
         linear-gradient(180deg,var(--bg) 0%,var(--bg2) 60%,var(--bg3) 100%);
+      padding:calc(var(--hdrH) + 12px) 10px calc(var(--barH) + env(safe-area-inset-bottom,0px) + 14px);
     }
-
     a{color:inherit;text-decoration:none}
     button{font:inherit;color:inherit;cursor:pointer}
 
-    .door{
-      width:min(var(--max),100%);
-      border:1px solid rgba(255,255,255,.18);
-      border-radius:var(--r);
-      background:
-        radial-gradient(500px 220px at 100% 0%,rgba(196,151,63,.12),transparent 70%),
-        rgba(8,50,24,.78);
-      box-shadow:var(--shadow);
-      padding:22px;
-      display:grid;
-      gap:16px;
-      backdrop-filter:blur(14px);
-      -webkit-backdrop-filter:blur(14px);
-    }
-
-    .brand{
+    .topHeader{
+      position:fixed;
+      top:0;left:0;right:0;
+      height:var(--hdrH);
+      z-index:100;
       display:flex;
       align-items:center;
-      gap:13px;
+      justify-content:space-between;
+      gap:8px;
+      padding:0 12px;
+      background:var(--bar);
+      border-bottom:1px solid rgba(196,151,63,.26);
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
     }
+    .hdrBack{
+      min-height:36px;
+      display:inline-flex;
+      align-items:center;
+      color:rgba(240,255,245,.74);
+      font-size:13px;
+      font-weight:1000;
+      white-space:nowrap;
+    }
+    .hdrTitle{
+      font-size:11px;
+      font-weight:1000;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color:var(--gold2);
+      white-space:nowrap;
+    }
+    .hdrPill{
+      min-height:32px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:6px 9px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.08);
+      color:var(--muted);
+      font-size:11px;
+      font-weight:1000;
+      white-space:nowrap;
+      max-width:34vw;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .hdrPill.ok{color:#bbf7d0;border-color:rgba(34,197,94,.38);background:rgba(34,197,94,.12)}
+    .hdrPill.warn{color:#fde68a;border-color:rgba(245,158,11,.38);background:rgba(245,158,11,.12)}
 
-    .badge{
-      width:58px;
-      height:58px;
-      border-radius:20px;
+    .wrap{
+      width:min(var(--max),100%);
+      margin:0 auto;
       display:grid;
-      place-items:center;
-      background:rgba(196,151,63,.16);
-      border:1px solid rgba(196,151,63,.32);
-      font-size:30px;
-      flex:0 0 auto;
+      gap:10px;
     }
-
-    .kicker{
-      color:#fff0a8;
+    .hero{
+      display:grid;
+      gap:6px;
+      padding:2px 2px 0;
+    }
+    .eyebrow{
+      color:var(--gold2);
       font-size:12px;
-      letter-spacing:.16em;
+      letter-spacing:.14em;
       text-transform:uppercase;
       font-weight:1000;
     }
-
-    .brandTitle{
-      color:#fff;
-      font-size:18px;
-      font-weight:1000;
-      margin-top:2px;
-    }
-
     h1{
       margin:0;
-      color:#fff;
-      font-size:clamp(36px,9vw,62px);
-      line-height:.96;
-      letter-spacing:-.055em;
+      font-size:clamp(31px,8vw,48px);
       font-weight:1000;
+      line-height:.94;
+      letter-spacing:-.05em;
     }
-
-    h1 span{color:#fff0a8}
-
-    .lead{
-      margin:0;
+    .sub{
       color:var(--muted);
-      font-size:17px;
+      font-size:15px;
       font-weight:1000;
-      line-height:1.42;
+      line-height:1.30;
+      max-width:760px;
     }
 
-    .status{
-      min-height:54px;
+    .quickGrid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:8px;
+    }
+    .quick{
+      min-height:86px;
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.09);
+      box-shadow:var(--shadow);
+      padding:12px;
       display:flex;
-      align-items:center;
-      gap:10px;
-      padding:12px 14px;
+      flex-direction:column;
+      justify-content:space-between;
+      gap:6px;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .quick.hot{background:linear-gradient(180deg,rgba(34,197,94,.20),rgba(255,255,255,.09));border-color:rgba(34,197,94,.34)}
+    .quick.gold{background:linear-gradient(180deg,rgba(196,151,63,.20),rgba(255,255,255,.09));border-color:rgba(196,151,63,.40)}
+    .quick .ico{font-size:25px;line-height:1}
+    .quick b{font-size:18px;line-height:1.02;font-weight:1000;color:#fff}
+    .quick span{font-size:12px;line-height:1.18;font-weight:1000;color:rgba(240,255,245,.74)}
+
+    .sectionTitle{
+      margin:2px 0 0;
+      font-size:11px;
+      font-weight:1000;
+      letter-spacing:.13em;
+      text-transform:uppercase;
+      color:rgba(240,255,245,.56);
+      padding:0 2px;
+    }
+    .tileGrid{
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:8px;
+    }
+    .tile{
+      min-height:106px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      gap:8px;
+      padding:12px;
       border-radius:18px;
       border:1px solid rgba(255,255,255,.15);
       background:rgba(255,255,255,.08);
-      color:rgba(240,255,245,.92);
-      font-size:15px;
-      font-weight:1000;
-      line-height:1.35;
+      box-shadow:0 12px 28px rgba(0,0,0,.17);
+      -webkit-tap-highlight-color:transparent;
     }
-
-    .dot{
-      width:13px;
-      height:13px;
-      border-radius:50%;
-      background:#f59e0b;
-      box-shadow:0 0 0 6px rgba(245,158,11,.12);
-      flex:0 0 auto;
-    }
-
-    .status.ok .dot{background:#22c55e;box-shadow:0 0 0 6px rgba(34,197,94,.12)}
-    .status.bad .dot{background:#ef4444;box-shadow:0 0 0 6px rgba(239,68,68,.12)}
-
-    .actions{
+    .tile.pay{border-color:rgba(196,151,63,.48);background:linear-gradient(180deg,rgba(196,151,63,.19),rgba(255,255,255,.09))}
+    .tile.gold{border-color:rgba(196,151,63,.38);background:rgba(196,151,63,.12)}
+    .tile.blue{border-color:rgba(139,140,255,.32);background:rgba(139,140,255,.12)}
+    .tileTop{display:flex;justify-content:space-between;align-items:flex-start;gap:7px}
+    .tileIcon{
+      width:42px;height:42px;
+      border-radius:14px;
       display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:10px;
-    }
-
-    .btn{
-      min-height:60px;
-      border-radius:18px;
-      border:1px solid rgba(255,255,255,.18);
+      place-items:center;
       background:rgba(255,255,255,.09);
-      display:flex;
+      border:1px solid rgba(255,255,255,.14);
+      font-size:22px;
+    }
+    .tileTag{
+      min-height:24px;
+      display:inline-flex;
       align-items:center;
       justify-content:center;
-      gap:9px;
-      padding:13px 14px;
-      color:var(--text);
-      font-size:17px;
+      padding:4px 7px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.08);
+      color:var(--gold2);
+      font-size:8.5px;
+      font-weight:1000;
+      letter-spacing:.07em;
+      text-transform:uppercase;
+      white-space:nowrap;
+    }
+    .tile b{
+      display:block;
+      font-size:18px;
+      line-height:1.04;
+      letter-spacing:-.02em;
+      color:#fff;
+      font-weight:1000;
+    }
+    .tile span{
+      display:block;
+      margin-top:4px;
+      font-size:12px;
+      line-height:1.18;
+      color:var(--muted);
+      font-weight:1000;
+    }
+
+    .bottomBar{
+      position:fixed;
+      left:0;right:0;bottom:0;
+      height:var(--barH);
+      z-index:100;
+      padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
+      background:rgba(6,38,18,.97);
+      border-top:1px solid rgba(196,151,63,.18);
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+    }
+    .bottomInner{
+      width:min(100%,760px);
+      height:100%;
+      margin:0 auto;
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:6px;
+    }
+    .bottomInner a,.bottomInner button{
+      min-height:58px;
+      border-radius:16px;
+      display:grid;
+      place-items:center;
+      align-content:center;
+      gap:3px;
+      color:rgba(240,255,245,.62);
+      font-size:11px;
       font-weight:1000;
       text-align:center;
-      box-shadow:0 10px 24px rgba(0,0,0,.13);
+      border:1px solid rgba(255,255,255,.06);
+      background:rgba(255,255,255,.04);
     }
-
-    .btn.primary{
+    .bottomInner a.active{
       color:#052215;
-      border-color:rgba(34,197,94,.38);
-      background:linear-gradient(135deg,#22c55e,#bbf7d0);
+      background:linear-gradient(135deg,#22c55e,#fff0a8);
+      border-color:rgba(34,197,94,.32);
     }
+    .bi{font-size:19px;line-height:1}
 
-    .btn.gold{
-      color:#241a0d;
-      border-color:rgba(196,151,63,.38);
-      background:linear-gradient(135deg,#c4973f,#fff0a8);
+    .plusPanel{
+      position:fixed;
+      inset:0;
+      z-index:250;
+      display:none;
+      background:rgba(3,18,10,.96);
+      padding:calc(var(--hdrH) + 14px) 12px calc(var(--barH) + 18px);
+      overflow:auto;
     }
-
-    .btn.ghost{
-      color:rgba(240,255,245,.88);
-      background:rgba(255,255,255,.06);
+    .plusPanel.open{display:block}
+    .plusInner{
+      width:min(var(--max),100%);
+      margin:0 auto;
+      display:grid;
+      gap:10px;
     }
-
-    .rule{
-      padding:12px 14px;
-      border-radius:18px;
-      border:1px dashed rgba(255,255,255,.22);
-      background:rgba(0,0,0,.14);
-      color:rgba(240,255,245,.86);
-      font-size:14px;
+    .plusHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .plusHead h2{
+      margin:0;
+      font-size:clamp(32px,8vw,48px);
+      line-height:.94;
+      letter-spacing:-.05em;
+    }
+    .closePlus{
+      min-width:44px;
+      height:44px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.08);
+      color:var(--text);
       font-weight:1000;
-      line-height:1.4;
+    }
+    .plusGrid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:8px;
+    }
+    .plusLink{
+      min-height:76px;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.08);
+      padding:12px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      font-weight:1000;
+    }
+    .plusLink .pico{font-size:24px}
+    .plusLink b{display:block;font-size:17px;line-height:1.05}
+    .plusLink span{display:block;margin-top:3px;font-size:12px;line-height:1.2;color:var(--muted)}
+    .reader{
+      margin-top:4px;
+      border:1px solid rgba(250,204,21,.28);
+      border-radius:20px;
+      background:rgba(250,204,21,.10);
+      padding:12px;
+      display:grid;
+      gap:8px;
+    }
+    .reader p{
+      margin:0;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.35;
+      font-weight:1000;
+    }
+    .readerActions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:8px;
+    }
+    .readerActions button{
+      min-height:50px;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(255,255,255,.08);
+      color:var(--text);
+      font-weight:1000;
+    }
+    .readerActions .play{
+      background:linear-gradient(135deg,#22c55e,#c4973f);
+      color:#102014;
     }
 
-    .rule b{color:#fff0a8}
-
-    @media(max-width:540px){
-      body{padding:10px}
-      .door{padding:18px;border-radius:24px}
-      .actions{grid-template-columns:1fr}
-      .btn{font-size:18px}
-      .lead{font-size:16px}
-      .rule{font-size:13px}
+    @media(max-width:520px){
+      .quickGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+      .quick{min-height:82px;padding:10px}
+      .quick b{font-size:16px}
+      .quick span{font-size:11px}
+      .tileGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .tile{min-height:100px}
+      .tile b{font-size:17px}
+      .plusGrid{grid-template-columns:1fr}
+    }
+    @media(max-width:370px){
+      .quickGrid{grid-template-columns:1fr}
+      .quick{min-height:70px}
     }
   </style>
 </head>
 
 <body>
-  <main class="door" aria-label="Entrée MARKET">
-    <div class="brand">
-      <div class="badge">🛍️</div>
-      <div>
-        <div class="kicker">DIGIY PRO · MARKET</div>
-        <div class="brandTitle">Porte d’entrée</div>
+  <header class="topHeader">
+    <a class="hdrBack" href="./cockpit.html">← Gestion</a>
+    <div class="hdrTitle">JE VENDS</div>
+    <div class="hdrPill warn" id="sessionPill">session…</div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="eyebrow">🛍️ MARKET PRO</div>
+      <h1>Vendre vite.</h1>
+      <div class="sub">Le vendeur touche, parle, prépare ses produits, partage sa boutique et ouvre PAY si besoin.</div>
+    </section>
+
+    <section aria-label="Départ rapide MARKET">
+      <div class="sectionTitle">Départ rapide</div>
+      <div class="quickGrid">
+        <a class="quick hot" href="./cockpit.html">
+          <span class="ico">🛍️</span>
+          <b>Gérer</b>
+          <span>vente · client</span>
+        </a>
+        <a class="quick gold" href="./oreille.html?mode=vente">
+          <span class="ico">🎙️</span>
+          <b>Parler</b>
+          <span>produit · prix</span>
+        </a>
+        <a class="quick" href="./produits.html">
+          <span class="ico">📦</span>
+          <b>Produits</b>
+          <span>stock · photos</span>
+        </a>
+      </div>
+    </section>
+
+    <section aria-label="Portes utiles MARKET">
+      <div class="sectionTitle">Portes utiles</div>
+      <div class="tileGrid">
+        <a class="tile gold" href="./boutique.html#preview">
+          <div class="tileTop"><div class="tileIcon">🏪</div><div class="tileTag">Boutique</div></div>
+          <div><b>Boutique</b><span>Vitrine client.</span></div>
+        </a>
+        <a class="tile" href="./fiche.html">
+          <div class="tileTop"><div class="tileIcon">🪪</div><div class="tileTag">Fiche</div></div>
+          <div><b>Fiche</b><span>Contact, QR, réseaux.</span></div>
+        </a>
+        <a class="tile" href="./qr.html">
+          <div class="tileTop"><div class="tileIcon">🔳</div><div class="tileTag">QR</div></div>
+          <div><b>QR</b><span>Partager vite.</span></div>
+        </a>
+        <a class="tile pay" href="https://pay.digiylyfe.com/">
+          <div class="tileTop"><div class="tileIcon">💳</div><div class="tileTag">PAY</div></div>
+          <div><b>Mon argent</b><span>Ouvrir PAY.</span></div>
+        </a>
+        <a class="tile blue" href="https://market.digiylyfe.com/">
+          <div class="tileTop"><div class="tileIcon">🌍</div><div class="tileTag">Public</div></div>
+          <div><b>Client</b><span>Voir MARKET public.</span></div>
+        </a>
+        <a class="tile gold" href="https://market.digiylyfe.com/lexique-market.html?v=lexique-market-v2-mobile-20260607">
+          <div class="tileTop"><div class="tileIcon">🇸🇳</div><div class="tileTag">Wolof</div></div>
+          <div><b>Wolof</b><span>Prix, stock, commande.</span></div>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <section class="plusPanel" id="plusPanel" aria-label="Plus MARKET">
+    <div class="plusInner">
+      <div class="plusHead">
+        <h2>Plus MARKET.</h2>
+        <button class="closePlus" id="closePlus" type="button">×</button>
+      </div>
+
+      <div class="plusGrid">
+        <a class="plusLink" href="./boutique.html#identity"><span class="pico">⚙️</span><span><b>Admin boutique</b><span>Nom, contact, ville, publication.</span></span></a>
+        <a class="plusLink" href="./cockpit.html#notes"><span class="pico">📝</span><span><b>Notes rapides</b><span>Trace client, vente, demande.</span></span></a>
+        <a class="plusLink" href="./session.html"><span class="pico">🛡️</span><span><b>Session</b><span>État d’accès.</span></span></a>
+        <a class="plusLink" href="./pin.html"><span class="pico">🔐</span><span><b>PIN</b><span>Ouvrir ou renouveler l’accès.</span></span></a>
+        <a class="plusLink" href="https://digiylyfe.com/"><span class="pico">🦅</span><span><b>Métiers pro</b><span>Maison publique DIGIYLYFE.</span></span></a>
+        <a class="plusLink" href="https://digiy-hub.digiylyfe.com/"><span class="pico">🧭</span><span><b>HUB général</b><span>Retour aux portes DIGIY.</span></span></a>
+      </div>
+
+      <div class="reader">
+        <b>🎧 Comprendre MARKET</b>
+        <p>MARKET aide le vendeur à gérer sa boutique, ses produits, ses prix, son stock, sa fiche, son QR et ses traces vers PAY. Le logiciel prépare. Le vendeur valide.</p>
+        <div class="readerActions">
+          <button class="play" id="playReader" type="button">▶ Écouter</button>
+          <button id="stopReader" type="button">⏹ Stop</button>
+        </div>
       </div>
     </div>
+  </section>
 
-    <h1>Entrée courte.<br><span>Direction HUB.</span></h1>
-
-    <p class="lead">
-      Cette page ne porte plus tout le module.
-      Elle ouvre le HUB vendeur ; la vraie gestion reste dans cockpit.html.
-    </p>
-
-    <div class="status" id="statusBox">
-      <span class="dot"></span>
-      <span id="statusText">Contrôle du HUB MARKET…</span>
+  <nav class="bottomBar" aria-label="Navigation rapide MARKET">
+    <div class="bottomInner">
+      <a class="active" href="./hub.html"><span class="bi">🧭</span><span>Menu</span></a>
+      <a href="./cockpit.html"><span class="bi">🛍️</span><span>Gérer</span></a>
+      <a href="./produits.html"><span class="bi">📦</span><span>Produits</span></a>
+      <a href="./oreille.html?mode=vente"><span class="bi">🎙️</span><span>Parler</span></a>
+      <button id="openPlus" type="button"><span class="bi">☰</span><span>Plus</span></button>
     </div>
-
-    <div class="actions">
-      <button class="btn primary" id="btnHub" type="button">🧭 Ouvrir le HUB</button>
-      <a class="btn gold" id="btnPin" href="./pin.html">🔐 Mon accès</a>
-      <a class="btn ghost" id="btnCockpit" href="./cockpit.html">🛍️ Gestion</a>
-      <a class="btn ghost" id="btnProduits" href="./produits.html">📦 Produits</a>
-    </div>
-
-    <div class="rule">
-      Ordre propre : poser <b>hub.html</b>, puis poser cet <b>index.html</b>.
-      Si le HUB manque, cette porte ne force pas un 404.
-    </div>
-  </main>
+  </nav>
 
   <script>
     (() => {
       "use strict";
-
-      const ROUTES = {
-        hub:"./hub.html",
-        pin:"./pin.html",
-        cockpit:"./cockpit.html",
-        produits:"./produits.html"
-      };
 
       const SENSITIVE_KEYS = [
         "phone","tel","p_phone","owner_phone","owner_id","slug",
@@ -276,23 +515,19 @@
       ];
 
       const $ = id => document.getElementById(id);
-      let hubAvailable = false;
+      const plus = $("plusPanel");
 
       function cleanVisibleUrl(){
         try{
           const url = new URL(location.href);
           let changed = false;
-
           SENSITIVE_KEYS.forEach((key) => {
             if(url.searchParams.has(key)){
               url.searchParams.delete(key);
               changed = true;
             }
           });
-
-          if(changed){
-            history.replaceState({}, document.title, url.pathname + url.search + url.hash);
-          }
+          if(changed) history.replaceState({}, document.title, url.pathname + url.search + url.hash);
         }catch(_){}
       }
 
@@ -301,71 +536,92 @@
           document.querySelectorAll("a[href]").forEach((link) => {
             const href = link.getAttribute("href") || "";
             if(!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) return;
-
             const url = new URL(href, location.href);
             if(url.origin !== location.origin) return;
-
             SENSITIVE_KEYS.forEach((key) => url.searchParams.delete(key));
-
             const file = url.pathname.split("/").pop() || "index.html";
             link.setAttribute("href","./" + file + (url.search || "") + (url.hash || ""));
           });
         }catch(_){}
       }
 
-      function setStatus(text, kind){
-        const box = $("statusBox");
-        const el = $("statusText");
-        if(el) el.textContent = text;
-        if(box) box.className = kind ? "status " + kind : "status";
-      }
-
-      function safeGo(path){
+      async function waitGuard(){
         try{
-          const url = new URL(path, location.href);
-          SENSITIVE_KEYS.forEach((key) => url.searchParams.delete(key));
-          const file = url.pathname.split("/").pop() || "index.html";
-          location.href = "./" + file + (url.search || "") + (url.hash || "");
-        }catch(_){
-          location.href = path;
+          const guard = window.DIGIY_GUARD;
+          if(!guard) return {};
+          if(typeof guard.ready === "function"){
+            const out = guard.ready({ redirect:false, preserve_validation:true });
+            if(out && typeof out.then === "function") await out;
+          }else if(guard.ready && typeof guard.ready.then === "function"){
+            await guard.ready;
+          }
+          if(typeof guard.getSession === "function") return guard.getSession() || guard.state || {};
+          return guard.state || {};
+        }catch(e){
+          console.warn("[MARKET MENU] guard", e);
+          return {};
         }
       }
 
-      async function checkHub(){
-        try{
-          const res = await fetch(ROUTES.hub + "?check=" + Date.now(), {
-            method:"HEAD",
-            cache:"no-store"
-          });
-          return !!(res && res.ok);
-        }catch(_){
-          return false;
-        }
+      function updatePill(state){
+        const el = $("sessionPill");
+        if(!el) return;
+        const ok = !!(state && (state.access_ok || state.access || state.pin_session_ok));
+        el.textContent = ok ? (state.pin_session_ok ? "session ouverte" : "accès ouvert") : "accès à vérifier";
+        el.className = "hdrPill " + (ok ? "ok" : "warn");
       }
+
+      function openPlus(){
+        if(plus) plus.classList.add("open");
+      }
+      function closePlus(){
+        if(plus) plus.classList.remove("open");
+      }
+
+      const READER_TEXT =
+        "Bienvenue dans MARKET. Ici, le vendeur garde ses produits, ses prix, son stock, sa boutique, sa fiche et son QR au même endroit. " +
+        "Gérer ouvre le cockpit vendeur. Produits ouvre le stock et les photos. Parler ouvre Oreille MARKET pour dicter produit, prix, client, livraison ou paiement. " +
+        "PAY reste le module argent central. MARKET prépare, le vendeur vérifie et valide.";
+
+      function canSpeak(){ return "speechSynthesis" in window; }
+      function pickVoice(){
+        if(!canSpeak()) return null;
+        const voices = window.speechSynthesis.getVoices() || [];
+        return voices.find(v => /^fr/i.test(v.lang || "") && /FR/i.test(v.lang || "")) ||
+               voices.find(v => /^fr/i.test(v.lang || "")) ||
+               voices[0] || null;
+      }
+      function stopSpeech(){
+        if(canSpeak()) window.speechSynthesis.cancel();
+      }
+      function speak(){
+        if(!canSpeak()) return;
+        window.speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(READER_TEXT);
+        u.lang = "fr-FR";
+        u.rate = 0.86;
+        u.pitch = 1.02;
+        const voice = pickVoice();
+        if(voice) u.voice = voice;
+        window.speechSynthesis.speak(u);
+      }
+
+      $("openPlus")?.addEventListener("click", openPlus);
+      $("closePlus")?.addEventListener("click", closePlus);
+      plus?.addEventListener("click", e => { if(e.target === plus) closePlus(); });
+      document.addEventListener("keydown", e => { if(e.key === "Escape") closePlus(); });
+      $("playReader")?.addEventListener("click", speak);
+      $("stopReader")?.addEventListener("click", stopSpeech);
+      window.addEventListener("pagehide", stopSpeech);
 
       async function boot(){
         cleanVisibleUrl();
         cleanInternalLinks();
-
-        hubAvailable = await checkHub();
-
-        if(hubAvailable){
-          setStatus("HUB MARKET trouvé. Ouverture propre…", "ok");
-          window.setTimeout(() => safeGo(ROUTES.hub), 550);
-          return;
-        }
-
-        setStatus("HUB MARKET introuvable : hub.html n’est pas encore posé. Aucun 404 forcé.", "bad");
+        const state = await waitGuard();
+        updatePill(state || {});
+        cleanVisibleUrl();
+        cleanInternalLinks();
       }
-
-      $("btnHub")?.addEventListener("click", () => {
-        if(hubAvailable) safeGo(ROUTES.hub);
-        else setStatus("Impossible d’ouvrir : pose d’abord le fichier hub.html dans le dépôt.", "bad");
-      });
-
-      $("btnPin")?.addEventListener("click", ev => { ev.preventDefault(); safeGo(ROUTES.pin); });
-      $("btnCockpit")?.addEventListener("click", ev => { ev.preventDefault(); safeGo(ROUTES.cockpit); });
-      $("btnProduits")?.addEventListener("click", ev => { ev.preventDefault(); safeGo(ROUTES.produits); });
 
       boot();
     })();
