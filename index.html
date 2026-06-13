@@ -3,631 +3,343 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-
-  <title>Je vends — Menu MARKET</title>
-
-  <meta name="theme-color" content="#1e7a46"/>
-  <meta name="description" content="DIGIY MARKET PRO — menu vendeur compact : vendre, produits, boutique, fiche, QR, PAY, session."/>
-  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet"/>
-  <meta name="digiy-build" content="market-menu-compact-plus-pay-ok-20260612"/>
-
-  <script>
-    window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-    window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
-    window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
-    window.DIGIY_SUPABASE_KEY = window.DIGIY_SUPABASE_ANON_KEY;
-
-    window.DIGIY_MODULE = "MARKET";
-    window.DIGIY_ABOS_MODULE = "MARKET";
-    window.DIGIY_LOGIN_URL = "./pin.html";
-    window.DIGIY_PAY_URL = "https://pay.digiylyfe.com/";
-  </script>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./assets/js/digiy-abos-access.js?v=abos-20260522"></script>
-  <script src="./guard.js?v=market-guard-20260531"></script>
-  <script src="./assets/js/digiy-module-bridge.js?v=bridge-20260521" defer></script>
-  <script src="./assets/js/digiy-market-memory.js?v=market-memory-20260521" defer></script>
-
-  <link rel="preload" as="image" href="https://digiylyfe.net/wp-content/uploads/2026/05/metier-pro-1.png"/>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet"/>
+  <meta name="theme-color" content="#063b2b"/>
+  <meta name="robots" content="noindex,nofollow"/>
+  <meta name="digiy-version" content="market-pro-mono-fichier-oreille-v2-pay-2-clics-20260613"/>
+  <title>DIGIY MARKET PRO — Cockpit vendeur</title>
+  <meta name="description" content="DIGIY MARKET PRO — cockpit mono-fichier : ajouter produit, produits, PAY, boutique, QR, Oreille DIGIY et Plus."/>
 
   <style>
     :root{
-      --bg:#1e7a46;
-      --bg2:#155a34;
-      --bg3:#0e4226;
-      --bar:rgba(8,50,24,.96);
-      --gold:#c4973f;
-      --gold2:#fff0a8;
-      --green:#22c55e;
-      --line:rgba(255,255,255,.18);
-      --text:#f0fff5;
-      --muted:rgba(240,255,245,.78);
-      --shadow:0 16px 40px rgba(0,0,0,.22);
-      --r:18px;
-      --max:960px;
-      --hdrH:52px;
-      --barH:78px;
+      --bg:#f5efe2;
+      --paper:#fffaf0;
+      --ink:#10251c;
+      --muted:#66746e;
+      --green:#063b2b;
+      --green2:#0b5a41;
+      --green3:#0f7a56;
+      --gold:#d6ad39;
+      --gold2:#f4cf64;
+      --danger:#b42318;
+      --ok:#15803d;
+      --line:rgba(16,37,28,.13);
+      --shadow:0 22px 62px rgba(6,59,43,.17);
+      --shadow2:0 12px 30px rgba(6,59,43,.12);
+      --max:1080px;
     }
     *{box-sizing:border-box}
-    html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+    html{scroll-behavior:smooth}
     body{
       margin:0;
-      min-height:100dvh;
-      color:var(--text);
-      font-family:Outfit,system-ui,-apple-system,"Segoe UI",sans-serif;
-      font-size:19px;
-      font-weight:950;
+      min-height:100vh;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--ink);
       background:
-        radial-gradient(600px 390px at 16% 0%,rgba(74,222,128,.18),transparent 58%),
-        radial-gradient(420px 280px at 92% 8%,rgba(196,151,63,.15),transparent 52%),
-        linear-gradient(180deg,var(--bg) 0%,var(--bg2) 60%,var(--bg3) 100%);
-      padding:calc(var(--hdrH) + 12px) 10px calc(var(--barH) + env(safe-area-inset-bottom,0px) + 14px);
+        radial-gradient(900px 520px at 6% -8%,rgba(214,173,57,.20),transparent 58%),
+        radial-gradient(900px 520px at 105% 0%,rgba(6,59,43,.14),transparent 54%),
+        linear-gradient(180deg,#fff8ea 0%,#f4ecd9 50%,#efe3cc 100%);
+      font-size:18px;
+      font-weight:760;
+      padding-bottom:calc(112px + env(safe-area-inset-bottom,0px));
     }
     a{color:inherit;text-decoration:none}
-    button{font:inherit;color:inherit;cursor:pointer}
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer}
+    .wrap{width:min(var(--max),calc(100% - 24px));margin:0 auto}
 
-    .topHeader{
-      position:fixed;
-      top:0;left:0;right:0;
-      height:var(--hdrH);
-      z-index:100;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:8px;
-      padding:0 12px;
-      background:var(--bar);
-      border-bottom:1px solid rgba(196,151,63,.26);
-      backdrop-filter:blur(18px);
-      -webkit-backdrop-filter:blur(18px);
+    .topbar{
+      position:sticky;top:0;z-index:90;
+      background:rgba(255,248,234,.92);
+      border-bottom:1px solid rgba(16,37,28,.10);
+      backdrop-filter:blur(16px);
+      -webkit-backdrop-filter:blur(16px);
     }
-    .hdrBack{
-      min-height:36px;
-      display:inline-flex;
-      align-items:center;
-      color:rgba(240,255,245,.74);
-      font-size:13px;
-      font-weight:1000;
-      white-space:nowrap;
-    }
-    .hdrTitle{
-      font-size:11px;
-      font-weight:1000;
-      letter-spacing:.14em;
-      text-transform:uppercase;
-      color:var(--gold2);
-      white-space:nowrap;
-    }
-    .hdrPill{
-      min-height:32px;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      padding:6px 9px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.08);
-      color:var(--muted);
-      font-size:11px;
-      font-weight:1000;
-      white-space:nowrap;
-      max-width:34vw;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .hdrPill.ok{color:#bbf7d0;border-color:rgba(34,197,94,.38);background:rgba(34,197,94,.12)}
-    .hdrPill.warn{color:#fde68a;border-color:rgba(245,158,11,.38);background:rgba(245,158,11,.12)}
+    .top-inner{min-height:82px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 0}
+    .brand{display:flex;align-items:center;gap:12px;min-width:0}
+    .logo{width:60px;height:60px;border-radius:22px;object-fit:cover;border:1px solid rgba(6,59,43,.13);box-shadow:0 12px 30px rgba(6,59,43,.18);background:#fff}
+    .brand-title{font-size:1.12rem;font-weight:1000;letter-spacing:-.03em;line-height:1.03;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .brand-sub{margin-top:4px;color:var(--muted);font-size:.84rem;font-weight:850;line-height:1.22}
+    .session-pill{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:0 12px;border-radius:999px;background:rgba(6,59,43,.08);border:1px solid rgba(6,59,43,.10);color:var(--green);font-size:.82rem;font-weight:1000;white-space:nowrap}
 
-    .wrap{
-      width:min(var(--max),100%);
-      margin:0 auto;
-      display:grid;
-      gap:10px;
-    }
-    .hero{
-      display:grid;
-      gap:6px;
-      padding:2px 2px 0;
-    }
-    .eyebrow{
-      color:var(--gold2);
-      font-size:12px;
-      letter-spacing:.14em;
-      text-transform:uppercase;
-      font-weight:1000;
-    }
-    h1{
-      margin:0;
-      font-size:clamp(31px,8vw,48px);
-      font-weight:1000;
-      line-height:.94;
-      letter-spacing:-.05em;
-    }
-    .sub{
-      color:var(--muted);
-      font-size:15px;
-      font-weight:1000;
-      line-height:1.30;
-      max-width:760px;
-    }
+    .btn{border:1px solid rgba(6,59,43,.12);display:inline-flex;align-items:center;justify-content:center;gap:9px;min-height:50px;padding:0 16px;border-radius:999px;font-weight:1000;background:#fff;color:var(--green);box-shadow:var(--shadow2);text-align:center;-webkit-tap-highlight-color:transparent}
+    .btn-main{background:linear-gradient(135deg,var(--green),var(--green2));color:#fff;border:0}
+    .btn-gold{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#2d2308;border:0}
+    .btn-soft{background:rgba(255,255,255,.76);box-shadow:none}
+    .btn-danger{background:rgba(180,35,24,.09);color:var(--danger);box-shadow:none}
+    .btn:disabled{opacity:.55;cursor:not-allowed}
 
-    .quickGrid{
-      display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:8px;
+    .hero{padding:18px 0 10px}
+    .hero-card{
+      position:relative;overflow:hidden;border-radius:34px;padding:24px;color:#fff;box-shadow:var(--shadow);
+      background:radial-gradient(circle at 88% 12%,rgba(244,207,100,.32),transparent 24%),linear-gradient(135deg,#052f22,#0b5a41 58%,#0f7a56);
     }
-    .quick{
-      min-height:86px;
-      border-radius:20px;
-      border:1px solid rgba(255,255,255,.16);
-      background:rgba(255,255,255,.09);
-      box-shadow:var(--shadow);
-      padding:12px;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-      gap:6px;
-      -webkit-tap-highlight-color:transparent;
-    }
-    .quick.hot{background:linear-gradient(180deg,rgba(34,197,94,.20),rgba(255,255,255,.09));border-color:rgba(34,197,94,.34)}
-    .quick.gold{background:linear-gradient(180deg,rgba(196,151,63,.20),rgba(255,255,255,.09));border-color:rgba(196,151,63,.40)}
-    .quick .ico{font-size:25px;line-height:1}
-    .quick b{font-size:18px;line-height:1.02;font-weight:1000;color:#fff}
-    .quick span{font-size:12px;line-height:1.18;font-weight:1000;color:rgba(240,255,245,.74)}
+    .kicker{display:inline-flex;align-items:center;gap:8px;width:max-content;max-width:100%;padding:9px 13px;border-radius:999px;background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.18);font-size:.8rem;font-weight:1000;letter-spacing:.08em;text-transform:uppercase}
+    h1{margin:14px 0 8px;font-size:clamp(2.05rem,6vw,4.3rem);line-height:.96;letter-spacing:-.055em;font-weight:1000}
+    .hero p{margin:0;color:rgba(255,255,255,.87);line-height:1.6;font-weight:760;max-width:72ch}
+    .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;align-items:stretch}
+    .status-card{border-radius:30px;padding:20px;background:rgba(255,255,255,.82);border:1px solid rgba(16,37,28,.09);box-shadow:var(--shadow2)}
+    .status-card h2{margin:0 0 12px;font-size:1.38rem;line-height:1.05;letter-spacing:-.03em;font-weight:1000;color:var(--green)}
+    .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .stat{padding:14px;border-radius:20px;background:#fff;border:1px solid rgba(16,37,28,.08)}
+    .stat b{display:block;color:var(--green);font-size:1.55rem;font-weight:1000;line-height:1}
+    .stat span{display:block;margin-top:4px;color:var(--muted);font-size:.82rem;font-weight:880;line-height:1.25}
 
-    .sectionTitle{
-      margin:2px 0 0;
-      font-size:11px;
-      font-weight:1000;
-      letter-spacing:.13em;
-      text-transform:uppercase;
-      color:rgba(240,255,245,.56);
-      padding:0 2px;
-    }
-    .tileGrid{
-      display:grid;
-      grid-template-columns:repeat(3,minmax(0,1fr));
-      gap:8px;
-    }
-    .tile{
-      min-height:106px;
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between;
-      gap:8px;
-      padding:12px;
-      border-radius:18px;
-      border:1px solid rgba(255,255,255,.15);
-      background:rgba(255,255,255,.08);
-      box-shadow:0 12px 28px rgba(0,0,0,.17);
-      -webkit-tap-highlight-color:transparent;
-    }
-    .tile.pay{border-color:rgba(196,151,63,.48);background:linear-gradient(180deg,rgba(196,151,63,.19),rgba(255,255,255,.09))}
-    .tile.gold{border-color:rgba(196,151,63,.38);background:rgba(196,151,63,.12)}
-    .tile.blue{border-color:rgba(139,140,255,.32);background:rgba(139,140,255,.12)}
-    .tileTop{display:flex;justify-content:space-between;align-items:flex-start;gap:7px}
-    .tileIcon{
-      width:42px;height:42px;
-      border-radius:14px;
-      display:grid;
-      place-items:center;
-      background:rgba(255,255,255,.09);
-      border:1px solid rgba(255,255,255,.14);
-      font-size:22px;
-    }
-    .tileTag{
-      min-height:24px;
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      padding:4px 7px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.08);
-      color:var(--gold2);
-      font-size:8.5px;
-      font-weight:1000;
-      letter-spacing:.07em;
-      text-transform:uppercase;
-      white-space:nowrap;
-    }
-    .tile b{
-      display:block;
-      font-size:18px;
-      line-height:1.04;
-      letter-spacing:-.02em;
-      color:#fff;
-      font-weight:1000;
-    }
-    .tile span{
-      display:block;
-      margin-top:4px;
-      font-size:12px;
-      line-height:1.18;
-      color:var(--muted);
-      font-weight:1000;
-    }
+    .oreille{margin:14px auto 6px;border-radius:30px;padding:16px;background:rgba(255,255,255,.82);border:1px solid rgba(16,37,28,.09);box-shadow:var(--shadow2)}
+    .oreille-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+    .oreille-title{font-size:1.18rem;color:var(--green);font-weight:1000;line-height:1.06}
+    .oreille-sub{margin-top:4px;color:var(--muted);font-size:.84rem;font-weight:850;line-height:1.35}
+    .command-row{display:grid;grid-template-columns:1fr auto auto;gap:10px}
+    .command-input,.field,textarea.field,select.field{width:100%;border:1px solid rgba(16,37,28,.13);background:#fff;color:var(--ink);border-radius:22px;min-height:54px;padding:0 15px;outline:none;font-weight:900;box-shadow:0 8px 22px rgba(6,59,43,.08)}
+    textarea.field{min-height:106px;padding:14px 15px;resize:vertical;line-height:1.45}
+    .hint{margin-top:10px;color:var(--muted);font-size:.83rem;font-weight:850;line-height:1.45}
+    .result{margin-top:12px;padding:12px 14px;border-radius:20px;background:rgba(6,59,43,.07);border:1px solid rgba(6,59,43,.10);font-size:.88rem;font-weight:900;color:#31483d;line-height:1.45;display:none}
+    .result.show{display:block}
 
-    .bottomBar{
-      position:fixed;
-      left:0;right:0;bottom:0;
-      height:var(--barH);
-      z-index:100;
-      padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));
-      background:rgba(6,38,18,.97);
-      border-top:1px solid rgba(196,151,63,.18);
-      backdrop-filter:blur(18px);
-      -webkit-backdrop-filter:blur(18px);
-    }
-    .bottomInner{
-      width:min(100%,760px);
-      height:100%;
-      margin:0 auto;
-      display:grid;
-      grid-template-columns:repeat(5,1fr);
-      gap:6px;
-    }
-    .bottomInner a,.bottomInner button{
-      min-height:58px;
-      border-radius:16px;
-      display:grid;
-      place-items:center;
-      align-content:center;
-      gap:3px;
-      color:rgba(240,255,245,.62);
-      font-size:11px;
-      font-weight:1000;
-      text-align:center;
-      border:1px solid rgba(255,255,255,.06);
-      background:rgba(255,255,255,.04);
-    }
-    .bottomInner a.active{
-      color:#052215;
-      background:linear-gradient(135deg,#22c55e,#fff0a8);
-      border-color:rgba(34,197,94,.32);
-    }
-    .bi{font-size:19px;line-height:1}
+    .tabs{position:sticky;top:82px;z-index:80;background:rgba(255,248,234,.90);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid rgba(16,37,28,.08);padding:8px 0}
+    .tabs-inner{display:grid;grid-template-columns:repeat(5,1fr);gap:7px}
+    .tab{min-height:58px;border-radius:18px;border:1px solid rgba(6,59,43,.10);background:rgba(255,255,255,.72);color:var(--green);font-weight:1000;display:grid;place-items:center;gap:2px;padding:6px;font-size:.78rem;box-shadow:none}
+    .tab strong{font-size:1.18rem;line-height:1}
+    .tab.active{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#2d2308;border:0;box-shadow:0 12px 28px rgba(214,173,57,.22)}
 
-    .plusPanel{
-      position:fixed;
-      inset:0;
-      z-index:250;
-      display:none;
-      background:rgba(3,18,10,.96);
-      padding:calc(var(--hdrH) + 14px) 12px calc(var(--barH) + 18px);
-      overflow:auto;
-    }
-    .plusPanel.open{display:block}
-    .plusInner{
-      width:min(var(--max),100%);
-      margin:0 auto;
-      display:grid;
-      gap:10px;
-    }
-    .plusHead{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-    }
-    .plusHead h2{
-      margin:0;
-      font-size:clamp(32px,8vw,48px);
-      line-height:.94;
-      letter-spacing:-.05em;
-    }
-    .closePlus{
-      min-width:44px;
-      height:44px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.16);
-      background:rgba(255,255,255,.08);
-      color:var(--text);
-      font-weight:1000;
-    }
-    .plusGrid{
-      display:grid;
-      grid-template-columns:repeat(2,minmax(0,1fr));
-      gap:8px;
-    }
-    .plusLink{
-      min-height:76px;
-      border-radius:18px;
-      border:1px solid rgba(255,255,255,.14);
-      background:rgba(255,255,255,.08);
-      padding:12px;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      font-weight:1000;
-    }
-    .plusLink .pico{font-size:24px}
-    .plusLink b{display:block;font-size:17px;line-height:1.05}
-    .plusLink span{display:block;margin-top:3px;font-size:12px;line-height:1.2;color:var(--muted)}
-    .reader{
-      margin-top:4px;
-      border:1px solid rgba(250,204,21,.28);
-      border-radius:20px;
-      background:rgba(250,204,21,.10);
-      padding:12px;
-      display:grid;
-      gap:8px;
-    }
-    .reader p{
-      margin:0;
-      color:var(--muted);
-      font-size:14px;
-      line-height:1.35;
-      font-weight:1000;
-    }
-    .readerActions{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:8px;
-    }
-    .readerActions button{
-      min-height:50px;
-      border-radius:16px;
-      border:1px solid rgba(255,255,255,.16);
-      background:rgba(255,255,255,.08);
-      color:var(--text);
-      font-weight:1000;
-    }
-    .readerActions .play{
-      background:linear-gradient(135deg,#22c55e,#c4973f);
-      color:#102014;
-    }
+    .section{display:none;padding:18px 0}
+    .section.active{display:block}
+    .panel{background:rgba(255,255,255,.82);border:1px solid rgba(16,37,28,.09);border-radius:32px;box-shadow:var(--shadow2);padding:18px}
+    .section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;margin-bottom:16px}
+    .section-head h2{margin:6px 0 0;color:var(--green);font-size:clamp(1.65rem,4vw,2.7rem);line-height:1;letter-spacing:-.045em;font-weight:1000}
+    .section-head p{margin:7px 0 0;color:var(--muted);line-height:1.55;font-weight:800;max-width:720px}
+    .pill{display:inline-flex;align-items:center;gap:8px;min-height:32px;padding:0 12px;border-radius:999px;background:rgba(6,59,43,.08);border:1px solid rgba(6,59,43,.10);color:var(--green);font-size:.78rem;font-weight:1000;text-transform:uppercase;letter-spacing:.05em}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .form-grid .wide{grid-column:1/-1}
+    .label{display:grid;gap:6px;color:var(--green);font-size:.84rem;font-weight:1000}
 
-    @media(max-width:520px){
-      .quickGrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
-      .quick{min-height:82px;padding:10px}
-      .quick b{font-size:16px}
-      .quick span{font-size:11px}
-      .tileGrid{grid-template-columns:repeat(2,minmax(0,1fr))}
-      .tile{min-height:100px}
-      .tile b{font-size:17px}
-      .plusGrid{grid-template-columns:1fr}
-    }
-    @media(max-width:370px){
-      .quickGrid{grid-template-columns:1fr}
-      .quick{min-height:70px}
-    }
+    .products-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+    .product-card{border-radius:26px;background:#fff;border:1px solid rgba(16,37,28,.09);box-shadow:0 12px 30px rgba(6,59,43,.10);overflow:hidden}
+    .product-top{min-height:116px;display:grid;place-items:center;background:radial-gradient(circle at 75% 0%,rgba(244,207,100,.26),transparent 42%),linear-gradient(135deg,#063b2b,#0f7a56);color:#fff;font-size:42px;font-weight:1000}
+    .product-body{padding:15px}
+    .product-body h3{margin:0;color:var(--green);font-size:1.28rem;line-height:1.05;font-weight:1000;letter-spacing:-.025em}
+    .product-body p{margin:8px 0 0;color:#4f5f58;line-height:1.42;font-size:.9rem;font-weight:800}
+    .meta-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:11px}
+    .meta{display:inline-flex;align-items:center;min-height:30px;padding:0 9px;border-radius:999px;background:rgba(6,59,43,.06);border:1px solid rgba(6,59,43,.08);color:#31483d;font-size:.75rem;font-weight:950}
+    .card-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.card-actions .btn{min-height:44px;padding:0 10px;box-shadow:none;font-size:.82rem}
+
+    .pay-grid{display:grid;grid-template-columns:.95fr 1.05fr;gap:14px}.movement-list{display:grid;gap:9px}.move{padding:12px;border-radius:18px;background:#fff;border:1px solid rgba(16,37,28,.08);display:flex;justify-content:space-between;gap:10px}.move b{color:var(--green)}.move.in b{color:var(--ok)}.move.out b{color:var(--danger)}.move small{display:block;color:var(--muted);font-weight:850;margin-top:3px}.pay-temp{padding:16px;border-radius:24px;background:linear-gradient(135deg,rgba(6,59,43,.08),rgba(214,173,57,.13));border:1px solid rgba(6,59,43,.10);font-weight:900;line-height:1.5;color:#31483d}
+
+    .shop-link-box{padding:16px;border-radius:24px;background:#fff;border:1px solid rgba(16,37,28,.09);box-shadow:0 12px 30px rgba(6,59,43,.08);word-break:break-word;font-weight:900;color:#31483d;line-height:1.5}
+    .more-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.mini-card{padding:16px;border-radius:24px;background:#fff;border:1px solid rgba(16,37,28,.09);box-shadow:0 12px 30px rgba(6,59,43,.08)}.mini-card h3{margin:0 0 8px;color:var(--green);font-size:1.12rem;line-height:1.08}.mini-card p{margin:0;color:var(--muted);line-height:1.45;font-weight:820;font-size:.9rem}
+
+    .bottom-actions{position:fixed;left:0;right:0;bottom:0;z-index:100;padding:8px 10px calc(8px + env(safe-area-inset-bottom,0px));background:rgba(6,59,43,.95);border-top:1px solid rgba(255,255,255,.14);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+    .bottom-inner{width:min(100%,760px);margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:7px}.bottom-inner button{min-height:60px;border-radius:17px;border:1px solid transparent;background:transparent;color:rgba(255,247,232,.75);display:grid;place-items:center;align-content:center;gap:2px;font-size:11px;font-weight:1000}.bottom-inner button strong{font-size:18px;line-height:1}.bottom-inner button.active{background:linear-gradient(135deg,var(--gold2),var(--gold));color:#2d2308;box-shadow:0 12px 28px rgba(214,173,57,.24)}
+
+    .gate{position:fixed;inset:0;z-index:999999;display:none;place-items:center;background:rgba(5,28,20,.78);backdrop-filter:blur(14px);padding:20px}.gate.show{display:grid}.gate-card{width:min(520px,100%);padding:22px;border-radius:32px;background:#fffaf0;border:1px solid rgba(244,207,100,.30);box-shadow:0 24px 80px rgba(0,0,0,.28)}.gate-card h2{margin:0;color:var(--green);font-size:2rem;line-height:1;font-weight:1000;letter-spacing:-.04em}.gate-card p{color:var(--muted);line-height:1.5;font-weight:850}.gate-card .field{font-size:1.5rem;text-align:center;letter-spacing:.28em}.toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(16px);opacity:0;pointer-events:none;z-index:999999;max-width:calc(100vw - 24px);padding:11px 16px;border-radius:999px;background:rgba(6,59,43,.96);color:#fff7c2;font-weight:1000;box-shadow:var(--shadow);transition:.22s ease;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+    @media(max-width:900px){.hero-grid,.pay-grid{grid-template-columns:1fr}.products-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.command-row{grid-template-columns:1fr}.command-row .btn{width:100%}}
+    @media(max-width:640px){body{font-size:17px}.top-inner{min-height:auto}.logo{width:54px;height:54px}.session-pill{display:none}.hero-card{border-radius:28px;padding:20px}.stat-grid,.form-grid,.products-grid,.more-grid{grid-template-columns:1fr}.section-head{display:block}.tabs{top:74px}.tab{min-height:55px;font-size:.72rem}.panel{border-radius:28px;padding:15px}.bottom-inner{gap:5px}.bottom-inner button{min-height:57px;border-radius:15px}}
   </style>
 </head>
-
 <body>
-  <header class="topHeader">
-    <a class="hdrBack" href="./cockpit.html">← Gestion</a>
-    <div class="hdrTitle">JE VENDS</div>
-    <div class="hdrPill warn" id="sessionPill">session…</div>
+  <header class="topbar">
+    <div class="wrap top-inner">
+      <a class="brand" href="https://market.digiylyfe.com/" aria-label="Retour MARKET public">
+        <img class="logo" src="https://digiylyfe.net/wp-content/uploads/2026/04/Image-11.jpeg" alt="DIGIYLYFE"/>
+        <div>
+          <div class="brand-title">DIGIY MARKET PRO</div>
+          <div class="brand-sub">Une page pour agir · le reste dans Plus.</div>
+        </div>
+      </a>
+      <div class="session-pill" id="sessionPill">Session PRO · 8h</div>
+    </div>
   </header>
 
-  <main class="wrap">
+  <main>
     <section class="hero">
-      <div class="eyebrow">🛍️ MARKET PRO</div>
-      <h1>Vendre vite.</h1>
-      <div class="sub">Le vendeur touche, parle, prépare ses produits, partage sa boutique et ouvre PAY si besoin.</div>
-    </section>
-
-    <section aria-label="Départ rapide MARKET">
-      <div class="sectionTitle">Départ rapide</div>
-      <div class="quickGrid">
-        <a class="quick hot" href="./cockpit.html">
-          <span class="ico">🛍️</span>
-          <b>Gérer</b>
-          <span>vente · client</span>
-        </a>
-        <a class="quick gold" href="./oreille.html?mode=vente">
-          <span class="ico">🎙️</span>
-          <b>Parler</b>
-          <span>produit · prix</span>
-        </a>
-        <a class="quick" href="./produits.html">
-          <span class="ico">📦</span>
-          <b>Produits</b>
-          <span>stock · photos</span>
-        </a>
+      <div class="wrap hero-grid">
+        <div class="hero-card">
+          <span class="kicker">🛍️ Cockpit vendeur</span>
+          <h1>Moins de bruit. Plus de vente.</h1>
+          <p>MARKET PRO rassemble les gestes utiles dans un seul fichier : ajouter un produit, voir les produits, préparer PAY, partager la boutique et garder les réglages dans Plus.</p>
+        </div>
+        <aside class="status-card">
+          <h2>Température MARKET</h2>
+          <div class="stat-grid">
+            <div class="stat"><b id="statProducts">0</b><span>produits</span></div>
+            <div class="stat"><b id="statStock">0</b><span>pièces stock</span></div>
+            <div class="stat"><b id="statIn">0</b><span>entrées FCFA</span></div>
+            <div class="stat"><b id="statOut">0</b><span>sorties FCFA</span></div>
+          </div>
+        </aside>
       </div>
     </section>
 
-    <section aria-label="Portes utiles MARKET">
-      <div class="sectionTitle">Portes utiles</div>
-      <div class="tileGrid">
-        <a class="tile gold" href="./boutique.html#preview">
-          <div class="tileTop"><div class="tileIcon">🏪</div><div class="tileTag">Boutique</div></div>
-          <div><b>Boutique</b><span>Vitrine client.</span></div>
-        </a>
-        <a class="tile" href="./fiche.html">
-          <div class="tileTop"><div class="tileIcon">🪪</div><div class="tileTag">Fiche</div></div>
-          <div><b>Fiche</b><span>Contact, QR, réseaux.</span></div>
-        </a>
-        <a class="tile" href="./qr.html">
-          <div class="tileTop"><div class="tileIcon">🔳</div><div class="tileTag">QR</div></div>
-          <div><b>QR</b><span>Partager vite.</span></div>
-        </a>
-        <a class="tile pay" href="https://pay.digiylyfe.com/">
-          <div class="tileTop"><div class="tileIcon">💳</div><div class="tileTag">PAY</div></div>
-          <div><b>Mon argent</b><span>Ouvrir PAY.</span></div>
-        </a>
-        <a class="tile blue" href="https://market.digiylyfe.com/">
-          <div class="tileTop"><div class="tileIcon">🌍</div><div class="tileTag">Public</div></div>
-          <div><b>Client</b><span>Voir MARKET public.</span></div>
-        </a>
-        <a class="tile gold" href="https://market.digiylyfe.com/lexique-market.html?v=lexique-market-v2-mobile-20260607">
-          <div class="tileTop"><div class="tileIcon">🇸🇳</div><div class="tileTag">Wolof</div></div>
-          <div><b>Wolof</b><span>Prix, stock, commande.</span></div>
-        </a>
+    <section class="wrap oreille" aria-label="Oreille DIGIY MARKET">
+      <div class="oreille-head">
+        <div>
+          <div class="oreille-title">👂 Oreille MARKET V2 · préparation d’action</div>
+          <div class="oreille-sub">Parle ou écris : “ajoute sac rouge 8000”, “vente 12000 robe”, “dépense livraison 7500”. DIGIY prépare, le pro valide.</div>
+        </div>
+        <span class="pill">Le pro décide</span>
+      </div>
+      <div class="command-row">
+        <input class="command-input" id="voiceText" placeholder="Parler ou écrire la demande…"/>
+        <button class="btn btn-main" id="btnListen" type="button">🎙️ Parler</button>
+        <button class="btn btn-gold" id="btnPrepare" type="button">⚡ Préparer</button>
+      </div>
+      <div class="hint">Exemples : “ajoute robe wax 15000 stock 4” · “client a payé 10000 Wave” · “dépense livraison 2000 aujourd’hui”.</div>
+      <div class="result" id="intentResult"></div>
+    </section>
+
+    <nav class="tabs" aria-label="Actions MARKET PRO">
+      <div class="wrap tabs-inner">
+        <button class="tab active" data-tab="add"><strong>➕</strong>Ajouter</button>
+        <button class="tab" data-tab="products"><strong>📦</strong>Produits</button>
+        <button class="tab" data-tab="pay"><strong>💳</strong>PAY</button>
+        <button class="tab" data-tab="shop"><strong>🔗</strong>Boutique</button>
+        <button class="tab" data-tab="more"><strong>⋯</strong>Plus</button>
+      </div>
+    </nav>
+
+    <section class="section active" id="tab-add">
+      <div class="wrap panel">
+        <div class="section-head"><div><span class="pill">Geste 1</span><h2>Ajouter un produit</h2><p>Le minimum visible : nom, prix, stock, catégorie. Le détail reste simple.</p></div></div>
+        <form id="productForm" class="form-grid">
+          <label class="label">Nom du produit<input class="field" id="pName" required placeholder="Ex : Sac rouge"/></label>
+          <label class="label">Prix FCFA<input class="field" id="pPrice" inputmode="numeric" placeholder="Ex : 8000"/></label>
+          <label class="label">Stock<input class="field" id="pStock" inputmode="numeric" placeholder="Ex : 3"/></label>
+          <label class="label">Catégorie<input class="field" id="pCat" placeholder="Mode, beauté, maison…"/></label>
+          <label class="label wide">Note courte<textarea class="field" id="pDesc" placeholder="Couleur, taille, disponibilité, conseil client…"></textarea></label>
+          <div class="wide" style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-gold" type="submit">✅ Enregistrer produit</button><button class="btn btn-soft" type="button" id="btnClearProduct">🧹 Effacer</button></div>
+        </form>
+      </div>
+    </section>
+
+    <section class="section" id="tab-products">
+      <div class="wrap panel">
+        <div class="section-head"><div><span class="pill">Geste 2</span><h2>Mes produits</h2><p>Une lecture rapide pour vendre, partager ou préparer une entrée PAY.</p></div><button class="btn btn-soft" id="btnSeed" type="button">🧺 Exemple</button></div>
+        <div class="products-grid" id="productsGrid"></div>
+      </div>
+    </section>
+
+    <section class="section" id="tab-pay">
+      <div class="wrap panel">
+        <div class="section-head"><div><span class="pill">Geste 3</span><h2>PAY en 2 clics</h2><p>1 : préparer le mouvement. 2 : valider. Le pro garde la main.</p></div></div>
+        <div class="pay-grid">
+          <div>
+            <div class="form-grid">
+              <label class="label">Type<select class="field" id="mType"><option value="in">Entrée</option><option value="out">Sortie</option></select></label>
+              <label class="label">Montant FCFA<input class="field" id="mAmount" inputmode="numeric" placeholder="Ex : 10000"/></label>
+              <label class="label wide">Note / référence<textarea class="field" id="mNote" placeholder="Ex : vente robe wax · Wave · client Fatou"></textarea></label>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><button class="btn btn-main" id="btnPreparePay" type="button">1️⃣ Préparer PAY</button><button class="btn btn-gold" id="btnConfirmPay" type="button" disabled>2️⃣ Valider</button></div>
+            <div class="pay-temp" id="payPreview" style="margin-top:12px">Aucun mouvement préparé.</div>
+          </div>
+          <div>
+            <div class="pay-temp" id="payAdvice">Conseiller PAY : la caisse MARKET est prête. Enregistre les ventes et dépenses sans parcours du combattant.</div>
+            <div class="movement-list" id="movementList" style="margin-top:12px"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="tab-shop">
+      <div class="wrap panel">
+        <div class="section-head"><div><span class="pill">Geste 4</span><h2>Boutique / QR</h2><p>Le lien public et le QR sont la carte de visite détaillée du commerçant.</p></div></div>
+        <div class="form-grid">
+          <label class="label">Nom boutique<input class="field" id="sName" placeholder="Ex : Astou Boutique"/></label>
+          <label class="label">Téléphone WhatsApp<input class="field" id="sPhone" inputmode="tel" placeholder="22177…"/></label>
+          <label class="label">Slug public<input class="field" id="sSlug" placeholder="market-22177…"/></label>
+          <label class="label">Zone<input class="field" id="sZone" placeholder="Saly, Mbour, Dakar…"/></label>
+          <label class="label wide">Description boutique<textarea class="field" id="sDesc" placeholder="Ce que la boutique vend, comment contacter, livraison, conseil WhatsApp Live…"></textarea></label>
+          <div class="wide" style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-gold" id="btnSaveShop" type="button">💾 Sauver boutique</button><button class="btn btn-main" id="btnCopyShop" type="button">📋 Copier lien</button><button class="btn btn-soft" id="btnOpenShop" type="button">🌍 Ouvrir public</button></div>
+        </div>
+        <div class="shop-link-box" id="shopLinkBox" style="margin-top:14px"></div>
+      </div>
+    </section>
+
+    <section class="section" id="tab-more">
+      <div class="wrap panel">
+        <div class="section-head"><div><span class="pill">Tiroir propre</span><h2>Plus</h2><p>Le nécessaire sans charger la surface : export, import, session, public, doctrine.</p></div></div>
+        <div class="more-grid">
+          <div class="mini-card"><h3>📤 Export</h3><p>Sauvegarde locale du cockpit en JSON.</p><button class="btn btn-soft" id="btnExport" type="button" style="margin-top:12px">Exporter</button></div>
+          <div class="mini-card"><h3>📥 Import</h3><p>Restaurer un export MARKET PRO.</p><input class="field" id="importFile" type="file" accept="application/json" style="margin-top:12px"/></div>
+          <div class="mini-card"><h3>🔐 Session 8h</h3><p>PIN local de démonstration. À brancher ensuite sur guard/RPC d’accès.</p><button class="btn btn-danger" id="btnLogout" type="button" style="margin-top:12px">Fermer session</button></div>
+          <div class="mini-card"><h3>🧭 Doctrine</h3><p>La Voix capte. MARKET prépare. PAY trace. Le commerçant valide.</p><a class="btn btn-main" href="https://market.digiylyfe.com/" style="margin-top:12px">Voir vitrine</a></div>
+        </div>
       </div>
     </section>
   </main>
 
-  <section class="plusPanel" id="plusPanel" aria-label="Plus MARKET">
-    <div class="plusInner">
-      <div class="plusHead">
-        <h2>Plus MARKET.</h2>
-        <button class="closePlus" id="closePlus" type="button">×</button>
-      </div>
+  <div class="bottom-actions" aria-label="Navigation basse MARKET PRO"><div class="bottom-inner">
+    <button class="active" data-tab="add"><strong>➕</strong>Ajouter</button><button data-tab="products"><strong>📦</strong>Produits</button><button data-tab="pay"><strong>💳</strong>PAY</button><button data-tab="shop"><strong>🔗</strong>Boutique</button><button data-tab="more"><strong>⋯</strong>Plus</button>
+  </div></div>
 
-      <div class="plusGrid">
-        <a class="plusLink" href="./boutique.html#identity"><span class="pico">⚙️</span><span><b>Admin boutique</b><span>Nom, contact, ville, publication.</span></span></a>
-        <a class="plusLink" href="./cockpit.html#notes"><span class="pico">📝</span><span><b>Notes rapides</b><span>Trace client, vente, demande.</span></span></a>
-        <a class="plusLink" href="./session.html"><span class="pico">🛡️</span><span><b>Session</b><span>État d’accès.</span></span></a>
-        <a class="plusLink" href="./pin.html"><span class="pico">🔐</span><span><b>PIN</b><span>Ouvrir ou renouveler l’accès.</span></span></a>
-        <a class="plusLink" href="https://digiylyfe.com/"><span class="pico">🦅</span><span><b>Métiers pro</b><span>Maison publique DIGIYLYFE.</span></span></a>
-        <a class="plusLink" href="https://digiy-hub.digiylyfe.com/"><span class="pico">🧭</span><span><b>HUB général</b><span>Retour aux portes DIGIY.</span></span></a>
-      </div>
-
-      <div class="reader">
-        <b>🎧 Comprendre MARKET</b>
-        <p>MARKET aide le vendeur à gérer sa boutique, ses produits, ses prix, son stock, sa fiche, son QR et ses traces vers PAY. Le logiciel prépare. Le vendeur valide.</p>
-        <div class="readerActions">
-          <button class="play" id="playReader" type="button">▶ Écouter</button>
-          <button id="stopReader" type="button">⏹ Stop</button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <nav class="bottomBar" aria-label="Navigation rapide MARKET">
-    <div class="bottomInner">
-      <a class="active" href="./hub.html"><span class="bi">🧭</span><span>Menu</span></a>
-      <a href="./cockpit.html"><span class="bi">🛍️</span><span>Gérer</span></a>
-      <a href="./produits.html"><span class="bi">📦</span><span>Produits</span></a>
-      <a href="./oreille.html?mode=vente"><span class="bi">🎙️</span><span>Parler</span></a>
-      <button id="openPlus" type="button"><span class="bi">☰</span><span>Plus</span></button>
-    </div>
-  </nav>
+  <div class="gate" id="gate"><div class="gate-card">
+    <h2>🔐 MARKET PRO</h2>
+    <p id="gateText">Choisis un PIN local à 4 chiffres pour ouvrir le cockpit sur cet appareil.</p>
+    <input class="field" id="pinInput" inputmode="numeric" maxlength="4" placeholder="••••"/>
+    <button class="btn btn-gold" id="btnPin" type="button" style="width:100%;margin-top:12px">Ouvrir</button>
+    <p style="font-size:.82rem">Cette V1 protège seulement l’accès local. Les données sensibles restent à brancher ensuite sur le guard officiel.</p>
+  </div></div>
+  <div class="toast" id="toast">Action prête</div>
 
   <script>
-    (() => {
+    (function(){
       "use strict";
+      const STORE="digiy_market_pro_v1";
+      const SESSION="digiy_market_pro_session_until";
+      const PUBLIC_ORIGIN="https://market.digiylyfe.com";
+      const $=id=>document.getElementById(id);
+      const money=n=>Number(n||0).toLocaleString("fr-FR");
+      const digits=v=>String(v||"").replace(/[^\d]/g,"");
+      const clean=v=>String(v||"").trim();
+      let pendingPay=null;
+      let state=load();
 
-      const SENSITIVE_KEYS = [
-        "phone","tel","p_phone","owner_phone","owner_id","slug",
-        "market_phone","market_slug","business_phone","whatsapp","msisdn",
-        "subscription_phone","checkout_phone","subscription_slug","pro_slug","source_slug",
-        "pin","pin4","token","session_token",
-        "module","return","redirect","redirect_url","url","from","v"
-      ];
+      function load(){try{return JSON.parse(localStorage.getItem(STORE)||"{}")}catch(_){return {}}}
+      function save(){localStorage.setItem(STORE,JSON.stringify(state));renderAll()}
+      function ensure(){state.products=Array.isArray(state.products)?state.products:[];state.moves=Array.isArray(state.moves)?state.moves:[];state.shop=state.shop||{}}
+      function toast(t){const el=$("toast");el.textContent=t||"Action prête";el.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.remove("show"),2200)}
+      function shopUrl(){const slug=clean(state.shop.slug)||("market-"+digits(state.shop.phone||""));const u=new URL("/shop.html",PUBLIC_ORIGIN);if(slug)u.searchParams.set("slug",slug);return u.toString()}
+      function escapeHtml(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/\"/g,"&quot;").replace(/'/g,"&#039;")}
+      function uuid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
 
-      const $ = id => document.getElementById(id);
-      const plus = $("plusPanel");
+      function checkGate(){const until=Number(localStorage.getItem(SESSION)||0);if(until>Date.now()) return;$("gate").classList.add("show");$("gateText").textContent=state.pin?"Entre ton PIN local pour rouvrir MARKET PRO.":"Choisis un PIN local à 4 chiffres pour ouvrir le cockpit sur cet appareil."}
+      function openGate(){const pin=digits($("pinInput").value).slice(0,4);if(pin.length!==4){toast("PIN 4 chiffres nécessaire");return}if(state.pin&&state.pin!==pin){toast("PIN incorrect");return}state.pin=pin;localStorage.setItem(STORE,JSON.stringify(state));localStorage.setItem(SESSION,String(Date.now()+8*60*60*1000));$("gate").classList.remove("show");toast("Session ouverte 8h")}
 
-      function cleanVisibleUrl(){
-        try{
-          const url = new URL(location.href);
-          let changed = false;
-          SENSITIVE_KEYS.forEach((key) => {
-            if(url.searchParams.has(key)){
-              url.searchParams.delete(key);
-              changed = true;
-            }
-          });
-          if(changed) history.replaceState({}, document.title, url.pathname + url.search + url.hash);
-        }catch(_){}
-      }
+      function setTab(name){document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));const sec=$("tab-"+name);if(sec)sec.classList.add("active");document.querySelectorAll("[data-tab]").forEach(b=>b.classList.toggle("active",b.dataset.tab===name));if(sec) window.scrollTo({top:Math.max(0,sec.offsetTop-150),behavior:"smooth"})}
+      function fillProduct(p={}){$("pName").value=p.name||"";$("pPrice").value=p.price||"";$("pStock").value=p.stock||"";$("pCat").value=p.category||"";$("pDesc").value=p.description||"";setTab("add")}
+      function addProduct(){const name=clean($("pName").value);if(!name){toast("Nom produit nécessaire");return}state.products.unshift({id:uuid(),name,price:Number(digits($("pPrice").value)||0),stock:Number(digits($("pStock").value)||0),category:clean($("pCat").value)||"Boutique",description:clean($("pDesc").value),created_at:new Date().toISOString()});$("productForm").reset();save();toast("Produit enregistré");setTab("products")}
+      function deleteProduct(id){state.products=state.products.filter(p=>p.id!==id);save();toast("Produit retiré")}
+      function shareProduct(id){const p=state.products.find(x=>x.id===id);if(!p)return;const text=`${p.name} — ${money(p.price)} FCFA. ${p.description||"Disponible chez "+(state.shop.name||"DIGIY MARKET")}. Contact : ${state.shop.phone||"à préciser"}`;navigator.clipboard?.writeText(text).then(()=>toast("Texte produit copié")).catch(()=>toast(text))}
+      function productToPay(id){const p=state.products.find(x=>x.id===id);if(!p)return;$("mType").value="in";$("mAmount").value=p.price||"";$("mNote").value="Vente produit · "+p.name;setTab("pay");preparePay()}
 
-      function cleanInternalLinks(){
-        try{
-          document.querySelectorAll("a[href]").forEach((link) => {
-            const href = link.getAttribute("href") || "";
-            if(!href || href.startsWith("#") || href.startsWith("mailto:") || href.startsWith("tel:")) return;
-            const url = new URL(href, location.href);
-            if(url.origin !== location.origin) return;
-            SENSITIVE_KEYS.forEach((key) => url.searchParams.delete(key));
-            const file = url.pathname.split("/").pop() || "index.html";
-            link.setAttribute("href","./" + file + (url.search || "") + (url.hash || ""));
-          });
-        }catch(_){}
-      }
+      function preparePay(){const type=$("mType").value;const amount=Number(digits($("mAmount").value)||0);const note=clean($("mNote").value);if(!amount){toast("Montant nécessaire");return}pendingPay={id:uuid(),type,amount,note:note||"Mouvement MARKET",created_at:new Date().toISOString()};$("payPreview").textContent=(type==="in"?"Entrée":"Sortie")+" préparée : "+money(amount)+" FCFA · "+pendingPay.note;$("btnConfirmPay").disabled=false;toast("PAY préparé · reste validation")}
+      function confirmPay(){if(!pendingPay){toast("Prépare d’abord PAY");return}state.moves.unshift(pendingPay);pendingPay=null;$("btnConfirmPay").disabled=true;$("payPreview").textContent="Mouvement validé et tracé localement.";$("mAmount").value="";$("mNote").value="";save();toast("PAY validé")}
 
-      async function waitGuard(){
-        try{
-          const guard = window.DIGIY_GUARD;
-          if(!guard) return {};
-          if(typeof guard.ready === "function"){
-            const out = guard.ready({ redirect:false, preserve_validation:true });
-            if(out && typeof out.then === "function") await out;
-          }else if(guard.ready && typeof guard.ready.then === "function"){
-            await guard.ready;
-          }
-          if(typeof guard.getSession === "function") return guard.getSession() || guard.state || {};
-          return guard.state || {};
-        }catch(e){
-          console.warn("[MARKET MENU] guard", e);
-          return {};
-        }
-      }
+      function saveShop(){state.shop={name:clean($("sName").value),phone:digits($("sPhone").value),slug:clean($("sSlug").value),zone:clean($("sZone").value),description:clean($("sDesc").value)};save();toast("Boutique sauvée")}
+      async function copyShop(){try{await navigator.clipboard.writeText(shopUrl());toast("Lien boutique copié")}catch(_){toast(shopUrl())}}
+      function openShop(){window.open(shopUrl(),"_blank","noopener,noreferrer")}
 
-      function updatePill(state){
-        const el = $("sessionPill");
-        if(!el) return;
-        const ok = !!(state && (state.access_ok || state.access || state.pin_session_ok));
-        el.textContent = ok ? (state.pin_session_ok ? "session ouverte" : "accès ouvert") : "accès à vérifier";
-        el.className = "hdrPill " + (ok ? "ok" : "warn");
-      }
+      function prepareIntent(){const raw=clean($("voiceText").value);if(!raw){toast("Écris ou parle une demande");return}const txt=raw.toLowerCase();const amount=Number((txt.match(/(\d[\d\s\.]*)/)||[])[1]?.replace(/[^\d]/g,"")||0);let msg="";if(/ajoute|ajouter|produit|stock/.test(txt)){const name=raw.replace(/\b(ajoute|ajouter|produit|stock|fcfa|francs?)\b/gi,"").replace(/\d[\d\s\.]*/g,"").trim()||"Produit MARKET";fillProduct({name,price:amount||"",stock:(txt.match(/stock\s*(\d+)/)||[])[1]||"",category:"Boutique"});msg="Produit préparé : "+name+(amount?" · "+money(amount)+" FCFA":"")+". Vérifie puis enregistre."}else if(/dépense|depense|sortie|payer|livraison|achat/.test(txt)){$("mType").value="out";$("mAmount").value=amount||"";$("mNote").value=raw;setTab("pay");preparePay();msg="Sortie PAY préparée. Le pro valide au deuxième clic."}else if(/vente|vendu|payé|paye|entrée|entree|wave|cash|client/.test(txt)){$("mType").value="in";$("mAmount").value=amount||"";$("mNote").value=raw;setTab("pay");preparePay();msg="Entrée PAY préparée. Le pro valide au deuxième clic."}else{msg="Intention entendue, mais pas assez claire. Dis par exemple : ajoute produit, vente, ou dépense."}$("intentResult").textContent=msg;$("intentResult").classList.add("show")}
+      function listen(){const SR=window.SpeechRecognition||window.webkitSpeechRecognition;if(!SR){toast("Reconnaissance vocale non disponible ici");return}const rec=new SR();rec.lang="fr-FR";rec.interimResults=false;rec.maxAlternatives=1;$("btnListen").disabled=true;$("btnListen").textContent="🎧 Écoute…";rec.onresult=e=>{$("voiceText").value=e.results[0][0].transcript;prepareIntent()};rec.onerror=()=>toast("Écoute interrompue");rec.onend=()=>{$("btnListen").disabled=false;$("btnListen").textContent="🎙️ Parler"};rec.start()}
 
-      function openPlus(){
-        if(plus) plus.classList.add("open");
-      }
-      function closePlus(){
-        if(plus) plus.classList.remove("open");
-      }
+      function renderStats(){const products=state.products||[];const moves=state.moves||[];$("statProducts").textContent=String(products.length);$("statStock").textContent=String(products.reduce((a,p)=>a+Number(p.stock||0),0));$("statIn").textContent=money(moves.filter(m=>m.type==="in").reduce((a,m)=>a+Number(m.amount||0),0));$("statOut").textContent=money(moves.filter(m=>m.type==="out").reduce((a,m)=>a+Number(m.amount||0),0));const inSum=moves.filter(m=>m.type==="in").reduce((a,m)=>a+Number(m.amount||0),0);const outSum=moves.filter(m=>m.type==="out").reduce((a,m)=>a+Number(m.amount||0),0);const solde=inSum-outSum;$("payAdvice").textContent=solde>=0?`Conseiller PAY : réserve positive ${money(solde)} FCFA. Protège la réserve avant d’accélérer.`:`Conseiller PAY : tension de ${money(Math.abs(solde))} FCFA. Vérifie dépenses et encaissements attendus.`}
+      function renderProducts(){const grid=$("productsGrid");const products=state.products||[];if(!products.length){grid.innerHTML='<div class="shop-link-box" style="grid-column:1/-1">Aucun produit pour le moment. Ajoute un produit ou utilise Oreille MARKET.</div>';return}grid.innerHTML=products.map(p=>`<article class="product-card"><div class="product-top">🛍️</div><div class="product-body"><h3>${escapeHtml(p.name)}</h3><p>${escapeHtml(p.description||"Produit MARKET prêt à présenter au client.")}</p><div class="meta-row"><span class="meta">${money(p.price)} FCFA</span><span class="meta">Stock ${money(p.stock)}</span><span class="meta">${escapeHtml(p.category||"Boutique")}</span></div><div class="card-actions"><button class="btn btn-main" data-pay="${p.id}">PAY</button><button class="btn btn-soft" data-share="${p.id}">Partager</button><button class="btn btn-danger" data-del="${p.id}">Retirer</button></div></div></article>`).join("")}
+      function renderMoves(){const list=$("movementList");const moves=state.moves||[];if(!moves.length){list.innerHTML='<div class="shop-link-box">Aucun mouvement PAY validé.</div>';return}list.innerHTML=moves.slice(0,10).map(m=>`<div class="move ${m.type==="in"?"in":"out"}"><div><b>${m.type==="in"?"Entrée":"Sortie"} · ${money(m.amount)} FCFA</b><small>${escapeHtml(m.note||"Mouvement MARKET")}</small></div><small>${new Date(m.created_at).toLocaleDateString("fr-FR")}</small></div>`).join("")}
+      function renderShop(){const s=state.shop||{};$("shopLinkBox").innerHTML=`<strong>Lien public :</strong><br>${escapeHtml(shopUrl())}<br><br><strong>Doctrine :</strong> ce lien reste la carte de visite détaillée du pro. QR partageable, contact direct, paiement au commerçant.`}
+      function renderAll(){ensure();renderStats();renderProducts();renderMoves();renderShop()}
 
-      const READER_TEXT =
-        "Bienvenue dans MARKET. Ici, le vendeur garde ses produits, ses prix, son stock, sa boutique, sa fiche et son QR au même endroit. " +
-        "Gérer ouvre le cockpit vendeur. Produits ouvre le stock et les photos. Parler ouvre Oreille MARKET pour dicter produit, prix, client, livraison ou paiement. " +
-        "PAY reste le module argent central. MARKET prépare, le vendeur vérifie et valide.";
+      function exportData(){const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="digiy-market-pro-export.json";a.click();URL.revokeObjectURL(a.href);toast("Export préparé")}
+      function importData(file){if(!file)return;const r=new FileReader();r.onload=()=>{try{const data=JSON.parse(r.result);state=data;save();toast("Import restauré")}catch(_){toast("Fichier invalide")}};r.readAsText(file)}
+      function seed(){state.products.unshift({id:uuid(),name:"Sac rouge",price:8000,stock:3,category:"Mode",description:"Exemple MARKET : produit prêt à partager au client.",created_at:new Date().toISOString()});save();toast("Exemple ajouté")}
 
-      function canSpeak(){ return "speechSynthesis" in window; }
-      function pickVoice(){
-        if(!canSpeak()) return null;
-        const voices = window.speechSynthesis.getVoices() || [];
-        return voices.find(v => /^fr/i.test(v.lang || "") && /FR/i.test(v.lang || "")) ||
-               voices.find(v => /^fr/i.test(v.lang || "")) ||
-               voices[0] || null;
-      }
-      function stopSpeech(){
-        if(canSpeak()) window.speechSynthesis.cancel();
-      }
-      function speak(){
-        if(!canSpeak()) return;
-        window.speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(READER_TEXT);
-        u.lang = "fr-FR";
-        u.rate = 0.86;
-        u.pitch = 1.02;
-        const voice = pickVoice();
-        if(voice) u.voice = voice;
-        window.speechSynthesis.speak(u);
-      }
-
-      $("openPlus")?.addEventListener("click", openPlus);
-      $("closePlus")?.addEventListener("click", closePlus);
-      plus?.addEventListener("click", e => { if(e.target === plus) closePlus(); });
-      document.addEventListener("keydown", e => { if(e.key === "Escape") closePlus(); });
-      $("playReader")?.addEventListener("click", speak);
-      $("stopReader")?.addEventListener("click", stopSpeech);
-      window.addEventListener("pagehide", stopSpeech);
-
-      async function boot(){
-        cleanVisibleUrl();
-        cleanInternalLinks();
-        const state = await waitGuard();
-        updatePill(state || {});
-        cleanVisibleUrl();
-        cleanInternalLinks();
-      }
-
-      boot();
+      document.addEventListener("click",e=>{const tab=e.target.closest("[data-tab]");if(tab){setTab(tab.dataset.tab);return}const del=e.target.closest("[data-del]");if(del){deleteProduct(del.dataset.del);return}const share=e.target.closest("[data-share]");if(share){shareProduct(share.dataset.share);return}const pay=e.target.closest("[data-pay]");if(pay){productToPay(pay.dataset.pay);return}});
+      $("productForm").addEventListener("submit",e=>{e.preventDefault();addProduct()});
+      $("btnClearProduct").onclick=()=>$("productForm").reset();$("btnPreparePay").onclick=preparePay;$("btnConfirmPay").onclick=confirmPay;$("btnSaveShop").onclick=saveShop;$("btnCopyShop").onclick=copyShop;$("btnOpenShop").onclick=openShop;$("btnPrepare").onclick=prepareIntent;$("btnListen").onclick=listen;$("btnPin").onclick=openGate;$("pinInput").addEventListener("keydown",e=>{if(e.key==="Enter")openGate()});$("btnExport").onclick=exportData;$("importFile").onchange=e=>importData(e.target.files[0]);$("btnLogout").onclick=()=>{localStorage.removeItem(SESSION);checkGate()};$("btnSeed").onclick=seed;
+      ensure();renderAll();checkGate();
     })();
   </script>
 </body>
 </html>
+
 
 
 
