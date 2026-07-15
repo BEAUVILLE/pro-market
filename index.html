@@ -4,10 +4,10 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <title>DIGIY MARKET — Accueil commerçant</title>
-  <meta name="description" content="Accueil simple DIGIY MARKET : boutique, QR et partage WhatsApp."/>
+  <meta name="description" content="Accueil simple DIGIY MARKET : produits, boutique, QR et partage WhatsApp."/>
   <meta name="robots" content="noindex,nofollow,noarchive,nosnippet"/>
   <meta name="theme-color" content="#063b2b"/>
-  <meta name="digiy-build" content="market-simple-hub-v1-20260715"/>
+  <meta name="digiy-build" content="market-simple-hub-v2-20260715"/>
 
   <script>
     window.DIGIY_LOGIN_URL = "./pin.html";
@@ -96,13 +96,13 @@
       transition:transform .14s ease,background .14s ease,border-color .14s ease;
     }
 
-    a:first-child{
+    a.primary{
       color:#052012;
       border-color:transparent;
       background:linear-gradient(135deg,var(--green),#bbf7d0);
     }
 
-    a:nth-child(2){
+    a.gold{
       color:#241a00;
       border-color:rgba(214,173,57,.32);
       background:linear-gradient(135deg,#d6ad39,var(--gold));
@@ -112,6 +112,17 @@
       transform:translateY(-1px);
       border-color:rgba(16,37,28,.28);
       background:#fff;
+    }
+
+    a.primary:hover{
+      color:#052012;
+      border-color:transparent;
+      background:linear-gradient(135deg,#2bd368,#c8f9d8);
+    }
+
+    a.gold:hover{
+      color:#241a00;
+      background:linear-gradient(135deg,#dfb94c,#f8d978);
     }
 
     a:active,button:active{transform:none}
@@ -143,8 +154,9 @@
     <h1>Bonjour commerçant.</h1>
 
     <nav aria-label="Actions commerçant">
-      <a href="./fiche.html">Ma boutique</a>
-      <a href="./qr.html">Mon QR boutique</a>
+      <a class="primary" href="./produits.html">Mes produits</a>
+      <a href="./boutique.html">Ma boutique</a>
+      <a class="gold" href="./qr.html">Mon QR boutique</a>
       <button id="shareWhatsApp" type="button">Partager sur WhatsApp</button>
     </nav>
 
