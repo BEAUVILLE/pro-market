@@ -1,37 +1,176 @@
 <!doctype html>
 <html lang="fr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>DIGIY MARKET PRO — Index carré</title>
-<meta name="theme-color" content="#063b2b">
-<meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
-<script>
-  window.DIGIY_LOGIN_URL = "./pin.html";
-  window.DIGIY_MODULE = "MARKET";
-  window.DIGIY_ABOS_MODULE = "MARKET";
-  window.DIGIY_MODULE_LABEL = "Je vends";
-  window.DIGIY_CARNET_INSCRIPTION_URL = "https://digiy-carnet-pro.digiylyfe.com/inscription-pay.html";
-  document.documentElement.style.visibility = "hidden";
-</script>
-<script src="./guard.js?v=market-guard-20260710" onerror="location.replace('./pin.html?reason=guard_missing')"></script>
-<meta name="description" content="DIGIY MARKET PRO — boutique, produits, fiche QR intégrée, QR seul, option PRO CARNET et données.">
-<meta name="digiy-build" content="market-pro-liens-pro-carnet-corriges-20260712">
-<style>
-body{margin:0;min-height:100vh;background:linear-gradient(180deg,#fff8ea,#efe3cc);color:#10251c;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;font-weight:900;padding-bottom:88px}a{color:inherit;text-decoration:none}.wrap{width:min(1080px,calc(100% - 24px));margin:0 auto}.top{position:sticky;top:0;background:rgba(255,250,240,.96);border-bottom:1px solid rgba(16,37,28,.13);z-index:10}.topin{min-height:70px;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand b{display:block;color:#063b2b;font-size:17px}.brand span{display:block;color:#66746e;font-size:12px}.toplinks{display:flex;gap:8px;flex-wrap:wrap}.pill{min-height:40px;border-radius:999px;border:1px solid rgba(16,37,28,.13);background:rgba(255,255,255,.70);display:flex;align-items:center;justify-content:center;padding:0 12px;font-size:12px}.gold{background:linear-gradient(135deg,#d6ad39,#f4cf64)!important;color:#241a00!important;border:0!important}.hero{padding:16px 0}.card{border:1px solid rgba(16,37,28,.13);border-radius:30px;background:#fffaf0;box-shadow:0 18px 42px rgba(6,59,43,.16);padding:18px}.kicker{display:inline-flex;padding:8px 12px;border-radius:999px;background:rgba(214,173,57,.14);color:#063b2b;font-size:12px;letter-spacing:.08em;text-transform:uppercase}h1{margin:14px 0 8px;font-size:clamp(38px,8vw,72px);line-height:.92;letter-spacing:-.06em}p{color:#66746e;line-height:1.5}.doors{display:grid;grid-template-columns:repeat(8,1fr);gap:9px;margin-top:16px}.door{min-height:92px;border-radius:20px;border:1px solid rgba(16,37,28,.13);background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:10px}.door strong{font-size:26px}.door b{font-size:13px}.door small{font-size:11px;color:#66746e}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.panel{border:1px solid rgba(16,37,28,.13);border-radius:24px;background:#fffaf0;padding:15px;margin-bottom:12px}.panel h2{margin:0 0 10px;color:#063b2b;font-size:26px}.btns{display:flex;gap:8px;flex-wrap:wrap}.btn{min-height:50px;border-radius:16px;border:1px solid rgba(16,37,28,.13);background:#fff;display:flex;align-items:center;justify-content:center;padding:0 14px;font-weight:1000}.green{background:linear-gradient(135deg,#22c55e,#bbf7d0)!important;color:#052215!important;border:0!important}.carnet{border:1px solid rgba(214,173,57,.30);background:linear-gradient(135deg,rgba(244,207,100,.18),rgba(34,197,94,.08))}.bottom{position:fixed;left:0;right:0;bottom:0;background:rgba(6,59,43,.97);border-top:1px solid rgba(255,255,255,.14);padding:8px 10px}.bottomin{width:min(820px,100%);margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:7px}.bottom a{min-height:56px;border-radius:15px;display:grid;place-items:center;text-align:center;font-size:11px;color:rgba(248,255,248,.72)}.bottom .active{background:linear-gradient(135deg,#22c55e,#f4cf64);color:#052215}@media(max-width:900px){.doors{grid-template-columns:repeat(4,1fr)}.grid{grid-template-columns:1fr}}@media(max-width:560px){.toplinks{display:none}.doors{grid-template-columns:repeat(2,1fr)}}
-</style>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <title>DIGIY MARKET — Accueil commerçant</title>
+  <meta name="description" content="Accueil simple DIGIY MARKET : boutique, QR et partage WhatsApp."/>
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet"/>
+  <meta name="theme-color" content="#063b2b"/>
+  <meta name="digiy-build" content="market-simple-hub-v1-20260715"/>
+
+  <script>
+    window.DIGIY_LOGIN_URL = "./pin.html";
+    window.DIGIY_MODULE = "MARKET";
+    window.DIGIY_ABOS_MODULE = "MARKET";
+    window.DIGIY_MODULE_LABEL = "Je vends";
+    document.documentElement.style.visibility = "hidden";
+  </script>
+  <script src="./guard.js?v=market-guard-20260710" onerror="location.replace('./pin.html?reason=guard_missing')"></script>
+
+  <style>
+    :root{
+      color-scheme:light;
+      --bg:#efe3cc;
+      --bg2:#fff8ea;
+      --card:rgba(255,250,240,.94);
+      --line:rgba(16,37,28,.14);
+      --text:#10251c;
+      --green:#22c55e;
+      --green-dark:#063b2b;
+      --gold:#f4cf64;
+      --shadow:0 22px 65px rgba(6,59,43,.18);
+    }
+
+    *{box-sizing:border-box}
+
+    html,body{
+      margin:0;
+      min-height:100%;
+    }
+
+    body{
+      min-height:100dvh;
+      display:grid;
+      place-items:center;
+      padding:22px;
+      color:var(--text);
+      font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      background:
+        radial-gradient(800px 470px at 8% -10%,rgba(34,197,94,.18),transparent 60%),
+        radial-gradient(720px 430px at 108% 4%,rgba(244,207,100,.30),transparent 56%),
+        linear-gradient(180deg,var(--bg2),var(--bg));
+    }
+
+    main{
+      width:min(480px,100%);
+      padding:24px;
+      border:1px solid var(--line);
+      border-radius:28px;
+      background:var(--card);
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+    }
+
+    h1{
+      margin:0 0 22px;
+      color:var(--green-dark);
+      font-size:clamp(2rem,9vw,3rem);
+      line-height:1.02;
+      letter-spacing:-.045em;
+    }
+
+    nav{
+      display:grid;
+      gap:12px;
+    }
+
+    a,button{
+      width:100%;
+      min-height:62px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:14px 18px;
+      border:1px solid var(--line);
+      border-radius:18px;
+      color:var(--text);
+      background:rgba(255,255,255,.78);
+      font:inherit;
+      font-size:1rem;
+      font-weight:900;
+      text-align:center;
+      text-decoration:none;
+      cursor:pointer;
+      transition:transform .14s ease,background .14s ease,border-color .14s ease;
+    }
+
+    a:first-child{
+      color:#052012;
+      border-color:transparent;
+      background:linear-gradient(135deg,var(--green),#bbf7d0);
+    }
+
+    a:nth-child(2){
+      color:#241a00;
+      border-color:rgba(214,173,57,.32);
+      background:linear-gradient(135deg,#d6ad39,var(--gold));
+    }
+
+    a:hover,button:hover{
+      transform:translateY(-1px);
+      border-color:rgba(16,37,28,.28);
+      background:#fff;
+    }
+
+    a:active,button:active{transform:none}
+
+    #status{
+      margin:14px 0 0;
+      padding:11px 12px;
+      border:1px solid rgba(214,173,57,.32);
+      border-radius:14px;
+      color:#6b4f00;
+      background:rgba(244,207,100,.20);
+      font-size:.88rem;
+      font-weight:800;
+      line-height:1.4;
+    }
+
+    #status[hidden]{display:none}
+
+    @media(max-width:420px){
+      body{padding:14px}
+      main{padding:19px;border-radius:23px}
+      h1{margin-bottom:18px}
+      a,button{min-height:58px}
+    }
+  </style>
 </head>
 <body>
-<header class="top"><div class="wrap topin"><a class="brand" href="#top"><b>DIGIY MARKET PRO</b><span>Boutique · produits · fiche QR</span></a><div class="toplinks"><a class="pill gold" href="./fiche.html">🪪 Fiche QR</a><a class="pill gold" href="./qr.html">🔳 QR seul</a><a class="pill" href="https://digiy-carnet-pro.digiylyfe.com/inscription-pay.html" target="_blank" rel="noopener noreferrer">📒 PRO CARNET</a></div></div></header>
-<main class="wrap" id="top">
-<section class="hero"><div class="card"><span class="kicker">MARKET PRO · index carré</span><h1>Je vends. Je montre. Je reçois en direct.</h1><p>Chaque vendeur peut avoir sa fiche boutique : nom, produit phare, prix, stock, WhatsApp public, photos URL, vidéo URL et QR intégré. Le QR seul sert à l’impression rapide.</p><nav class="doors"><a class="door gold" href="./fiche.html"><strong>🪪</strong><b>Fiche QR</b><small>QR intégré</small></a><a class="door gold" href="./qr.html"><strong>🔳</strong><b>QR seul</b><small>impression</small></a><a class="door" href="#produits"><strong>🛍️</strong><b>Produits</b><small>liste</small></a><a class="door" href="#admin"><strong>🏪</strong><b>Admin</b><small>boutique</small></a><a class="door" href="#carnet"><strong>📒</strong><b>PRO CARNET</b><small>option séparée</small></a><a class="door" href="#data"><strong>🛡️</strong><b>Données</b><small>export</small></a><a class="door" href="https://market.digiylyfe.com/"><strong>🌍</strong><b>Public</b><small>voir</small></a><a class="door" href="https://digiylyfe.com/"><strong>🦅</strong><b>DIGIY</b><small>retour</small></a></nav></div></section>
-<section class="grid">
-  <div class="panel" id="produits"><h2>🛍️ Produits</h2><p>Ajoute ou gère tes produits depuis la fiche. Cette page sert de porte stable.</p><div class="btns"><a class="btn gold" href="./fiche.html">🪪 Ouvrir fiche boutique avec QR</a><a class="btn" href="./qr.html">🔳 Ouvrir QR seul</a></div></div>
-  <div class="panel" id="admin"><h2>🏪 Admin boutique</h2><p>Nom boutique, produit phare, prix, stock, photos, vidéo, WhatsApp et lien public sont dans la fiche QR.</p><div class="btns"><a class="btn green" href="./fiche.html">Préparer ma fiche</a></div></div>
-  <div class="panel carnet" id="carnet"><h2>📒 PRO CARNET · abonnement séparé</h2><p>MARKET PRO garde la boutique, les produits et la vente directe. PRO CARNET n’est pas inclus automatiquement dans l’abonnement MARKET.</p><div class="btns"><a class="btn gold" href="https://digiy-carnet-pro.digiylyfe.com/inscription-pay.html" target="_blank" rel="noopener noreferrer">📒 S’inscrire à PRO CARNET</a></div></div>
-  <div class="panel" id="data"><h2>🛡️ Données</h2><p>La fiche garde la route simple : lien public propre, paiement direct au vendeur, 0% commission.</p></div>
-</section>
-</main>
-<nav class="bottom"><div class="bottomin"><a class="active" href="#top">🏠<br>Index</a><a href="./fiche.html">🪪<br>Fiche QR</a><a href="./qr.html">🔳<br>QR seul</a><a href="#carnet">📒<br>Carnet</a><a href="https://digiylyfe.com/">🦅<br>DIGIY</a></div></nav>
+  <main>
+    <h1>Bonjour commerçant.</h1>
+
+    <nav aria-label="Actions commerçant">
+      <a href="./fiche.html">Ma boutique</a>
+      <a href="./qr.html">Mon QR boutique</a>
+      <button id="shareWhatsApp" type="button">Partager sur WhatsApp</button>
+    </nav>
+
+    <p id="status" role="status" aria-live="polite" hidden></p>
+  </main>
+
+  <script>
+    (() => {
+      "use strict";
+
+      const PUBLIC_MARKET_URL = "https://market.digiylyfe.com/";
+      const shareButton = document.getElementById("shareWhatsApp");
+      const statusBox = document.getElementById("status");
+
+      function setStatus(message){
+        statusBox.textContent = message || "";
+        statusBox.hidden = !message;
+      }
+
+      shareButton.addEventListener("click", () => {
+        const message = "Bonjour, voici ma boutique DIGIY MARKET : " + PUBLIC_MARKET_URL;
+        const whatsappUrl = "https://wa.me/?text=" + encodeURIComponent(message);
+        setStatus("Ouverture de WhatsApp…");
+        window.location.href = whatsappUrl;
+      });
+    })();
+  </script>
 </body>
 </html>
