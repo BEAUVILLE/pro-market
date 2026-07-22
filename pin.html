@@ -6,7 +6,7 @@
   <title>Accès MARKET • DIGIY</title>
   <meta name="theme-color" content="#020617"/>
   <meta name="robots" content="noindex,nofollow"/>
-  <meta name="digiy-version" content="market-pin-auth-exact-1bf6a80-20260722"/>
+  <meta name="digiy-version" content="market-pin-digiy-verify-pin-20260722"/>
 
   <script>
     window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
@@ -17,7 +17,7 @@
     window.DIGIY_MODULE_ICON = "🛍️";
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-auth-exact-1bf6a80-20260722"></script>
+  <script src="./guard.js?v=market-auth-rpc-signature-fix-20260722"></script>
 
   <style>
     :root{--bg:#1e293b;--bg2:#334155;--line:rgba(148,163,184,.20);--ink:#f9fafb;--muted:#94a3b8;--gold:#facc15;--green:#22c55e;--red:#ef4444}
@@ -60,38 +60,80 @@
 <script>
 (() => {
   "use strict";
-  const $ = id => document.getElementById(id);
-  let pin = "", confirmedPhone = "", verifying = false;
-  const norm = value => String(value || "").replace(/\D/g, "");
-  const fmt = value => value.length === 12 && value.startsWith("221") ? value.slice(0,3)+" "+value.slice(3,5)+" "+value.slice(5,8)+" "+value.slice(8,10)+" "+value.slice(10) : value;
-  const show = (el,msg,kind) => { el.textContent = msg; el.className = "status show " + (kind || "spin"); };
-  const clear = el => { el.textContent = ""; el.className = "status"; };
-  const updateDots = () => { for(let i=0;i<4;i++) $("d"+i).classList.toggle("filled",i<pin.length); $("btnEnter").disabled = verifying || pin.length !== 4; };
-  const busy = active => { verifying=active; $("btnEnter").disabled=active || pin.length!==4; $("keypad").querySelectorAll("button").forEach(button=>button.disabled=active); };
+  const MODULE_ALIASES=["MARKET","market","DIGIY_MARKET","MARKET_PRO","QR_PRO","qr_pro"];
+  const $=id=>document.getElementById(id);
+  let pin="",confirmedPhone="",verifying=false;
+  const digits=value=>String(value||"").replace(/\D/g,"");
+  const phoneVariants=value=>{const p=digits(value);const list=[];if(p.length===9)list.push("221"+p,p);else{list.push(p);if(p.startsWith("221")&&p.length===12)list.push(p.slice(3));}return [...new Set(list.filter(Boolean))];};
+  const fmt=value=>value.length===12&&value.startsWith("221")?value.slice(0,3)+" "+value.slice(3,5)+" "+value.slice(5,8)+" "+value.slice(8,10)+" "+value.slice(10):value;
+  const truth=value=>value===true||value===1||["t","true","1","ok","yes"].includes(String(value??"").trim().toLowerCase());
+  const show=(el,msg,kind)=>{el.textContent=msg;el.className="status show "+(kind||"spin");};
+  const clear=el=>{el.textContent="";el.className="status";};
+  const updateDots=()=>{for(let i=0;i<4;i++){const dot=$("d"+i);dot.classList.toggle("filled",i<pin.length);dot.classList.remove("err");}$("btnEnter").disabled=verifying||pin.length!==4;};
+  const busy=active=>{verifying=active;$("btnEnter").disabled=active||pin.length!==4;$("keypad").querySelectorAll("button").forEach(button=>button.disabled=active);};
 
-  $("phoneInput").addEventListener("input", () => { const d=norm($("phoneInput").value); $("btnContinue").disabled=!(d.length>=9&&d.length<=14); clear($("status1")); });
-  $("btnContinue").onclick = () => { const d=norm($("phoneInput").value); if(!(d.length>=9&&d.length<=14)){ show($("status1"),"Numéro incomplet.","err"); return; } confirmedPhone=d; $("phoneDisplay").textContent=fmt(d); pin=""; updateDots(); $("step1").classList.remove("active"); $("step2").classList.add("active"); };
-  $("btnBack").onclick = () => { pin=""; updateDots(); clear($("status2")); $("step2").classList.remove("active"); $("step1").classList.add("active"); };
-  $("keypad").addEventListener("click", event => { if(verifying)return; const button=event.target.closest("button[data-v]"); if(!button)return; const value=button.dataset.v; pin=value==="DEL"?pin.slice(0,-1):(pin.length<4?pin+value:pin); updateDots(); clear($("status2")); if(pin.length===4)setTimeout(verify,120); });
-  $("btnEnter").onclick = verify;
+  function parseResult(data,fallbackPhone,module){
+    let row=Array.isArray(data)?data[0]:data;
+    if(row===true||row===1)return{ok:true,phone:fallbackPhone,module};
+    if(typeof row==="string"){
+      const text=row.trim();
+      if(truth(text))return{ok:true,phone:fallbackPhone,module};
+      if(text.startsWith("(")&&text.endsWith(")")){
+        const parts=text.slice(1,-1).split(",").map(value=>value.trim().replace(/^"|"$/g,""));
+        return{ok:truth(parts[0]),module:parts[1]||module,phone:digits(parts[2]||fallbackPhone),label:parts[3]||"",slug:parts[5]||""};
+      }
+      try{row=JSON.parse(text);}catch(_){return{ok:false};}
+    }
+    if(!row||typeof row!=="object")return{ok:false};
+    row=row.data||row.result||row.session||row;
+    return{
+      ok:truth(row.ok)||truth(row.success)||truth(row.valid)||truth(row.allowed)||truth(row.access_ok)||truth(row.has_access),
+      module:String(row.module||row.module_code||module||""),
+      phone:digits(row.phone||row.market_phone||fallbackPhone),
+      slug:String(row.slug||row.workspace_slug||row.shop_slug||""),
+      label:String(row.label||""),
+      reason:String(row.reason||"")
+    };
+  }
+
+  async function verifyPin(phoneValue,pinValue){
+    const guard=window.DIGIY_GUARD;
+    const client=guard?.getSb?.()||window.supabase?.createClient?.(window.DIGIY_SUPABASE_URL,window.DIGIY_SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
+    if(!client)throw new Error("Supabase indisponible.");
+    let lastError=null;
+    for(const phone of phoneVariants(phoneValue)){
+      for(const module of MODULE_ALIASES){
+        const {data,error}=await client.rpc("digiy_verify_pin",{p_phone:phone,p_module:module,p_pin:String(pinValue)});
+        if(error){lastError=error;continue;}
+        const result=parseResult(data,phone,module);
+        if(!result.ok)continue;
+        const returnedModule=String(result.module||module).toUpperCase();
+        if(returnedModule&&!MODULE_ALIASES.map(value=>value.toUpperCase()).includes(returnedModule))continue;
+        return result;
+      }
+    }
+    return{ok:false,error:lastError?.message||"Code ou accès MARKET non reconnu."};
+  }
+
+  $("phoneInput").addEventListener("input",()=>{const d=digits($("phoneInput").value);$("btnContinue").disabled=!(d.length>=9&&d.length<=14);clear($("status1"));});
+  $("btnContinue").onclick=()=>{const d=digits($("phoneInput").value);if(!(d.length>=9&&d.length<=14)){show($("status1"),"Numéro incomplet.","err");return;}confirmedPhone=d;$("phoneDisplay").textContent=fmt(d);pin="";updateDots();$("step1").classList.remove("active");$("step2").classList.add("active");};
+  $("btnBack").onclick=()=>{pin="";updateDots();clear($("status2"));$("step2").classList.remove("active");$("step1").classList.add("active");};
+  $("keypad").addEventListener("click",event=>{if(verifying)return;const button=event.target.closest("button[data-v]");if(!button)return;const value=button.dataset.v;pin=value==="DEL"?pin.slice(0,-1):(pin.length<4?pin+value:pin);updateDots();clear($("status2"));if(pin.length===4)setTimeout(verify,120);});
+  $("btnEnter").onclick=verify;
 
   async function verify(){
-    if(verifying || pin.length!==4 || !confirmedPhone) return;
-    busy(true); show($("status2"),"Vérification en cours…","spin");
+    if(verifying||pin.length!==4||!confirmedPhone)return;
+    busy(true);show($("status2"),"Vérification en cours…","spin");
     try{
+      const result=await verifyPin(confirmedPhone,pin);
+      if(!result?.ok){pin="";busy(false);updateDots();for(let i=0;i<4;i++)$("d"+i).classList.add("err");show($("status2"),result?.error||"Code ou accès MARKET non reconnu.","err");return;}
+      const finalPhone=digits(result.phone||confirmedPhone);
       const guard=window.DIGIY_GUARD;
-      if(!guard || typeof guard.loginWithPin!=="function") throw new Error("market_auth_unavailable");
-      const result=await guard.loginWithPin(confirmedPhone,pin);
-      if(!result || result.ok!==true){
-        pin=""; busy(false); updateDots(); for(let i=0;i<4;i++)$("d"+i).classList.add("err");
-        show($("status2"),result?.error || "Accès refusé. Vérifie le numéro ou le PIN.","err");
-        return;
-      }
+      if(!guard||typeof guard.saveSession!=="function")throw new Error("Session MARKET indisponible.");
+      guard.saveSession({slug:result.slug||(finalPhone?"market-"+finalPhone:""),phone:finalPhone,label:result.label||"",source:"digiy_verify_pin",reason:result.reason||"market_pin_ok"});
       show($("status2"),"✅ Accès validé. Ouverture de JE VENDS…","ok");
       setTimeout(()=>location.replace("./cockpit.html"),300);
-    }catch(error){
-      pin=""; busy(false); updateDots(); show($("status2"),"Vérification indisponible. Recharge la page et réessaie.","err"); console.error("[MARKET PIN]",error);
-    }
+    }catch(error){pin="";busy(false);updateDots();show($("status2"),error?.message||"Vérification indisponible. Recharge la page.","err");console.error("[MARKET PIN]",error);}
   }
 })();
 </script>
