@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
 <meta name="theme-color" content="#063b2b">
-<meta name="digiy-build" content="market-fiche-qr-astou-public-v3-20260722">
+<meta name="digiy-build" content="market-fiche-qr-generic-cache-v4-20260722">
 <title>PRO MARKET — Ma fiche et mon QR</title>
 <script>
 window.DIGIY_MODULE="MARKET";
@@ -19,7 +19,7 @@ window.DIGIY_SUPABASE_ANON=window.DIGIY_SUPABASE_ANON_KEY;
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="./guard.js?v=market-guard-20260722" onerror="location.replace('./pin.html')"></script>
 <style>
-:root{--bg:#052f22;--bg2:#063b2b;--paper:#fffaf0;--ink:#10251c;--muted:#68746e;--gold:#f4cf64;--green:#22c55e;--line:rgba(16,37,28,.14);--red:#b91c1c}*{box-sizing:border-box}body{margin:0;min-height:100dvh;padding:14px 12px calc(28px + env(safe-area-inset-bottom,0px));font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#fff;background:radial-gradient(760px 430px at 8% -8%,rgba(244,207,100,.24),transparent 60%),radial-gradient(680px 380px at 100% 0%,rgba(34,197,94,.17),transparent 58%),linear-gradient(180deg,var(--bg2),var(--bg))}.wrap{width:min(620px,100%);margin:0 auto}.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}.top a,.top button{min-height:46px;padding:9px 13px;border-radius:15px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#fff;text-decoration:none;font:inherit;font-weight:950}.head,.card{padding:20px;border:1px solid rgba(244,207,100,.28);border-radius:26px;background:rgba(255,255,255,.07);box-shadow:0 18px 46px rgba(0,0,0,.28)}.card{margin-top:14px;text-align:center}.kicker{color:#fff1a8;font-size:12px;font-weight:1000;letter-spacing:.12em;text-transform:uppercase}h1{margin:6px 0 7px;font-size:clamp(36px,9vw,56px);line-height:.98;letter-spacing:-.05em}.lead{margin:0;color:rgba(255,255,255,.78);font-weight:800;line-height:1.48}.shopName{margin-top:14px;font-size:24px;font-weight:1000;color:#fff7c2}.qrBox{margin:16px auto 0;width:min(360px,100%);padding:14px;border-radius:24px;background:#fff}.qrBox img{display:block;width:100%;height:auto}.linkLabel{margin-top:15px;color:#fff1a8;font-size:13px;font-weight:1000}.linkValue{margin-top:6px;color:#dbeafe;font-size:14px;font-weight:850;line-height:1.45;word-break:break-all}.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:15px}.actions a,.actions button{min-height:54px;border-radius:17px;border:1px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;text-align:center;padding:10px 13px;color:#fff;text-decoration:none;font:inherit;font-weight:1000;background:rgba(255,255,255,.08)}.actions .main{background:linear-gradient(135deg,var(--gold),var(--green));color:#07150f;border:0}.status{margin-top:14px;padding:12px 14px;border-radius:16px;border:1px solid rgba(244,207,100,.30);background:rgba(0,0,0,.18);color:#fde68a;font-weight:900;line-height:1.45}.status.err{border-color:rgba(239,68,68,.40);color:#fecaca}.status.ok{border-color:rgba(34,197,94,.40);color:#bbf7d0}.status[hidden]{display:none}.foot{margin-top:15px;text-align:center;color:rgba(255,255,255,.68);font-size:12px;font-weight:800;line-height:1.45}@media(max-width:500px){body{padding:0}.wrap{width:100%}.head,.card{border-radius:0}.actions{grid-template-columns:1fr}}
+:root{--bg:#052f22;--bg2:#063b2b;--gold:#f4cf64;--green:#22c55e}*{box-sizing:border-box}body{margin:0;min-height:100dvh;padding:14px 12px calc(28px + env(safe-area-inset-bottom,0px));font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#fff;background:radial-gradient(760px 430px at 8% -8%,rgba(244,207,100,.24),transparent 60%),radial-gradient(680px 380px at 100% 0%,rgba(34,197,94,.17),transparent 58%),linear-gradient(180deg,var(--bg2),var(--bg))}.wrap{width:min(620px,100%);margin:0 auto}.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}.top a,.top button{min-height:46px;padding:9px 13px;border-radius:15px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#fff;text-decoration:none;font:inherit;font-weight:950}.head,.card{padding:20px;border:1px solid rgba(244,207,100,.28);border-radius:26px;background:rgba(255,255,255,.07);box-shadow:0 18px 46px rgba(0,0,0,.28)}.card{margin-top:14px;text-align:center}.kicker{color:#fff1a8;font-size:12px;font-weight:1000;letter-spacing:.12em;text-transform:uppercase}h1{margin:6px 0 7px;font-size:clamp(36px,9vw,56px);line-height:.98;letter-spacing:-.05em}.lead{margin:0;color:rgba(255,255,255,.78);font-weight:800;line-height:1.48}.shopName{margin-top:14px;font-size:24px;font-weight:1000;color:#fff7c2}.qrBox{margin:16px auto 0;width:min(360px,100%);padding:14px;border-radius:24px;background:#fff}.qrBox img{display:block;width:100%;height:auto}.linkLabel{margin-top:15px;color:#fff1a8;font-size:13px;font-weight:1000}.linkValue{margin-top:6px;color:#dbeafe;font-size:14px;font-weight:850;line-height:1.45;word-break:break-all}.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:15px}.actions a,.actions button{min-height:54px;border-radius:17px;border:1px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;text-align:center;padding:10px 13px;color:#fff;text-decoration:none;font:inherit;font-weight:1000;background:rgba(255,255,255,.08)}.actions .main{background:linear-gradient(135deg,var(--gold),var(--green));color:#07150f;border:0}.status{margin-top:14px;padding:12px 14px;border-radius:16px;border:1px solid rgba(244,207,100,.30);background:rgba(0,0,0,.18);color:#fde68a;font-weight:900;line-height:1.45}.status.err{border-color:rgba(239,68,68,.40);color:#fecaca}.status.ok{border-color:rgba(34,197,94,.40);color:#bbf7d0}.foot{margin-top:15px;text-align:center;color:rgba(255,255,255,.68);font-size:12px;font-weight:800;line-height:1.45}@media(max-width:500px){body{padding:0}.wrap{width:100%}.head,.card{border-radius:0}.actions{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -28,7 +28,7 @@ window.DIGIY_SUPABASE_ANON=window.DIGIY_SUPABASE_ANON_KEY;
   <section class="head">
     <div class="kicker">PRO MARKET · FICHE PUBLIQUE</div>
     <h1>Ma fiche et mon QR</h1>
-    <p class="lead">Le QR reprend la fiche publique du compte MARKET ouvert. Aucun téléphone, code PIN ou espace PRO n’est placé dans le lien.</p>
+    <p class="lead">Le QR reprend uniquement le lien public enregistré dans le compte MARKET ouvert. Aucun téléphone, code PIN ou espace PRO n’est placé dans le lien.</p>
     <p class="status" id="status" role="status" aria-live="polite">Recherche de ta boutique publique…</p>
   </section>
   <section class="card" id="result" hidden>
@@ -43,14 +43,13 @@ window.DIGIY_SUPABASE_ANON=window.DIGIY_SUPABASE_ANON_KEY;
       <button id="shareLink" type="button">Partager</button>
     </div>
   </section>
-  <p class="foot">Le client arrive uniquement sur la fiche ou la vitrine publique du commerçant connecté.</p>
+  <p class="foot">Le moule reste vierge. Chaque QR vient uniquement des données du commerçant connecté.</p>
 </main>
 <script>
 (async()=>{
 "use strict";
 const $=id=>document.getElementById(id);
 const PUBLIC_ORIGIN="https://market.digiylyfe.com";
-const ASTOU_PUBLIC_URL="https://astou-boutique.digiylyfe.com/";
 let currentUrl="";
 const digits=value=>String(value||"").replace(/\D/g,"");
 const cleanSlug=value=>String(value||"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"").replace(/-+/g,"-").replace(/^-|-$/g,"");
@@ -66,7 +65,7 @@ function safePublicUrl(value){
     const host=url.hostname.toLowerCase();
     const path=url.pathname.toLowerCase();
     if(host==="pro-market.digiylyfe.com"||host.startsWith("pro-"))return "";
-    if(["pin.html","cockpit.html","admin.html","produits.html","boutique.html","fiche.html?v="].some(item=>path.includes(item)))return "";
+    if(["pin.html","cockpit.html","admin.html","produits.html","boutique.html"].some(item=>path.includes(item)))return "";
     ["phone","tel","pin","code","session","token","access","owner_phone"].forEach(key=>url.searchParams.delete(key));
     return url.toString();
   }catch(_){return ""}
@@ -76,22 +75,23 @@ function collect(value,out={slugs:[],names:[],urls:[]},depth=0){
   if(value==null||depth>6)return out;
   if(Array.isArray(value)){value.forEach(item=>collect(item,out,depth+1));return out}
   if(typeof value!=="object")return out;
-  const slugFields=["slug","workspace_slug","shop_slug","public_slug","market_slug","boutique_slug"];
-  const nameFields=["shop_name","business_name","display_name","name"];
-  const urlFields=["public_url","website_url","site_url","qr_target_url","public_link","url"];
-  slugFields.forEach(key=>{const slug=cleanSlug(value[key]);if(slug&&!phoneLike(slug)&&!out.slugs.includes(slug))out.slugs.push(slug)});
-  nameFields.forEach(key=>{const name=String(value[key]||"").trim();if(name&&!out.names.includes(name))out.names.push(name)});
-  urlFields.forEach(key=>{const url=safePublicUrl(value[key]);if(url&&!out.urls.includes(url))out.urls.push(url)});
+  ["slug","workspace_slug","shop_slug","public_slug","market_slug","boutique_slug"].forEach(key=>{const slug=cleanSlug(value[key]);if(slug&&!phoneLike(slug)&&!out.slugs.includes(slug))out.slugs.push(slug)});
+  ["shop_name","business_name","display_name","name"].forEach(key=>{const name=String(value[key]||"").trim();if(name&&!out.names.includes(name))out.names.push(name)});
+  ["public_url","website_url","site_url","shop_url","boutique_url","qr_target_url","public_link","url"].forEach(key=>{const url=safePublicUrl(value[key]);if(url&&!out.urls.includes(url))out.urls.push(url)});
   Object.values(value).forEach(item=>{if(item&&typeof item==="object")collect(item,out,depth+1)});
   return out;
 }
 function merge(target,source){["slugs","names","urls"].forEach(key=>(source[key]||[]).forEach(value=>{if(value&&!target[key].includes(value))target[key].push(value)}));return target}
+function cachedPublicUrl(candidates){
+  for(const candidate of candidates){
+    const key="digiy_market_public_url_"+candidate;
+    const url=safePublicUrl(read(key));
+    if(url)return url;
+  }
+  return "";
+}
 function qrUrl(value,size){return "https://api.qrserver.com/v1/create-qr-code/?size="+size+"x"+size+"&margin=18&data="+encodeURIComponent(value)}
 async function rpcCollect(client,name,args){try{const {data,error}=await client.rpc(name,args);if(error||!data)return {slugs:[],names:[],urls:[]};return collect(data)}catch(_){return {slugs:[],names:[],urls:[]}}}
-function astouBridge(found){
-  const names=(found.names||[]).map(cleanSlug);
-  return names.some(name=>name==="astou-market"||name==="astou-boutique") ? ASTOU_PUBLIC_URL : "";
-}
 function render(url,name){
   const safe=safePublicUrl(url);
   if(!safe)throw new Error("lien_public_invalide");
@@ -132,18 +132,16 @@ async function load(){
       merge(found,await rpcCollect(client,"digiy_market_get_cockpit_by_slug",{p_slug:candidate}));
       merge(found,await rpcCollect(client,"digiy_market_public_shop_by_slug",{p_slug:candidate}));
       merge(found,await rpcCollect(client,"digiy_market_get_public_shop_by_slug",{p_slug:candidate}));
-      if(found.urls.length||found.names.length||found.slugs.length)break;
     }
 
     const phone=digits(session.phone||guard.getPhone?.()||read("digiy_market_phone")||read("digiy_market_last_phone"));
-    const identities=[phone,...candidates].filter(Boolean);
-    for(const identity of identities){
+    for(const identity of [phone,...candidates].filter(Boolean)){
       merge(found,await rpcCollect(client,"digiy_market_resolve_identity",{p_identity:identity}));
       if(phone)merge(found,await rpcCollect(client,"digiy_market_resolve_identity",{p_phone:phone}));
-      if(found.urls.length||found.names.length||found.slugs.length)break;
     }
 
-    let target=found.urls[0]||astouBridge(found);
+    found.slugs.forEach(addCandidate);
+    let target=found.urls[0]||cachedPublicUrl(candidates);
     const publicSlug=found.slugs[0]||"";
     if(!target&&publicSlug){const url=new URL("/fiche.html",PUBLIC_ORIGIN);url.searchParams.set("slug",publicSlug);target=url.toString()}
     if(!target)throw new Error("lien_public_absent");
@@ -151,7 +149,7 @@ async function load(){
   }catch(error){
     currentUrl="";
     status.className="status err";
-    status.textContent="La boutique est bien ouverte, mais son lien public n’a pas encore été retrouvé.";
+    status.textContent="Aucun lien public n’est encore enregistré pour ce compte. Ouvre Ma boutique, colle l’adresse dans Lien vitrine premium / site officiel, puis clique sur Enregistrer ce lien.";
     console.error("[PRO MARKET QR]",error);
   }finally{$("reload").disabled=false}
 }
