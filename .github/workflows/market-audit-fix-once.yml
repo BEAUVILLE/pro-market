@@ -1,0 +1,159 @@
+name: MARKET audit fix once
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/market-audit-fix-once.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Corriger MARKET sans toucher au PIN
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          products_path = Path('produits.html')
+          boutique_path = Path('boutique.html')
+          index_path = Path('index.html')
+          qr_path = Path('qr.html')
+
+          products = products_path.read_text(encoding='utf-8')
+          boutique = boutique_path.read_text(encoding='utf-8')
+          index = index_path.read_text(encoding='utf-8')
+          qr = qr_path.read_text(encoding='utf-8')
+
+          # 1) Produits : retirer entièrement la démo Astou injectée dans la liste réelle.
+          products, n_demo_block = re.subn(
+              r'\n  const ASTOU_DEMO_PRODUCTS = \[[\s\S]*?\n  function shouldShowAstouDemo\(\)\{[\s\S]*?\n  \}\n',
+              '\n',
+              products,
+              count=1,
+          )
+          assert n_demo_block == 1, f'bloc démo Astou attendu 1, trouvé {n_demo_block}'
+
+          products, n_demo_inject = re.subn(
+              r'\n    if \(shouldShowAstouDemo\(\)\)\{\n      const existing = new Set\(rows\.map\(r => String\(r\.id\)\)\);\n      ASTOU_DEMO_PRODUCTS\.forEach\(p => \{ if\(!existing\.has\(String\(p\.id\)\)\) rows\.push\(p\); \}\);\n    \}\n',
+              '\n',
+              products,
+              count=1,
+          )
+          assert n_demo_inject == 1, f'injection démo attendue 1, trouvée {n_demo_inject}'
+
+          products = products.replace('      if (p.is_demo) tags.push(\'<span class="tag warn">Démo premium</span>\');\n', '')
+          products = re.sub(
+              r'\n\s*\$\{p\.is_demo \? `<div class="productDemoRibbon">[\s\S]*?</div>` : ``\}',
+              '',
+              products,
+              count=1,
+          )
+          products, n_actions = re.subn(
+              r'\$\{p\.is_demo\s*\?\s*`[\s\S]*?`\s*:\s*`([\s\S]*?)`\s*\}',
+              lambda m: m.group(1),
+              products,
+              count=1,
+          )
+          assert n_actions == 1, f'branche actions démo attendue 1, trouvée {n_actions}'
+
+          # 2) PRO CARNET : aucune donnée financière dans l’URL ; la note reste locale dans MARKET.
+          products = products.replace('MARKET → PAY', 'MARKET → PRO CARNET')
+          products = products.replace('puis tu l’envoies vers <b>Mon argent</b>', 'puis tu l’enregistres dans <b>PRO CARNET</b>')
+          products = products.replace('puis peuvent être envoyées vers Mon argent', 'puis peuvent être saisies dans PRO CARNET')
+          products = products.replace('💰 Envoyer vers Mon argent', '📒 Ouvrir PRO CARNET')
+          products = products.replace('Le bouton Mon argent est prêt', 'Le bouton PRO CARNET est prêt')
+          products = products.replace('PAY PRO s’ouvre sans identifiant visible. Le pro confirme avant l’enregistrement final.', 'PRO CARNET s’ouvre par sa porte sécurisée. La note reste visible ici pour la saisie finale.')
+          products = products.replace('PAY s’ouvre prérempli. Le pro confirme avant l’enregistrement final.', 'PRO CARNET s’ouvre par sa porte sécurisée. La note reste visible ici pour la saisie finale.')
+          products = products.replace('return "https://pro-pay.digiylyfe.com/admin.html?" + qsPay.toString();', 'return "https://pro-carnet.digiylyfe.com/pin.html";')
+
+          # 3) Actualiser la signature du garde sur les grosses pages.
+          products = products.replace('./guard.js?v=market-guard-20260531', './guard.js?v=market-guard-20260722-audit-v1')
+          boutique = boutique.replace('./guard.js?v=market-guard-20260531', './guard.js?v=market-guard-20260722-audit-v1')
+
+          # 4) Boutique : retirer uniquement les interfaces et scripts de voix synthétique.
+          boutique, n_audio_box = re.subn(
+              r'\n\s*<div class="guideAudioBox"[\s\S]*?</div>\n\s*</section>',
+              '\n    </section>',
+              boutique,
+              count=1,
+          )
+          assert n_audio_box == 1, f'boîte audio attendue 1, trouvée {n_audio_box}'
+
+          boutique, n_audio_script = re.subn(
+              r'\n\s*<script>\s*\(function\(\)\{\s*"use strict";\s*const AUDIO_TEXT =[\s\S]*?</script>',
+              '',
+              boutique,
+              count=1,
+          )
+          assert n_audio_script == 1, f'script audio principal attendu 1, trouvé {n_audio_script}'
+
+          boutique = re.sub(r'\n\s*const liveText = ".*?";\n', '\n', boutique, count=1)
+          boutique, n_live_audio = re.subn(
+              r'\n\s*let playing = false;[\s\S]*?\n\s*\$\("btnLiveCopy"\)',
+              '\n\n      $("btnLiveCopy")',
+              boutique,
+              count=1,
+          )
+          assert n_live_audio == 1, f'bloc audio visio attendu 1, trouvé {n_live_audio}'
+          boutique = re.sub(r'\n\s*\$\("btnLiveAudio"\)\?\.addEventListener\("click", playAudio\);', '', boutique, count=1)
+          boutique = re.sub(r'\n\s*window\.addEventListener\("beforeunload", stopAudio\);', '', boutique, count=1)
+          boutique = re.sub(r'\n\s*document\.addEventListener\("visibilitychange", function\(\)\{ if\(document\.hidden\) stopAudio\(\); \}\);', '', boutique, count=1)
+          boutique = re.sub(r'<button[^>]*id="btnLiveAudio"[^>]*>[\s\S]*?</button>', '', boutique, count=1)
+          boutique = boutique.replace('placeholder="Ex : Astou Market"', 'placeholder="Ex : Ma boutique"')
+          boutique = boutique.replace('placeholder="Ex : Astou"', 'placeholder="Ex : Responsable"')
+
+          # 5) Forcer les nouvelles pages depuis l’accueil et la route QR.
+          index = index.replace('market-simple-hub-v3-20260722', 'market-simple-hub-v4-audit-20260722')
+          index = index.replace('href="./produits.html"', 'href="./produits.html?v=market-audit-20260722-v1"')
+          index = index.replace('href="./boutique.html"', 'href="./boutique.html?v=market-audit-20260722-v1"')
+          index = index.replace('href="./qr.html"', 'href="./qr.html?v=market-audit-20260722-v1"')
+          qr = qr.replace('0;url=./fiche.html#qr', '0;url=./fiche.html?v=market-audit-20260722-v1#qr')
+          qr = qr.replace('href="./fiche.html#qr"', 'href="./fiche.html?v=market-audit-20260722-v1#qr"')
+          qr = qr.replace('market-qr-vers-fiche-protegee-20260716', 'market-qr-vers-fiche-protegee-audit-20260722')
+
+          # Assertions de sécurité : aucun PIN ni RPC d’accès n’est modifié par ce script.
+          assert 'Astou Boutique' not in products
+          assert '221771342889' not in products
+          assert 'pro-pay.digiylyfe.com' not in products
+          assert 'speechSynthesis' not in boutique
+          assert './guard.js?v=market-guard-20260722-audit-v1' in products
+          assert './guard.js?v=market-guard-20260722-audit-v1' in boutique
+
+          products_path.write_text(products, encoding='utf-8')
+          boutique_path.write_text(boutique, encoding='utf-8')
+          index_path.write_text(index, encoding='utf-8')
+          qr_path.write_text(qr, encoding='utf-8')
+          PY
+
+      - name: Vérifications finales
+        shell: bash
+        run: |
+          set -euo pipefail
+          ! grep -nE 'Astou Boutique|221771342889|pro-pay\.digiylyfe\.com' produits.html
+          ! grep -n 'speechSynthesis' boutique.html
+          grep -n 'pro-carnet.digiylyfe.com/pin.html' produits.html
+          grep -n 'market-guard-20260722-audit-v1' produits.html boutique.html
+          git diff --check
+          git diff -- pin.html guard-core.js
+          test -z "$(git diff --name-only -- pin.html guard-core.js)"
+
+      - name: Commit des corrections
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add produits.html boutique.html index.html qr.html
+          git diff --cached --quiet && exit 0
+          git commit -m 'Corrige les P1 MARKET sans toucher au PIN'
+          git push origin main
