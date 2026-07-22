@@ -7,7 +7,7 @@
   <meta name="description" content="Accueil simple DIGIY MARKET : produits, boutique, QR et partage WhatsApp."/>
   <meta name="robots" content="noindex,nofollow,noarchive,nosnippet"/>
   <meta name="theme-color" content="#063b2b"/>
-  <meta name="digiy-build" content="market-simple-hub-v2-20260715"/>
+  <meta name="digiy-build" content="market-simple-hub-v3-20260722"/>
 
   <script>
     window.DIGIY_LOGIN_URL = "./pin.html";
@@ -16,7 +16,7 @@
     window.DIGIY_MODULE_LABEL = "Je vends";
     document.documentElement.style.visibility = "hidden";
   </script>
-  <script src="./guard.js?v=market-guard-20260710" onerror="location.replace('./pin.html?reason=guard_missing')"></script>
+  <script src="./guard.js?v=market-guard-20260722" onerror="location.replace('./pin.html?reason=guard_missing')"></script>
 
   <style>
     :root{
@@ -126,6 +126,7 @@
     }
 
     a:active,button:active{transform:none}
+    button:disabled{opacity:.55;cursor:not-allowed}
 
     #status{
       margin:14px 0 0;
@@ -137,6 +138,12 @@
       font-size:.88rem;
       font-weight:800;
       line-height:1.4;
+    }
+
+    #status.error{
+      color:#991b1b;
+      border-color:rgba(185,28,28,.28);
+      background:rgba(254,226,226,.76);
     }
 
     #status[hidden]{display:none}
@@ -167,20 +174,67 @@
     (() => {
       "use strict";
 
-      const PUBLIC_MARKET_URL = "https://market.digiylyfe.com/";
+      const PUBLIC_ORIGIN = "https://market.digiylyfe.com";
       const shareButton = document.getElementById("shareWhatsApp");
       const statusBox = document.getElementById("status");
+      const digits = value => String(value || "").replace(/\D/g, "");
+      const cleanSlug = value => String(value || "").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, "").replace(/-+/g, "-").replace(/^-|-$/g, "");
+      const phoneLike = value => /\d{7,}/.test(cleanSlug(value));
 
-      function setStatus(message){
+      function setStatus(message, error){
         statusBox.textContent = message || "";
         statusBox.hidden = !message;
+        statusBox.classList.toggle("error", !!error);
       }
 
-      shareButton.addEventListener("click", () => {
-        const message = "Bonjour, voici ma boutique DIGIY MARKET : " + PUBLIC_MARKET_URL;
-        const whatsappUrl = "https://wa.me/?text=" + encodeURIComponent(message);
-        setStatus("Ouverture de WhatsApp…");
-        window.location.href = whatsappUrl;
+      function extractSlug(value){
+        let row = Array.isArray(value) ? value[0] : value;
+        if(!row || typeof row !== "object") return "";
+        row = row.data || row.profile || row.shop || row;
+        return cleanSlug(row.slug || row.workspace_slug || row.shop_slug || row.public_slug || "");
+      }
+
+      async function resolvePublicSlug(){
+        const guard = window.DIGIY_GUARD;
+        if(!guard) return "";
+        const session = await guard.ready();
+        if(!guard.isAuthenticated() || !session?.access_ok) return "";
+        let slug = cleanSlug(session.slug);
+        const phone = digits(session.phone);
+        const client = guard.getSb();
+        if(client){
+          const attempts = [];
+          if(phone) attempts.push({p_phone:phone},{p_identity:phone});
+          if(slug) attempts.push({p_slug:slug},{p_identity:slug});
+          for(const args of attempts){
+            try{
+              const {data,error} = await client.rpc("digiy_market_resolve_identity", args);
+              if(error || !data) continue;
+              const found = extractSlug(data);
+              if(found && !phoneLike(found)){ slug = found; break; }
+            }catch(_){}
+          }
+        }
+        return slug && !phoneLike(slug) ? slug : "";
+      }
+
+      shareButton.addEventListener("click", async () => {
+        shareButton.disabled = true;
+        setStatus("Préparation de ta fiche publique…", false);
+        try{
+          const slug = await resolvePublicSlug();
+          if(!slug) throw new Error("slug_public_absent");
+          const publicUrl = new URL("/fiche.html", PUBLIC_ORIGIN);
+          publicUrl.searchParams.set("slug", slug);
+          const message = "Bonjour, voici ma boutique DIGIY MARKET : " + publicUrl.toString();
+          setStatus("Ouverture de WhatsApp…", false);
+          window.location.href = "https://wa.me/?text=" + encodeURIComponent(message);
+        }catch(error){
+          setStatus("Aucune fiche publique propre n’est reliée à ce compte. Le partage général est bloqué pour éviter d’envoyer la mauvaise boutique.", true);
+          console.error("[MARKET SHARE]", error);
+        }finally{
+          shareButton.disabled = false;
+        }
       });
     })();
   </script>
