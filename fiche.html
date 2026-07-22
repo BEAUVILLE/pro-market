@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
 <meta name="theme-color" content="#063b2b">
-<meta name="digiy-build" content="market-fiche-qr-identity-fallback-v2-20260722">
+<meta name="digiy-build" content="market-fiche-qr-astou-public-v3-20260722">
 <title>PRO MARKET — Ma fiche et mon QR</title>
 <script>
 window.DIGIY_MODULE="MARKET";
@@ -50,6 +50,7 @@ window.DIGIY_SUPABASE_ANON=window.DIGIY_SUPABASE_ANON_KEY;
 "use strict";
 const $=id=>document.getElementById(id);
 const PUBLIC_ORIGIN="https://market.digiylyfe.com";
+const ASTOU_PUBLIC_URL="https://astou-boutique.digiylyfe.com/";
 let currentUrl="";
 const digits=value=>String(value||"").replace(/\D/g,"");
 const cleanSlug=value=>String(value||"").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"").replace(/-+/g,"-").replace(/^-|-$/g,"");
@@ -87,6 +88,10 @@ function collect(value,out={slugs:[],names:[],urls:[]},depth=0){
 function merge(target,source){["slugs","names","urls"].forEach(key=>(source[key]||[]).forEach(value=>{if(value&&!target[key].includes(value))target[key].push(value)}));return target}
 function qrUrl(value,size){return "https://api.qrserver.com/v1/create-qr-code/?size="+size+"x"+size+"&margin=18&data="+encodeURIComponent(value)}
 async function rpcCollect(client,name,args){try{const {data,error}=await client.rpc(name,args);if(error||!data)return {slugs:[],names:[],urls:[]};return collect(data)}catch(_){return {slugs:[],names:[],urls:[]}}}
+function astouBridge(found){
+  const names=(found.names||[]).map(cleanSlug);
+  return names.some(name=>name==="astou-market"||name==="astou-boutique") ? ASTOU_PUBLIC_URL : "";
+}
 function render(url,name){
   const safe=safePublicUrl(url);
   if(!safe)throw new Error("lien_public_invalide");
@@ -127,7 +132,7 @@ async function load(){
       merge(found,await rpcCollect(client,"digiy_market_get_cockpit_by_slug",{p_slug:candidate}));
       merge(found,await rpcCollect(client,"digiy_market_public_shop_by_slug",{p_slug:candidate}));
       merge(found,await rpcCollect(client,"digiy_market_get_public_shop_by_slug",{p_slug:candidate}));
-      if(found.urls.length||found.slugs.length)break;
+      if(found.urls.length||found.names.length||found.slugs.length)break;
     }
 
     const phone=digits(session.phone||guard.getPhone?.()||read("digiy_market_phone")||read("digiy_market_last_phone"));
@@ -135,10 +140,10 @@ async function load(){
     for(const identity of identities){
       merge(found,await rpcCollect(client,"digiy_market_resolve_identity",{p_identity:identity}));
       if(phone)merge(found,await rpcCollect(client,"digiy_market_resolve_identity",{p_phone:phone}));
-      if(found.urls.length||found.slugs.length)break;
+      if(found.urls.length||found.names.length||found.slugs.length)break;
     }
 
-    let target=found.urls[0]||"";
+    let target=found.urls[0]||astouBridge(found);
     const publicSlug=found.slugs[0]||"";
     if(!target&&publicSlug){const url=new URL("/fiche.html",PUBLIC_ORIGIN);url.searchParams.set("slug",publicSlug);target=url.toString()}
     if(!target)throw new Error("lien_public_absent");
@@ -146,7 +151,7 @@ async function load(){
   }catch(error){
     currentUrl="";
     status.className="status err";
-    status.textContent="La boutique est bien ouverte, mais son lien public n’a pas encore été retrouvé. Ouvre Ma boutique, vérifie le champ Lien vitrine, enregistre, puis recharge ce QR.";
+    status.textContent="La boutique est bien ouverte, mais son lien public n’a pas encore été retrouvé.";
     console.error("[PRO MARKET QR]",error);
   }finally{$("reload").disabled=false}
 }
