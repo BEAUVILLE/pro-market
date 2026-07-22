@@ -101,7 +101,7 @@
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-guard-20260531"></script>
+  <script src="./guard.js?v=market-guard-20260722-audit-v1"></script>
 
   <style>
     :root{
@@ -1039,10 +1039,10 @@
           <div>
             <h3 style="margin:0 0 6px 0">Note rapide vente</h3>
             <div class="muted" style="font-weight:800;line-height:1.55">
-              Clique ou écris comme tu parles. DIGIY prépare la trace, puis tu l’envoies vers <b>Mon argent</b> quand c’est bon.
+              Clique ou écris comme tu parles. DIGIY prépare la trace, puis tu l’enregistres dans <b>PRO CARNET</b> quand c’est bon.
             </div>
           </div>
-          <div class="tag warn">MARKET → PAY</div>
+          <div class="tag warn">MARKET → PRO CARNET</div>
         </div>
 
         <div class="quickGuide">
@@ -1071,7 +1071,7 @@
           <div class="memoryHead">
             <div>
               <div class="memoryTitle">🧠 Aide-mémoire vente</div>
-              <div class="memoryHelp">Dernières notes confirmées ici. Elles restent locales sur le téléphone, puis peuvent être envoyées vers Mon argent.</div>
+              <div class="memoryHelp">Dernières notes confirmées ici. Elles restent locales sur le téléphone, puis peuvent être saisies dans PRO CARNET.</div>
             </div>
             <button class="btn" id="btnQuickMarketMemoryClear" type="button">Vider</button>
           </div>
@@ -1157,23 +1157,6 @@
   let CURRENT = null;
   let PRODUCTS = [];
 
-  const ASTOU_DEMO_PRODUCTS = [
-    {id:"demo-parure-royal", is_demo:true, title:"Parure de drap Royal", category:"Linge de maison", price_fcfa:25000, old_price_fcfa:30000, unit_label:"ensemble", description:"Motif doux, chambre élégante, toucher confortable. Démo premium Astou Boutique.", is_active:true, is_published:true, is_featured:true, product_position:1, photo_url:"https://digiylyfe.net/wp-content/uploads/2026/05/ChatGPT-Image-11-mai-2026-22_54_37.png"},
-    {id:"demo-drap-satin", is_demo:true, title:"Drap housse satin", category:"Linge de maison", price_fcfa:15000, old_price_fcfa:null, unit_label:"pièce", description:"Finition lumineuse, belle tenue, pratique au quotidien.", is_active:true, is_published:true, is_featured:false, product_position:2, photo_url:"https://digiylyfe.net/wp-content/uploads/2026/05/ChatGPT-Image-11-mai-2026-22_54_37.png"},
-    {id:"demo-serviette-luxe", is_demo:true, title:"Serviette éponge luxe", category:"Salle de bain", price_fcfa:5000, old_price_fcfa:null, unit_label:"pièce", description:"Absorbante, douce, disponible en plusieurs couleurs.", is_active:true, is_published:true, is_featured:true, product_position:3, photo_url:"https://digiylyfe.net/wp-content/uploads/2026/05/ChatGPT-Image-11-mai-2026-22_54_37.png"},
-    {id:"demo-peignoir-coton", is_demo:true, title:"Peignoir coton hôtel", category:"Salle de bain", price_fcfa:20000, old_price_fcfa:25000, unit_label:"pièce", description:"Confort hôtel, coupe simple et élégante.", is_active:true, is_published:true, is_featured:false, product_position:4, photo_url:"https://digiylyfe.net/wp-content/uploads/2026/05/ChatGPT-Image-11-mai-2026-22_54_37.png"},
-    {id:"demo-serviette-plage", is_demo:true, title:"Serviette plage XXL", category:"Plage & été", price_fcfa:7000, old_price_fcfa:null, unit_label:"pièce", description:"Grande taille, couleurs vivantes, esprit vacances.", is_active:true, is_published:true, is_featured:true, product_position:5, photo_url:"https://digiylyfe.net/wp-content/uploads/2026/05/ChatGPT-Image-11-mai-2026-22_54_37.png"},
-    {id:"demo-rideau-plage", is_demo:true, title:"Rideau plage léger", category:"Plage & maison", price_fcfa:15000, old_price_fcfa:null, unit_label:"pièce", description:"Voilage aérien pour terrasse, chambre ou cabane plage.", is_active:true, is_published:true, is_featured:false, product_position:6, photo_url:"https://digiylyfe.net/wp-content/uploads/2026/05/ChatGPT-Image-11-mai-2026-22_54_37.png"},
-    {id:"demo-fouta-tunisienne", is_demo:true, title:"Fouta tunisienne", category:"Plage & maison", price_fcfa:9000, old_price_fcfa:null, unit_label:"pièce", description:"Léger, utile, beau sur transat ou sac de plage.", is_active:true, is_published:true, is_featured:true, product_position:7, photo_url:"https://digiylyfe.net/wp-content/uploads/2026/05/ChatGPT-Image-11-mai-2026-22_54_37.png"},
-    {id:"demo-robe-fluide", is_demo:true, title:"Robe longue fluide", category:"Robes stylées", price_fcfa:22000, old_price_fcfa:null, unit_label:"pièce", description:"Coupe légère, belle présence, sortie ou bord de mer.", is_active:true, is_published:true, is_featured:true, product_position:8, photo_url:"https://digiylyfe.net/wp-content/uploads/2026/05/ChatGPT-Image-11-mai-2026-22_54_37.png"},
-    {id:"demo-robe-ete", is_demo:true, title:"Robe été légère", category:"Robes stylées", price_fcfa:18000, old_price_fcfa:null, unit_label:"pièce", description:"Fraîche, simple, élégante au quotidien.", is_active:true, is_published:true, is_featured:false, product_position:9, photo_url:"https://digiylyfe.net/wp-content/uploads/2026/05/ChatGPT-Image-11-mai-2026-22_54_37.png"}
-  ];
-
-  function shouldShowAstouDemo(){
-    const slug = String(ACCESS_SLUG || "").toLowerCase();
-    const shop = String(CURRENT?.profile?.shop_name || CURRENT?.profile?.business_name || "").toLowerCase();
-    return slug === "market-221771342889" || shop.includes("astou");
-  }
 
   let ACTIVE_FILTER = "all";
   let IS_SAVING = false;
@@ -1700,10 +1683,6 @@
     const q = String($("searchInput").value || "").trim().toLowerCase();
     let rows = PRODUCTS.slice();
 
-    if (shouldShowAstouDemo()){
-      const existing = new Set(rows.map(r => String(r.id)));
-      ASTOU_DEMO_PRODUCTS.forEach(p => { if(!existing.has(String(p.id))) rows.push(p); });
-    }
 
     if (ACTIVE_FILTER === "active") rows = rows.filter(r => r.is_active);
     if (ACTIVE_FILTER === "inactive") rows = rows.filter(r => !r.is_active);
@@ -1755,7 +1734,6 @@
       const tags = [];
       tags.push(`<span class="tag ${p.is_active ? "ok" : "danger"}">${p.is_active ? "Visible" : "Masqué"}</span>`);
       if (p.is_published) tags.push('<span class="tag info">En ligne</span>');
-      if (p.is_demo) tags.push('<span class="tag warn">Démo premium</span>');
       if (p.is_featured) tags.push('<span class="tag warn">En avant</span>');
       if (p.category) tags.push(`<span class="tag info">${esc(p.category)}</span>`);
 
@@ -1765,7 +1743,6 @@
         <article class="product">
           <div class="productVisual">
             ${p.photo_url ? `<img src="${esc(p.photo_url)}" alt="${esc(p.title || "Produit")}" loading="lazy">` : `<div class="productEmoji">${productEmoji(p)}</div>`}
-            ${p.is_demo ? `<div class="productDemoRibbon">✨ Démo premium</div>` : ``}
           </div>
           <div class="productInner">
           <div class="productTop">
@@ -1786,9 +1763,7 @@
           ${p.description ? `<div class="desc">${esc(p.description)}</div>` : ""}
 
           <div class="productActions">
-            ${p.is_demo
-              ? `<a class="btn gold" href="https://wa.me/221771342889?text=${encodeURIComponent("Bonjour Astou Boutique, je veux voir ce produit en vidéo : " + (p.title || "produit"))}" target="_blank" rel="noopener">💬 Demander sur WhatsApp</a><span class="tag warn">Démo premium</span>`
-              : `<button class="btn primary jsEdit" data-id="${esc(p.id)}" type="button">✏️ Corriger</button><button class="btn danger jsDisable" data-id="${esc(p.id)}" type="button" ${p.is_active ? "" : "disabled"}>${disableLabel}</button>`}
+            <button class="btn primary jsEdit" data-id="${esc(p.id)}" type="button">✏️ Corriger</button><button class="btn danger jsDisable" data-id="${esc(p.id)}" type="button" ${p.is_active ? "" : "disabled"}>${disableLabel}</button>
           </div>
           </div>
         </article>
@@ -2060,7 +2035,7 @@
     qsPay.set("note", String(item?.sentence || "").trim());
     qsPay.set("complement", String(item?.complement || "").trim());
 
-    return "https://pro-pay.digiylyfe.com/admin.html?" + qsPay.toString();
+    return "https://pro-carnet.digiylyfe.com/pin.html";
   }
 
   function renderQuickMarketDraft(draft){
@@ -2092,9 +2067,9 @@
       <br>
       <span style="color:rgba(236,255,244,.72)">Brouillon seulement. Rien n’est envoyé en base automatiquement.</span>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
-        <a class="memoryPayAction" href="${esc(payUrl)}">💰 Envoyer vers Mon argent</a>
+        <a class="memoryPayAction" href="${esc(payUrl)}">📒 Ouvrir PRO CARNET</a>
       </div>
-      <div class="memoryPayHint">PAY PRO s’ouvre sans identifiant visible. Le pro confirme avant l’enregistrement final.</div>
+      <div class="memoryPayHint">PRO CARNET s’ouvre par sa porte sécurisée. La note reste visible ici pour la saisie finale.</div>
     `;
   }
 
@@ -2123,8 +2098,8 @@
             ${esc(channel)} · ${esc(item.impact || "à classer")}<br>
             ${esc(item.sentence || "")}
           </div>
-          <a class="memoryPayAction" href="${esc(payUrl)}">💰 Envoyer vers Mon argent</a>
-          <div class="memoryPayHint">PAY s’ouvre prérempli. Le pro confirme avant l’enregistrement final.</div>
+          <a class="memoryPayAction" href="${esc(payUrl)}">📒 Ouvrir PRO CARNET</a>
+          <div class="memoryPayHint">PRO CARNET s’ouvre par sa porte sécurisée. La note reste visible ici pour la saisie finale.</div>
         </div>
       `;
     }).join("");
@@ -2161,7 +2136,7 @@
     renderQuickMarketDraft(null);
     renderQuickMarketMemory();
     if(input) input.value = "";
-    setMsgMain("✅ Note confirmée. Le bouton Mon argent est prêt dans l’aide-mémoire.", "ok");
+    setMsgMain("✅ Note confirmée. Le bouton PRO CARNET est prêt dans l’aide-mémoire.", "ok");
   }
 
   function clearQuickMarket(){
