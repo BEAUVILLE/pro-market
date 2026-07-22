@@ -7,7 +7,7 @@
   <meta name="description" content="Accueil simple DIGIY MARKET : produits, boutique, QR et partage WhatsApp."/>
   <meta name="robots" content="noindex,nofollow,noarchive,nosnippet"/>
   <meta name="theme-color" content="#063b2b"/>
-  <meta name="digiy-build" content="market-simple-hub-v6-qr-astou-public-20260722"/>
+  <meta name="digiy-build" content="market-simple-hub-v7-generic-qr-20260722"/>
   <script>
     window.DIGIY_LOGIN_URL="./pin.html";
     window.DIGIY_MODULE="MARKET";
@@ -20,7 +20,7 @@
     :root{color-scheme:light;--bg:#efe3cc;--bg2:#fff8ea;--card:rgba(255,250,240,.94);--line:rgba(16,37,28,.14);--text:#10251c;--green:#22c55e;--green-dark:#063b2b;--gold:#f4cf64;--shadow:0 22px 65px rgba(6,59,43,.18)}
     *{box-sizing:border-box}html,body{margin:0;min-height:100%}body{min-height:100dvh;display:grid;place-items:center;padding:22px;color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:radial-gradient(800px 470px at 8% -10%,rgba(34,197,94,.18),transparent 60%),radial-gradient(720px 430px at 108% 4%,rgba(244,207,100,.30),transparent 56%),linear-gradient(180deg,var(--bg2),var(--bg))}
     main{width:min(480px,100%);padding:24px;border:1px solid var(--line);border-radius:28px;background:var(--card);box-shadow:var(--shadow);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}h1{margin:0 0 22px;color:var(--green-dark);font-size:clamp(2rem,9vw,3rem);line-height:1.02;letter-spacing:-.045em}nav{display:grid;gap:12px}
-    a,button{width:100%;min-height:62px;display:flex;align-items:center;justify-content:center;padding:14px 18px;border:1px solid var(--line);border-radius:18px;color:var(--text);background:rgba(255,255,255,.78);font:inherit;font-size:1rem;font-weight:900;text-align:center;text-decoration:none;cursor:pointer;transition:transform .14s ease,background .14s ease,border-color .14s ease}a.primary{color:#052012;border-color:transparent;background:linear-gradient(135deg,var(--green),#bbf7d0)}a.gold{color:#241a00;border-color:rgba(214,173,57,.32);background:linear-gradient(135deg,#d6ad39,var(--gold))}a:hover,button:hover{transform:translateY(-1px);border-color:rgba(16,37,28,.28);background:#fff}a:active,button:active{transform:none}button:disabled{opacity:.55;cursor:not-allowed}
+    a,button{width:100%;min-height:62px;display:flex;align-items:center;justify-content:center;padding:14px 18px;border:1px solid var(--line);border-radius:18px;color:var(--text);background:rgba(255,255,255,.78);font:inherit;font-size:1rem;font-weight:900;text-align:center;text-decoration:none;cursor:pointer}a.primary{color:#052012;border-color:transparent;background:linear-gradient(135deg,var(--green),#bbf7d0)}a.gold{color:#241a00;border-color:rgba(214,173,57,.32);background:linear-gradient(135deg,#d6ad39,var(--gold))}button:disabled{opacity:.55;cursor:not-allowed}
     #status{margin:14px 0 0;padding:11px 12px;border:1px solid rgba(214,173,57,.32);border-radius:14px;color:#6b4f00;background:rgba(244,207,100,.20);font-size:.88rem;font-weight:800;line-height:1.4}#status.error{color:#991b1b;border-color:rgba(185,28,28,.28);background:rgba(254,226,226,.76)}#status[hidden]{display:none}@media(max-width:420px){body{padding:14px}main{padding:19px;border-radius:23px}h1{margin-bottom:18px}a,button{min-height:58px}}
   </style>
 </head>
@@ -30,7 +30,7 @@
     <nav aria-label="Actions commerçant">
       <a class="primary" href="./produits.html?v=market-audit-20260722-v1">Mes produits</a>
       <a href="./boutique.html?v=market-audit-20260722-v1">Ma boutique</a>
-      <a class="gold" href="./qr.html?v=market-qr-astou-public-v3-20260722">Mon QR boutique</a>
+      <a class="gold" href="./qr.html?v=market-qr-generic-cache-v4-20260722">Mon QR boutique</a>
       <button id="shareWhatsApp" type="button">Partager sur WhatsApp</button>
     </nav>
     <p id="status" role="status" aria-live="polite" hidden></p>
@@ -47,8 +47,9 @@
     const read=key=>{try{return sessionStorage.getItem(key)||localStorage.getItem(key)||""}catch(_){return ""}};
     function setStatus(message,error){statusBox.textContent=message||"";statusBox.hidden=!message;statusBox.classList.toggle("error",!!error)}
     function safePublicUrl(value){const raw=String(value||"").trim();if(!raw)return "";try{const url=new URL(raw);if(url.protocol!=="https:")return "";const host=url.hostname.toLowerCase(),path=url.pathname.toLowerCase();if(host==="pro-market.digiylyfe.com"||host.startsWith("pro-"))return "";if(["pin.html","cockpit.html","admin.html","produits.html","boutique.html"].some(item=>path.includes(item)))return "";["phone","tel","pin","code","session","token","access","owner_phone"].forEach(key=>url.searchParams.delete(key));return url.toString()}catch(_){return ""}}
-    function collect(value,out={slugs:[],urls:[]},depth=0){if(value==null||depth>6)return out;if(typeof value==="string"){try{value=JSON.parse(value)}catch(_){return out}}if(Array.isArray(value)){value.forEach(item=>collect(item,out,depth+1));return out}if(typeof value!=="object")return out;["slug","workspace_slug","shop_slug","public_slug","market_slug","boutique_slug"].forEach(key=>{const slug=cleanSlug(value[key]);if(slug&&!phoneLike(slug)&&!out.slugs.includes(slug))out.slugs.push(slug)});["public_url","website_url","site_url","qr_target_url","public_link","url"].forEach(key=>{const url=safePublicUrl(value[key]);if(url&&!out.urls.includes(url))out.urls.push(url)});Object.values(value).forEach(item=>{if(item&&typeof item==="object")collect(item,out,depth+1)});return out}
+    function collect(value,out={slugs:[],urls:[]},depth=0){if(value==null||depth>6)return out;if(typeof value==="string"){try{value=JSON.parse(value)}catch(_){return out}}if(Array.isArray(value)){value.forEach(item=>collect(item,out,depth+1));return out}if(typeof value!=="object")return out;["slug","workspace_slug","shop_slug","public_slug","market_slug","boutique_slug"].forEach(key=>{const slug=cleanSlug(value[key]);if(slug&&!phoneLike(slug)&&!out.slugs.includes(slug))out.slugs.push(slug)});["public_url","website_url","site_url","shop_url","boutique_url","qr_target_url","public_link","url"].forEach(key=>{const url=safePublicUrl(value[key]);if(url&&!out.urls.includes(url))out.urls.push(url)});Object.values(value).forEach(item=>{if(item&&typeof item==="object")collect(item,out,depth+1)});return out}
     function merge(target,source){["slugs","urls"].forEach(key=>(source[key]||[]).forEach(value=>{if(value&&!target[key].includes(value))target[key].push(value)}));return target}
+    function cachedPublicUrl(candidates){for(const candidate of candidates){const url=safePublicUrl(read("digiy_market_public_url_"+candidate));if(url)return url}return ""}
     async function rpcCollect(client,name,args){try{const {data,error}=await client.rpc(name,args);if(error||!data)return {slugs:[],urls:[]};return collect(data)}catch(_){return {slugs:[],urls:[]}}}
     async function resolvePublicUrl(){
       const guard=window.DIGIY_GUARD;if(!guard)return "";
@@ -57,14 +58,16 @@
       const found={slugs:[],urls:[]},candidates=[];
       const add=value=>{const slug=cleanSlug(value);if(slug&&!candidates.includes(slug))candidates.push(slug)};
       add(session.slug);add(guard.getSlug?.());["digiy_market_slug","digiy_market_last_slug","market_slug","digiy_last_slug"].forEach(key=>add(read(key)));
-      for(const candidate of candidates){merge(found,await rpcCollect(client,"digiy_market_get_cockpit_by_slug",{p_slug:candidate}));merge(found,await rpcCollect(client,"digiy_market_public_shop_by_slug",{p_slug:candidate}));if(found.urls.length||found.slugs.length)break}
+      for(const candidate of candidates){merge(found,await rpcCollect(client,"digiy_market_get_cockpit_by_slug",{p_slug:candidate}));merge(found,await rpcCollect(client,"digiy_market_public_shop_by_slug",{p_slug:candidate}))}
       const phone=digits(session.phone||guard.getPhone?.()||read("digiy_market_phone")||read("digiy_market_last_phone"));
-      for(const identity of [phone,...candidates].filter(Boolean)){merge(found,await rpcCollect(client,"digiy_market_resolve_identity",{p_identity:identity}));if(phone)merge(found,await rpcCollect(client,"digiy_market_resolve_identity",{p_phone:phone}));if(found.urls.length||found.slugs.length)break}
+      for(const identity of [phone,...candidates].filter(Boolean)){merge(found,await rpcCollect(client,"digiy_market_resolve_identity",{p_identity:identity}));if(phone)merge(found,await rpcCollect(client,"digiy_market_resolve_identity",{p_phone:phone}))}
+      found.slugs.forEach(add);
       if(found.urls[0])return found.urls[0];
+      const cached=cachedPublicUrl(candidates);if(cached)return cached;
       if(found.slugs[0]){const url=new URL("/fiche.html",PUBLIC_ORIGIN);url.searchParams.set("slug",found.slugs[0]);return url.toString()}
       return "";
     }
-    shareButton.addEventListener("click",async()=>{shareButton.disabled=true;setStatus("Préparation de ta fiche publique…",false);try{const publicUrl=await resolvePublicUrl();if(!publicUrl)throw new Error("lien_public_absent");setStatus("Ouverture de WhatsApp…",false);location.href="https://wa.me/?text="+encodeURIComponent("Bonjour, voici ma boutique DIGIY MARKET : "+publicUrl)}catch(error){setStatus("Le lien public de cette boutique n’a pas encore été retrouvé. Vérifie le champ Lien vitrine dans Ma boutique, enregistre, puis réessaie.",true);console.error("[MARKET SHARE]",error)}finally{shareButton.disabled=false}});
+    shareButton.addEventListener("click",async()=>{shareButton.disabled=true;setStatus("Préparation de ta fiche publique…",false);try{const publicUrl=await resolvePublicUrl();if(!publicUrl)throw new Error("lien_public_absent");setStatus("Ouverture de WhatsApp…",false);location.href="https://wa.me/?text="+encodeURIComponent("Bonjour, voici ma boutique DIGIY MARKET : "+publicUrl)}catch(error){setStatus("Aucun lien public n’est enregistré pour ce compte. Ajoute-le dans Ma boutique, puis réessaie.",true);console.error("[MARKET SHARE]",error)}finally{shareButton.disabled=false}});
   })();
   </script>
 </body>
