@@ -6,136 +6,53 @@
   <title>Accès MARKET • DIGIY</title>
   <meta name="theme-color" content="#020617"/>
   <meta name="robots" content="noindex,nofollow"/>
-  <meta name="digiy-version" content="market-pin-digiy-verify-pin-20260722"/>
-
+  <meta name="digiy-version" content="market-pin-build-compatible-v2-20260722"/>
   <script>
-    window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
-    window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
-    window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
-    window.DIGIY_MODULE = "MARKET";
-    window.DIGIY_MODULE_LABEL = "Je vends";
-    window.DIGIY_MODULE_ICON = "🛍️";
+    window.DIGIY_SUPABASE_URL="https://wesqmwjjtsefyjnluosj.supabase.co";
+    window.DIGIY_SUPABASE_ANON_KEY="sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
+    window.DIGIY_SUPABASE_ANON=window.DIGIY_SUPABASE_ANON_KEY;
+    window.DIGIY_MODULE="MARKET";
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./guard.js?v=market-auth-rpc-signature-fix-20260722"></script>
-
+  <script src="./guard.js?v=market-pin-build-compatible-v2-20260722"></script>
   <style>
     :root{--bg:#1e293b;--bg2:#334155;--line:rgba(148,163,184,.20);--ink:#f9fafb;--muted:#94a3b8;--gold:#facc15;--green:#22c55e;--red:#ef4444}
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{min-height:100dvh;display:grid;place-items:center;padding:16px;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:radial-gradient(ellipse 800px 500px at 15% -5%,rgba(250,204,21,.13),transparent 55%),radial-gradient(ellipse 700px 400px at 88% 5%,rgba(34,197,94,.10),transparent 55%),linear-gradient(180deg,var(--bg2),var(--bg))}
+    *{box-sizing:border-box}body{margin:0;min-height:100dvh;display:grid;place-items:center;padding:16px;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:radial-gradient(ellipse 800px 500px at 15% -5%,rgba(250,204,21,.13),transparent 55%),radial-gradient(ellipse 700px 400px at 88% 5%,rgba(34,197,94,.10),transparent 55%),linear-gradient(180deg,var(--bg2),var(--bg))}
     .card{width:min(420px,100%);background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:28px;padding:28px 24px 24px;box-shadow:0 28px 70px rgba(0,0,0,.55)}
-    .header{text-align:center;margin-bottom:22px}.ico{font-size:38px;display:block;margin-bottom:10px}.badge{display:inline-flex;padding:5px 12px;border-radius:999px;border:1px solid rgba(250,204,21,.30);background:rgba(250,204,21,.08);color:#fde68a;font-size:11px;font-weight:950;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px}.title{font-size:1.28rem;font-weight:1000}
+    .header{text-align:center;margin-bottom:22px}.ico{font-size:38px;display:block;margin-bottom:10px}.badge{display:inline-flex;padding:5px 12px;border-radius:999px;border:1px solid rgba(250,204,21,.30);background:rgba(250,204,21,.08);color:#fde68a;font-size:11px;font-weight:950;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px}.title{font-size:1.3rem;font-weight:1000}
     .panel{display:none}.panel.active{display:block}.label{display:block;font-size:.78rem;font-weight:950;color:var(--muted);margin-bottom:7px;text-transform:uppercase}.phone-wrap{position:relative}.phone-flag{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:18px}.input{width:100%;padding:14px 15px 14px 42px;border-radius:14px;border:1px solid var(--line);background:rgba(0,0,0,.22);color:var(--ink);font-size:1.05rem;font-weight:900;outline:none}.phone-recap{display:flex;justify-content:space-between;align-items:center;padding:10px 13px;border-radius:12px;border:1px solid rgba(34,197,94,.25);background:rgba(34,197,94,.06);margin-bottom:18px}.phone-recap-num{font-weight:950;color:#86efac}.phone-recap-btn{border:0;background:none;color:var(--muted);font-weight:900;text-decoration:underline}
     .pin-dots{display:flex;justify-content:center;gap:16px;margin:8px 0 20px}.dot{width:20px;height:20px;border-radius:50%;border:2px solid rgba(148,163,184,.30)}.dot.filled{background:var(--gold);border-color:var(--gold)}.dot.err{border-color:var(--red);background:rgba(239,68,68,.2)}
     .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:14px}.key{border:1px solid rgba(148,163,184,.18);border-radius:14px;background:rgba(255,255,255,.04);color:var(--ink);font-size:1.3rem;font-weight:1000;min-height:58px}.key.zero{grid-column:2}.key.del{font-size:1rem;color:var(--muted)}
     .btn{width:100%;min-height:52px;border-radius:16px;border:1px solid rgba(250,204,21,.35);background:linear-gradient(135deg,rgba(250,204,21,.22),rgba(34,197,94,.18));color:#fff;font-size:1rem;font-weight:1000}.btn:disabled,.key:disabled{opacity:.4}
     .status{display:none;margin-top:12px;padding:10px 13px;border-radius:12px;font-size:.84rem;font-weight:900;line-height:1.5;white-space:pre-wrap}.status.show{display:block}.status.err{background:rgba(239,68,68,.10);border:1px solid rgba(239,68,68,.30);color:#fca5a5}.status.ok{background:rgba(34,197,94,.10);border:1px solid rgba(34,197,94,.30);color:#86efac}.status.spin{background:rgba(148,163,184,.07);border:1px solid var(--line);color:var(--muted)}
-    .note{margin-top:18px;text-align:center;color:rgba(148,163,184,.65);font-size:.74rem;font-weight:800;line-height:1.55}
+    .note{margin-top:18px;text-align:center;color:rgba(148,163,184,.65);font-size:.74rem;font-weight:800;line-height:1.55}.version{margin-top:9px;text-align:center;color:rgba(148,163,184,.42);font-size:10px;font-weight:800}
   </style>
 </head>
 <body>
-<div class="card">
-  <div class="header"><span class="ico">🛍️</span><div class="badge">🔑 Accès DIGIY</div><div class="title">Je vends</div></div>
-  <div class="panel active" id="step1">
-    <label class="label" for="phoneInput">Ton numéro de téléphone</label>
-    <div class="phone-wrap"><span class="phone-flag">🇸🇳</span><input id="phoneInput" class="input" type="tel" inputmode="numeric" placeholder="221 77 XXX XX XX" autocomplete="tel" maxlength="15"/></div>
-    <div class="status" id="status1"></div>
-    <button class="btn" id="btnContinue" type="button" style="margin-top:16px" disabled>Continuer →</button>
-  </div>
-  <div class="panel" id="step2">
-    <div class="phone-recap"><span class="phone-recap-num" id="phoneDisplay"></span><button class="phone-recap-btn" id="btnBack" type="button">Modifier</button></div>
-    <label class="label">Ton code secret (4 chiffres)</label>
-    <div class="pin-dots"><div class="dot" id="d0"></div><div class="dot" id="d1"></div><div class="dot" id="d2"></div><div class="dot" id="d3"></div></div>
-    <div class="keypad" id="keypad">
-      <button class="key" data-v="1" type="button">1</button><button class="key" data-v="2" type="button">2</button><button class="key" data-v="3" type="button">3</button>
-      <button class="key" data-v="4" type="button">4</button><button class="key" data-v="5" type="button">5</button><button class="key" data-v="6" type="button">6</button>
-      <button class="key" data-v="7" type="button">7</button><button class="key" data-v="8" type="button">8</button><button class="key" data-v="9" type="button">9</button>
-      <button class="key zero" data-v="0" type="button">0</button><button class="key del" data-v="DEL" type="button">⌫</button>
-    </div>
-    <button class="btn" id="btnEnter" type="button" disabled>Entrer →</button>
-    <div class="status" id="status2"></div>
-  </div>
-  <div class="note">Ton numéro et ton code ne sont jamais partagés.<br>DIGIY · 0% commission · 100% indépendance ∞</div>
-</div>
-<script>
-(() => {
-  "use strict";
-  const MODULE_ALIASES=["MARKET","market","DIGIY_MARKET","MARKET_PRO","QR_PRO","qr_pro"];
-  const $=id=>document.getElementById(id);
-  let pin="",confirmedPhone="",verifying=false;
-  const digits=value=>String(value||"").replace(/\D/g,"");
-  const phoneVariants=value=>{const p=digits(value);const list=[];if(p.length===9)list.push("221"+p,p);else{list.push(p);if(p.startsWith("221")&&p.length===12)list.push(p.slice(3));}return [...new Set(list.filter(Boolean))];};
-  const fmt=value=>value.length===12&&value.startsWith("221")?value.slice(0,3)+" "+value.slice(3,5)+" "+value.slice(5,8)+" "+value.slice(8,10)+" "+value.slice(10):value;
-  const truth=value=>value===true||value===1||["t","true","1","ok","yes"].includes(String(value??"").trim().toLowerCase());
-  const show=(el,msg,kind)=>{el.textContent=msg;el.className="status show "+(kind||"spin");};
-  const clear=el=>{el.textContent="";el.className="status";};
-  const updateDots=()=>{for(let i=0;i<4;i++){const dot=$("d"+i);dot.classList.toggle("filled",i<pin.length);dot.classList.remove("err");}$("btnEnter").disabled=verifying||pin.length!==4;};
-  const busy=active=>{verifying=active;$("btnEnter").disabled=active||pin.length!==4;$("keypad").querySelectorAll("button").forEach(button=>button.disabled=active);};
-
-  function parseResult(data,fallbackPhone,module){
-    let row=Array.isArray(data)?data[0]:data;
-    if(row===true||row===1)return{ok:true,phone:fallbackPhone,module};
-    if(typeof row==="string"){
-      const text=row.trim();
-      if(truth(text))return{ok:true,phone:fallbackPhone,module};
-      if(text.startsWith("(")&&text.endsWith(")")){
-        const parts=text.slice(1,-1).split(",").map(value=>value.trim().replace(/^"|"$/g,""));
-        return{ok:truth(parts[0]),module:parts[1]||module,phone:digits(parts[2]||fallbackPhone),label:parts[3]||"",slug:parts[5]||""};
-      }
-      try{row=JSON.parse(text);}catch(_){return{ok:false};}
-    }
-    if(!row||typeof row!=="object")return{ok:false};
-    row=row.data||row.result||row.session||row;
-    return{
-      ok:truth(row.ok)||truth(row.success)||truth(row.valid)||truth(row.allowed)||truth(row.access_ok)||truth(row.has_access),
-      module:String(row.module||row.module_code||module||""),
-      phone:digits(row.phone||row.market_phone||fallbackPhone),
-      slug:String(row.slug||row.workspace_slug||row.shop_slug||""),
-      label:String(row.label||""),
-      reason:String(row.reason||"")
-    };
-  }
-
-  async function verifyPin(phoneValue,pinValue){
-    const guard=window.DIGIY_GUARD;
-    const client=guard?.getSb?.()||window.supabase?.createClient?.(window.DIGIY_SUPABASE_URL,window.DIGIY_SUPABASE_ANON_KEY,{auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}});
-    if(!client)throw new Error("Supabase indisponible.");
-    let lastError=null;
-    for(const phone of phoneVariants(phoneValue)){
-      for(const module of MODULE_ALIASES){
-        const {data,error}=await client.rpc("digiy_verify_pin",{p_phone:phone,p_module:module,p_pin:String(pinValue)});
-        if(error){lastError=error;continue;}
-        const result=parseResult(data,phone,module);
-        if(!result.ok)continue;
-        const returnedModule=String(result.module||module).toUpperCase();
-        if(returnedModule&&!MODULE_ALIASES.map(value=>value.toUpperCase()).includes(returnedModule))continue;
-        return result;
-      }
-    }
-    return{ok:false,error:lastError?.message||"Code ou accès MARKET non reconnu."};
-  }
-
-  $("phoneInput").addEventListener("input",()=>{const d=digits($("phoneInput").value);$("btnContinue").disabled=!(d.length>=9&&d.length<=14);clear($("status1"));});
-  $("btnContinue").onclick=()=>{const d=digits($("phoneInput").value);if(!(d.length>=9&&d.length<=14)){show($("status1"),"Numéro incomplet.","err");return;}confirmedPhone=d;$("phoneDisplay").textContent=fmt(d);pin="";updateDots();$("step1").classList.remove("active");$("step2").classList.add("active");};
-  $("btnBack").onclick=()=>{pin="";updateDots();clear($("status2"));$("step2").classList.remove("active");$("step1").classList.add("active");};
-  $("keypad").addEventListener("click",event=>{if(verifying)return;const button=event.target.closest("button[data-v]");if(!button)return;const value=button.dataset.v;pin=value==="DEL"?pin.slice(0,-1):(pin.length<4?pin+value:pin);updateDots();clear($("status2"));if(pin.length===4)setTimeout(verify,120);});
-  $("btnEnter").onclick=verify;
-
-  async function verify(){
-    if(verifying||pin.length!==4||!confirmedPhone)return;
-    busy(true);show($("status2"),"Vérification en cours…","spin");
-    try{
-      const result=await verifyPin(confirmedPhone,pin);
-      if(!result?.ok){pin="";busy(false);updateDots();for(let i=0;i<4;i++)$("d"+i).classList.add("err");show($("status2"),result?.error||"Code ou accès MARKET non reconnu.","err");return;}
-      const finalPhone=digits(result.phone||confirmedPhone);
-      const guard=window.DIGIY_GUARD;
-      if(!guard||typeof guard.saveSession!=="function")throw new Error("Session MARKET indisponible.");
-      guard.saveSession({slug:result.slug||(finalPhone?"market-"+finalPhone:""),phone:finalPhone,label:result.label||"",source:"digiy_verify_pin",reason:result.reason||"market_pin_ok"});
-      show($("status2"),"✅ Accès validé. Ouverture de JE VENDS…","ok");
-      setTimeout(()=>location.replace("./cockpit.html"),300);
-    }catch(error){pin="";busy(false);updateDots();show($("status2"),error?.message||"Vérification indisponible. Recharge la page.","err");console.error("[MARKET PIN]",error);}
-  }
-})();
-</script>
+  <main class="card">
+    <header class="header"><span class="ico">🛍️</span><div class="badge">🔑 Accès DIGIY</div><div class="title">Je vends</div></header>
+    <section class="panel active" id="step1">
+      <label class="label" for="phoneInput">Ton numéro de téléphone</label>
+      <div class="phone-wrap"><span class="phone-flag">🇸🇳</span><input id="phoneInput" class="input" type="tel" inputmode="numeric" placeholder="221 77 XXX XX XX" autocomplete="tel" maxlength="15"/></div>
+      <div class="status" id="status1"></div>
+      <button class="btn" id="btnContinue" type="button" style="margin-top:16px" disabled>Continuer →</button>
+    </section>
+    <section class="panel" id="step2">
+      <div class="phone-recap"><span class="phone-recap-num" id="phoneDisplay"></span><button class="phone-recap-btn" id="btnBack" type="button">Modifier</button></div>
+      <label class="label">Ton code secret (4 chiffres)</label>
+      <div class="pin-dots" id="pinDots"><div class="dot" id="d0"></div><div class="dot" id="d1"></div><div class="dot" id="d2"></div><div class="dot" id="d3"></div></div>
+      <div class="keypad" id="keypad">
+        <button class="key" data-v="1" type="button">1</button><button class="key" data-v="2" type="button">2</button><button class="key" data-v="3" type="button">3</button>
+        <button class="key" data-v="4" type="button">4</button><button class="key" data-v="5" type="button">5</button><button class="key" data-v="6" type="button">6</button>
+        <button class="key" data-v="7" type="button">7</button><button class="key" data-v="8" type="button">8</button><button class="key" data-v="9" type="button">9</button>
+        <button class="key zero" data-v="0" type="button">0</button><button class="key del" data-v="DEL" type="button">⌫</button>
+      </div>
+      <button class="btn" id="btnEnter" type="button" disabled>Entrer →</button>
+      <div class="status" id="status2"></div>
+    </section>
+    <div class="note">Ton numéro et ton code ne sont jamais partagés.<br>DIGIY · 0% commission · 100% indépendance ∞</div>
+    <div class="version">PIN MARKET v2 · moteur BUILD compatible</div>
+  </main>
+  <script src="./assets/js/market-pin-auth-v2.js?v=7cae193-20260722"></script>
 </body>
 </html>
