@@ -122,6 +122,15 @@ jobs:
           qr = qr.replace('href="./fiche.html#qr"', 'href="./fiche.html?v=market-audit-20260722-v1#qr"')
           qr = qr.replace('market-qr-vers-fiche-protegee-20260716', 'market-qr-vers-fiche-protegee-audit-20260722')
 
+          # Nettoyage mécanique des espaces de fin de ligne avant git diff --check.
+          def strip_trailing(text):
+              return '\n'.join(line.rstrip() for line in text.splitlines()) + '\n'
+
+          products = strip_trailing(products)
+          boutique = strip_trailing(boutique)
+          index = strip_trailing(index)
+          qr = strip_trailing(qr)
+
           # Assertions de sécurité : aucun PIN ni RPC d’accès n’est modifié par ce script.
           assert 'Astou Boutique' not in products
           assert '221771342889' not in products
