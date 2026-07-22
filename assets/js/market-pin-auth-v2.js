@@ -26,7 +26,7 @@
 
   const digits = value => String(value || "").replace(/\D/g, "");
   const cleanSlug = value => String(value || "").trim().replace(/^['"]+|['"]+$/g, "").replace(/\s+/g, "-").replace(/[^a-zA-Z0-9._-]/g, "");
-  const positive = value => value === true || value === 1 || ["true", "t", "1", "ok", "active", "allowed", "valid", "verified", "granted", "yes"].includes(String(value || "").trim().toLowerCase());
+  const positive = value => value === true || value === 1 || ["true", "t", "1", "ok", "active", "allowed", "valid", "verified", "granted", "yes", "opened"].includes(String(value || "").trim().toLowerCase());
 
   function phoneVariants(value) {
     const d = digits(value);
@@ -77,17 +77,26 @@
     }
 
     if (!row || typeof row !== "object") return null;
+
+    for (const functionKey of ["digiy_market_open_with_pin", "digiy_verify_pin", "digiy_verify_access"]) {
+      if (!Object.prototype.hasOwnProperty.call(row, functionKey)) continue;
+      const nested = row[functionKey];
+      if (positive(nested)) return { ok: true, phone: digits(fallbackPhone), slug: "", session_token: "" };
+      if (nested && typeof nested === "object") row = nested;
+    }
+
     if (row.data && typeof row.data === "object") row = row.data;
     if (row.result && typeof row.result === "object") row = row.result;
     if (row.session && typeof row.session === "object") row = row.session;
+    if (row.profile && typeof row.profile === "object") row = { ...row.profile, ...row };
 
-    const decisionKeys = ["ok", "success", "valid", "is_valid", "verified", "authenticated", "allowed", "access", "access_ok", "has_access", "can_access", "digiy_verify_pin"];
+    const decisionKeys = ["ok", "success", "valid", "is_valid", "verified", "authenticated", "allowed", "access", "access_ok", "has_access", "can_access", "pin_ok", "opened", "digiy_market_open_with_pin", "digiy_verify_pin"];
     const hasDecision = decisionKeys.some(key => Object.prototype.hasOwnProperty.call(row, key));
     const values = Object.values(row);
     const status = String(row.status || "").trim().toLowerCase();
     const ok = hasDecision
       ? decisionKeys.some(key => positive(row[key]))
-      : positive(values[0]) || positive(row.active) || positive(row.is_active) || ["ok", "active", "allowed", "valid"].includes(status);
+      : positive(values[0]) || positive(row.active) || positive(row.is_active) || ["ok", "active", "allowed", "valid", "opened"].includes(status);
 
     if (!ok) return null;
     return {
@@ -155,6 +164,55 @@
     return out;
   }
 
+  async function verifyByMarketNative(client, phone, code) {
+    let lastError = null;
+    let hadResponse = false;
+    const phones = phoneVariants(phone);
+    const slugs = await resolveMarketSlugs(client, phone);
+    const identities = Array.from(new Set([...phones, ...slugs]));
+
+    for (const identity of identities) {
+      const isPhone = /^\d+$/.test(identity);
+      const payloads = [
+        { p_identity: identity, p_pin: code },
+        isPhone ? { p_phone: identity, p_pin: code } : { p_slug: identity, p_pin: code },
+        { p_module: MODULE, p_identity: identity, p_pin: code },
+        isPhone
+          ? { p_module: MODULE, p_phone: identity, p_pin: code }
+          : { p_module: MODULE, p_slug: identity, p_pin: code }
+      ];
+
+      for (const args of payloads) {
+        try {
+          const { data, error } = await client.rpc("digiy_market_open_with_pin", args);
+          if (error) { lastError = error; continue; }
+          hadResponse = true;
+          const parsed = parseVerifyPayload(data, isPhone ? identity : phone);
+          if (!parsed?.ok) continue;
+
+          const finalPhone = parsed.phone || digits(phone);
+          const access = await findMarketAccess(client, phoneVariants(finalPhone || phone));
+          if (access.checked && !access.found) {
+            return { ok: false, hadResponse: true, reason: "access_not_found", lastError: null };
+          }
+
+          return {
+            ok: true,
+            row: parsed,
+            phone: finalPhone,
+            module: access.module || MODULE,
+            slug: parsed.slug || (isPhone ? "" : identity),
+            rail: "market_native"
+          };
+        } catch (error) {
+          lastError = error;
+        }
+      }
+    }
+
+    return { ok: false, lastError, hadResponse };
+  }
+
   async function verifyByPhone(client, phone, code) {
     let lastError = null;
     let hadResponse = false;
@@ -212,14 +270,18 @@
   }
 
   async function verifyCompatible(client, phone, code) {
+    const byMarket = await verifyByMarketNative(client, phone, code);
+    if (byMarket.ok) return byMarket;
+    if (byMarket.reason === "access_not_found") return byMarket;
+
     const byPhone = await verifyByPhone(client, phone, code);
     if (byPhone.ok) return byPhone;
 
     const bySlug = await verifyByHistoricSlug(client, phone, code);
     if (bySlug.ok) return bySlug;
 
-    if (!byPhone.hadResponse && !bySlug.hadResponse) {
-      const err = bySlug.lastError || byPhone.lastError;
+    if (!byMarket.hadResponse && !byPhone.hadResponse && !bySlug.hadResponse) {
+      const err = bySlug.lastError || byPhone.lastError || byMarket.lastError;
       if (err) return { ok: false, reason: "rpc_error", detail: err.message || String(err) };
     }
 
@@ -243,7 +305,7 @@
       owner_id: result.row?.owner_id || null,
       access: true, access_ok: true, has_access: true, pin_access: true,
       pin_session_ok: true, ok: true, verified: true,
-      verification_rail: result.rail || "phone", source: "market-pin-build-compatible-v2"
+      verification_rail: result.rail || "phone", source: "market-pin-native-v3"
     };
     const raw = JSON.stringify(payload);
     SESSION_KEYS.forEach(key => {
@@ -329,7 +391,7 @@
     } catch (error) {
       pin = ""; setBusy(false); updateDots();
       show("status2", "❌ Vérification indisponible : " + (error?.message || "erreur inconnue"), "err");
-      console.error("[MARKET PIN V2]", error);
+      console.error("[MARKET PIN V3]", error);
     }
   }
 })();
