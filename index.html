@@ -1,6 +1,29 @@
 <!doctype html>
 <html lang="fr">
 <head>
+  <!-- DIGIY PRO MARKET — amorce langue avant guard -->
+  <script>
+  (()=>{
+    const supported=["fr","en","es","de","it","nl","ar"];
+    let lang="fr";
+    try{
+      const query=String(new URLSearchParams(location.search).get("lang")||"").toLowerCase();
+      const stored=String(localStorage.getItem("digiy-pro-market-lang")||localStorage.getItem("digiy-market-lang")||localStorage.getItem("digiy-lang")||"").toLowerCase();
+      const browser=String(navigator.language||"fr").slice(0,2).toLowerCase();
+      lang=supported.includes(query)?query:supported.includes(stored)?stored:supported.includes(browser)?browser:"fr";
+      localStorage.setItem("digiy-pro-market-lang",lang);
+      localStorage.setItem("digiy-market-lang",lang);
+      localStorage.setItem("digiy-lang",lang);
+    }catch(_){}
+    document.documentElement.lang=lang;
+    document.documentElement.dir=lang==="ar"?"rtl":"ltr";
+    window.DIGIY_PRO_MARKET_LANG=lang;
+    const login=new URL("./pin.html",location.href);
+    login.searchParams.set("lang",lang);
+    window.DIGIY_PRO_MARKET_LOGIN_URL=login.pathname+login.search;
+  })();
+  </script>
+
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
   <title>DIGIY MARKET — Accueil commerçant</title>
@@ -9,13 +32,13 @@
   <meta name="theme-color" content="#063b2b"/>
   <meta name="digiy-build" content="market-simple-hub-v7-generic-qr-20260722"/>
   <script>
-    window.DIGIY_LOGIN_URL="./pin.html";
+    window.DIGIY_LOGIN_URL=window.DIGIY_PRO_MARKET_LOGIN_URL||'./pin.html';
     window.DIGIY_MODULE="MARKET";
     window.DIGIY_ABOS_MODULE="MARKET";
     window.DIGIY_MODULE_LABEL="Je vends";
     document.documentElement.style.visibility="hidden";
   </script>
-  <script src="./guard.js?v=market-guard-20260722" onerror="location.replace('./pin.html?reason=guard_missing')"></script>
+  <script src="./guard.js?v=market-guard-20260722" onerror="location.replace(window.DIGIY_PRO_MARKET_LOGIN_URL||'./pin.html')"></script>
   <style>
     :root{color-scheme:light;--bg:#efe3cc;--bg2:#fff8ea;--card:rgba(255,250,240,.94);--line:rgba(16,37,28,.14);--text:#10251c;--green:#22c55e;--green-dark:#063b2b;--gold:#f4cf64;--shadow:0 22px 65px rgba(6,59,43,.18)}
     *{box-sizing:border-box}html,body{margin:0;min-height:100%}body{min-height:100dvh;display:grid;place-items:center;padding:22px;color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:radial-gradient(800px 470px at 8% -10%,rgba(34,197,94,.18),transparent 60%),radial-gradient(720px 430px at 108% 4%,rgba(244,207,100,.30),transparent 56%),linear-gradient(180deg,var(--bg2),var(--bg))}
@@ -67,8 +90,11 @@
       if(found.slugs[0]){const url=new URL("/fiche.html",PUBLIC_ORIGIN);url.searchParams.set("slug",found.slugs[0]);return url.toString()}
       return "";
     }
-    shareButton.addEventListener("click",async()=>{shareButton.disabled=true;setStatus("Préparation de ta fiche publique…",false);try{const publicUrl=await resolvePublicUrl();if(!publicUrl)throw new Error("lien_public_absent");setStatus("Ouverture de WhatsApp…",false);location.href="https://wa.me/?text="+encodeURIComponent("Bonjour, voici ma boutique DIGIY MARKET : "+publicUrl)}catch(error){setStatus("Aucun lien public n’est enregistré pour ce compte. Ajoute-le dans Ma boutique, puis réessaie.",true);console.error("[MARKET SHARE]",error)}finally{shareButton.disabled=false}});
+    shareButton.addEventListener("click",async()=>{shareButton.disabled=true;setStatus("Préparation de ta fiche publique…",false);try{const publicUrl=await resolvePublicUrl();if(!publicUrl)throw new Error("lien_public_absent");setStatus("Ouverture de WhatsApp…",false);const rawShare="Bonjour, voici ma boutique DIGIY MARKET : "+publicUrl;const translatedShare=typeof window.DIGIY_PRO_MARKET_TRANSLATE_MESSAGE==="function"?window.DIGIY_PRO_MARKET_TRANSLATE_MESSAGE(rawShare):rawShare;location.href="https://wa.me/?text="+encodeURIComponent(translatedShare)}catch(error){setStatus("Aucun lien public n’est enregistré pour ce compte. Ajoute-le dans Ma boutique, puis réessaie.",true);console.error("[MARKET SHARE]",error)}finally{shareButton.disabled=false}});
   })();
   </script>
+  <!-- DIGIY PRO MARKET — cockpit international 7 langues -->
+  <script src="./assets/js/pro-market-i18n-data.js?v=20260731"></script>
+  <script src="./assets/js/pro-market-i18n.js?v=20260731"></script>
 </body>
 </html>
