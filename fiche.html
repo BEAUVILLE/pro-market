@@ -1,29 +1,6 @@
 <!doctype html>
 <html lang="fr" style="visibility:hidden">
 <head>
-  <!-- DIGIY PRO MARKET — amorce langue avant guard -->
-  <script>
-  (()=>{
-    const supported=["fr","en","es","de","it","nl","ar"];
-    let lang="fr";
-    try{
-      const query=String(new URLSearchParams(location.search).get("lang")||"").toLowerCase();
-      const stored=String(localStorage.getItem("digiy-pro-market-lang")||localStorage.getItem("digiy-market-lang")||localStorage.getItem("digiy-lang")||"").toLowerCase();
-      const browser=String(navigator.language||"fr").slice(0,2).toLowerCase();
-      lang=supported.includes(query)?query:supported.includes(stored)?stored:supported.includes(browser)?browser:"fr";
-      localStorage.setItem("digiy-pro-market-lang",lang);
-      localStorage.setItem("digiy-market-lang",lang);
-      localStorage.setItem("digiy-lang",lang);
-    }catch(_){}
-    document.documentElement.lang=lang;
-    document.documentElement.dir=lang==="ar"?"rtl":"ltr";
-    window.DIGIY_PRO_MARKET_LANG=lang;
-    const login=new URL("./pin.html",location.href);
-    login.searchParams.set("lang",lang);
-    window.DIGIY_PRO_MARKET_LOGIN_URL=login.pathname+login.search;
-  })();
-  </script>
-
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="robots" content="noindex,nofollow,noarchive,nosnippet">
@@ -34,13 +11,13 @@
 window.DIGIY_MODULE="MARKET";
 window.DIGIY_ABOS_MODULE="MARKET";
 window.DIGIY_MODULE_LABEL="Je vends";
-window.DIGIY_LOGIN_URL=window.DIGIY_PRO_MARKET_LOGIN_URL||'./pin.html';
+window.DIGIY_LOGIN_URL="./pin.html";
 window.DIGIY_SUPABASE_URL="https://wesqmwjjtsefyjnluosj.supabase.co";
 window.DIGIY_SUPABASE_ANON_KEY="sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
 window.DIGIY_SUPABASE_ANON=window.DIGIY_SUPABASE_ANON_KEY;
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./guard.js?v=market-guard-20260722" onerror="location.replace(window.DIGIY_PRO_MARKET_LOGIN_URL||'./pin.html')"></script>
+<script src="./guard.js?v=market-guard-20260722" onerror="location.replace('./pin.html')"></script>
 <style>
 :root{--bg:#052f22;--bg2:#063b2b;--gold:#f4cf64;--green:#22c55e}*{box-sizing:border-box}body{margin:0;min-height:100dvh;padding:14px 12px calc(28px + env(safe-area-inset-bottom,0px));font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#fff;background:radial-gradient(760px 430px at 8% -8%,rgba(244,207,100,.24),transparent 60%),radial-gradient(680px 380px at 100% 0%,rgba(34,197,94,.17),transparent 58%),linear-gradient(180deg,var(--bg2),var(--bg))}.wrap{width:min(620px,100%);margin:0 auto}.top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}.top a,.top button{min-height:46px;padding:9px 13px;border-radius:15px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.08);color:#fff;text-decoration:none;font:inherit;font-weight:950}.head,.card{padding:20px;border:1px solid rgba(244,207,100,.28);border-radius:26px;background:rgba(255,255,255,.07);box-shadow:0 18px 46px rgba(0,0,0,.28)}.card{margin-top:14px;text-align:center}.kicker{color:#fff1a8;font-size:12px;font-weight:1000;letter-spacing:.12em;text-transform:uppercase}h1{margin:6px 0 7px;font-size:clamp(36px,9vw,56px);line-height:.98;letter-spacing:-.05em}.lead{margin:0;color:rgba(255,255,255,.78);font-weight:800;line-height:1.48}.shopName{margin-top:14px;font-size:24px;font-weight:1000;color:#fff7c2}.qrBox{margin:16px auto 0;width:min(360px,100%);padding:14px;border-radius:24px;background:#fff}.qrBox img{display:block;width:100%;height:auto}.linkLabel{margin-top:15px;color:#fff1a8;font-size:13px;font-weight:1000}.linkValue{margin-top:6px;color:#dbeafe;font-size:14px;font-weight:850;line-height:1.45;word-break:break-all}.actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:15px}.actions a,.actions button{min-height:54px;border-radius:17px;border:1px solid rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;text-align:center;padding:10px 13px;color:#fff;text-decoration:none;font:inherit;font-weight:1000;background:rgba(255,255,255,.08)}.actions .main{background:linear-gradient(135deg,var(--gold),var(--green));color:#07150f;border:0}.status{margin-top:14px;padding:12px 14px;border-radius:16px;border:1px solid rgba(244,207,100,.30);background:rgba(0,0,0,.18);color:#fde68a;font-weight:900;line-height:1.45}.status.err{border-color:rgba(239,68,68,.40);color:#fecaca}.status.ok{border-color:rgba(34,197,94,.40);color:#bbf7d0}.foot{margin-top:15px;text-align:center;color:rgba(255,255,255,.68);font-size:12px;font-weight:800;line-height:1.45}@media(max-width:500px){body{padding:0}.wrap{width:100%}.head,.card{border-radius:0}.actions{grid-template-columns:1fr}}
 </style>
@@ -118,7 +95,7 @@ async function rpcCollect(client,name,args){try{const {data,error}=await client.
 function render(url,name){
   const safe=safePublicUrl(url);
   if(!safe)throw new Error("lien_public_invalide");
-  const localized=new URL(safe);localized.searchParams.set("lang",window.DIGIY_PRO_MARKET_LANG||"fr");currentUrl=localized.toString();
+  currentUrl=safe;
   $("result").hidden=false;
   $("shopName").textContent=name||"Ma boutique MARKET";
   $("qrImg").src=qrUrl(currentUrl,620);
@@ -140,7 +117,7 @@ async function load(){
     const guard=window.DIGIY_GUARD;
     if(!guard)throw new Error("guard_absent");
     const session=await guard.ready();
-    if(!guard.isAuthenticated()||!session?.access_ok){location.replace(window.DIGIY_PRO_MARKET_LOGIN_URL||'./pin.html');return}
+    if(!guard.isAuthenticated()||!session?.access_ok){location.replace("./pin.html");return}
     const client=guard.getSb();
     if(!client)throw new Error("supabase_absent");
 
@@ -178,12 +155,9 @@ async function load(){
 }
 $("reload").addEventListener("click",load);
 $("copyLink").addEventListener("click",async()=>{if(!currentUrl)return;try{await navigator.clipboard.writeText(currentUrl);$("status").textContent="Lien public copié.";$("status").className="status ok"}catch(_){$("status").textContent=currentUrl}});
-$("shareLink").addEventListener("click",async()=>{if(!currentUrl)return;try{if(navigator.share){await navigator.share({title:$("shopName").textContent||"Boutique DIGIY MARKET",text:"Voici ma boutique DIGIY MARKET.",url:currentUrl});return}const rawShare="Voici ma boutique DIGIY MARKET : "+currentUrl;const translatedShare=typeof window.DIGIY_PRO_MARKET_TRANSLATE_MESSAGE==="function"?window.DIGIY_PRO_MARKET_TRANSLATE_MESSAGE(rawShare):rawShare;location.href="https://wa.me/?text="+encodeURIComponent(translatedShare)}catch(_){}});
+$("shareLink").addEventListener("click",async()=>{if(!currentUrl)return;try{if(navigator.share){await navigator.share({title:$("shopName").textContent||"Boutique DIGIY MARKET",text:"Voici ma boutique DIGIY MARKET.",url:currentUrl});return}location.href="https://wa.me/?text="+encodeURIComponent("Voici ma boutique DIGIY MARKET : "+currentUrl)}catch(_){}});
 await load();
 })();
 </script>
-  <!-- DIGIY PRO MARKET — cockpit international 7 langues -->
-  <script src="./assets/js/pro-market-i18n-data.js?v=20260731"></script>
-  <script src="./assets/js/pro-market-i18n.js?v=20260731"></script>
 </body>
 </html>
