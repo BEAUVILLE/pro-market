@@ -21,11 +21,15 @@ jobs:
           ref: feature/pro-market-international-complet-v1
           fetch-depth: 0
 
-      - name: Vérifier l'installateur
-        run: python3 -m py_compile tools/install_pro_market_international.py
+      - name: Vérifier les installateurs
+        run: |
+          python3 -m py_compile tools/install_pro_market_international.py
+          python3 -m py_compile tools/fix_pro_market_guard_quotes.py
 
       - name: Installer le cockpit international
-        run: python3 tools/install_pro_market_international.py
+        run: |
+          python3 tools/install_pro_market_international.py
+          python3 tools/fix_pro_market_guard_quotes.py
 
       - name: Vérifier JavaScript
         run: |
@@ -45,6 +49,8 @@ jobs:
           grep -q "DIGIY_PRO_MARKET_LOGIN_URL" fiche.html
           grep -q "market-qr-international-20260731" qr.html
           grep -q "target.searchParams.set(\"lang\",lang)" lang.html
+          ! grep -R -F 'window.DIGIY_PRO_MARKET_LOGIN_URL||"./pin.html"' index.html fiche.html produits.html boutique.html
+          grep -q "onerror=\"location.replace(window.DIGIY_PRO_MARKET_LOGIN_URL||'./pin.html')\"" index.html
 
       - name: Commit du résultat
         run: |
