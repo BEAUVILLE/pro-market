@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet"/>
+  <meta name="theme-color" content="#1e7a46"/>
+  <meta name="digiy-build" content="market-clients-v1-20260807"/>
+  <title>Mes clients • MARKET PRO</title>
+
+  <script>
+    window.DIGIY_SUPABASE_URL = "https://wesqmwjjtsefyjnluosj.supabase.co";
+    window.DIGIY_SUPABASE_ANON_KEY = "sb_publishable_tGHItRgeWDmGjnd0CK1DVQ_BIep4Ug3";
+    window.DIGIY_SUPABASE_ANON = window.DIGIY_SUPABASE_ANON_KEY;
+    window.DIGIY_MODULE = "MARKET";
+    window.DIGIY_ABOS_MODULE = "MARKET";
+    window.DIGIY_LOGIN_URL = "./pin.html";
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./guard.js?v=market-pin-exact-v5-20260722"></script>
+
+  <style>
+    :root{--bg:#1e7a46;--bg2:#155a34;--bg3:#0e4226;--gold:#c4973f;--gold2:#fff0a8;--text:#f0fff5;--muted:rgba(240,255,245,.74);--line:rgba(255,255,255,.17);--card:rgba(255,255,255,.085);--ok:#bbf7d0;--danger:#fecaca}
+    *{box-sizing:border-box}html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+    body{margin:0;min-height:100dvh;padding:calc(14px + env(safe-area-inset-top,0px)) 14px calc(28px + env(safe-area-inset-bottom,0px));color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;background:radial-gradient(600px 380px at 10% 0%,rgba(34,197,94,.20),transparent 62%),radial-gradient(480px 320px at 100% 0%,rgba(196,151,63,.16),transparent 60%),linear-gradient(180deg,var(--bg),var(--bg2) 56%,var(--bg3))}
+    a{color:inherit;text-decoration:none}button,input,textarea{font:inherit}button{cursor:pointer}.shell{width:min(640px,100%);margin:auto}.top{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center}.back,.session{min-height:42px;padding:9px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.08);color:var(--text);font-weight:900;display:inline-flex;align-items:center;justify-content:center}.title{text-align:center;font-weight:1000;letter-spacing:.04em}.session{font-size:11px;color:var(--ok);border-color:rgba(34,197,94,.35);background:rgba(34,197,94,.10)}
+    .hero{padding:30px 2px 18px}.eyebrow{color:var(--gold2);font-size:12px;font-weight:1000;letter-spacing:.14em;text-transform:uppercase}h1{margin:7px 0 0;font-size:clamp(38px,11vw,58px);line-height:.95;letter-spacing:-.045em}.intro{margin:14px 0 0;color:var(--muted);font-size:16px;font-weight:800;line-height:1.45}.privacy{margin:0 0 14px;padding:12px 14px;border-radius:17px;border:1px solid rgba(255,240,168,.28);background:rgba(255,240,168,.07);color:var(--gold2);font-size:13px;font-weight:900;line-height:1.4}
+    .toolbar{display:grid;grid-template-columns:1fr auto;gap:9px;margin-bottom:12px}.search,.field input,.field textarea{width:100%;border:1px solid var(--line);background:rgba(255,255,255,.075);color:var(--text);border-radius:16px;outline:none;font-weight:800}.search{min-height:54px;padding:13px 15px;font-size:16px}.search::placeholder,.field input::placeholder,.field textarea::placeholder{color:rgba(240,255,245,.43)}.search:focus,.field input:focus,.field textarea:focus{border-color:rgba(34,197,94,.65);box-shadow:0 0 0 3px rgba(34,197,94,.10)}
+    .btn{min-height:54px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.08);color:var(--text);padding:12px 15px;font-weight:1000;display:inline-flex;align-items:center;justify-content:center;gap:7px}.btn.primary{border-color:rgba(34,197,94,.45);background:rgba(34,197,94,.16);color:#c8fbd8}.btn.gold{border-color:rgba(255,240,168,.40);background:rgba(196,151,63,.15);color:var(--gold2)}.btn.danger{border-color:rgba(248,113,113,.30);background:rgba(248,113,113,.08);color:var(--danger)}.btn.small{min-height:44px;padding:9px 11px;font-size:14px}
+    .formCard,.client,.locked{border:1px solid var(--line);border-radius:22px;background:var(--card);box-shadow:0 18px 46px rgba(0,0,0,.23)}.formCard{display:none;padding:16px;margin-bottom:14px}.formCard.open{display:block}.formHead{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:14px}.formHead b{font-size:21px}.field{display:grid;gap:7px;margin-bottom:12px}.field label{font-size:13px;color:var(--muted);font-weight:1000}.inputRow{display:grid;grid-template-columns:1fr auto;gap:8px}.field input{min-height:52px;padding:12px 14px;font-size:16px}.field textarea{min-height:92px;padding:12px 14px;font-size:16px;resize:vertical}.mic{width:52px;min-height:52px;padding:0;font-size:22px}.hint{margin-top:4px;color:rgba(240,255,245,.52);font-size:12px;font-weight:800;line-height:1.35}.formActions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
+    .status{min-height:24px;margin:8px 2px 12px;color:var(--muted);font-size:13px;font-weight:900}.status.ok{color:var(--ok)}.status.warn{color:#fde68a}.status.bad{color:var(--danger)}.list{display:grid;gap:10px}.client{padding:14px}.clientName{font-size:21px;font-weight:1000}.clientPhone{margin-top:4px;color:#c8fbd8;font-size:15px;font-weight:900}.clientMeta{margin-top:9px;color:var(--muted);font-size:14px;font-weight:800;line-height:1.45;white-space:pre-wrap;overflow-wrap:anywhere}.clientActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.clientActions.secondary{margin-top:8px}.empty,.locked{padding:30px 16px;text-align:center;color:var(--muted);font-weight:900;line-height:1.5}.locked h2{margin:0 0 8px;color:var(--gold2);font-size:26px}.lockedActions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}footer{padding:24px 4px 4px;text-align:center;color:rgba(240,255,245,.44);font-size:12px;font-weight:800}[hidden]{display:none!important}
+    @media(max-width:390px){.session{display:none}.top{grid-template-columns:auto 1fr}.toolbar{grid-template-columns:1fr}.formActions,.clientActions,.lockedActions{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="top"><a class="back" href="./hub.html">← MENU</a><div class="title">👥 MES CLIENTS</div><div class="session" id="sessionPill">● accès</div></header>
+    <section class="hero"><div class="eyebrow">Répertoire professionnel MARKET</div><h1>Mes clients.</h1><p class="intro">Nom, téléphone, zone et une petite note. Simple comme un répertoire.</p></section>
+    <div class="privacy">🔐 Ce répertoire MARKET PRO reste séparé du carnet personnel du téléphone. Aucun contact personnel n’est importé automatiquement.</div>
+
+    <section class="locked" id="locked" hidden>
+      <h2>🔐 Accès MARKET fermé</h2>
+      <p>Ouvre ton accès vendeur avec ton PIN. Cette page ne supprime aucune session et ne redirige pas automatiquement.</p>
+      <div class="lockedActions"><a class="btn" href="./hub.html">← Menu MARKET</a><a class="btn gold" href="./pin.html">Entrer le PIN</a></div>
+    </section>
+
+    <div id="app" hidden>
+      <section class="toolbar"><input class="search" id="search" type="search" inputmode="search" autocomplete="off" placeholder="🔎 Rechercher un client"/><button class="btn primary" id="addBtn" type="button">＋ Ajouter</button></section>
+      <section class="formCard" id="formCard">
+        <div class="formHead"><b id="formTitle">Nouveau client</b><button class="btn small" id="closeForm" type="button">✕</button></div>
+        <form id="clientForm">
+          <input type="hidden" id="clientId"/>
+          <div class="field"><label for="clientName">Nom</label><div class="inputRow"><input id="clientName" maxlength="80" autocomplete="off" placeholder="Ex. Fatou" required/><button class="btn mic" type="button" data-dictate="clientName" aria-label="Dicter le nom">🎙️</button></div></div>
+          <div class="field"><label for="clientPhone">Téléphone / WhatsApp</label><input id="clientPhone" type="tel" inputmode="tel" maxlength="30" autocomplete="off" placeholder="Ex. 77 123 45 67" required/></div>
+          <div class="field"><label for="clientZone">Zone <span style="opacity:.6">(facultatif)</span></label><div class="inputRow"><input id="clientZone" maxlength="100" autocomplete="off" placeholder="Ex. Saly, Mbour"/><button class="btn mic" type="button" data-dictate="clientZone" aria-label="Dicter la zone">🎙️</button></div></div>
+          <div class="field"><label for="clientNote">Petite note <span style="opacity:.6">(facultatif)</span></label><div class="inputRow"><textarea id="clientNote" maxlength="500" placeholder="Ex. Demande souvent des draps 2 places"></textarea><button class="btn mic" type="button" data-dictate="clientNote" aria-label="Dicter la note">🎙️</button></div><div class="hint">Si la dictée DIGIY n’est pas disponible, utilise le micro du clavier du téléphone.</div></div>
+          <div class="formActions"><button class="btn" id="cancelBtn" type="button">Annuler</button><button class="btn primary" type="submit">✅ Enregistrer</button></div>
+        </form>
+      </section>
+      <div class="status" id="status" aria-live="polite"></div><section class="list" id="clientList"></section>
+    </div>
+    <footer>Répertoire professionnel MARKET PRO · séparé des contacts personnels</footer>
+  </main>
+
+<script>
+(()=>{
+  "use strict";
+  const $=id=>document.getElementById(id);
+  const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+  const digits=v=>String(v||"").replace(/\D/g,"");
+  const normPhone=v=>{const d=digits(v);if(d.length===9)return"221"+d;return d};
+  const normSlug=v=>String(v||"").trim().toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9-_]/g,"").replace(/-+/g,"-").replace(/^[-_]+|[-_]+$/g,"");
+  let owner="", clients=[];
+
+  function key(){return owner?"DIGIY_MARKET_CLIENTS_V1::"+owner:""}
+  function read(){try{const rows=JSON.parse(localStorage.getItem(key())||"[]");return Array.isArray(rows)?rows:[]}catch(_){return[]}}
+  function write(rows){localStorage.setItem(key(),JSON.stringify(rows))}
+  function uid(){try{return crypto.randomUUID()}catch(_){return"c_"+Date.now().toString(36)+Math.random().toString(36).slice(2,8)}}
+  function status(text,kind=""){const el=$("status");el.textContent=text||"";el.className="status"+(kind?" "+kind:"")}
+  function wa(v){let d=digits(v);if(d.length===9)d="221"+d;return d}
+  function tel(v){const raw=String(v||"").trim();if(raw.startsWith("+"))return"+"+digits(raw);if(raw.startsWith("00"))return"+"+digits(raw).slice(2);return digits(raw)}
+
+  function openForm(row=null){$("formCard").classList.add("open");$("formTitle").textContent=row?"Modifier le client":"Nouveau client";$("clientId").value=row?.id||"";$("clientName").value=row?.name||"";$("clientPhone").value=row?.phone||"";$("clientZone").value=row?.zone||"";$("clientNote").value=row?.note||"";setTimeout(()=>$("clientName").focus(),30)}
+  function closeForm(){$("clientForm").reset();$("clientId").value="";$("formCard").classList.remove("open")}
+
+  function render(){
+    const q=String($("search").value||"").trim().toLowerCase();
+    const rows=clients.filter(c=>!q||[c.name,c.phone,c.zone,c.note].some(v=>String(v||"").toLowerCase().includes(q))).sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"fr",{sensitivity:"base"}));
+    const box=$("clientList");
+    if(!rows.length){box.innerHTML='<div class="empty">'+(clients.length?'Aucun client trouvé.':'👥 Aucun client pour le moment.<br>Appuie sur <b>Ajouter</b>.')+'</div>';status(clients.length?"":"Répertoire enregistré uniquement pour ce vendeur sur cet appareil.","warn");return}
+    box.innerHTML=rows.map(c=>{const meta=[c.zone?"📍 "+esc(c.zone):"",c.note?"📝 "+esc(c.note):""].filter(Boolean).join("\n");return `<article class="client" data-id="${esc(c.id)}"><div class="clientName">${esc(c.name||"Client")}</div><div class="clientPhone">${esc(c.phone||"")}</div>${meta?`<div class="clientMeta">${meta}</div>`:""}<div class="clientActions"><a class="btn primary small" href="tel:${esc(tel(c.phone))}">📞 Appeler</a><a class="btn gold small" href="https://wa.me/${esc(wa(c.phone))}" target="_blank" rel="noopener noreferrer">🟢 WhatsApp</a></div><div class="clientActions secondary"><button class="btn small" type="button" data-edit="${esc(c.id)}">✏️ Modifier</button><button class="btn danger small" type="button" data-delete="${esc(c.id)}">🗑️ Supprimer</button></div></article>`}).join("");
+    status(rows.length+" client"+(rows.length>1?"s":"")+" dans ce répertoire.","ok");
+  }
+
+  function save(e){
+    e.preventDefault();
+    const name=String($("clientName").value||"").trim(), phone=String($("clientPhone").value||"").trim(), zone=String($("clientZone").value||"").trim(), note=String($("clientNote").value||"").trim();
+    if(!name){status("Ajoute le nom du client.","bad");return}
+    if(digits(phone).length<8){status("Vérifie le numéro du client.","bad");return}
+    const id=$("clientId").value, phoneKey=digits(phone), duplicate=clients.find(c=>c.id!==id&&digits(c.phone)===phoneKey);
+    if(duplicate){status("Ce numéro existe déjà dans ton répertoire.","warn");return}
+    const now=new Date().toISOString();
+    if(id){const i=clients.findIndex(c=>c.id===id);if(i>=0)clients[i]={...clients[i],name,phone,zone,note,updated_at:now}}
+    else clients.push({id:uid(),name,phone,zone,note,created_at:now,updated_at:now});
+    try{write(clients);closeForm();render();status("✅ Client enregistré dans ton répertoire MARKET.","ok")}catch(_){status("Enregistrement impossible sur cet appareil.","bad")}
+  }
+
+  function startDictation(targetId,button){
+    const Recognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+    if(!Recognition){$(targetId)?.focus();status("Utilise le micro du clavier du téléphone pour dicter.","warn");return}
+    try{const r=new Recognition();r.lang="fr-FR";r.interimResults=false;r.maxAlternatives=1;button.disabled=true;button.textContent="●";r.onresult=e=>{const text=e.results?.[0]?.[0]?.transcript||"";const input=$(targetId);if(input)input.value=(input.value?input.value+" ":"")+text};r.onerror=()=>status("Dictée indisponible. Utilise le micro du clavier.","warn");r.onend=()=>{button.disabled=false;button.textContent="🎙️"};r.start()}catch(_){button.disabled=false;button.textContent="🎙️"}
+  }
+
+  $("addBtn")?.addEventListener("click",()=>openForm());$("closeForm")?.addEventListener("click",closeForm);$("cancelBtn")?.addEventListener("click",closeForm);$("clientForm")?.addEventListener("submit",save);$("search")?.addEventListener("input",render);
+  document.addEventListener("click",e=>{const edit=e.target.closest("[data-edit]");if(edit){const row=clients.find(c=>c.id===edit.dataset.edit);if(row)openForm(row);return}const del=e.target.closest("[data-delete]");if(del){const row=clients.find(c=>c.id===del.dataset.delete);if(!row)return;if(confirm("Supprimer ce client du répertoire MARKET ?")){clients=clients.filter(c=>c.id!==row.id);write(clients);render();status("Client supprimé.","ok")}}const mic=e.target.closest("[data-dictate]");if(mic)startDictation(mic.dataset.dictate,mic)});
+
+  async function boot(){
+    let state={};
+    try{const guard=window.DIGIY_GUARD;if(guard?.ready){const out=guard.ready();state=out&&typeof out.then==="function"?await out:(out||guard.state||{})}else state=guard?.state||{}}catch(_){state={}}
+    const access=!!(state.access_ok||state.access||state.pin_access||state.has_access);
+    const phone=normPhone(state.phone||window.DIGIY_GUARD?.getPhone?.()||"");
+    const slug=normSlug(state.slug||window.DIGIY_GUARD?.getSlug?.()||"");
+    owner=phone?"phone:"+phone:slug?"slug:"+slug:"";
+    if(!access||!owner){$("locked").hidden=false;$("sessionPill").textContent="● accès fermé";return}
+    $("app").hidden=false;$("sessionPill").textContent="● session ouverte";clients=read();render();
+  }
+  boot();
+})();
+</script>
+</body>
+</html>
