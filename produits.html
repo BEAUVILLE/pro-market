@@ -866,6 +866,7 @@
         <div class="pill" id="pillStatus">Accès : <b>…</b></div>
         <button class="btn" id="btnReloadTop" type="button">🔄 Recharger</button>
         <a class="btn" id="btnDashboardTop" href="./cockpit.html">🏠 Accueil</a>
+        <select id="productLanguage" aria-label="Langue / Language"><option value="fr">FR</option><option value="en">EN</option><option value="es">ES</option><option value="pt">PT</option><option value="it">IT</option><option value="de">DE</option><option value="nl">NL</option><option value="ar">AR</option><option value="wo">WO</option><option value="zh">ZH</option></select>
         <a class="btn" id="btnPin" href="./pin.html">🔑 Accès</a>
       </div>
     </div>
@@ -1379,7 +1380,7 @@
   }
 
   function updateLinks(){
-    $("btnPin").href = "./pin.html";
+    $("btnPin").href = "./pin.html?lang="+encodeURIComponent(productLanguage);
     $("btnDashboardTop").href = "./cockpit.html";
     $("btnCockpit").href = "./cockpit.html";
     $("btnBoutique").href = "./boutique.html";
@@ -1556,18 +1557,44 @@
     $("emptyState").style.display = "none";
   }
 
+  const productAccessLanguages={
+  "fr": "Accès protégé|Passe par ton accès sécurisé pour ouvrir les produits.|Aucun identifiant détecté.|Accès non ouvert. Passe par ton code.|Accès|Mes produits|Ma boutique",
+  "en": "Protected access|Use your secure sign-in to open your products.|No identifier found.|Access is locked. Enter your code.|Sign in|My products|My shop",
+  "es": "Acceso protegido|Entra por el acceso seguro para abrir tus productos.|No se detectó ningún identificador.|Acceso bloqueado. Introduce tu código.|Entrar|Mis productos|Mi tienda",
+  "pt": "Acesso protegido|Use o acesso seguro para abrir os seus produtos.|Nenhum identificador encontrado.|Acesso bloqueado. Introduza o seu código.|Entrar|Os meus produtos|A minha loja",
+  "it": "Accesso protetto|Accedi in modo sicuro per aprire i tuoi prodotti.|Nessun identificativo trovato.|Accesso bloccato. Inserisci il codice.|Accedi|I miei prodotti|Il mio negozio",
+  "de": "Geschützter Zugang|Melde dich sicher an, um deine Produkte zu öffnen.|Keine Kennung gefunden.|Zugang gesperrt. Gib deinen Code ein.|Anmelden|Meine Produkte|Mein Shop",
+  "nl": "Beveiligde toegang|Meld je veilig aan om je producten te openen.|Geen identificatie gevonden.|Toegang vergrendeld. Voer je code in.|Aanmelden|Mijn producten|Mijn winkel",
+  "ar": "وصول محمي|استخدم تسجيل الدخول الآمن لفتح منتجاتك.|لم يُعثر على معرّف.|الوصول مقفل. أدخل رمزك.|تسجيل الدخول|منتجاتي|متجري",
+  "wo": "Duggukaay bu ñu aar|Jaar ci sa duggukaay bu ñu aar ngir ubbi say yëfi jaay.|Gisuñu sa màndarga.|Duggukaay bi tëju na. Dugal sa kood.|Dugg|Sama yëfi jaay|Sama bitig",
+  "zh": "受保护的访问|请通过安全入口登录后查看商品。|未找到店铺标识。|访问已锁定，请输入验证码。|登录|我的商品|我的店铺"
+};
+  const requestedProductLanguage=(new URL(location.href).searchParams.get('lang')||'').toLowerCase();
+  const productLanguage=Object.hasOwn(productAccessLanguages,requestedProductLanguage)?requestedProductLanguage:'fr';
+  const productAccessCopy=productAccessLanguages[productLanguage].split('|');
+  document.documentElement.lang=productLanguage;
+  document.documentElement.dir=productLanguage==='ar'?'rtl':'ltr';
+  const productLanguagePicker=$("productLanguage");
+  productLanguagePicker.value=productLanguage;
+  productLanguagePicker.addEventListener('change',()=>{
+    const url=new URL(location.href);
+    url.searchParams.set('lang',productLanguagePicker.value);
+    location.assign(url.href);
+  });
+  $("btnPin").textContent="🔑 "+productAccessCopy[4];
+
   function applyBlockedState(reason){
     ACCESS_OK = false;
     CURRENT = null;
     clearCatalogue();
 
     $("dot").className = "statusDot bad";
-    $("statusLine").textContent = "Accès protégé";
+    $("statusLine").textContent = productAccessCopy[0];
     $("expiryLine").textContent = reason || "Passe par ton code pour ouvrir la vraie vue vendeur.";
     $("pillStatus").innerHTML = 'Accès : <b>Bloqué</b>';
-    $("brandTitle").textContent = "Mes produits";
+    $("brandTitle").textContent = productAccessCopy[5];
     $("brandSub").textContent = ACCESS_SLUG ? "Compte reconnu • données protégées" : "Ce que je vends";
-    $("shopName").textContent = "Ma boutique";
+    $("shopName").textContent = productAccessCopy[6];
     $("metaLine").innerHTML = '<span>Ville : —</span><span>•</span><span>Vitrine : —</span>';
 
     $("statActive").textContent = "0";
@@ -2378,14 +2405,14 @@
       updateLinks();
 
       if (!ACCESS_SLUG){
-        applyBlockedState("Ajoute ton identifiant ou passe par ton accès sécurisé.");
-        setMsgMain("⚠️ Aucun identifiant détecté.", "warn");
+        applyBlockedState(productAccessCopy[1]);
+        setMsgMain("⚠️ "+productAccessCopy[2], "warn");
         return;
       }
 
       if (!ACCESS_GRANTED){
         applyBlockedState("Passe par ton code pour ouvrir tes vraies données.");
-        setMsgMain("⚠️ Accès non ouvert. Passe par ton code.", "warn");
+        setMsgMain("⚠️ "+productAccessCopy[3], "warn");
         return;
       }
 
