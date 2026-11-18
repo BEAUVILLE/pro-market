@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
-  <title>DIGIY MARKET — Accueil commerçant</title>
+  <title>DIGIY MARKET — Accès historique</title>
   <meta name="description" content="Accueil simple DIGIY MARKET : produits, clients, boutique, QR et partage WhatsApp."/>
   <meta name="robots" content="noindex,nofollow,noarchive,nosnippet"/>
   <meta name="theme-color" content="#063b2b"/>
@@ -28,6 +28,10 @@
   <main>
     <h1 data-market-copy="0">Bonjour commerçant.</h1>
     <p><label for="marketLanguage">🌐</label> <select id="marketLanguage" aria-label="Langue / Language"><option value="fr">FR</option><option value="en">EN</option><option value="es">ES</option><option value="pt">PT</option><option value="it">IT</option><option value="de">DE</option><option value="nl">NL</option><option value="ar">AR</option><option value="wo">WO</option><option value="zh">ZH</option></select></p>
+    <p id="marketLegacyLabel"><strong>Accès historique MARKET</strong></p>
+    <nav aria-label="MON COMMERCE">
+      <a id="monCommerceEntry" class="primary" href="https://mon-commerce.digiylyfe.com/">Ouvrir MON COMMERCE</a>
+    </nav>
     <nav aria-label="Actions commerçant">
       <a class="primary" href="./produits.html?v=market-produits-world10-20261118"><span data-market-copy="1">Mes produits</span></a>
       <a href="./clients.html?v=market-clients-v1-20260807"><span data-market-copy="2">Mes clients</span></a>
@@ -66,6 +70,51 @@
       target.searchParams.set('lang',lang);
       link.href=target.href;
     });
+    const legacyEntryLabels={
+  "fr": [
+    "Accès historique MARKET",
+    "Ouvrir MON COMMERCE"
+  ],
+  "en": [
+    "Legacy MARKET access",
+    "Open MON COMMERCE"
+  ],
+  "es": [
+    "Acceso anterior a MARKET",
+    "Abrir MON COMMERCE"
+  ],
+  "pt": [
+    "Acesso anterior ao MARKET",
+    "Abrir MON COMMERCE"
+  ],
+  "it": [
+    "Accesso precedente a MARKET",
+    "Apri MON COMMERCE"
+  ],
+  "de": [
+    "Bisheriger MARKET-Zugang",
+    "MON COMMERCE öffnen"
+  ],
+  "nl": [
+    "Oude MARKET-toegang",
+    "Open MON COMMERCE"
+  ],
+  "ar": [
+    "مدخل MARKET القديم",
+    "فتح MON COMMERCE"
+  ],
+  "wo": [
+    "Duggukaayu MARKET bu njëkk bi",
+    "Ubbi MON COMMERCE"
+  ],
+  "zh": [
+    "旧版 MARKET 入口",
+    "打开 MON COMMERCE"
+  ]
+};
+    const [legacyLabel, commerceLabel]=legacyEntryLabels[lang];
+    document.getElementById('marketLegacyLabel').textContent=legacyLabel;
+    document.getElementById('monCommerceEntry').textContent=commerceLabel;
     const language=document.getElementById('marketLanguage');
     language.value=lang;
     language.addEventListener('change',()=>{
