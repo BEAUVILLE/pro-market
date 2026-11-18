@@ -848,6 +848,8 @@
     }
 
     .loading{opacity:.72;pointer-events:none}
+      .productsLanguageBar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 12px;margin:8px 0;border-radius:12px;background:#f3f6f2;color:#073f32;font-weight:700}
+    .productsLanguageBar select{min-height:44px;width:auto;min-width:72px;color:#073f32;background:white;border:1px solid #b6c8bf;border-radius:8px;padding-inline:10px;font-size:16px}
   </style>
 </head>
 
@@ -866,12 +868,13 @@
         <div class="pill" id="pillStatus">Accès : <b>…</b></div>
         <button class="btn" id="btnReloadTop" type="button">🔄 Recharger</button>
         <a class="btn" id="btnDashboardTop" href="./cockpit.html">🏠 Accueil</a>
-        <select id="productLanguage" aria-label="Langue / Language"><option value="fr">FR</option><option value="en">EN</option><option value="es">ES</option><option value="pt">PT</option><option value="it">IT</option><option value="de">DE</option><option value="nl">NL</option><option value="ar">AR</option><option value="wo">WO</option><option value="zh">ZH</option></select>
+        
         <a class="btn" id="btnPin" href="./pin.html">🔑 Accès</a>
       </div>
     </div>
 
 
+    <div class="productsLanguageBar"><label for="productLanguage">🌐 <span>Langue / Language</span></label><select id="productLanguage" aria-label="Langue / Language"><option value="fr">FR</option><option value="en">EN</option><option value="es">ES</option><option value="pt">PT</option><option value="it">IT</option><option value="de">DE</option><option value="nl">NL</option><option value="ar">AR</option><option value="wo">WO</option><option value="zh">ZH</option></select></div>
     <div class="pageSwitch" id="pageSwitch" aria-label="Portes rapides MARKET">
       <button class="pageBtn active" type="button" data-view="home"><b>🏠</b><span>Accueil</span></button>
       <button class="pageBtn" type="button" data-view="add"><b>➕</b><span>Ajouter</span></button>
