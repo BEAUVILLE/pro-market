@@ -34,8 +34,8 @@
 </head>
 <body>
   <main class="shell">
-    <header class="top"><a class="back" href="./hub.html">← MENU</a><div class="title">👥 MES CLIENTS</div><div class="session" id="sessionPill">● accès</div></header>
-    <section class="hero"><div class="eyebrow">Répertoire professionnel MARKET</div><h1>Mes clients.</h1><p class="intro">Nom, téléphone, zone et une petite note. Simple comme un répertoire.</p></section>
+    <header class="top"><a class="back" data-customer-copy="18" href="./hub.html">← MENU</a><div class="title">👥 MES CLIENTS</div><div class="session" id="sessionPill">● accès</div></header>
+    <section class="hero"><div class="eyebrow" data-customer-copy="1">Répertoire professionnel MARKET</div><h1 data-customer-copy="0">Mes clients.</h1><p class="intro">Nom, téléphone, zone et une petite note. Simple comme un répertoire.</p></section>
     <div class="privacy">🔐 Ce répertoire MARKET PRO reste séparé du carnet personnel du téléphone. Aucun contact personnel n’est importé automatiquement.</div>
 
     <section class="locked" id="locked" hidden>
@@ -45,16 +45,16 @@
     </section>
 
     <div id="app" hidden>
-      <section class="toolbar"><input class="search" id="search" type="search" inputmode="search" autocomplete="off" placeholder="🔎 Rechercher un client"/><button class="btn primary" id="addBtn" type="button">＋ Ajouter</button></section>
+      <section class="toolbar"><input class="search" id="search" data-customer-copy="2" type="search" inputmode="search" autocomplete="off" placeholder="🔎 Rechercher un client"/><button class="btn primary" id="addBtn" data-customer-copy="3" type="button">＋ Ajouter</button></section>
       <section class="formCard" id="formCard">
-        <div class="formHead"><b id="formTitle">Nouveau client</b><button class="btn small" id="closeForm" type="button">✕</button></div>
+        <div class="formHead"><b id="formTitle" data-customer-copy="4">Nouveau client</b><button class="btn small" id="closeForm" type="button">✕</button></div>
         <form id="clientForm">
           <input type="hidden" id="clientId"/>
-          <div class="field"><label for="clientName">Nom</label><div class="inputRow"><input id="clientName" maxlength="80" autocomplete="off" placeholder="Ex. Fatou" required/><button class="btn mic" type="button" data-dictate="clientName" aria-label="Dicter le nom">🎙️</button></div></div>
-          <div class="field"><label for="clientPhone">Téléphone / WhatsApp</label><input id="clientPhone" type="tel" inputmode="tel" maxlength="30" autocomplete="off" placeholder="Ex. 77 123 45 67" required/></div>
-          <div class="field"><label for="clientZone">Zone <span style="opacity:.6">(facultatif)</span></label><div class="inputRow"><input id="clientZone" maxlength="100" autocomplete="off" placeholder="Ex. Saly, Mbour"/><button class="btn mic" type="button" data-dictate="clientZone" aria-label="Dicter la zone">🎙️</button></div></div>
-          <div class="field"><label for="clientNote">Petite note <span style="opacity:.6">(facultatif)</span></label><div class="inputRow"><textarea id="clientNote" maxlength="500" placeholder="Ex. Demande souvent des draps 2 places"></textarea><button class="btn mic" type="button" data-dictate="clientNote" aria-label="Dicter la note">🎙️</button></div><div class="hint">Si la dictée DIGIY n’est pas disponible, utilise le micro du clavier du téléphone.</div></div>
-          <div class="formActions"><button class="btn" id="cancelBtn" type="button">Annuler</button><button class="btn primary" type="submit">✅ Enregistrer</button></div>
+          <div class="field"><label for="clientName" data-customer-copy="6">Nom</label><div class="inputRow"><input id="clientName" maxlength="80" autocomplete="off" placeholder="Ex. Fatou" required/><button class="btn mic" type="button" data-dictate="clientName" aria-label="Dicter le nom">🎙️</button></div></div>
+          <div class="field"><label for="clientPhone" data-customer-copy="7">Téléphone / WhatsApp</label><input id="clientPhone" type="tel" inputmode="tel" maxlength="30" autocomplete="off" placeholder="Ex. 77 123 45 67" required/></div>
+          <div class="field"><label for="clientZone"><span data-customer-copy="8">Zone</span> <span style="opacity:.6" data-customer-copy="10">(facultatif)</span></label><div class="inputRow"><input id="clientZone" maxlength="100" autocomplete="off" placeholder="Ex. Saly, Mbour"/><button class="btn mic" type="button" data-dictate="clientZone" aria-label="Dicter la zone">🎙️</button></div></div>
+          <div class="field"><label for="clientNote"><span data-customer-copy="9">Petite note</span> <span style="opacity:.6" data-customer-copy="10">(facultatif)</span></label><div class="inputRow"><textarea id="clientNote" maxlength="500" placeholder="Ex. Demande souvent des draps 2 places"></textarea><button class="btn mic" type="button" data-dictate="clientNote" aria-label="Dicter la note">🎙️</button></div><div class="hint">Si la dictée DIGIY n’est pas disponible, utilise le micro du clavier du téléphone.</div></div>
+          <div class="formActions"><button class="btn" id="cancelBtn" data-customer-copy="11" type="button">Annuler</button><button class="btn primary" type="submit" data-customer-copy="12">✅ Enregistrer</button></div>
         </form>
       </section>
       <div class="status" id="status" aria-live="polite"></div><section class="list" id="clientList"></section>
@@ -80,7 +80,38 @@
   function wa(v){let d=digits(v);if(d.length===9)d="221"+d;return d}
   function tel(v){const raw=String(v||"").trim();if(raw.startsWith("+"))return"+"+digits(raw);if(raw.startsWith("00"))return"+"+digits(raw).slice(2);return digits(raw)}
 
-  function openForm(row=null){$("formCard").classList.add("open");$("formTitle").textContent=row?"Modifier le client":"Nouveau client";$("clientId").value=row?.id||"";$("clientName").value=row?.name||"";$("clientPhone").value=row?.phone||"";$("clientZone").value=row?.zone||"";$("clientNote").value=row?.note||"";setTimeout(()=>$("clientName").focus(),30)}
+  const customerLanguages={
+  "en": "My customers|Customer directory|Search customers|Add|New customer|Edit customer|Name|Phone / WhatsApp|Area|Short note|Optional|Cancel|Save|Edit|Delete|Add the customer’s name.|Check the customer’s number.|Customer saved.|Menu",
+  "es": "Mis clientes|Directorio de clientes|Buscar clientes|Añadir|Nuevo cliente|Editar cliente|Nombre|Teléfono / WhatsApp|Zona|Nota breve|Opcional|Cancelar|Guardar|Editar|Eliminar|Indica el nombre del cliente.|Revisa el número del cliente.|Cliente guardado.|Menú",
+  "pt": "Os meus clientes|Diretório de clientes|Pesquisar clientes|Adicionar|Novo cliente|Editar cliente|Nome|Telefone / WhatsApp|Zona|Nota breve|Opcional|Cancelar|Guardar|Editar|Eliminar|Indique o nome do cliente.|Verifique o número do cliente.|Cliente guardado.|Menu",
+  "it": "I miei clienti|Rubrica clienti|Cerca clienti|Aggiungi|Nuovo cliente|Modifica cliente|Nome|Telefono / WhatsApp|Zona|Nota breve|Facoltativo|Annulla|Salva|Modifica|Elimina|Inserisci il nome del cliente.|Controlla il numero del cliente.|Cliente salvato.|Menu",
+  "de": "Meine Kunden|Kundenverzeichnis|Kunden suchen|Hinzufügen|Neuer Kunde|Kunde bearbeiten|Name|Telefon / WhatsApp|Gebiet|Kurze Notiz|Optional|Abbrechen|Speichern|Bearbeiten|Löschen|Gib den Kundennamen ein.|Prüfe die Kundennummer.|Kunde gespeichert.|Menü",
+  "nl": "Mijn klanten|Klantenlijst|Klanten zoeken|Toevoegen|Nieuwe klant|Klant bewerken|Naam|Telefoon / WhatsApp|Gebied|Korte notitie|Optioneel|Annuleren|Opslaan|Bewerken|Verwijderen|Vul de naam van de klant in.|Controleer het nummer van de klant.|Klant opgeslagen.|Menu",
+  "ar": "عملائي|دليل العملاء|البحث عن عميل|إضافة|عميل جديد|تعديل العميل|الاسم|الهاتف / واتساب|المنطقة|ملاحظة قصيرة|اختياري|إلغاء|حفظ|تعديل|حذف|أدخل اسم العميل.|تحقق من رقم العميل.|تم حفظ العميل.|القائمة",
+  "wo": "Sama kiliyaan yi|Téereb kiliyaan yi|Seet kiliyaan|Yokk|Kiliyaan bu bees|Soppi kiliyaan bi|Tur|Telefon / WhatsApp|Gox|Kàddu gu gàtt|Boo bëggee|Neenal|Denc|Soppi|Far|Dugal turu kiliyaan bi.|Seetal nimero kiliyaan bi.|Denc nañu kiliyaan bi.|Menu",
+  "zh": "我的客户|客户通讯录|搜索客户|添加|新客户|编辑客户|姓名|电话 / WhatsApp|区域|简短备注|选填|取消|保存|编辑|删除|请输入客户姓名。|请核对客户号码。|客户已保存。|菜单"
+};
+const requestedCustomerLang=(new URL(location.href).searchParams.get('lang')||'').toLowerCase();
+const customerLang=Object.hasOwn(customerLanguages,requestedCustomerLang)?requestedCustomerLang:'fr';
+const customerCopy=customerLanguages[customerLang]?.split('|');
+const customerText=(index,french)=>customerCopy?.[index]??french;
+document.documentElement.lang=customerLang;
+document.documentElement.dir=customerLang==='ar'?'rtl':'ltr';
+if(customerCopy){
+  document.title=customerCopy[0]+' • MARKET PRO';
+  document.querySelector('.top .title').textContent='👥 '+customerCopy[0];
+  document.querySelectorAll('[data-customer-copy]').forEach(el=>{
+    const index=Number(el.dataset.customerCopy);
+    if(index===2)el.placeholder=customerCopy[index];
+    else el.textContent=customerCopy[index];
+  });
+}
+document.querySelectorAll('a[href="./hub.html"],a[href="./pin.html"]').forEach(link=>{
+  const target=new URL(link.href,location.href);
+  target.searchParams.set('lang',customerLang);
+  link.href=target.href;
+});
+function openForm(row=null){$("formCard").classList.add("open");$("formTitle").textContent=row?customerText(5,"Modifier le client"):customerText(4,"Nouveau client");$("clientId").value=row?.id||"";$("clientName").value=row?.name||"";$("clientPhone").value=row?.phone||"";$("clientZone").value=row?.zone||"";$("clientNote").value=row?.note||"";setTimeout(()=>$("clientName").focus(),30)}
   function closeForm(){$("clientForm").reset();$("clientId").value="";$("formCard").classList.remove("open")}
 
   function render(){
@@ -88,21 +119,21 @@
     const rows=clients.filter(c=>!q||[c.name,c.phone,c.zone,c.note].some(v=>String(v||"").toLowerCase().includes(q))).sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"fr",{sensitivity:"base"}));
     const box=$("clientList");
     if(!rows.length){box.innerHTML='<div class="empty">'+(clients.length?'Aucun client trouvé.':'👥 Aucun client pour le moment.<br>Appuie sur <b>Ajouter</b>.')+'</div>';status(clients.length?"":"Répertoire enregistré uniquement pour ce vendeur sur cet appareil.","warn");return}
-    box.innerHTML=rows.map(c=>{const meta=[c.zone?"📍 "+esc(c.zone):"",c.note?"📝 "+esc(c.note):""].filter(Boolean).join("\n");return `<article class="client" data-id="${esc(c.id)}"><div class="clientName">${esc(c.name||"Client")}</div><div class="clientPhone">${esc(c.phone||"")}</div>${meta?`<div class="clientMeta">${meta}</div>`:""}<div class="clientActions"><a class="btn primary small" href="tel:${esc(tel(c.phone))}">📞 Appeler</a><a class="btn gold small" href="https://wa.me/${esc(wa(c.phone))}" target="_blank" rel="noopener noreferrer">🟢 WhatsApp</a></div><div class="clientActions secondary"><button class="btn small" type="button" data-edit="${esc(c.id)}">✏️ Modifier</button><button class="btn danger small" type="button" data-delete="${esc(c.id)}">🗑️ Supprimer</button></div></article>`}).join("");
+    box.innerHTML=rows.map(c=>{const meta=[c.zone?"📍 "+esc(c.zone):"",c.note?"📝 "+esc(c.note):""].filter(Boolean).join("\n");return `<article class="client" data-id="${esc(c.id)}"><div class="clientName">${esc(c.name||"Client")}</div><div class="clientPhone">${esc(c.phone||"")}</div>${meta?`<div class="clientMeta">${meta}</div>`:""}<div class="clientActions"><a class="btn primary small" href="tel:${esc(tel(c.phone))}">📞 Appeler</a><a class="btn gold small" href="https://wa.me/${esc(wa(c.phone))}" target="_blank" rel="noopener noreferrer">🟢 WhatsApp</a></div><div class="clientActions secondary"><button class="btn small" type="button" data-edit="${esc(c.id)}">✏️ ${esc(customerText(13,'Modifier'))}</button><button class="btn danger small" type="button" data-delete="${esc(c.id)}">🗑️ ${esc(customerText(14,'Supprimer'))}</button></div></article>`}).join("");
     status(rows.length+" client"+(rows.length>1?"s":"")+" dans ce répertoire.","ok");
   }
 
   function save(e){
     e.preventDefault();
     const name=String($("clientName").value||"").trim(), phone=String($("clientPhone").value||"").trim(), zone=String($("clientZone").value||"").trim(), note=String($("clientNote").value||"").trim();
-    if(!name){status("Ajoute le nom du client.","bad");return}
-    if(digits(phone).length<8){status("Vérifie le numéro du client.","bad");return}
+    if(!name){status(customerText(15,"Ajoute le nom du client."),"bad");return}
+    if(digits(phone).length<8){status(customerText(16,"Vérifie le numéro du client."),"bad");return}
     const id=$("clientId").value, phoneKey=digits(phone), duplicate=clients.find(c=>c.id!==id&&digits(c.phone)===phoneKey);
     if(duplicate){status("Ce numéro existe déjà dans ton répertoire.","warn");return}
     const now=new Date().toISOString();
     if(id){const i=clients.findIndex(c=>c.id===id);if(i>=0)clients[i]={...clients[i],name,phone,zone,note,updated_at:now}}
     else clients.push({id:uid(),name,phone,zone,note,created_at:now,updated_at:now});
-    try{write(clients);closeForm();render();status("✅ Client enregistré dans ton répertoire MARKET.","ok")}catch(_){status("Enregistrement impossible sur cet appareil.","bad")}
+    try{write(clients);closeForm();render();status(customerText(17,"✅ Client enregistré dans ton répertoire MARKET."),"ok")}catch(_){status("Enregistrement impossible sur cet appareil.","bad")}
   }
 
   function startDictation(targetId,button){
